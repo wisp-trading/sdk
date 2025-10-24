@@ -1,7 +1,7 @@
 package strategy
 
 import (
-	"kronos/sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 )
 
 // StrategyType represents the type of trading strategy

@@ -1,8 +1,7 @@
 package connector
 
 import (
-	"kronos/sdk/pkg/types/portfolio"
-
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/shopspring/decimal"
 )
 

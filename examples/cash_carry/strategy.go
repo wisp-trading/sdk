@@ -1,13 +1,13 @@
 package cash_carry
 
 import (
-	"kronos/sdk/pkg/types/connector"
-	"kronos/sdk/pkg/types/logging"
-	"kronos/sdk/pkg/types/portfolio"
-	"kronos/sdk/pkg/types/portfolio/store"
-	"kronos/sdk/pkg/types/strategy"
 	"time"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio/store"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )

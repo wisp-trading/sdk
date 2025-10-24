@@ -2,7 +2,8 @@ package connector
 
 import (
 	"context"
-	"kronos/sdk/pkg/types/portfolio"
+
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
 // WebSocketConnector extends the base Connector with real-time capabilities

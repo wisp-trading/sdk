@@ -2,10 +2,10 @@ package logging
 
 import (
 	"fmt"
-	"kronos/sdk/pkg/types/logging"
 	"path/filepath"
 	"runtime"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"go.uber.org/zap"
 )
 

@@ -1,10 +1,11 @@
 package store
 
 import (
-	"kronos/sdk/pkg/types/connector"
-	"kronos/sdk/pkg/types/portfolio"
 	"sync/atomic"
 	"time"
+
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
 // Store defines the interface for asset market data operations
