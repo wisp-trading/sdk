@@ -1,8 +1,9 @@
 package time
 
 import (
-	"kronos/sdk/pkg/types/temporal"
 	"time"
+
+	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
 // TimeProvider is a wrapper around time operations

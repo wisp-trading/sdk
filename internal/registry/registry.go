@@ -2,8 +2,9 @@ package strategy
 
 import (
 	"fmt"
-	"kronos/sdk/pkg/types/strategy"
 	"sync"
+
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 )
 
 type StrategyRegistry interface {
