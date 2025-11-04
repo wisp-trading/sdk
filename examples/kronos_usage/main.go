@@ -28,8 +28,8 @@ func NewExampleStrategy(k *kronos.Kronos) *ExampleStrategy {
 // GetSignals demonstrates the user-friendly Kronos API
 func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	// Define the assets we're trading - simple one-line creation
-	btc := s.k.Asset("BTC-PERP")
-	eth := s.k.Asset("ETH-PERP")
+	btc := s.k.Asset("BTC")
+	eth := s.k.Asset("ETH")
 
 	s.k.Log().Info("Starting signal generation")
 
@@ -257,7 +257,7 @@ func demonstrateExecutor(store store.Store, logger logging.ApplicationLogger) {
 	executor := kronos.NewKronosExecutor(store, logger)
 
 	// Can use all read operations from base Kronos
-	btc := executor.Asset("BTC-PERP")
+	btc := executor.Asset("BTC")
 	price, _ := executor.Market.Price(btc)
 	fmt.Printf("BTC Price: %s\n", price.String())
 
