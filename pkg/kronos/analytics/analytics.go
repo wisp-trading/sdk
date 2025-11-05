@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/types/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio/store"
@@ -47,6 +48,8 @@ type TrendResult struct {
 // Volatility calculates the standard deviation of returns for an asset.
 // Returns annualized volatility as a percentage.
 func (s *AnalyticsService) Volatility(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (decimal.Decimal, error) {
+	options := s.parseOptions(opts...)
+
 	prices, err := s.fetchClosePrices(asset, period+1, opts...)
 	if err != nil {
 		return decimal.Zero, err
@@ -82,9 +85,8 @@ func (s *AnalyticsService) Volatility(asset portfolio.Asset, period int, opts ..
 	// Standard deviation
 	stdDev := math.Sqrt(variance)
 
-	// Annualize based on hourly data (assuming 1h intervals)
-	// There are ~8760 hours in a year, sqrt(8760) ≈ 93.6
-	annualizationFactor := math.Sqrt(8760)
+	// Calculate annualization factor based on interval
+	annualizationFactor := s.getAnnualizationFactor(options.Interval)
 	annualizedVol := stdDev * annualizationFactor * 100 // Convert to percentage
 
 	return decimal.NewFromFloat(annualizedVol), nil
@@ -348,11 +350,23 @@ func (s *AnalyticsService) parseOptions(opts ...AnalyticsOptions) AnalyticsOptio
 	if len(opts) > 0 {
 		options := opts[0]
 		if options.Interval == "" {
-			options.Interval = "1h"
+			options.Interval = analytics.DefaultInterval
 		}
 		return options
 	}
 	return AnalyticsOptions{
-		Interval: "1h",
+		Interval: analytics.DefaultInterval,
 	}
+}
+
+// getAnnualizationFactor returns the factor to annualize volatility based on interval
+// Formula: sqrt(periods_per_year)
+func (s *AnalyticsService) getAnnualizationFactor(interval string) float64 {
+	periods, ok := analytics.PeriodsPerYear[interval]
+	if !ok {
+		// Default to hourly if unknown interval
+		periods = analytics.PeriodsPerYear[analytics.DefaultInterval]
+	}
+
+	return math.Sqrt(periods)
 }

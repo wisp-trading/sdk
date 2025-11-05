@@ -20,7 +20,7 @@ strategies:
       long_period: 50       # Slow SMA period
       asset: BTC           # Asset to trade
       exchange: Paradex    # Exchange to use
-      interval: 5m         # Kline interval
+      interval: 5m         # Kline interval (use types.Interval5Minute in code)
       quantity: "1.0"      # Amount to trade
 ```
 
@@ -93,7 +93,7 @@ func TestSMAStrategy_GoldenCross(t *testing.T) {
     ctx := testing.NewMockContext()
     
     // Setup test data
-    ctx.Market().SetKlines("BTC", "Paradex", "5m", mockKlines)
+    ctx.Market().SetKlines("BTC", "Paradex", types.Interval5Minute, mockKlines)
     
     // Create strategy
     strat := New(ctx, config)
@@ -124,7 +124,7 @@ strat := simple_sma.New(ctx, simple_sma.Config{
     LongPeriod: 50,
     Asset: "BTC",
     Exchange: "Paradex",
-    Interval: "5m",
+    Interval: types.Interval5Minute,
     Quantity: "1.0",
 })
 ```

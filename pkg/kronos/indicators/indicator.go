@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio/store"
@@ -11,8 +12,6 @@ import (
 )
 
 const (
-	// Default interval for kline fetching
-	defaultInterval = "1h"
 	// Fetch 2x period to ensure sufficient data for calculations
 	dataMultiplier = 2
 )
@@ -273,11 +272,11 @@ func (s *IndicatorService) parseOptions(opts ...IndicatorOptions) IndicatorOptio
 	if len(opts) > 0 {
 		options := opts[0]
 		if options.Interval == "" {
-			options.Interval = defaultInterval
+			options.Interval = analytics.DefaultInterval
 		}
 		return options
 	}
 	return IndicatorOptions{
-		Interval: defaultInterval,
+		Interval: analytics.DefaultInterval,
 	}
 }
