@@ -4,9 +4,11 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/kronos/indicators"
 	"github.com/backtesting-org/kronos-sdk/pkg/kronos/market"
+	"github.com/backtesting-org/kronos-sdk/pkg/kronos/signal"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio/store"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 )
 
 // Kronos is the base context object for strategy GetSignals methods.
@@ -19,6 +21,7 @@ type Kronos struct {
 	Indicators *indicators.IndicatorService
 	Market     *market.MarketService
 	Analytics  *analytics.AnalyticsService
+	signalSvc  *signal.Service
 }
 
 // NewKronos creates a new Kronos context with injected services.
@@ -29,6 +32,7 @@ func NewKronos(
 	indicators *indicators.IndicatorService,
 	market *market.MarketService,
 	analytics *analytics.AnalyticsService,
+	signalSvc *signal.Service,
 ) *Kronos {
 	return &Kronos{
 		store:         store,
@@ -36,6 +40,7 @@ func NewKronos(
 		Indicators:    indicators,
 		Market:        market,
 		Analytics:     analytics,
+		signalSvc:     signalSvc,
 	}
 }
 
@@ -56,4 +61,10 @@ func (k *Kronos) Store() store.Store {
 // Usage: btc := k.Asset("BTC")
 func (k *Kronos) Asset(symbol string) portfolio.Asset {
 	return portfolio.NewAsset(symbol)
+}
+
+// Signal creates a new signal builder for constructing trading signals.
+// Usage: k.Signal(strategyName).Buy(asset, exchange, qty).SellShort(asset, exchange, qty).Build()
+func (k *Kronos) Signal(strategyName strategy.StrategyName) *signal.Builder {
+	return k.signalSvc.New(strategyName)
 }

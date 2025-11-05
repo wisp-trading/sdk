@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	"github.com/backtesting-org/kronos-sdk/pkg/kronos"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/shopspring/decimal"
@@ -82,26 +80,11 @@ func (ccs *CashCarryStrategy) GetSignals() ([]*strategy.Signal, error) {
 					quantity.String(),
 				)
 
-				signal := &strategy.Signal{
-					Strategy: ccs.GetName(),
-					Actions: []strategy.TradeAction{
-						{
-							Action:   strategy.ActionBuy,
-							Asset:    asset,
-							Exchange: exchange,
-							Quantity: quantity,
-							Price:    decimal.Zero,
-						},
-						{
-							Action:   strategy.ActionSellShort,
-							Asset:    asset,
-							Exchange: exchange,
-							Quantity: quantity,
-							Price:    decimal.Zero,
-						},
-					},
-					Timestamp: time.Now(),
-				}
+				signal := ccs.k.Signal(ccs.GetName()).
+					Buy(asset, exchange, quantity).
+					SellShort(asset, exchange, quantity).
+					Build()
+
 				signals = append(signals, signal)
 			}
 		}
