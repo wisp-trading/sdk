@@ -1,11 +1,10 @@
-package kronos
+package analytics
 
 import (
 	"fmt"
 	"math"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio/store"
 	"github.com/shopspring/decimal"
@@ -13,8 +12,14 @@ import (
 
 // AnalyticsService provides user-friendly methods for market analytics.
 type AnalyticsService struct {
-	store  store.Store
-	logger logging.ApplicationLogger
+	store store.Store
+}
+
+// NewAnalyticsService creates a new AnalyticsService
+func NewAnalyticsService(store store.Store) *AnalyticsService {
+	return &AnalyticsService{
+		store: store,
+	}
 }
 
 // AnalyticsOptions configures analytics calculations
@@ -44,7 +49,6 @@ type TrendResult struct {
 func (s *AnalyticsService) Volatility(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (decimal.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, period+1, opts...)
 	if err != nil {
-		s.logger.Warn("Failed to fetch prices for volatility", "asset", asset.Symbol(), "period", period, "error", err)
 		return decimal.Zero, err
 	}
 
@@ -91,7 +95,6 @@ func (s *AnalyticsService) Volatility(asset portfolio.Asset, period int, opts ..
 func (s *AnalyticsService) Trend(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*TrendResult, error) {
 	prices, err := s.fetchClosePrices(asset, period, opts...)
 	if err != nil {
-		s.logger.Warn("Failed to fetch prices for trend", "asset", asset.Symbol(), "period", period, "error", err)
 		return nil, err
 	}
 
@@ -225,9 +228,9 @@ func (s *AnalyticsService) VolumeAnalysis(asset portfolio.Asset, period int, opt
 	var volumeTrend TrendDirection
 	trendThreshold := decimal.NewFromFloat(1.2) // 20% increase/decrease
 
-	if secondHalfAvg.Div(firstHalfAvg).GreaterThan(trendThreshold) {
+	if !firstHalfAvg.IsZero() && secondHalfAvg.Div(firstHalfAvg).GreaterThan(trendThreshold) {
 		volumeTrend = TrendBullish // Increasing volume
-	} else if firstHalfAvg.Div(secondHalfAvg).GreaterThan(trendThreshold) {
+	} else if !secondHalfAvg.IsZero() && firstHalfAvg.Div(secondHalfAvg).GreaterThan(trendThreshold) {
 		volumeTrend = TrendBearish // Decreasing volume
 	} else {
 		volumeTrend = TrendNeutral
@@ -345,11 +348,11 @@ func (s *AnalyticsService) parseOptions(opts ...AnalyticsOptions) AnalyticsOptio
 	if len(opts) > 0 {
 		options := opts[0]
 		if options.Interval == "" {
-			options.Interval = defaultInterval
+			options.Interval = "1h"
 		}
 		return options
 	}
 	return AnalyticsOptions{
-		Interval: defaultInterval,
+		Interval: "1h",
 	}
 }

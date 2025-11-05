@@ -4,86 +4,77 @@ import (
 	"fmt"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/kronos"
+	"github.com/backtesting-org/kronos-sdk/pkg/kronos/indicators"
+	"github.com/backtesting-org/kronos-sdk/pkg/kronos/trade"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio/store"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
-// ExampleStrategy demonstrates how to use the Kronos context in a strategy
+// ExampleStrategy demonstrates using the Kronos SDK
 type ExampleStrategy struct {
-	*strategy.BaseStrategy
-	k *kronos.Kronos // Injected Kronos context
+	k *kronos.Kronos
 }
 
-// NewExampleStrategy creates a new example strategy with Kronos injection
+// NewExampleStrategy creates a new example strategy
 func NewExampleStrategy(k *kronos.Kronos) *ExampleStrategy {
-	return &ExampleStrategy{
-		k: k,
-	}
+	return &ExampleStrategy{k: k}
 }
 
-// GetSignals demonstrates the user-friendly Kronos API
+// GetSignals demonstrates all Kronos API features
 func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
-	// Define the assets we're trading - simple one-line creation
+	s.k.Log().Info("🔍 Starting signal generation for Example Strategy")
+
+	// Create assets using helper
 	btc := s.k.Asset("BTC")
 	eth := s.k.Asset("ETH")
-
-	s.k.Log().Info("Starting signal generation")
 
 	// === INDICATOR EXAMPLES ===
 
 	// Get SMA - simple, one-line call
 	sma20, err := s.k.Indicators.SMA(btc, 20)
 	if err != nil {
-		s.k.Log().Warn("Failed to calculate SMA", "error", err)
+		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to calculate SMA: %v", err)
 	} else {
-		s.k.Log().Info("BTC SMA(20)", "value", sma20.String())
+		s.k.Log().Debug("ExampleStrategy", btc.Symbol(), "BTC SMA(20): %s", sma20.String())
 	}
 
 	// Get EMA with custom exchange
-	ema50, err := s.k.Indicators.EMA(btc, 50, kronos.IndicatorOptions{
+	ema50, err := s.k.Indicators.EMA(btc, 50, indicators.IndicatorOptions{
 		Exchange: connector.Binance,
 		Interval: "4h",
 	})
 	if err != nil {
-		s.k.Log().Warn("Failed to calculate EMA", "error", err)
+		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to calculate EMA: %v", err)
 	} else {
-		s.k.Log().Info("BTC EMA(50) on Binance", "value", ema50.String())
+		s.k.Log().Debug("ExampleStrategy", btc.Symbol(), "BTC EMA(50) on Binance: %s", ema50.String())
 	}
 
 	// Get RSI
 	rsi, err := s.k.Indicators.RSI(btc, 14)
 	if err != nil {
-		s.k.Log().Warn("Failed to calculate RSI", "error", err)
+		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to calculate RSI: %v", err)
 	} else {
-		s.k.Log().Info("BTC RSI(14)", "value", rsi.String())
+		s.k.Log().Debug("ExampleStrategy", btc.Symbol(), "BTC RSI(14): %s", rsi.String())
 	}
 
 	// Get MACD
 	macd, err := s.k.Indicators.MACD(btc, 12, 26, 9)
 	if err != nil {
-		s.k.Log().Warn("Failed to calculate MACD", "error", err)
+		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to calculate MACD: %v", err)
 	} else {
-		s.k.Log().Info("BTC MACD",
-			"macd", macd.MACD.String(),
-			"signal", macd.Signal.String(),
-			"histogram", macd.Histogram.String(),
-		)
+		s.k.Log().Debug("ExampleStrategy", btc.Symbol(), "BTC MACD - MACD: %s, Signal: %s, Histogram: %s",
+			macd.MACD.String(), macd.Signal.String(), macd.Histogram.String())
 	}
 
 	// Get Bollinger Bands
 	bb, err := s.k.Indicators.BollingerBands(btc, 20, 2.0)
 	if err != nil {
-		s.k.Log().Warn("Failed to calculate Bollinger Bands", "error", err)
+		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to calculate Bollinger Bands: %v", err)
 	} else {
-		s.k.Log().Info("BTC Bollinger Bands",
-			"upper", bb.Upper.String(),
-			"middle", bb.Middle.String(),
-			"lower", bb.Lower.String(),
-		)
+		s.k.Log().Debug("ExampleStrategy", btc.Symbol(), "BTC Bollinger Bands - Upper: %s, Middle: %s, Lower: %s",
+			bb.Upper.String(), bb.Middle.String(), bb.Lower.String())
 	}
 
 	// === MARKET DATA EXAMPLES ===
@@ -91,48 +82,32 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	// Get current price - simple
 	price, err := s.k.Market.Price(btc)
 	if err != nil {
-		s.k.Log().Warn("Failed to get price", "error", err)
+		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to get price: %v", err)
 	} else {
-		s.k.Log().Info("BTC Price", "price", price.String())
+		s.k.Log().MarketCondition("BTC Price: %s", price.String())
 	}
 
 	// Get prices across all exchanges
 	prices := s.k.Market.Prices(btc)
 	for exchange, p := range prices {
-		s.k.Log().Info("BTC Price by exchange", "exchange", exchange, "price", p.String())
+		s.k.Log().Debug("ExampleStrategy", btc.Symbol(), "Price on %s: %s", exchange, p.String())
 	}
 
 	// Get funding rates
 	fundingRates := s.k.Market.FundingRates(btc)
 	for exchange, rate := range fundingRates {
-		s.k.Log().Info("BTC Funding Rate",
-			"exchange", exchange,
-			"rate", rate.CurrentRate.String(),
-			"next_funding", rate.NextFundingTime.String(),
-		)
+		s.k.Log().Debug("ExampleStrategy", btc.Symbol(), "Funding rate on %s: %s (Next: %s)",
+			exchange, rate.CurrentRate.String(), rate.NextFundingTime.String())
 	}
 
-	// Find arbitrage opportunities
-	arbOpps := s.k.Market.FindArbitrage(btc)
+	// Find arbitrage opportunities (minimum 10 bps spread)
+	arbOpps := s.k.Market.FindArbitrage(btc, decimal.NewFromInt(10))
 	for _, opp := range arbOpps {
-		s.k.Log().Info("Arbitrage Opportunity Found",
-			"buy_exchange", opp.BuyExchange,
-			"sell_exchange", opp.SellExchange,
-			"spread_bps", opp.SpreadBps.String(),
-			"estimated_profit_bps", opp.EstimatedProfit.String(),
-		)
-	}
-
-	// Get best bid/ask across exchanges
-	bestBidAsk, err := s.k.Market.GetBestBidAsk(btc)
-	if err != nil {
-		s.k.Log().Warn("Failed to get best bid/ask", "error", err)
-	} else {
-		s.k.Log().Info("Best Bid/Ask",
-			"bid", bestBidAsk.BestBid.String(),
-			"ask", bestBidAsk.BestAsk.String(),
-			"spread_bps", bestBidAsk.SpreadBps.String(),
-		)
+		s.k.Log().Opportunity("ExampleStrategy", btc.Symbol(),
+			"Arbitrage: Buy %s @ %s, Sell %s @ %s, Spread: %s bps",
+			opp.BuyExchange, opp.BuyPrice.String(),
+			opp.SellExchange, opp.SellPrice.String(),
+			opp.SpreadBps.String())
 	}
 
 	// === ANALYTICS EXAMPLES ===
@@ -140,47 +115,41 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	// Calculate volatility
 	vol, err := s.k.Analytics.Volatility(btc, 24)
 	if err != nil {
-		s.k.Log().Warn("Failed to calculate volatility", "error", err)
+		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to calculate volatility: %v", err)
 	} else {
-		s.k.Log().Info("BTC Volatility (24h)", "volatility", vol.String()+"%")
+		s.k.Log().MarketCondition("BTC Volatility (24h): %s%%", vol.String())
 	}
 
 	// Analyze trend
 	trend, err := s.k.Analytics.Trend(btc, 50)
 	if err != nil {
-		s.k.Log().Warn("Failed to analyze trend", "error", err)
+		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to analyze trend: %v", err)
 	} else {
-		s.k.Log().Info("BTC Trend Analysis",
-			"direction", trend.Direction,
-			"strength", trend.Strength.String(),
-			"slope", trend.Slope.String(),
-		)
+		s.k.Log().MarketCondition("BTC Trend: %s (Strength: %s%%, Slope: %s)",
+			trend.Direction, trend.Strength.String(), trend.Slope.String())
 	}
 
 	// Analyze volume
 	volumeAnalysis, err := s.k.Analytics.VolumeAnalysis(btc, 24)
 	if err != nil {
-		s.k.Log().Warn("Failed to analyze volume", "error", err)
+		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to analyze volume: %v", err)
 	} else {
-		s.k.Log().Info("BTC Volume Analysis",
-			"current", volumeAnalysis.CurrentVolume.String(),
-			"average", volumeAnalysis.AverageVolume.String(),
-			"ratio", volumeAnalysis.VolumeRatio.String(),
-			"is_spike", volumeAnalysis.IsVolumeSpike,
-			"trend", volumeAnalysis.VolumeTrend,
-		)
+		spikeStr := ""
+		if volumeAnalysis.IsVolumeSpike {
+			spikeStr = " [SPIKE]"
+		}
+		s.k.Log().MarketCondition("BTC Volume: Current %s, Avg %s, Ratio: %sx%s",
+			volumeAnalysis.CurrentVolume.String(), volumeAnalysis.AverageVolume.String(),
+			volumeAnalysis.VolumeRatio.String(), spikeStr)
 	}
 
 	// Get price change
 	priceChange, err := s.k.Analytics.GetPriceChange(btc, 24)
 	if err != nil {
-		s.k.Log().Warn("Failed to get price change", "error", err)
+		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to get price change: %v", err)
 	} else {
-		s.k.Log().Info("BTC Price Change (24h)",
-			"change_percent", priceChange.ChangePercent.String()+"%",
-			"high", priceChange.HighPrice.String(),
-			"low", priceChange.LowPrice.String(),
-		)
+		s.k.Log().MarketCondition("BTC 24h Change: %s%% (High: %s, Low: %s)",
+			priceChange.ChangePercent.String(), priceChange.HighPrice.String(), priceChange.LowPrice.String())
 	}
 
 	// === SIGNAL GENERATION LOGIC ===
@@ -191,6 +160,9 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	if !sma20.IsZero() && !price.IsZero() {
 		if price.GreaterThan(sma20) {
 			// Price above SMA - bullish signal
+			s.k.Log().Opportunity("ExampleStrategy", btc.Symbol(),
+				"Price %s > SMA(20) %s - Bullish signal", price.String(), sma20.String())
+
 			signal := &strategy.Signal{
 				ID:       uuid.New(),
 				Strategy: strategy.StrategyName("Example Strategy"),
@@ -212,6 +184,9 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	if !rsi.IsZero() {
 		oversoldThreshold := decimal.NewFromInt(30)
 		if rsi.LessThan(oversoldThreshold) {
+			s.k.Log().Opportunity("ExampleStrategy", eth.Symbol(),
+				"RSI %s < 30 - Oversold signal", rsi.String())
+
 			signal := &strategy.Signal{
 				ID:       uuid.New(),
 				Strategy: strategy.StrategyName("Example Strategy"),
@@ -229,7 +204,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 		}
 	}
 
-	s.k.Log().Info("Signal generation complete", "signal_count", len(signals))
+	s.k.Log().Info("✅ Signal generation complete - Generated %d signals", len(signals))
 
 	return signals, nil
 }
@@ -252,9 +227,9 @@ func (s *ExampleStrategy) GetStrategyType() strategy.StrategyType {
 }
 
 // Example of how the orchestrator would use KronosExecutor
-func demonstrateExecutor(store store.Store, logger logging.ApplicationLogger) {
+func demonstrateExecutor(baseKronos *kronos.Kronos, tradeService *trade.TradeService) {
 	// Create executor with trade capabilities
-	executor := kronos.NewKronosExecutor(store, logger)
+	executor := kronos.NewKronosExecutor(baseKronos, tradeService)
 
 	// Can use all read operations from base Kronos
 	btc := executor.Asset("BTC")
@@ -266,8 +241,8 @@ func demonstrateExecutor(store store.Store, logger logging.ApplicationLogger) {
 		btc,
 		connector.Binance,
 		decimal.NewFromInt(1),
-		kronos.TradeOptions{
-			OrderType: kronos.OrderTypeMarket,
+		trade.TradeOptions{
+			OrderType: trade.OrderTypeMarket,
 		},
 	)
 	if err != nil {

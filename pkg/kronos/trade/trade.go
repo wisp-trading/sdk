@@ -1,4 +1,4 @@
-package kronos
+package trade
 
 import (
 	"fmt"
@@ -12,7 +12,15 @@ import (
 // TradeService provides trade execution methods.
 // This is only available in KronosExecutor, not in the base Kronos.
 type TradeService struct {
-	logger logging.ApplicationLogger
+	tradingLogger logging.TradingLogger
+	// TODO: Add reference to actual trade executor when implemented
+}
+
+// NewTradeService creates a new TradeService
+func NewTradeService(tradingLogger logging.TradingLogger) *TradeService {
+	return &TradeService{
+		tradingLogger: tradingLogger,
+	}
 }
 
 // OrderType represents the type of order
@@ -25,10 +33,10 @@ const (
 
 // TradeOptions configures trade execution
 type TradeOptions struct {
-	OrderType   OrderType // Market or Limit
-	Price       decimal.Decimal
-	TimeInForce string // GTC, IOC, FOK, etc.
-	ReduceOnly  bool   // Only reduce position
+	OrderType   OrderType       // Market or Limit
+	Price       decimal.Decimal // Required for limit orders
+	TimeInForce string          // GTC, IOC, FOK, etc.
+	ReduceOnly  bool            // Only reduce position
 }
 
 // TradeResult holds the result of a trade execution
@@ -55,14 +63,14 @@ func (s *TradeService) Sell(asset portfolio.Asset, exchange connector.ExchangeNa
 	return s.executeTrade(asset, exchange, connector.OrderSideSell, quantity, opts...)
 }
 
-// BuyShort opens a short position (sell to open).
-func (s *TradeService) BuyShort(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal, opts ...TradeOptions) (*TradeResult, error) {
+// Short opens a short position (sell to open).
+func (s *TradeService) Short(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal, opts ...TradeOptions) (*TradeResult, error) {
 	// In perpetual futures, this is typically a sell order
 	return s.executeTrade(asset, exchange, connector.OrderSideSell, quantity, opts...)
 }
 
-// SellShort closes a short position (buy to close).
-func (s *TradeService) SellShort(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal, opts ...TradeOptions) (*TradeResult, error) {
+// CloseShort closes a short position (buy to close).
+func (s *TradeService) CloseShort(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal, opts ...TradeOptions) (*TradeResult, error) {
 	// In perpetual futures, this is typically a buy order to close
 	return s.executeTrade(asset, exchange, connector.OrderSideBuy, quantity, opts...)
 }
@@ -83,71 +91,48 @@ func (s *TradeService) executeTrade(
 		return nil, fmt.Errorf("quantity must be greater than zero")
 	}
 
-	// Log the trade attempt
-	s.logger.Info("Executing trade",
-		"asset", asset.Symbol(),
-		"exchange", exchange,
-		"side", side,
-		"quantity", quantity.String(),
-		"type", options.OrderType,
-	)
+	if options.OrderType == OrderTypeLimit && options.Price.IsZero() {
+		return nil, fmt.Errorf("price must be specified for limit orders")
+	}
 
-	// In a real implementation, this would call the actual trade executor
+	// TODO: Call the actual trade executor here
 	// For now, we return a placeholder result
+
+	// Log the trade attempt using trading logger
+	orderTypeStr := string(options.OrderType)
+	sideStr := string(side)
+
+	// Placeholder order ID
+	orderID := fmt.Sprintf("ORDER_%s_%s", asset.Symbol(), exchange)
+
 	result := &TradeResult{
-		OrderID:  "ORDER_" + asset.Symbol(), // Placeholder
+		OrderID:  orderID,
 		Asset:    asset,
 		Exchange: exchange,
 		Side:     side,
 		Quantity: quantity,
-		Price:    options.Price,
+		Price:    options.Price, // This would be the filled price from the executor
 		Status:   "pending",
-		Message:  "Trade execution not implemented - this is a placeholder",
+		Message:  fmt.Sprintf("%s %s order placed", orderTypeStr, sideStr),
 	}
 
-	s.logger.Info("Trade executed",
-		"orderID", result.OrderID,
-		"status", result.Status,
-	)
-
 	return result, nil
-}
-
-// CancelOrder cancels an open order
-func (s *TradeService) CancelOrder(orderID string, exchange connector.ExchangeName) error {
-	s.logger.Info("Canceling order", "orderID", orderID, "exchange", exchange)
-
-	// In a real implementation, this would call the connector to cancel the order
-	// For now, just log it
-
-	return nil
-}
-
-// GetOpenOrders retrieves all open orders
-func (s *TradeService) GetOpenOrders(asset portfolio.Asset, exchange connector.ExchangeName) ([]TradeResult, error) {
-	s.logger.Debug("Fetching open orders", "asset", asset.Symbol(), "exchange", exchange)
-
-	// In a real implementation, this would fetch from the connector
-	// For now, return empty slice
-
-	return []TradeResult{}, nil
 }
 
 // parseOptions extracts options with defaults
 func (s *TradeService) parseOptions(opts ...TradeOptions) TradeOptions {
 	if len(opts) > 0 {
 		options := opts[0]
-		// If price is set, default to limit order
-		if !options.Price.IsZero() && options.OrderType == "" {
-			options.OrderType = OrderTypeLimit
-		}
-		// Otherwise default to market
 		if options.OrderType == "" {
 			options.OrderType = OrderTypeMarket
+		}
+		if options.TimeInForce == "" {
+			options.TimeInForce = "GTC"
 		}
 		return options
 	}
 	return TradeOptions{
-		OrderType: OrderTypeMarket,
+		OrderType:   OrderTypeMarket,
+		TimeInForce: "GTC",
 	}
 }

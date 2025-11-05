@@ -1,11 +1,10 @@
-package kronos
+package indicators
 
 import (
 	"fmt"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio/store"
 	"github.com/shopspring/decimal"
@@ -21,8 +20,14 @@ const (
 // IndicatorService provides user-friendly methods for technical indicators.
 // All methods handle data fetching internally - users never manually extract klines.
 type IndicatorService struct {
-	store  store.Store
-	logger logging.ApplicationLogger
+	store store.Store
+}
+
+// NewIndicatorService creates a new IndicatorService
+func NewIndicatorService(store store.Store) *IndicatorService {
+	return &IndicatorService{
+		store: store,
+	}
 }
 
 // IndicatorOptions configures indicator calculations
@@ -36,13 +41,11 @@ type IndicatorOptions struct {
 func (s *IndicatorService) SMA(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
-		s.logger.Warn("Failed to fetch prices for SMA", "asset", asset.Symbol(), "period", period, "error", err)
 		return decimal.Zero, err
 	}
 
 	smaValues, err := indicators.SMA(prices, period)
 	if err != nil {
-		s.logger.Warn("Failed to calculate SMA", "asset", asset.Symbol(), "period", period, "error", err)
 		return decimal.Zero, err
 	}
 
@@ -59,13 +62,11 @@ func (s *IndicatorService) SMA(asset portfolio.Asset, period int, opts ...Indica
 func (s *IndicatorService) EMA(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
-		s.logger.Warn("Failed to fetch prices for EMA", "asset", asset.Symbol(), "period", period, "error", err)
 		return decimal.Zero, err
 	}
 
 	emaValues, err := indicators.EMA(prices, period)
 	if err != nil {
-		s.logger.Warn("Failed to calculate EMA", "asset", asset.Symbol(), "period", period, "error", err)
 		return decimal.Zero, err
 	}
 
@@ -82,13 +83,11 @@ func (s *IndicatorService) EMA(asset portfolio.Asset, period int, opts ...Indica
 func (s *IndicatorService) RSI(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, (period+1)*dataMultiplier, opts...)
 	if err != nil {
-		s.logger.Warn("Failed to fetch prices for RSI", "asset", asset.Symbol(), "period", period, "error", err)
 		return decimal.Zero, err
 	}
 
 	rsiValues, err := indicators.RSI(prices, period)
 	if err != nil {
-		s.logger.Warn("Failed to calculate RSI", "asset", asset.Symbol(), "period", period, "error", err)
 		return decimal.Zero, err
 	}
 
@@ -100,97 +99,57 @@ func (s *IndicatorService) RSI(asset portfolio.Asset, period int, opts ...Indica
 	return rsiValues[len(rsiValues)-1], nil
 }
 
-// MACDResult holds the MACD indicator values
-type MACDResult struct {
-	MACD      decimal.Decimal
-	Signal    decimal.Decimal
-	Histogram decimal.Decimal
-}
-
-// MACD calculates the Moving Average Convergence Divergence for an asset.
-// Returns the latest MACD, Signal, and Histogram values.
-// Standard parameters: fastPeriod=12, slowPeriod=26, signalPeriod=9
-func (s *IndicatorService) MACD(asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...IndicatorOptions) (*MACDResult, error) {
-	// Need enough data for the slow period plus signal calculation
+// MACD calculates the Moving Average Convergence Divergence indicator.
+// Returns the latest MACD, signal, and histogram values.
+func (s *IndicatorService) MACD(asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...IndicatorOptions) (*indicators.MACDResult, error) {
+	// Need enough data for slow period + signal period
 	requiredData := (slowPeriod + signalPeriod) * dataMultiplier
 	prices, err := s.fetchClosePrices(asset, requiredData, opts...)
 	if err != nil {
-		s.logger.Warn("Failed to fetch prices for MACD", "asset", asset.Symbol(), "error", err)
 		return nil, err
 	}
 
-	macdValues, err := indicators.MACD(prices, fastPeriod, slowPeriod, signalPeriod)
+	macdResults, err := indicators.MACD(prices, fastPeriod, slowPeriod, signalPeriod)
 	if err != nil {
-		s.logger.Warn("Failed to calculate MACD", "asset", asset.Symbol(), "error", err)
 		return nil, err
 	}
 
-	if len(macdValues) == 0 {
+	if len(macdResults) == 0 {
 		return nil, fmt.Errorf("no MACD values calculated")
 	}
 
-	// Return the latest value
-	latest := macdValues[len(macdValues)-1]
-	return &MACDResult{
-		MACD:      latest.MACD,
-		Signal:    latest.Signal,
-		Histogram: latest.Histogram,
-	}, nil
-}
-
-// BollingerBandsResult holds the Bollinger Bands values
-type BollingerBandsResult struct {
-	Upper  decimal.Decimal
-	Middle decimal.Decimal
-	Lower  decimal.Decimal
+	// Return the latest values
+	return &macdResults[len(macdResults)-1], nil
 }
 
 // BollingerBands calculates Bollinger Bands for an asset.
 // Returns the latest upper, middle, and lower band values.
-// Standard parameters: period=20, stdDev=2.0
-func (s *IndicatorService) BollingerBands(asset portfolio.Asset, period int, stdDev float64, opts ...IndicatorOptions) (*BollingerBandsResult, error) {
+func (s *IndicatorService) BollingerBands(asset portfolio.Asset, period int, stdDev float64, opts ...IndicatorOptions) (*indicators.BollingerBandsResult, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
-		s.logger.Warn("Failed to fetch prices for Bollinger Bands", "asset", asset.Symbol(), "period", period, "error", err)
 		return nil, err
 	}
 
-	bbValues, err := indicators.BollingerBands(prices, period, stdDev)
+	bbResults, err := indicators.BollingerBands(prices, period, stdDev)
 	if err != nil {
-		s.logger.Warn("Failed to calculate Bollinger Bands", "asset", asset.Symbol(), "period", period, "error", err)
 		return nil, err
 	}
 
-	if len(bbValues) == 0 {
+	if len(bbResults) == 0 {
 		return nil, fmt.Errorf("no Bollinger Bands values calculated")
 	}
 
-	// Return the latest value
-	latest := bbValues[len(bbValues)-1]
-	return &BollingerBandsResult{
-		Upper:  latest.Upper,
-		Middle: latest.Middle,
-		Lower:  latest.Lower,
-	}, nil
+	// Return the latest values
+	return &bbResults[len(bbResults)-1], nil
 }
 
-// StochasticResult holds the Stochastic Oscillator values
-type StochasticResult struct {
-	K decimal.Decimal // %K line (fast)
-	D decimal.Decimal // %D line (slow)
-}
-
-// Stochastic calculates the Stochastic Oscillator for an asset.
+// Stochastic calculates the Stochastic oscillator for an asset.
 // Returns the latest %K and %D values.
-// Standard parameters: kPeriod=14, dPeriod=3
-func (s *IndicatorService) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opts ...IndicatorOptions) (*StochasticResult, error) {
-	requiredData := (kPeriod + dPeriod) * dataMultiplier
-
+func (s *IndicatorService) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opts ...IndicatorOptions) (*indicators.StochasticResult, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
 
-	// If no exchange specified, get first available
 	if exchange == "" {
 		exchange = s.getDefaultExchange(asset)
 		if exchange == "" {
@@ -198,9 +157,11 @@ func (s *IndicatorService) Stochastic(asset portfolio.Asset, kPeriod, dPeriod in
 		}
 	}
 
+	// Fetch klines (need high, low, close)
+	requiredData := (kPeriod + dPeriod) * dataMultiplier
 	klines := s.store.GetKlines(asset, exchange, interval, requiredData)
-	if len(klines) < kPeriod+dPeriod {
-		return nil, fmt.Errorf("insufficient kline data for Stochastic: need %d, got %d", kPeriod+dPeriod, len(klines))
+	if len(klines) == 0 {
+		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
 
 	// Extract high, low, close prices
@@ -214,35 +175,26 @@ func (s *IndicatorService) Stochastic(asset portfolio.Asset, kPeriod, dPeriod in
 		closes[i] = kline.Close
 	}
 
-	stochValues, err := indicators.Stochastic(highs, lows, closes, kPeriod, dPeriod)
+	stochResults, err := indicators.Stochastic(highs, lows, closes, kPeriod, dPeriod)
 	if err != nil {
-		s.logger.Warn("Failed to calculate Stochastic", "asset", asset.Symbol(), "error", err)
 		return nil, err
 	}
 
-	if len(stochValues) == 0 {
+	if len(stochResults) == 0 {
 		return nil, fmt.Errorf("no Stochastic values calculated")
 	}
 
-	// Return the latest value
-	latest := stochValues[len(stochValues)-1]
-	return &StochasticResult{
-		K: latest.K,
-		D: latest.D,
-	}, nil
+	// Return the latest values
+	return &stochResults[len(stochResults)-1], nil
 }
 
 // ATR calculates the Average True Range for an asset.
 // Returns the latest ATR value.
-// Standard parameter: period=14
 func (s *IndicatorService) ATR(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error) {
-	requiredData := (period + 1) * dataMultiplier
-
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
 
-	// If no exchange specified, get first available
 	if exchange == "" {
 		exchange = s.getDefaultExchange(asset)
 		if exchange == "" {
@@ -250,9 +202,11 @@ func (s *IndicatorService) ATR(asset portfolio.Asset, period int, opts ...Indica
 		}
 	}
 
+	// Fetch klines (need high, low, close)
+	requiredData := period * dataMultiplier
 	klines := s.store.GetKlines(asset, exchange, interval, requiredData)
-	if len(klines) < period+1 {
-		return decimal.Zero, fmt.Errorf("insufficient kline data for ATR: need %d, got %d", period+1, len(klines))
+	if len(klines) == 0 {
+		return decimal.Zero, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
 
 	// Extract high, low, close prices
@@ -268,7 +222,6 @@ func (s *IndicatorService) ATR(asset portfolio.Asset, period int, opts ...Indica
 
 	atrValues, err := indicators.ATR(highs, lows, closes, period)
 	if err != nil {
-		s.logger.Warn("Failed to calculate ATR", "asset", asset.Symbol(), "period", period, "error", err)
 		return decimal.Zero, err
 	}
 
@@ -286,7 +239,6 @@ func (s *IndicatorService) fetchClosePrices(asset portfolio.Asset, limit int, op
 	exchange := options.Exchange
 	interval := options.Interval
 
-	// If no exchange specified, get first available
 	if exchange == "" {
 		exchange = s.getDefaultExchange(asset)
 		if exchange == "" {
@@ -299,7 +251,6 @@ func (s *IndicatorService) fetchClosePrices(asset portfolio.Asset, limit int, op
 		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
 
-	// Extract close prices
 	prices := make([]decimal.Decimal, len(klines))
 	for i, kline := range klines {
 		prices[i] = kline.Close
@@ -310,7 +261,6 @@ func (s *IndicatorService) fetchClosePrices(asset portfolio.Asset, limit int, op
 
 // getDefaultExchange returns the first available exchange for an asset
 func (s *IndicatorService) getDefaultExchange(asset portfolio.Asset) connector.ExchangeName {
-	// Try to get price data to find available exchanges
 	priceMap := s.store.GetAssetPrices(asset)
 	for exchange := range priceMap {
 		return exchange

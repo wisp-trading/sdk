@@ -1,6 +1,9 @@
 package kronos
 
 import (
+	"github.com/backtesting-org/kronos-sdk/pkg/kronos/analytics"
+	"github.com/backtesting-org/kronos-sdk/pkg/kronos/indicators"
+	"github.com/backtesting-org/kronos-sdk/pkg/kronos/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio/store"
@@ -8,46 +11,38 @@ import (
 
 // Kronos is the base context object for strategy GetSignals methods.
 // It provides read-only access to market data, indicators, and analytics.
-// It does NOT include trade execution methods.
 type Kronos struct {
-	store  store.Store
-	logger logging.ApplicationLogger
+	store         store.Store
+	tradingLogger logging.TradingLogger
 
 	// Namespaced services for user-friendly API
-	Indicators *IndicatorService
-	Market     *MarketService
-	Analytics  *AnalyticsService
+	Indicators *indicators.IndicatorService
+	Market     *market.MarketService
+	Analytics  *analytics.AnalyticsService
 }
 
-// NewKronos creates a new Kronos context with the given store and logger.
+// NewKronos creates a new Kronos context with injected services.
 // This is injected via fx DI into strategies.
-func NewKronos(store store.Store, logger logging.ApplicationLogger) *Kronos {
-	k := &Kronos{
-		store:  store,
-		logger: logger,
+func NewKronos(
+	store store.Store,
+	tradingLogger logging.TradingLogger,
+	indicators *indicators.IndicatorService,
+	market *market.MarketService,
+	analytics *analytics.AnalyticsService,
+) *Kronos {
+	return &Kronos{
+		store:         store,
+		tradingLogger: tradingLogger,
+		Indicators:    indicators,
+		Market:        market,
+		Analytics:     analytics,
 	}
-
-	// Initialize services with references to store and logger
-	k.Indicators = &IndicatorService{
-		store:  store,
-		logger: logger,
-	}
-	k.Market = &MarketService{
-		store:  store,
-		logger: logger,
-	}
-	k.Analytics = &AnalyticsService{
-		store:  store,
-		logger: logger,
-	}
-
-	return k
 }
 
-// Log returns the logger for strategy logging.
-// Usage: k.Log().Info("checking signals")
-func (k *Kronos) Log() logging.ApplicationLogger {
-	return k.logger
+// Log returns the trading logger for strategy logging.
+// Usage: k.Log().Opportunity("MyStrategy", "BTC", "Found signal")
+func (k *Kronos) Log() logging.TradingLogger {
+	return k.tradingLogger
 }
 
 // Store returns the underlying store for advanced use cases.
