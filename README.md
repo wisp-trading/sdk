@@ -143,10 +143,6 @@ assetsWithOrderBooks := assetStore.GetAllAssetsWithOrderBooks()
 // Prices
 price := assetStore.GetAssetPrice(asset, exchange)
 prices := assetStore.GetAssetPrices(asset)
-
-// Klines
-klines := assetStore.GetKlines(asset, exchange, "5m", 20)
-klinesRecent := assetStore.GetKlinesSince(asset, exchange, "5m", time.Now().Add(-1*time.Hour))
 ```
 
 ## 🔌 Connector Interface
@@ -157,7 +153,7 @@ The `Connector` interface defines exchange integration:
 ```go
 // Price data
 price, err := connector.FetchPrice("BTC")
-klines, err := connector.FetchKlines("BTC", "5m", 100)
+klines, err := connector.FetchKlines("BTC", types.Interval5Minute, 100)
 orderBook, err := connector.FetchOrderBook(asset, connector.TypePerpetual, 10)
 
 // Funding rates
@@ -202,7 +198,7 @@ defer wsConnector.StopWebSocket()
 // Subscriptions
 wsConnector.SubscribeOrderBook(asset, connector.TypePerpetual)
 wsConnector.SubscribeFundingRate(asset)
-wsConnector.SubscribeKlines(asset, "5m")
+wsConnector.SubscribeKlines(asset, types.Interval5Minute)
 
 // Data channels
 orderBooks := wsConnector.OrderBookUpdates()

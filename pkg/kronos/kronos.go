@@ -1,0 +1,59 @@
+package kronos
+
+import (
+	"github.com/backtesting-org/kronos-sdk/pkg/kronos/analytics"
+	"github.com/backtesting-org/kronos-sdk/pkg/kronos/indicators"
+	"github.com/backtesting-org/kronos-sdk/pkg/kronos/market"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio/store"
+)
+
+// Kronos is the base context object for strategy GetSignals methods.
+// It provides read-only access to market data, indicators, and analytics.
+type Kronos struct {
+	store         store.Store
+	tradingLogger logging.TradingLogger
+
+	// Namespaced services for user-friendly API
+	Indicators *indicators.IndicatorService
+	Market     *market.MarketService
+	Analytics  *analytics.AnalyticsService
+}
+
+// NewKronos creates a new Kronos context with injected services.
+// This is injected via fx DI into strategies.
+func NewKronos(
+	store store.Store,
+	tradingLogger logging.TradingLogger,
+	indicators *indicators.IndicatorService,
+	market *market.MarketService,
+	analytics *analytics.AnalyticsService,
+) *Kronos {
+	return &Kronos{
+		store:         store,
+		tradingLogger: tradingLogger,
+		Indicators:    indicators,
+		Market:        market,
+		Analytics:     analytics,
+	}
+}
+
+// Log returns the trading logger for strategy logging.
+// Usage: k.Log().Opportunity("MyStrategy", "BTC", "Found signal")
+func (k *Kronos) Log() logging.TradingLogger {
+	return k.tradingLogger
+}
+
+// Store returns the underlying store for advanced use cases.
+// Most users should use the service methods instead.
+func (k *Kronos) Store() store.Store {
+	return k.store
+}
+
+// Asset creates a new portfolio.Asset from a symbol string.
+// This is a convenience method to avoid importing portfolio everywhere.
+// Usage: btc := k.Asset("BTC")
+func (k *Kronos) Asset(symbol string) portfolio.Asset {
+	return portfolio.NewAsset(symbol)
+}
