@@ -3,8 +3,8 @@ package market
 import (
 	"context"
 
-	"github.com/backtesting-org/kronos-sdk/internal/data/ingestors/market/batch"
-	"github.com/backtesting-org/kronos-sdk/internal/data/ingestors/market/realtime"
+	"github.com/backtesting-org/kronos-sdk/internal/data/ingestors/activity/market/batch"
+	"github.com/backtesting-org/kronos-sdk/internal/data/ingestors/activity/market/realtime"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"go.uber.org/fx"
 )

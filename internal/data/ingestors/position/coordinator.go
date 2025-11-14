@@ -118,11 +118,11 @@ func (pc *Coordinator) backfillTrades() error {
 				pc.tradeStore.AddTrades(trades)
 				totalBackfilled += len(trades)
 
-				// Link trades to their strategies
+				// Add trades to strategy
 				for _, t := range trades {
 					strategyName := pc.findStrategyForSymbol(executions, symbol)
 					if strategyName != "" {
-						pc.positionStore.LinkTradeToStrategy(strategyName, t.ID)
+						pc.positionStore.AddTradeToStrategy(strategyName, t)
 					}
 				}
 

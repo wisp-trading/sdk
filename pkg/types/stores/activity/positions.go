@@ -24,11 +24,11 @@ type Positions interface {
 
 	// Order management
 	AddOrderToStrategy(strategy strategy.StrategyName, order connector.Order)
-	UpdateOrderInStrategy(strategy strategy.StrategyName, orderID string, updater func(*connector.Order)) error
+	UpdateOrderStatus(strategy strategy.StrategyName, orderID string, status connector.OrderStatus) error
 
-	// Trade linking
-	LinkTradeToStrategy(strategy strategy.StrategyName, tradeID string)
-	GetTradeIDsForStrategy(strategy strategy.StrategyName) []string
+	// Trade management
+	AddTradeToStrategy(strategy strategy.StrategyName, trade connector.Trade)
+	GetTradesForStrategy(strategy strategy.StrategyName) []connector.Trade
 
 	// Order cancellation
 	CancelOrder(strategy strategy.StrategyName, orderID string) error

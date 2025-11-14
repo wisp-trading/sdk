@@ -5,7 +5,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 )
 
-func (ds *dataStore) LinkTradeToStrategy(strategyName strategy.StrategyName, tradeID string) {
+func (ds *dataStore) AddTradeToStrategy(strategyName strategy.StrategyName, trade connector.Trade) {
 	ds.mutex.Lock()
 	defer ds.mutex.Unlock()
 
@@ -14,20 +14,13 @@ func (ds *dataStore) LinkTradeToStrategy(strategyName strategy.StrategyName, tra
 
 	if execution == nil {
 		execution = &strategy.StrategyExecution{
-			Orders:   []connector.Order{},
-			TradeIDs: []string{},
+			Orders: []connector.Order{},
+			Trades: []connector.Trade{},
 		}
 	}
 
-	// Check if trade ID already linked
-	for _, id := range execution.TradeIDs {
-		if id == tradeID {
-			return // Already linked
-		}
-	}
-
-	// Add trade ID
-	execution.TradeIDs = append(execution.TradeIDs, tradeID)
+	// Add trade
+	execution.Trades = append(execution.Trades, trade)
 
 	// Store updated map
 	updated := make(map[strategy.StrategyName]*strategy.StrategyExecution, len(current)+1)
@@ -38,13 +31,13 @@ func (ds *dataStore) LinkTradeToStrategy(strategyName strategy.StrategyName, tra
 	ds.executions.Store(updated)
 }
 
-func (ds *dataStore) GetTradeIDsForStrategy(strategyName strategy.StrategyName) []string {
+func (ds *dataStore) GetTradesForStrategy(strategyName strategy.StrategyName) []connector.Trade {
 	executions := ds.getExecutions()
 	execution := executions[strategyName]
 
 	if execution == nil {
-		return []string{}
+		return []connector.Trade{}
 	}
 
-	return execution.TradeIDs
+	return execution.Trades
 }

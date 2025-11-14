@@ -16,8 +16,8 @@ func (ds *dataStore) AddOrderToStrategy(strategyName strategy.StrategyName, orde
 
 	if execution == nil {
 		execution = &strategy.StrategyExecution{
-			Orders:   []connector.Order{},
-			TradeIDs: []string{},
+			Orders: []connector.Order{},
+			Trades: []connector.Trade{},
 		}
 	}
 
@@ -33,7 +33,7 @@ func (ds *dataStore) AddOrderToStrategy(strategyName strategy.StrategyName, orde
 	ds.executions.Store(updated)
 }
 
-func (ds *dataStore) UpdateOrderInStrategy(strategyName strategy.StrategyName, orderID string, updater func(*connector.Order)) error {
+func (ds *dataStore) UpdateOrderStatus(strategyName strategy.StrategyName, orderID string, status connector.OrderStatus) error {
 	ds.mutex.Lock()
 	defer ds.mutex.Unlock()
 
@@ -44,11 +44,11 @@ func (ds *dataStore) UpdateOrderInStrategy(strategyName strategy.StrategyName, o
 		return fmt.Errorf("strategy execution not found: %s", strategyName)
 	}
 
-	// Find and update order
+	// Find and update order status
 	found := false
 	for i := range execution.Orders {
 		if execution.Orders[i].ID == orderID {
-			updater(&execution.Orders[i])
+			execution.Orders[i].Status = status
 			found = true
 			break
 		}
@@ -70,9 +70,7 @@ func (ds *dataStore) UpdateOrderInStrategy(strategyName strategy.StrategyName, o
 }
 
 func (ds *dataStore) CancelOrder(strategyName strategy.StrategyName, orderID string) error {
-	return ds.UpdateOrderInStrategy(strategyName, orderID, func(order *connector.Order) {
-		order.Status = connector.OrderStatusCancelled
-	})
+	return ds.UpdateOrderStatus(strategyName, orderID, connector.OrderStatusCanceled)
 }
 
 func (ds *dataStore) CancelAllPendingOrders(strategyName strategy.StrategyName) error {
@@ -89,7 +87,7 @@ func (ds *dataStore) CancelAllPendingOrders(strategyName strategy.StrategyName) 
 	// Cancel all pending orders
 	for i := range execution.Orders {
 		if execution.Orders[i].Status == connector.OrderStatusPending || execution.Orders[i].Status == connector.OrderStatusOpen {
-			execution.Orders[i].Status = connector.OrderStatusCancelled
+			execution.Orders[i].Status = connector.OrderStatusCanceled
 		}
 	}
 
@@ -120,7 +118,7 @@ func (ds *dataStore) CancelOrdersNotAtLevels(strategyName strategy.StrategyName,
 		if execution.Orders[i].Status == connector.OrderStatusPending || execution.Orders[i].Status == connector.OrderStatusOpen {
 			priceLevel := execution.Orders[i].Price.String()
 			if !validLevels[priceLevel] {
-				execution.Orders[i].Status = connector.OrderStatusCancelled
+				execution.Orders[i].Status = connector.OrderStatusCanceled
 			}
 		}
 	}
