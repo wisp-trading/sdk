@@ -7,14 +7,14 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/kronos/signal"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio/store"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/stores/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 )
 
 // Kronos is the base context object for strategy GetSignals methods.
 // It provides read-only access to market data, indicators, and analytics.
 type Kronos struct {
-	store         store.Store
+	store         portfolio.Store
 	tradingLogger logging.TradingLogger
 
 	// Namespaced services for user-friendly API
@@ -27,7 +27,7 @@ type Kronos struct {
 // NewKronos creates a new Kronos context with injected services.
 // This is injected via fx DI into strategies.
 func NewKronos(
-	store store.Store,
+	store portfolio.Store,
 	tradingLogger logging.TradingLogger,
 	indicators *indicators.IndicatorService,
 	market *market.MarketService,
@@ -52,7 +52,7 @@ func (k *Kronos) Log() logging.TradingLogger {
 
 // Store returns the underlying store for advanced use cases.
 // Most users should use the service methods instead.
-func (k *Kronos) Store() store.Store {
+func (k *Kronos) Store() portfolio.Store {
 	return k.store
 }
 

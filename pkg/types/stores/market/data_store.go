@@ -1,15 +1,14 @@
-package store
+package market
 
 import (
-	"sync/atomic"
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
-// Store defines the interface for asset market data operations
-type Store interface {
+// MarketData Defines the interface for asset market data operations
+type MarketData interface {
 	UpdateFundingRate(asset portfolio.Asset, exchangeName connector.ExchangeName, rate connector.FundingRate)
 	UpdateFundingRates(exchangeName connector.ExchangeName, rates map[portfolio.Asset]connector.FundingRate)
 	GetFundingRatesForAsset(asset portfolio.Asset) FundingRateMap
@@ -29,7 +28,6 @@ type Store interface {
 	GetAssetPrice(asset portfolio.Asset, exchangeName connector.ExchangeName) *connector.Price
 	GetAssetPrices(asset portfolio.Asset) PriceMap
 
-	// Add kline methods
 	UpdateKline(asset portfolio.Asset, exchangeName connector.ExchangeName, kline connector.Kline)
 	GetKlines(asset portfolio.Asset, exchangeName connector.ExchangeName, interval string, limit int) []connector.Kline
 	GetKlinesSince(asset portfolio.Asset, exchangeName connector.ExchangeName, interval string, since time.Time) []connector.Kline
@@ -65,11 +63,3 @@ type FundingRateMap map[connector.ExchangeName]connector.FundingRate
 type HistoricalFundingMap map[connector.ExchangeName][]connector.HistoricalFundingRate
 type PriceMap map[connector.ExchangeName]connector.Price
 type KlineMap map[connector.ExchangeName]map[string][]connector.Kline
-
-type MarketData struct {
-	fundingRates           atomic.Value // FundingRateMap
-	historicalFundingRates atomic.Value // HistoricalFundingMap
-	orderBooks             atomic.Value // OrderBookMap
-	assetPrices            atomic.Value // PriceMap
-	klines                 atomic.Value // KlineMap
-}

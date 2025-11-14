@@ -53,6 +53,7 @@ type PriceLevel struct {
 type Trade struct {
 	ID        string          `json:"id"`
 	Symbol    string          `json:"symbol"`
+	Exchange  ExchangeName    `json:"exchange"`
 	Price     decimal.Decimal `json:"price"`
 	Quantity  decimal.Decimal `json:"quantity"`
 	Side      OrderSide       `json:"side"`
