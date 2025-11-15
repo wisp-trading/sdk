@@ -10,7 +10,7 @@ import (
 
 // Trades manages trade execution history globally (trades contain their exchange info)
 type Trades interface {
-	// Add new trades (from order execution or exchange sync)
+	// Add new trades
 	AddTrade(trade connector.Trade)
 	AddTrades(trades []connector.Trade)
 

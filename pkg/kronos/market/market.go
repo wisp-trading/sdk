@@ -6,18 +6,18 @@ import (
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio/store"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/stores/market"
 	"github.com/shopspring/decimal"
 )
 
 // MarketService provides user-friendly methods for market data access.
 // All methods handle data fetching internally.
 type MarketService struct {
-	store store.Store
+	store market.MarketData
 }
 
 // NewMarketService creates a new MarketService
-func NewMarketService(store store.Store) *MarketService {
+func NewMarketService(store market.MarketData) *MarketService {
 	return &MarketService{
 		store: store,
 	}

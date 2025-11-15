@@ -22,21 +22,13 @@ type Positions interface {
 	GetAllStrategyExecutions() map[strategy.StrategyName]*strategy.StrategyExecution
 	GetTotalOrderCount() int64
 
-	// Order management
+	// Order storage
 	AddOrderToStrategy(strategy strategy.StrategyName, order connector.Order)
-	UpdateOrderInStrategy(strategy strategy.StrategyName, orderID string, updater func(*connector.Order)) error
+	UpdateOrderStatus(strategy strategy.StrategyName, orderID string, status connector.OrderStatus) error
 
-	// Trade linking
-	LinkTradeToStrategy(strategy strategy.StrategyName, tradeID string)
-	GetTradeIDsForStrategy(strategy strategy.StrategyName) []string
-
-	// Order cancellation
-	CancelOrder(strategy strategy.StrategyName, orderID string) error
-	CancelAllPendingOrders(strategy strategy.StrategyName) error
-	CancelOrdersNotAtLevels(strategy strategy.StrategyName, validLevels map[string]bool) error
-
-	// Position reconciliation (validate computed positions vs exchange positions)
-	ReconcilePosition(strategyName strategy.StrategyName, exchangePos connector.Position) error
+	// Trade storage
+	AddTradeToStrategy(strategy strategy.StrategyName, trade connector.Trade)
+	GetTradesForStrategy(strategy strategy.StrategyName) []connector.Trade
 
 	// Last updated tracking
 	GetLastUpdated() LastUpdatedMap

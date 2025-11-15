@@ -7,7 +7,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio/store"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/stores/market"
 	"github.com/shopspring/decimal"
 )
 
@@ -19,11 +19,11 @@ const (
 // IndicatorService provides user-friendly methods for technical indicators.
 // All methods handle data fetching internally - users never manually extract klines.
 type IndicatorService struct {
-	store store.Store
+	store market.MarketData
 }
 
 // NewIndicatorService creates a new IndicatorService
-func NewIndicatorService(store store.Store) *IndicatorService {
+func NewIndicatorService(store market.MarketData) *IndicatorService {
 	return &IndicatorService{
 		store: store,
 	}

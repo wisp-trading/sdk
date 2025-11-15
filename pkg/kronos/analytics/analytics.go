@@ -7,17 +7,17 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio/store"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/stores/market"
 	"github.com/shopspring/decimal"
 )
 
 // AnalyticsService provides user-friendly methods for market analytics.
 type AnalyticsService struct {
-	store store.Store
+	store market.MarketData
 }
 
 // NewAnalyticsService creates a new AnalyticsService
-func NewAnalyticsService(store store.Store) *AnalyticsService {
+func NewAnalyticsService(store market.MarketData) *AnalyticsService {
 	return &AnalyticsService{
 		store: store,
 	}
