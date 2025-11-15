@@ -51,7 +51,7 @@ func Stochastic(highs, lows, closes []decimal.Decimal, kPeriod, dPeriod int) ([]
 
 	// Calculate %D (SMA of %K)
 	if len(kValues) < dPeriod {
-		return nil, fmt.Errorf("insufficient %K values for %D calculation: need %d, got %d", dPeriod, len(kValues))
+		return nil, fmt.Errorf("insufficient K values for D calculation: need %d, got %d", dPeriod, len(kValues))
 	}
 
 	result := make([]StochasticResult, 0, len(kValues)-dPeriod+1)
