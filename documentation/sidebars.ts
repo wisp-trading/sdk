@@ -22,8 +22,39 @@ const sidebars: SidebarsConfig = {
         'getting-started/installation',
         'getting-started/quick-reference',
         'getting-started/writing-strategies',
-        'getting-started/examples',
         'getting-started/configuration',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Examples',
+      items: [
+        {
+          type: 'category',
+          label: 'Basic Strategies',
+          items: [
+            'examples/basic/rsi',
+            'examples/basic/ma-crossover',
+            'examples/basic/bollinger-bands',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Intermediate Strategies',
+          items: [
+            'examples/intermediate/multi-indicator',
+            'examples/intermediate/macd-momentum',
+            'examples/intermediate/atr-risk',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Advanced Strategies',
+          items: [
+            'examples/advanced/portfolio',
+            'examples/advanced/arbitrage',
+          ],
+        },
       ],
     },
     {
