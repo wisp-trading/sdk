@@ -113,28 +113,6 @@ if stoch.K.GreaterThan(decimal.NewFromInt(80)) {
 }
 ```
 
-### Crossover Strategy
-
-```go
-// Get current and previous values
-current := s.k.Indicators.Stochastic(btc, 14, 3)
-previous := s.k.Indicators.StochasticPrevious(btc, 14, 3, 1)
-
-// Bullish crossover in oversold zone
-if previous.K.LessThan(previous.D) && 
-   current.K.GreaterThan(current.D) &&
-   current.K.LessThan(decimal.NewFromInt(30)) {
-    return s.Signal().Buy(btc).Reason("Bullish stochastic crossover").Build()
-}
-
-// Bearish crossover in overbought zone
-if previous.K.GreaterThan(previous.D) && 
-   current.K.LessThan(current.D) &&
-   current.K.GreaterThan(decimal.NewFromInt(70)) {
-    return s.Signal().Sell(btc).Reason("Bearish stochastic crossover").Build()
-}
-```
-
 ### Multi-Timeframe
 
 ```go
@@ -348,22 +326,6 @@ stoch := s.k.Indicators.Stochastic(btc, 14, 3)
 if stoch.K.LessThan(decimal.NewFromInt(20)) && 
    stoch.D.LessThan(decimal.NewFromInt(20)) {
     // Both confirm - stronger signal
-    return s.Signal().Buy(btc).Build()
-}
-```
-
-### 3. Late Entries
-
-**Problem:** Waiting for extreme readings can miss the move.
-
-**Solution:**
-```go
-// Use crossovers for earlier entry
-current := s.k.Indicators.Stochastic(btc, 14, 3)
-previous := s.k.Indicators.StochasticPrevious(btc, 14, 3, 1)
-
-if previous.K.LessThan(previous.D) && current.K.GreaterThan(current.D) {
-    // Crossover - earlier signal
     return s.Signal().Buy(btc).Build()
 }
 ```
