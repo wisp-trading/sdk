@@ -28,7 +28,12 @@ const sidebars: SidebarsConfig = {
           type: 'category',
           label: 'Indicators',
           items: [
+            'api/indicators/moving-averages',
+            'api/indicators/rsi',
+            'api/indicators/macd',
+            'api/indicators/bollinger-bands',
             'api/indicators/stochastic',
+            'api/indicators/atr',
           ],
         },
       ],

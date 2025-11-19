@@ -4,35 +4,44 @@ sidebar_position: 2
 
 # Getting Started
 
-This guide shows you how to build a trading strategy with Kronos SDK. We'll focus on what you write—Kronos handles everything else.
+This guide shows you how to build and deploy a trading strategy with Kronos. We'll use the Kronos CLI to set up your project, test it with backtesting, and deploy it live.
 
 ## Installation
 
+Install Kronos via Homebrew:
+
 ```bash
-go get github.com/backtesting-org/kronos-sdk
+brew install backtesting-org/tap/kronos
+```
+
+Verify the installation:
+
+```bash
+kronos --version
 ```
 
 ## Prerequisites
 
-- **Go 1.21+**
+- **Go 1.21+** - [Install Go](https://go.dev/doc/install)
 - Basic Go knowledge
 - Understanding of technical indicators (RSI, SMA, etc.)
 
-## Your First Strategy
+## Create Your First Strategy
 
-Let's build a simple RSI momentum strategy. The complete code is about 40 lines.
-
-### Create the Project
+Initialize a new Kronos project:
 
 ```bash
-mkdir my-strategy
+kronos init my-strategy
 cd my-strategy
-go mod init my-strategy
-go get github.com/backtesting-org/kronos-sdk
-go get github.com/shopspring/decimal
 ```
 
-### Write the Strategy
+This creates a project structure with:
+- `strategy.go` - Your strategy implementation
+- `go.mod` - Go module dependencies
+- `config.yaml` - Kronos configuration
+- `README.md` - Project documentation
+
+### The Generated Strategy
 
 Create `strategy.go`:
 
