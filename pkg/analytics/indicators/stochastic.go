@@ -6,13 +6,48 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+// StochasticResult represents the output of the Stochastic Oscillator calculation.
+// The Stochastic Oscillator is a momentum indicator that compares a security's closing price
+// to its price range over a given time period.
 type StochasticResult struct {
-	K decimal.Decimal // %K line (fast)
-	D decimal.Decimal // %D line (slow - SMA of %K)
+	// K represents the %K line (fast stochastic), which measures the current close
+	// relative to the high-low range over the specified period. Values range from 0 to 100.
+	K decimal.Decimal
+
+	// D represents the %D line (slow stochastic), which is the simple moving average
+	// of the %K line over the specified period. Values range from 0 to 100.
+	// The %D line provides a smoothed signal line.
+	D decimal.Decimal
 }
 
-// Stochastic calculates the Stochastic Oscillator
-// Requires high, low, and close prices
+// Stochastic calculates the Stochastic Oscillator for the given price data.
+//
+// The Stochastic Oscillator is a momentum indicator that shows the location of the close
+// relative to the high-low range over a set number of periods. The indicator ranges between
+// 0 and 100. Readings above 80 are considered overbought, while readings below 20 are
+// considered oversold.
+//
+// Parameters:
+//   - highs: slice of high prices for each period
+//   - lows: slice of low prices for each period
+//   - closes: slice of closing prices for each period
+//   - kPeriod: lookback period for calculating %K (typically 14)
+//   - dPeriod: smoothing period for calculating %D from %K (typically 3)
+//
+// Returns:
+//   - []StochasticResult: slice of stochastic values, each containing %K and %D
+//   - error: if input validation fails or insufficient data is provided
+//
+// The function calculates:
+//   - %K = (Current Close - Lowest Low) / (Highest High - Lowest Low) * 100
+//   - %D = SMA(%K, dPeriod)
+//
+// Example:
+//
+//	highs := []decimal.Decimal{...}
+//	lows := []decimal.Decimal{...}
+//	closes := []decimal.Decimal{...}
+//	results, err := Stochastic(highs, lows, closes, 14, 3)
 func Stochastic(highs, lows, closes []decimal.Decimal, kPeriod, dPeriod int) ([]StochasticResult, error) {
 	if len(highs) != len(lows) || len(highs) != len(closes) {
 		return nil, fmt.Errorf("price arrays must have equal length")

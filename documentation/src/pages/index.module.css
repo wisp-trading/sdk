@@ -1,0 +1,90 @@
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+.heroBanner {
+  padding: 6rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+[data-theme='dark'] .heroBanner {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.heroBanner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.03;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 50px,
+    #64748b 50px,
+    #64748b 51px
+  );
+  pointer-events: none;
+}
+
+.heroBanner h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+[data-theme='dark'] .heroBanner h1 {
+  color: #f1f5f9;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.heroBanner p {
+  font-size: 1.5rem;
+  color: #475569;
+  margin-bottom: 2rem;
+}
+
+[data-theme='dark'] .heroBanner p {
+  color: #cbd5e1;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 4rem 1rem;
+  }
+  
+  .heroBanner h1 {
+    font-size: 2.5rem;
+  }
+  
+  .heroBanner p {
+    font-size: 1.25rem;
+  }
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.buttons .button {
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.buttons .button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(100, 116, 139, 0.3);
+}
+

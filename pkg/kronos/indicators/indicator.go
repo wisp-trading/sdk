@@ -1,3 +1,27 @@
+// Package indicators provides user-friendly methods for calculating technical indicators.
+//
+// This package wraps the low-level indicator calculations in pkg/analytics/indicators
+// and handles all data fetching automatically. Users never need to manually extract
+// klines or manage data - just call the indicator methods with an asset and period.
+//
+// Example usage:
+//
+//	btc := s.k.Asset("BTC")
+//	rsi := s.k.Indicators.RSI(btc, 14)
+//	sma := s.k.Indicators.SMA(btc, 50)
+//	macd := s.k.Indicators.MACD(btc, 12, 26, 9)
+//
+// All indicator methods support optional configuration:
+//
+//	// Use specific exchange
+//	rsi := s.k.Indicators.RSI(btc, 14, indicators.IndicatorOptions{
+//	    Exchange: "binance",
+//	})
+//
+//	// Use different timeframe
+//	sma := s.k.Indicators.SMA(btc, 200, indicators.IndicatorOptions{
+//	    Interval: "4h",
+//	})
 package indicators
 
 import (
@@ -29,14 +53,44 @@ func NewIndicatorService(store market.MarketData) *IndicatorService {
 	}
 }
 
-// IndicatorOptions configures indicator calculations
+// IndicatorOptions configures indicator calculations.
+// All fields are optional. If not specified, Kronos uses sensible defaults:
+// - Exchange: First available exchange with data for the asset
+// - Interval: 1h (hourly candles)
 type IndicatorOptions struct {
-	Exchange connector.ExchangeName // Optional: defaults to first available exchange
-	Interval string                 // Optional: defaults to 1h
+	// Exchange specifies which exchange to fetch data from.
+	// If empty, Kronos automatically selects the first available exchange.
+	Exchange connector.ExchangeName
+
+	// Interval specifies the timeframe for calculations (e.g., "1h", "4h", "1d").
+	// If empty, defaults to "1h".
+	Interval string
 }
 
 // SMA calculates the Simple Moving Average for an asset.
+//
+// The Simple Moving Average is the average price over a specified number of periods.
+// It's used to identify trends and smooth out price fluctuations.
+//
+// Parameters:
+//   - asset: The asset to calculate SMA for (e.g., btc from s.k.Asset("BTC"))
+//   - period: Number of periods to average (e.g., 20, 50, 200)
+//   - opts: Optional exchange and interval configuration
+//
 // Returns the latest SMA value.
+//
+// Example:
+//
+//	btc := s.k.Asset("BTC")
+//	sma50 := s.k.Indicators.SMA(btc, 50)  // 50-period SMA
+//	sma200 := s.k.Indicators.SMA(btc, 200, indicators.IndicatorOptions{
+//	    Interval: "4h",  // 4-hour timeframe
+//	})
+//
+// Kronos automatically:
+//   - Fetches price data from the exchange
+//   - Calculates the moving average
+//   - Returns the current value
 func (s *IndicatorService) SMA(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
@@ -57,7 +111,34 @@ func (s *IndicatorService) SMA(asset portfolio.Asset, period int, opts ...Indica
 }
 
 // EMA calculates the Exponential Moving Average for an asset.
+//
+// The Exponential Moving Average gives more weight to recent prices, making it more
+// responsive to new information than SMA. Commonly used for trend identification
+// and dynamic support/resistance levels.
+//
+// Parameters:
+//   - asset: The asset to calculate EMA for
+//   - period: Number of periods (e.g., 12, 20, 50, 200)
+//   - opts: Optional exchange and interval configuration
+//
 // Returns the latest EMA value.
+//
+// Example:
+//
+//	eth := s.k.Asset("ETH")
+//	ema20 := s.k.Indicators.EMA(eth, 20)   // 20-period EMA
+//	ema50 := s.k.Indicators.EMA(eth, 50)   // 50-period EMA
+//
+//	// Check if price is above EMA (uptrend)
+//	price := s.k.Market.Price(eth)
+//	if price.GreaterThan(ema50) {
+//	    // Uptrend detected
+//	}
+//
+// Kronos automatically:
+//   - Fetches historical price data
+//   - Applies exponential weighting
+//   - Returns the current EMA value
 func (s *IndicatorService) EMA(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
@@ -78,7 +159,39 @@ func (s *IndicatorService) EMA(asset portfolio.Asset, period int, opts ...Indica
 }
 
 // RSI calculates the Relative Strength Index for an asset.
+//
+// RSI is a momentum oscillator that measures the speed and magnitude of price changes.
+// Values range from 0 to 100:
+//   - RSI > 70: Overbought (potential sell signal)
+//   - RSI < 30: Oversold (potential buy signal)
+//   - RSI = 50: Neutral
+//
+// Parameters:
+//   - asset: The asset to calculate RSI for
+//   - period: Number of periods (typically 14)
+//   - opts: Optional exchange and interval configuration
+//
 // Returns the latest RSI value (0-100).
+//
+// Example:
+//
+//	btc := s.k.Asset("BTC")
+//	rsi := s.k.Indicators.RSI(btc, 14)  // Standard 14-period RSI
+//
+//	if rsi.LessThan(decimal.NewFromInt(30)) {
+//	    // Oversold - potential buy signal
+//	    return s.Signal().Buy(btc).Build()
+//	}
+//
+//	if rsi.GreaterThan(decimal.NewFromInt(70)) {
+//	    // Overbought - potential sell signal
+//	    return s.Signal().Sell(btc).Build()
+//	}
+//
+// Kronos automatically:
+//   - Fetches price history
+//   - Calculates gains and losses
+//   - Computes the RSI value
 func (s *IndicatorService) RSI(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, (period+1)*dataMultiplier, opts...)
 	if err != nil {
@@ -99,7 +212,42 @@ func (s *IndicatorService) RSI(asset portfolio.Asset, period int, opts ...Indica
 }
 
 // MACD calculates the Moving Average Convergence Divergence indicator.
-// Returns the latest MACD, signal, and histogram values.
+//
+// MACD is a trend-following momentum indicator that shows the relationship between
+// two exponential moving averages. It consists of:
+//   - MACD Line: Difference between fast and slow EMAs
+//   - Signal Line: EMA of the MACD line
+//   - Histogram: Difference between MACD and Signal lines
+//
+// Parameters:
+//   - asset: The asset to calculate MACD for
+//   - fastPeriod: Fast EMA period (typically 12)
+//   - slowPeriod: Slow EMA period (typically 26)
+//   - signalPeriod: Signal line period (typically 9)
+//   - opts: Optional exchange and interval configuration
+//
+// Returns a MACDResult containing MACD, Signal, and Histogram values.
+//
+// Example:
+//
+//	btc := s.k.Asset("BTC")
+//	macd := s.k.Indicators.MACD(btc, 12, 26, 9)  // Standard settings
+//
+//	// Bullish crossover: MACD crosses above signal
+//	if macd.MACD.GreaterThan(macd.Signal) {
+//	    return s.Signal().Buy(btc).Reason("MACD bullish crossover").Build()
+//	}
+//
+//	// Bearish crossover: MACD crosses below signal
+//	if macd.MACD.LessThan(macd.Signal) {
+//	    return s.Signal().Sell(btc).Reason("MACD bearish crossover").Build()
+//	}
+//
+// Interpretation:
+//   - MACD > Signal: Bullish momentum
+//   - MACD < Signal: Bearish momentum
+//   - Histogram growing: Momentum strengthening
+//   - Histogram shrinking: Momentum weakening
 func (s *IndicatorService) MACD(asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...IndicatorOptions) (*indicators.MACDResult, error) {
 	// Need enough data for slow period + signal period
 	requiredData := (slowPeriod + signalPeriod) * dataMultiplier
@@ -122,7 +270,43 @@ func (s *IndicatorService) MACD(asset portfolio.Asset, fastPeriod, slowPeriod, s
 }
 
 // BollingerBands calculates Bollinger Bands for an asset.
-// Returns the latest upper, middle, and lower band values.
+//
+// Bollinger Bands consist of three lines that envelope price action:
+//   - Middle Band: Simple Moving Average
+//   - Upper Band: Middle + (Standard Deviation × multiplier)
+//   - Lower Band: Middle - (Standard Deviation × multiplier)
+//
+// They measure volatility and identify overbought/oversold conditions.
+//
+// Parameters:
+//   - asset: The asset to calculate Bollinger Bands for
+//   - period: Number of periods for SMA and std dev calculation (typically 20)
+//   - stdDev: Standard deviation multiplier (typically 2.0)
+//   - opts: Optional exchange and interval configuration
+//
+// Returns a BollingerBandsResult containing Upper, Middle, and Lower band values.
+//
+// Example:
+//
+//	btc := s.k.Asset("BTC")
+//	bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)  // 20-period, 2 std dev
+//	price := s.k.Market.Price(btc)
+//
+//	// Price touching lower band - potential buy
+//	if price.LessThan(bb.Lower) {
+//	    return s.Signal().Buy(btc).Reason("Price below lower Bollinger Band").Build()
+//	}
+//
+//	// Price touching upper band - potential sell
+//	if price.GreaterThan(bb.Upper) {
+//	    return s.Signal().Sell(btc).Reason("Price above upper Bollinger Band").Build()
+//	}
+//
+// Interpretation:
+//   - Price near upper band: Overbought
+//   - Price near lower band: Oversold
+//   - Bands narrowing: Low volatility (potential breakout)
+//   - Bands widening: High volatility
 func (s *IndicatorService) BollingerBands(asset portfolio.Asset, period int, stdDev float64, opts ...IndicatorOptions) (*indicators.BollingerBandsResult, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
@@ -142,8 +326,47 @@ func (s *IndicatorService) BollingerBands(asset portfolio.Asset, period int, std
 	return &bbResults[len(bbResults)-1], nil
 }
 
-// Stochastic calculates the Stochastic oscillator for an asset.
-// Returns the latest %K and %D values.
+// Stochastic calculates the Stochastic Oscillator for an asset.
+//
+// The Stochastic Oscillator compares a closing price to its price range over a period.
+// It consists of two lines:
+//   - %K (Fast): Current position within the price range (0-100)
+//   - %D (Slow): Moving average of %K, providing a smoother signal
+//
+// Values range from 0 to 100:
+//   - > 80: Overbought
+//   - < 20: Oversold
+//
+// Parameters:
+//   - asset: The asset to calculate Stochastic for
+//   - kPeriod: Lookback period for %K calculation (typically 14)
+//   - dPeriod: Smoothing period for %D calculation (typically 3)
+//   - opts: Optional exchange and interval configuration
+//
+// Returns a StochasticResult containing K and D values.
+//
+// Example:
+//
+//	eth := s.k.Asset("ETH")
+//	stoch := s.k.Indicators.Stochastic(eth, 14, 3)  // Standard 14,3 settings
+//
+//	// Both lines oversold - strong buy signal
+//	if stoch.K.LessThan(decimal.NewFromInt(20)) &&
+//	   stoch.D.LessThan(decimal.NewFromInt(20)) {
+//	    return s.Signal().Buy(eth).Reason("Stochastic oversold").Build()
+//	}
+//
+//	// Both lines overbought - strong sell signal
+//	if stoch.K.GreaterThan(decimal.NewFromInt(80)) &&
+//	   stoch.D.GreaterThan(decimal.NewFromInt(80)) {
+//	    return s.Signal().Sell(eth).Reason("Stochastic overbought").Build()
+//	}
+//
+// Interpretation:
+//   - %K crosses above %D: Bullish signal
+//   - %K crosses below %D: Bearish signal
+//   - Both in oversold zone: Potential reversal up
+//   - Both in overbought zone: Potential reversal down
 func (s *IndicatorService) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opts ...IndicatorOptions) (*indicators.StochasticResult, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
@@ -188,7 +411,43 @@ func (s *IndicatorService) Stochastic(asset portfolio.Asset, kPeriod, dPeriod in
 }
 
 // ATR calculates the Average True Range for an asset.
-// Returns the latest ATR value.
+//
+// ATR measures market volatility by calculating the average range between
+// high and low prices over a period. Higher ATR indicates higher volatility.
+//
+// ATR is commonly used for:
+//   - Setting stop losses (e.g., stop at 2× ATR below entry)
+//   - Position sizing (reduce size in high volatility)
+//   - Identifying breakouts (ATR expanding)
+//
+// Parameters:
+//   - asset: The asset to calculate ATR for
+//   - period: Number of periods to average (typically 14)
+//   - opts: Optional exchange and interval configuration
+//
+// Returns the latest ATR value in the asset's price units.
+//
+// Example:
+//
+//	btc := s.k.Asset("BTC")
+//	atr := s.k.Indicators.ATR(btc, 14)  // 14-period ATR
+//	price := s.k.Market.Price(btc)
+//
+//	// Set stop loss at 2× ATR below entry
+//	stopLoss := price.Sub(atr.Mul(decimal.NewFromInt(2)))
+//
+//	// Check if volatility is high
+//	avgPrice := s.k.Indicators.SMA(btc, 20)
+//	atrPercent := atr.Div(avgPrice).Mul(decimal.NewFromInt(100))
+//	if atrPercent.GreaterThan(decimal.NewFromInt(5)) {
+//	    // High volatility - reduce position size
+//	}
+//
+// Interpretation:
+//   - High ATR: High volatility, larger price swings
+//   - Low ATR: Low volatility, price consolidation
+//   - Rising ATR: Volatility increasing
+//   - Falling ATR: Volatility decreasing
 func (s *IndicatorService) ATR(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange

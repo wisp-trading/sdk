@@ -8,7 +8,6 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/kronos/trade"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
@@ -163,19 +162,10 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 			s.k.Log().Opportunity("ExampleStrategy", btc.Symbol(),
 				"Price %s > SMA(20) %s - Bullish signal", price.String(), sma20.String())
 
-			signal := &strategy.Signal{
-				ID:       uuid.New(),
-				Strategy: strategy.StrategyName("Example Strategy"),
-				Actions: []strategy.TradeAction{
-					{
-						Action:   strategy.ActionBuy,
-						Asset:    btc,
-						Exchange: connector.Binance,
-						Quantity: decimal.NewFromInt(1),
-						Price:    decimal.Zero, // Market order
-					},
-				},
-			}
+			signal := s.k.Signal(s.GetName()).
+				Buy(btc, connector.Binance, decimal.NewFromInt(1)).
+				Build()
+
 			signals = append(signals, signal)
 		}
 	}
@@ -187,19 +177,9 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 			s.k.Log().Opportunity("ExampleStrategy", eth.Symbol(),
 				"RSI %s < 30 - Oversold signal", rsi.String())
 
-			signal := &strategy.Signal{
-				ID:       uuid.New(),
-				Strategy: strategy.StrategyName("Example Strategy"),
-				Actions: []strategy.TradeAction{
-					{
-						Action:   strategy.ActionBuy,
-						Asset:    eth,
-						Exchange: connector.Binance,
-						Quantity: decimal.NewFromInt(10),
-						Price:    decimal.Zero,
-					},
-				},
-			}
+			signal := s.k.Signal(s.GetName()).
+				Buy(eth, connector.Binance, decimal.NewFromInt(5)).
+				Build()
 			signals = append(signals, signal)
 		}
 	}
