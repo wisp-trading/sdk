@@ -5,8 +5,8 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'Kronos SDK',
-  tagline: 'Technical Analysis & Trading Indicators for Go',
+  title: 'Kronos',
+  tagline: 'The Traders Framework',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -61,11 +61,11 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'Kronos SDK',
-      logo: {
-        alt: 'Kronos SDK Logo',
-        src: 'img/logo.svg',
-      },
+      title: '',
+      // logo: {
+        // alt: 'Kronos SDK Logo',
+        // src: 'img/logo.svg',
+      // },
       items: [
         {
           type: 'docSidebar',
@@ -110,7 +110,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Kronos SDK. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Kronos SDK.`,
     },
     prism: {
       theme: prismThemes.github,

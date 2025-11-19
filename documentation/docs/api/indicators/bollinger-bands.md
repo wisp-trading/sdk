@@ -10,9 +10,8 @@ sidebar_position: 5
 // Basic usage (20, 2.0 is standard)
 bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)
 
-fmt.Println(bb.Upper)   // Upper band
-fmt.Println(bb.Middle)  // Middle band (SMA)
-fmt.Println(bb.Lower)   // Lower band
+s.k.Log().Debug("Bollinger Bands", btc.Symbol(), "Upper: %s, Middle: %s, Lower: %s",
+    bb.Upper, bb.Middle, bb.Lower)
 
 // With options
 bb := s.k.Indicators.BollingerBands(btc, 20, 2.0, indicators.IndicatorOptions{

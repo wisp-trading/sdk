@@ -10,9 +10,8 @@ sidebar_position: 4
 // Basic usage (12, 26, 9 is standard)
 macd := s.k.Indicators.MACD(btc, 12, 26, 9)
 
-fmt.Println(macd.MACD)       // MACD line
-fmt.Println(macd.Signal)     // Signal line
-fmt.Println(macd.Histogram)  // Histogram
+s.k.Log().Debug("MACD", btc.Symbol(), "MACD: %s, Signal: %s, Histogram: %s",
+    macd.MACD, macd.Signal, macd.Histogram)
 
 // With options
 macd := s.k.Indicators.MACD(btc, 12, 26, 9, indicators.IndicatorOptions{

@@ -5,14 +5,14 @@ import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
+  image: string;
   description: ReactNode;
 };
 
 const FeatureList: FeatureItem[] = [
   {
     title: 'Type-Safe by Design',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    image: require('@site/static/img/kronos_arrow.png').default,
     description: (
       <>
         Write strategies with full IDE autocomplete and compile-time guarantees.
@@ -22,17 +22,17 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Focus on Strategy Logic',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    image: require('@site/static/img/kronos_target.png').default,
     description: (
       <>
         Don&apos;t worry about exchange APIs or data management.
-        Just write <code>s.Indicators.RSI(btc, 14)</code> and Kronos handles the rest.
+        Focus on writing your strategies, Kronos handles the rest.
       </>
     ),
   },
   {
     title: 'Write Once, Run Anywhere',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    image: require('@site/static/img/kronos_result.png').default,
     description: (
       <>
         Same code works in backtesting and live trading.
@@ -42,11 +42,11 @@ const FeatureList: FeatureItem[] = [
   },
 ];
 
-function Feature({title, Svg, description}: FeatureItem) {
+function Feature({title, image, description}: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
       <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
+        <img src={image} className={styles.featureImg} alt={title} />
       </div>
       <div className="text--center padding-horiz--md">
         <Heading as="h3">{title}</Heading>

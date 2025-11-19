@@ -293,18 +293,18 @@ vol := s.k.Analytics.Volatility(btc, 24)
 
 // Trend analysis
 trend := s.k.Analytics.Trend(btc, 50)
-fmt.Printf("Trend: %s (Strength: %s%%)\n", 
+s.k.Log().Info("Trend: %s (Strength: %s%%)", 
     trend.Direction, trend.Strength)
 
 // Volume analysis
 volAnalysis := s.k.Analytics.VolumeAnalysis(btc, 24)
 if volAnalysis.IsVolumeSpike {
-    fmt.Println("Volume spike detected!")
+    s.k.Log().MarketCondition("Volume spike detected")
 }
 
 // Price change
 change := s.k.Analytics.GetPriceChange(btc, 24)
-fmt.Printf("24h change: %s%%\n", change.ChangePercent)
+s.k.Log().Info("24h change: %s%%", change.ChangePercent)
 ```
 
 ## Architecture

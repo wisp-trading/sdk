@@ -56,11 +56,12 @@ s.k.Log().Debug("MACD", btc.Symbol(), "MACD: %s, Signal: %s, Histogram: %s",
 
 // Bollinger Bands
 bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)
-fmt.Println(bb.Upper, bb.Middle, bb.Lower)
+s.k.Log().Debug("BB", btc.Symbol(), "Upper: %s, Middle: %s, Lower: %s",
+    bb.Upper, bb.Middle, bb.Lower)
 
 // Stochastic Oscillator
 stoch := s.k.Indicators.Stochastic(btc, 14, 3)
-fmt.Println(stoch.K, stoch.D)
+s.k.Log().Debug("Stochastic", btc.Symbol(), "K: %s, D: %s", stoch.K, stoch.D)
 
 // ATR - Average True Range
 atr := s.k.Indicators.ATR(btc, 14)
@@ -112,7 +113,7 @@ price := s.k.Market.Price(btc, market.MarketOptions{
 // Prices from all exchanges
 prices := s.k.Market.Prices(btc)
 for exchange, price := range prices {
-    fmt.Printf("%s: %s\n", exchange, price)
+    s.k.Log().Info("%s: %s", exchange, price)
 }
 
 // Order book
@@ -207,8 +208,8 @@ if rsi.LessThan(decimal.NewFromInt(30)) {
 }
 
 // String conversion
-fmt.Println(price.String())           // "50000.5"
-fmt.Println(price.StringFixed(2))     // "50000.50"
+s.k.Log().Info("Price: %s", price.String())              // "50000.5"
+s.k.Log().Info("Price fixed: %s", price.StringFixed(2)) // "50000.50"
 ```
 
 :::danger Never use float64 for money

@@ -34,7 +34,7 @@ export default function Home(): ReactNode {
   return (
     <Layout
       title={`${siteConfig.title}`}
-      description="Technical Analysis & Trading Indicators for Go">
+      description="The Traders Framework.">
       <HomepageHeader />
       <main>
         <HomepageFeatures />

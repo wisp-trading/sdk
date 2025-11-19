@@ -18,6 +18,10 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Getting Started',
+      link: {
+        type: 'doc',
+        id: 'getting-started/index',
+      },
       items: [
         'getting-started/installation',
         'getting-started/quick-reference',
@@ -28,6 +32,10 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Examples',
+      link: {
+        type: 'doc',
+        id: 'examples/index',
+      },
       items: [
         {
           type: 'category',
