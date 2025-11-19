@@ -1,3 +1,27 @@
+// Package indicators provides user-friendly methods for calculating technical indicators.
+//
+// This package wraps the low-level indicator calculations in pkg/analytics/indicators
+// and handles all data fetching automatically. Users never need to manually extract
+// klines or manage data - just call the indicator methods with an asset and period.
+//
+// Example usage:
+//
+//	btc := s.k.Asset("BTC")
+//	rsi := s.k.Indicators.RSI(btc, 14)
+//	sma := s.k.Indicators.SMA(btc, 50)
+//	macd := s.k.Indicators.MACD(btc, 12, 26, 9)
+//
+// All indicator methods support optional configuration:
+//
+//	// Use specific exchange
+//	rsi := s.k.Indicators.RSI(btc, 14, indicators.IndicatorOptions{
+//	    Exchange: "binance",
+//	})
+//
+//	// Use different timeframe
+//	sma := s.k.Indicators.SMA(btc, 200, indicators.IndicatorOptions{
+//	    Interval: "4h",
+//	})
 package indicators
 
 import (
