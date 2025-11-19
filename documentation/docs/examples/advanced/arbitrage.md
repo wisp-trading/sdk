@@ -41,7 +41,7 @@ func (s *Arbitrage) GetSignals() ([]*strategy.Signal, error) {
     
     // Find min and max
     var minPrice, maxPrice decimal.Decimal
-    var minExchange, maxExchange connector.ExchangeType
+    var minExchange, maxExchange connector.ExchangeName
     
     for exchange, price := range prices {
         if minPrice.IsZero() || price.LessThan(minPrice) {
@@ -63,10 +63,12 @@ func (s *Arbitrage) GetSignals() ([]*strategy.Signal, error) {
             "Buy %s @ %s, Sell %s @ %s, Spread: %s%%",
             minExchange, minPrice, maxExchange, maxPrice, spread)
         
-        return []*strategy.Signal{
-            s.Signal().Buy(btc).Exchange(minExchange).Quantity(decimal.NewFromFloat(0.1)).Build(),
-            s.Signal().Sell(btc).Exchange(maxExchange).Quantity(decimal.NewFromFloat(0.1)).Build(),
-        }, nil
+        qty := decimal.NewFromFloat(0.1)
+        signal := s.k.Signal(s.GetName()).
+            Buy(btc, minExchange, qty).
+            Sell(btc, maxExchange, qty).
+            Build()
+        return []*strategy.Signal{signal}, nil
     }
     
     return nil, nil

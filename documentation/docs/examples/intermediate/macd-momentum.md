@@ -19,57 +19,54 @@ Trade MACD crossovers only with the prevailing trend.
 package main
 
 import (
-    sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
-    "github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-    "github.com/shopspring/decimal"
+	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/shopspring/decimal"
 )
 
 type MACDMomentum struct {
-    k *sdk.Kronos
+	k *sdk.Kronos
 }
 
 func NewMACDMomentum(k *sdk.Kronos) *MACDMomentum {
-    return &MACDMomentum{k: k}
+	return &MACDMomentum{k: k}
 }
 
 func (s *MACDMomentum) GetSignals() ([]*strategy.Signal, error) {
-    btc := s.k.Asset("BTC")
-    
-    macd := s.k.Indicators.MACD(btc, 12, 26, 9)
-    sma200 := s.k.Indicators.SMA(btc, 200)
-    price := s.k.Market.Price(btc)
-    
-    // Only trade with the trend
-    inUptrend := price.GreaterThan(sma200)
-    inDowntrend := price.LessThan(sma200)
-    
-    // Bullish crossover in uptrend
-    if macd.MACD.GreaterThan(macd.Signal) && 
-       macd.Histogram.GreaterThan(decimal.Zero) && 
-       inUptrend {
-        return []*strategy.Signal{
-            s.Signal().
-                Buy(btc).
-                Quantity(decimal.NewFromFloat(0.15)).
-                Reason("MACD bullish crossover in uptrend").
-                Build(),
-        }, nil
-    }
-    
-    // Bearish crossover in downtrend
-    if macd.MACD.LessThan(macd.Signal) && 
-       macd.Histogram.LessThan(decimal.Zero) && 
-       inDowntrend {
-        return []*strategy.Signal{
-            s.Signal().
-                Sell(btc).
-                Quantity(decimal.NewFromFloat(0.15)).
-                Reason("MACD bearish crossover in downtrend").
-                Build(),
-        }, nil
-    }
-    
-    return nil, nil
+	btc := s.k.Asset("BTC")
+
+	macd, _ := s.k.Indicators.MACD(btc, 12, 26, 9)
+	sma200, _ := s.k.Indicators.SMA(btc, 200)
+	price, _ := s.k.Market.Price(btc)
+
+	// Only trade with the trend
+	inUptrend := price.GreaterThan(sma200)
+	inDowntrend := price.LessThan(sma200)
+
+	// Bullish crossover in uptrend
+	if macd.MACD.GreaterThan(macd.Signal) &&
+		macd.Histogram.GreaterThan(decimal.Zero) &&
+		inUptrend {
+		s.k.Log().Opportunity("MACD-Momentum", "BTC", "MACD bullish crossover in uptrend")
+		signal := s.k.Signal(s.GetName()).
+			Buy(btc, connector.Binance, decimal.NewFromFloat(0.15)).
+			Build()
+		return []*strategy.Signal{signal}, nil
+	}
+
+	// Bearish crossover in downtrend
+	if macd.MACD.LessThan(macd.Signal) &&
+		macd.Histogram.LessThan(decimal.Zero) &&
+		inDowntrend {
+		s.k.Log().Opportunity("MACD-Momentum", "BTC", "MACD bearish crossover in downtrend")
+		signal := s.k.Signal(s.GetName()).
+			Sell(btc, connector.Binance, decimal.NewFromFloat(0.15)).
+			Build()
+		return []*strategy.Signal{signal}, nil
+	}
+
+	return nil, nil
 }
 
 func (s *MACDMomentum) GetName() strategy.StrategyName { return "MACD-Momentum" }

@@ -40,9 +40,10 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     
     // 3. Decide
     if rsi.LessThan(decimal.NewFromInt(30)) {
-        return []*strategy.Signal{
-            s.Signal().Buy(btc).Quantity(decimal.NewFromFloat(0.1)).Build(),
-        }, nil
+        signal := s.k.Signal(s.GetName()).
+            Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+            Build()
+        return []*strategy.Signal{signal}, nil
     }
     
     // 4. No action
@@ -67,11 +68,10 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
         rsi := s.k.Indicators.RSI(asset, 14)
         
         if rsi.LessThan(decimal.NewFromInt(30)) {
-            signals = append(signals, 
-                s.Signal().
-                    Buy(asset).
-                    Quantity(decimal.NewFromFloat(0.1)).
-                    Build())
+            signal := s.k.Signal(s.GetName()).
+                Buy(asset, connector.Binance, decimal.NewFromFloat(0.1)).
+                Build()
+            signals = append(signals, signal)
         }
     }
     
@@ -103,13 +103,11 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     
     // Only buy if in uptrend AND oversold
     if price.GreaterThan(sma200) && rsi.LessThan(decimal.NewFromInt(30)) {
-        return []*strategy.Signal{
-            s.Signal().
-                Buy(btc).
-                Quantity(decimal.NewFromFloat(0.1)).
-                Reason("Oversold in uptrend").
-                Build(),
-        }, nil
+        signal := s.k.Signal(s.GetName()).
+            Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+            Build()
+        s.k.Log().Opportunity(string(s.GetName()), "BTC", "Oversold in uptrend")
+        return []*strategy.Signal{signal}, nil
     }
     
     return nil, nil
@@ -136,13 +134,11 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
                 price.LessThan(bb.Lower)
     
     if oversold {
-        return []*strategy.Signal{
-            s.Signal().
-                Buy(btc).
-                Quantity(decimal.NewFromFloat(0.15)).  // Larger size with confirmation
-                Reason("Triple confirmation: RSI, Stoch, BB").
-                Build(),
-        }, nil
+        signal := s.k.Signal(s.GetName()).
+            Buy(btc, connector.Binance, decimal.NewFromFloat(0.15)).  // Larger size with confirmation
+            Build()
+        s.k.Log().Opportunity(string(s.GetName()), "BTC", "Triple confirmation: RSI, Stoch, BB")
+        return []*strategy.Signal{signal}, nil
     }
     
     return nil, nil
@@ -164,21 +160,22 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     atr := s.k.Indicators.ATR(btc, 14)
     
     if rsi.LessThan(decimal.NewFromInt(30)) {
+        // Calculate stops based on ATR
         // Stop loss at 2× ATR below entry
         stopLoss := price.Sub(atr.Mul(decimal.NewFromInt(2)))
         
         // Take profit at 3× ATR above entry
         takeProfit := price.Add(atr.Mul(decimal.NewFromInt(3)))
         
-        return []*strategy.Signal{
-            s.Signal().
-                Buy(btc).
-                Quantity(decimal.NewFromFloat(0.1)).
-                StopLoss(stopLoss).
-                TakeProfit(takeProfit).
-                Reason("RSI oversold with ATR stops").
-                Build(),
-        }, nil
+        // Log the stop levels for reference
+        s.k.Log().Info(string(s.GetName()), \"BTC\", 
+            \"Entry: %s, Stop: %s, Target: %s (R:R 1:1.5)\", 
+            price, stopLoss, takeProfit)
+        
+        signal := s.k.Signal(s.GetName()).
+            Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+            Build()
+        return []*strategy.Signal{signal}, nil
     }
     
     return nil, nil
@@ -255,9 +252,15 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     
     // If spread > 0.5%, arbitrage opportunity
     if spread.GreaterThan(decimal.NewFromFloat(0.5)) {
+        s.k.Log().Opportunity(string(s.GetName()), \"BTC\", \"Spread: %.2f%%\", spread)
+        
+        // Note: You need to specify quantity for each trade
+        qty := decimal.NewFromFloat(0.1)
         return []*strategy.Signal{
-            s.Signal().Buy(btc).Exchange(connector.Bybit).Build(),
-            s.Signal().Sell(btc).Exchange(connector.Binance).Build(),
+            s.k.Signal(s.GetName()).
+                Buy(btc, connector.Bybit, qty).
+                Sell(btc, connector.Binance, qty).
+                Build(),
         }, nil
     }
     
@@ -278,7 +281,7 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
         // Find exchange with lowest price
         prices := s.k.Market.Prices(btc)
         
-        var bestExchange connector.ExchangeType
+        var bestExchange connector.ExchangeName
         var bestPrice decimal.Decimal
         
         for exchange, price := range prices {
@@ -288,14 +291,12 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
             }
         }
         
-        return []*strategy.Signal{
-            s.Signal().
-                Buy(btc).
-                Exchange(bestExchange).
-                Quantity(decimal.NewFromFloat(0.1)).
-                Reason("Best price on " + string(bestExchange)).
-                Build(),
-        }, nil
+        s.k.Log().Info(string(s.GetName()), \"BTC\", \"Best price on %s: %s\", bestExchange, bestPrice)
+        
+        signal := s.k.Signal(s.GetName()).
+            Buy(btc, bestExchange, decimal.NewFromFloat(0.1)).
+            Build()
+        return []*strategy.Signal{signal}, nil
     }
     
     return nil, nil
@@ -318,24 +319,20 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     
     // Golden cross: 50 SMA crosses above 200 SMA
     if sma50.GreaterThan(sma200) && price.GreaterThan(sma50) {
-        return []*strategy.Signal{
-            s.Signal().
-                Buy(btc).
-                Quantity(decimal.NewFromFloat(0.2)).
-                Reason("Golden cross + price above 50 SMA").
-                Build(),
-        }, nil
+        signal := s.k.Signal(s.GetName()).
+            Buy(btc, connector.Binance, decimal.NewFromFloat(0.2)).
+            Build()
+        s.k.Log().Opportunity(string(s.GetName()), "BTC", "Golden cross + price above 50 SMA")
+        return []*strategy.Signal{signal}, nil
     }
     
     // Death cross: 50 SMA crosses below 200 SMA
     if sma50.LessThan(sma200) {
-        return []*strategy.Signal{
-            s.Signal().
-                Sell(btc).
-                Quantity(decimal.NewFromFloat(0.2)).
-                Reason("Death cross").
-                Build(),
-        }, nil
+        signal := s.k.Signal(s.GetName()).
+            Sell(btc, connector.Binance, decimal.NewFromFloat(0.2)).
+            Build()
+        s.k.Log().Opportunity(string(s.GetName()), "BTC", "Death cross")
+        return []*strategy.Signal{signal}, nil
     }
     
     return nil, nil
@@ -356,14 +353,12 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     
     // Buy when price touches lower band AND RSI confirms
     if price.LessThan(bb.Lower) && rsi.LessThan(decimal.NewFromInt(30)) {
-        return []*strategy.Signal{
-            s.Signal().
-                Buy(btc).
-                Quantity(decimal.NewFromFloat(0.1)).
-                TakeProfit(bb.Middle).  // Target middle band
-                Reason("Mean reversion from lower BB").
-                Build(),
-        }, nil
+        signal := s.k.Signal(s.GetName()).
+            Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+            Build()
+        s.k.Log().Opportunity(string(s.GetName()), "BTC", 
+            "Mean reversion from lower BB, target middle: %s", bb.Middle)
+        return []*strategy.Signal{signal}, nil
     }
     
     return nil, nil
@@ -390,13 +385,11 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
         
         // Buy on upward breakout
         if price.GreaterThan(bb.Upper) {
-            return []*strategy.Signal{
-                s.Signal().
-                    Buy(btc).
-                    Quantity(decimal.NewFromFloat(0.15)).
-                    Reason("Breakout from squeeze").
-                    Build(),
-            }, nil
+            signal := s.k.Signal(s.GetName()).
+                Buy(btc, connector.Binance, decimal.NewFromFloat(0.15)).
+                Build()
+            s.k.Log().Opportunity(string(s.GetName()), "BTC", "Breakout from squeeze")
+            return []*strategy.Signal{signal}, nil
         }
     }
     
@@ -429,9 +422,10 @@ func (s *TrendStrategy) GetSignals() ([]*strategy.Signal, error) {
             s.entryPrice = price
             s.trailingStop = price.Sub(atr.Mul(decimal.NewFromInt(2)))
             
-            return []*strategy.Signal{
-                s.Signal().Buy(btc).Quantity(decimal.NewFromFloat(0.1)).Build(),
-            }, nil
+            signal := s.k.Signal(s.GetName()).
+                Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+                Build()
+            return []*strategy.Signal{signal}, nil
         }
     }
     
@@ -447,13 +441,11 @@ func (s *TrendStrategy) GetSignals() ([]*strategy.Signal, error) {
         if price.LessThan(s.trailingStop) {
             s.inPosition = false
             
-            return []*strategy.Signal{
-                s.Signal().
-                    Sell(btc).
-                    Quantity(decimal.NewFromFloat(0.1)).
-                    Reason("Trailing stop hit").
-                    Build(),
-            }, nil
+            signal := s.k.Signal(s.GetName()).
+                Sell(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+                Build()
+            s.k.Log().Info(string(s.GetName()), "BTC", "Trailing stop hit")
+            return []*strategy.Signal{signal}, nil
         }
     }
     

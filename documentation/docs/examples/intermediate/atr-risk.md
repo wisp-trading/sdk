@@ -19,62 +19,64 @@ Dynamic stops and position sizing based on volatility.
 package main
 
 import (
-    sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
-    "github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-    "github.com/shopspring/decimal"
+	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/shopspring/decimal"
 )
 
 type ATRRiskManaged struct {
-    k *sdk.Kronos
+	k *sdk.Kronos
 }
 
 func NewATRRiskManaged(k *sdk.Kronos) *ATRRiskManaged {
-    return &ATRRiskManaged{k: k}
+	return &ATRRiskManaged{k: k}
 }
 
 func (s *ATRRiskManaged) GetSignals() ([]*strategy.Signal, error) {
-    btc := s.k.Asset("BTC")
-    
-    rsi := s.k.Indicators.RSI(btc, 14)
-    price := s.k.Market.Price(btc)
-    atr := s.k.Indicators.ATR(btc, 14)
-    
-    // Check volatility
-    atrPercent := atr.Div(price).Mul(decimal.NewFromInt(100))
-    if atrPercent.GreaterThan(decimal.NewFromInt(5)) {
-        s.k.Log().MarketCondition("Volatility too high: %s%%", atrPercent)
-        return nil, nil
-    }
-    
-    if rsi.LessThan(decimal.NewFromInt(30)) {
-        // Dynamic stops based on ATR
-        stopLoss := price.Sub(atr.Mul(decimal.NewFromInt(2)))
-        takeProfit := price.Add(atr.Mul(decimal.NewFromInt(3)))
-        
-        // Position size based on risk
-        accountBalance := decimal.NewFromInt(10000)
-        riskAmount := accountBalance.Mul(decimal.NewFromFloat(0.02))  // 2% risk
-        stopDistance := atr.Mul(decimal.NewFromInt(2))
-        quantity := riskAmount.Div(stopDistance)
-        
-        return []*strategy.Signal{
-            s.Signal().
-                Buy(btc).
-                Quantity(quantity).
-                StopLoss(stopLoss).
-                TakeProfit(takeProfit).
-                Reason("ATR-managed entry").
-                Build(),
-        }, nil
-    }
-    
-    return nil, nil
+	btc := s.k.Asset("BTC")
+
+	rsi, _ := s.k.Indicators.RSI(btc, 14)
+	price, _ := s.k.Market.Price(btc)
+	atr, _ := s.k.Indicators.ATR(btc, 14)
+
+	// Check volatility
+	atrPercent := atr.Div(price).Mul(decimal.NewFromInt(100))
+	if atrPercent.GreaterThan(decimal.NewFromInt(5)) {
+		s.k.Log().MarketCondition("Volatility too high: %s%%", atrPercent)
+		return nil, nil
+	}
+
+	if rsi.LessThan(decimal.NewFromInt(30)) {
+		// Dynamic stops based on ATR
+		stopLoss := price.Sub(atr.Mul(decimal.NewFromInt(2)))
+		takeProfit := price.Add(atr.Mul(decimal.NewFromInt(3)))
+
+		// Position size based on risk
+		accountBalance := decimal.NewFromInt(10000)
+		riskAmount := accountBalance.Mul(decimal.NewFromFloat(0.02)) // 2% risk
+		stopDistance := atr.Mul(decimal.NewFromInt(2))
+		quantity := riskAmount.Div(stopDistance)
+
+		s.k.Log().Opportunity("ATR-Risk", "BTC",
+			"ATR-managed entry - Stop: %s, Target: %s, Size: %s",
+			stopLoss, takeProfit, quantity)
+
+		signal := s.k.Signal(s.GetName()).
+			Buy(btc, connector.Binance, quantity).
+			Build()
+		return []*strategy.Signal{signal}, nil
+	}
+
+	return nil, nil
 }
 
-func (s *ATRRiskManaged) GetName() strategy.StrategyName { return "ATR-Risk" }
-func (s *ATRRiskManaged) GetDescription() string { return "ATR-based risk management" }
+func (s *ATRRiskManaged) GetName() strategy.StrategyName   { return "ATR-Risk" }
+func (s *ATRRiskManaged) GetDescription() string           { return "ATR-based risk management" }
 func (s *ATRRiskManaged) GetRiskLevel() strategy.RiskLevel { return strategy.RiskLevelLow }
-func (s *ATRRiskManaged) GetStrategyType() strategy.StrategyType { return strategy.StrategyTypeTechnical }
+func (s *ATRRiskManaged) GetStrategyType() strategy.StrategyType {
+	return strategy.StrategyTypeTechnical
+}
 ```
 
 ## How It Works

@@ -133,34 +133,32 @@ klines := s.k.Market.Klines(btc, "1h", 100)  // Last 100 1h candles
 Create trading signals with the fluent API:
 
 ```go
-// Buy signal
-signal := s.Signal().
-    Buy(btc).
-    Quantity(decimal.NewFromFloat(0.1)).
-    Reason("RSI oversold").
+import "github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+
+// Buy signal - specify asset, exchange, and quantity
+signal := s.k.Signal(s.GetName()).
+    Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
     Build()
 
 // Sell signal
-signal := s.Signal().
-    Sell(btc).
-    Quantity(decimal.NewFromFloat(0.1)).
-    Reason("RSI overbought").
+signal := s.k.Signal(s.GetName()).
+    Sell(btc, connector.Binance, decimal.NewFromFloat(0.1)).
     Build()
 
-// With stop loss and take profit
-signal := s.Signal().
-    Buy(btc).
-    Quantity(decimal.NewFromFloat(0.1)).
-    StopLoss(decimal.NewFromInt(45000)).
-    TakeProfit(decimal.NewFromInt(55000)).
-    Reason("Breakout").
+// Short sell signal
+signal := s.k.Signal(s.GetName()).
+    SellShort(btc, connector.Binance, decimal.NewFromFloat(0.1)).
     Build()
 
-// Specific exchange
-signal := s.Signal().
-    Buy(btc).
-    Exchange(connector.Binance).
-    Quantity(decimal.NewFromFloat(0.1)).
+// Limit orders with specific price
+signal := s.k.Signal(s.GetName()).
+    BuyLimit(btc, connector.Binance, decimal.NewFromFloat(0.1), decimal.NewFromInt(45000)).
+    Build()
+
+// Multiple trades in one signal (e.g., cash and carry)
+signal := s.k.Signal(s.GetName()).
+    Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+    SellShort(btc, connector.Bybit, decimal.NewFromFloat(0.1)).
     Build()
 ```
 
@@ -172,9 +170,10 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     rsi := s.k.Indicators.RSI(btc, 14)
     
     if rsi.LessThan(decimal.NewFromInt(30)) {
-        return []*strategy.Signal{
-            s.Signal().Buy(btc).Quantity(decimal.NewFromFloat(0.1)).Build(),
-        }, nil
+        signal := s.k.Signal(s.GetName()).
+            Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+            Build()
+        return []*strategy.Signal{signal}, nil
     }
     
     return nil, nil

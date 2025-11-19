@@ -19,55 +19,52 @@ Golden cross / death cross trend following strategy.
 package main
 
 import (
-    sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
-    "github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-    "github.com/shopspring/decimal"
+	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/shopspring/decimal"
 )
 
 type MACrossover struct {
-    k *sdk.Kronos
+	k *sdk.Kronos
 }
 
 func NewMACrossover(k *sdk.Kronos) *MACrossover {
-    return &MACrossover{k: k}
+	return &MACrossover{k: k}
 }
 
 func (s *MACrossover) GetSignals() ([]*strategy.Signal, error) {
-    btc := s.k.Asset("BTC")
-    
-    sma50 := s.k.Indicators.SMA(btc, 50)
-    sma200 := s.k.Indicators.SMA(btc, 200)
-    price := s.k.Market.Price(btc)
-    
-    // Golden cross: 50 crosses above 200
-    if sma50.GreaterThan(sma200) && price.GreaterThan(sma50) {
-        return []*strategy.Signal{
-            s.Signal().
-                Buy(btc).
-                Quantity(decimal.NewFromFloat(0.2)).
-                Reason("Golden cross").
-                Build(),
-        }, nil
-    }
-    
-    // Death cross: 50 crosses below 200
-    if sma50.LessThan(sma200) {
-        return []*strategy.Signal{
-            s.Signal().
-                Sell(btc).
-                Quantity(decimal.NewFromFloat(0.2)).
-                Reason("Death cross").
-                Build(),
-        }, nil
-    }
-    
-    return nil, nil
+	btc := s.k.Asset("BTC")
+
+	sma50, _ := s.k.Indicators.SMA(btc, 50)
+	sma200, _ := s.k.Indicators.SMA(btc, 200)
+	price, _ := s.k.Market.Price(btc)
+
+	// Golden cross: 50 crosses above 200
+	if sma50.GreaterThan(sma200) && price.GreaterThan(sma50) {
+		s.k.Log().Opportunity("MA-Crossover", "BTC", "Golden cross detected")
+		signal := s.k.Signal(s.GetName()).
+			Buy(btc, connector.Binance, decimal.NewFromFloat(0.2)).
+			Build()
+		return []*strategy.Signal{signal}, nil
+	}
+
+	// Death cross: 50 crosses below 200
+	if sma50.LessThan(sma200) {
+		s.k.Log().Opportunity("MA-Crossover", "BTC", "Death cross detected")
+		signal := s.k.Signal(s.GetName()).
+			Sell(btc, connector.Binance, decimal.NewFromFloat(0.2)).
+			Build()
+		return []*strategy.Signal{signal}, nil
+	}
+
+	return nil, nil
 }
 
-func (s *MACrossover) GetName() strategy.StrategyName { return "MA-Crossover" }
-func (s *MACrossover) GetDescription() string { return "Golden/Death cross strategy" }
-func (s *MACrossover) GetRiskLevel() strategy.RiskLevel { return strategy.RiskLevelLow }
-func (s *MACrossover) GetStrategyType() strategy.StrategyType { return strategy.StrategyTypeTrend }
+func (s *MACrossover) GetName() strategy.StrategyName         { return "MA-Crossover" }
+func (s *MACrossover) GetDescription() string                 { return "Golden/Death cross strategy" }
+func (s *MACrossover) GetRiskLevel() strategy.RiskLevel       { return strategy.RiskLevelLow }
+func (s *MACrossover) GetStrategyType() strategy.StrategyType { return strategy.StrategyType("Trend")
 ```
 
 ## How It Works

@@ -19,46 +19,43 @@ Classic momentum strategy using RSI oversold/overbought levels.
 package main
 
 import (
-    sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
-    "github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-    "github.com/shopspring/decimal"
+	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/shopspring/decimal"
 )
 
 type RSIStrategy struct {
-    k *sdk.Kronos
+	k *sdk.Kronos
 }
 
 func NewRSI(k *sdk.Kronos) *RSIStrategy {
-    return &RSIStrategy{k: k}
+	return &RSIStrategy{k: k}
 }
 
 func (s *RSIStrategy) GetSignals() ([]*strategy.Signal, error) {
-    btc := s.k.Asset("BTC")
-    rsi := s.k.Indicators.RSI(btc, 14)
-    
-    // Buy oversold
-    if rsi.LessThan(decimal.NewFromInt(30)) {
-        return []*strategy.Signal{
-            s.Signal().
-                Buy(btc).
-                Quantity(decimal.NewFromFloat(0.1)).
-                Reason("RSI oversold: " + rsi.String()).
-                Build(),
-        }, nil
-    }
-    
-    // Sell overbought
-    if rsi.GreaterThan(decimal.NewFromInt(70)) {
-        return []*strategy.Signal{
-            s.Signal().
-                Sell(btc).
-                Quantity(decimal.NewFromFloat(0.1)).
-                Reason("RSI overbought: " + rsi.String()).
-                Build(),
-        }, nil
-    }
-    
-    return nil, nil
+	btc := s.k.Asset("BTC")
+	rsi, _ := s.k.Indicators.RSI(btc, 14)
+
+	// Buy oversold
+	if rsi.LessThan(decimal.NewFromInt(30)) {
+		s.k.Log().Opportunity("RSI", "BTC", "RSI oversold: %s", rsi.String())
+		signal := s.k.Signal(s.GetName()).
+			Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+			Build()
+		return []*strategy.Signal{signal}, nil
+	}
+
+	// Sell overbought
+	if rsi.GreaterThan(decimal.NewFromInt(70)) {
+		s.k.Log().Opportunity("RSI", "BTC", "RSI overbought: %s", rsi.String())
+		signal := s.k.Signal(s.GetName()).
+			Sell(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+			Build()
+		return []*strategy.Signal{signal}, nil
+	}
+
+	return nil, nil
 }
 
 func (s *RSIStrategy) GetName() strategy.StrategyName { return "RSI" }

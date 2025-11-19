@@ -19,51 +19,48 @@ Buy at lower band, sell at upper band - fade extremes.
 package main
 
 import (
-    sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
-    "github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-    "github.com/shopspring/decimal"
+	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/shopspring/decimal"
 )
 
 type BollingerMeanReversion struct {
-    k *sdk.Kronos
+	k *sdk.Kronos
 }
 
 func NewBollingerMR(k *sdk.Kronos) *BollingerMeanReversion {
-    return &BollingerMeanReversion{k: k}
+	return &BollingerMeanReversion{k: k}
 }
 
 func (s *BollingerMeanReversion) GetSignals() ([]*strategy.Signal, error) {
-    btc := s.k.Asset("BTC")
-    
-    bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)
-    price := s.k.Market.Price(btc)
-    rsi := s.k.Indicators.RSI(btc, 14)
-    
-    // Buy at lower band with RSI confirmation
-    if price.LessThan(bb.Lower) && rsi.LessThan(decimal.NewFromInt(35)) {
-        return []*strategy.Signal{
-            s.Signal().
-                Buy(btc).
-                Quantity(decimal.NewFromFloat(0.1)).
-                TakeProfit(bb.Middle).
-                Reason("Mean reversion from lower band").
-                Build(),
-        }, nil
-    }
-    
-    // Sell at upper band
-    if price.GreaterThan(bb.Upper) && rsi.GreaterThan(decimal.NewFromInt(65)) {
-        return []*strategy.Signal{
-            s.Signal().
-                Sell(btc).
-                Quantity(decimal.NewFromFloat(0.1)).
-                TakeProfit(bb.Middle).
-                Reason("Mean reversion from upper band").
-                Build(),
-        }, nil
-    }
-    
-    return nil, nil
+	btc := s.k.Asset("BTC")
+
+	bb, _ := s.k.Indicators.BollingerBands(btc, 20, 2.0)
+	price, _ := s.k.Market.Price(btc)
+	rsi, _ := s.k.Indicators.RSI(btc, 14)
+
+	// Buy at lower band with RSI confirmation
+	if price.LessThan(bb.Lower) && rsi.LessThan(decimal.NewFromInt(35)) {
+		s.k.Log().Opportunity("BB-MeanReversion", "BTC",
+			"Mean reversion from lower band, target middle: %s", bb.Middle)
+		signal := s.k.Signal(s.GetName()).
+			Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+			Build()
+		return []*strategy.Signal{signal}, nil
+	}
+
+	// Sell at upper band
+	if price.GreaterThan(bb.Upper) && rsi.GreaterThan(decimal.NewFromInt(65)) {
+		s.k.Log().Opportunity("BB-MeanReversion", "BTC",
+			"Mean reversion from upper band, target middle: %s", bb.Middle)
+		signal := s.k.Signal(s.GetName()).
+			Sell(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+			Build()
+		return []*strategy.Signal{signal}, nil
+	}
+
+	return nil, nil
 }
 
 func (s *BollingerMeanReversion) GetName() strategy.StrategyName { return "BB-MeanReversion" }

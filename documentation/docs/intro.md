@@ -19,7 +19,10 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     price := s.k.Market.Price(btc)
     
     if rsi.LessThan(decimal.NewFromInt(30)) {
-        return s.Signal().Buy(btc).Quantity(decimal.NewFromFloat(0.1)).Build()
+        signal := s.k.Signal(s.GetName()).
+            Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+            Build()
+        return []*strategy.Signal{signal}, nil
     }
     
     return nil, nil
@@ -137,21 +140,19 @@ func (s *MomentumStrategy) GetSignals() ([]*strategy.Signal, error) {
     // BTC oversold
     if btcRSI.LessThan(decimal.NewFromInt(30)) {
         signals = append(signals, 
-            s.Signal().
-                Buy(btc).
-                Quantity(decimal.NewFromFloat(0.1)).
-                Reason("BTC RSI oversold").
+            s.k.Signal(s.GetName()).
+                Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
                 Build())
+        s.k.Log().Opportunity("Momentum", "BTC", "RSI oversold")
     }
     
     // ETH overbought
     if ethRSI.GreaterThan(decimal.NewFromInt(70)) {
         signals = append(signals, 
-            s.Signal().
-                Sell(eth).
-                Quantity(decimal.NewFromFloat(1.0)).
-                Reason("ETH RSI overbought").
+            s.k.Signal(s.GetName()).
+                Sell(eth, connector.Binance, decimal.NewFromFloat(1.0)).
                 Build())
+        s.k.Log().Opportunity("Momentum", "ETH", "RSI overbought")
     }
     
     return signals, nil
@@ -253,7 +254,10 @@ price := s.k.Market.Price(btc)
 // - Price is above 4h SMA200 (uptrend)
 // - 1h RSI is oversold
 if price.GreaterThan(sma200) && rsi.LessThan(decimal.NewFromInt(30)) {
-    return s.Signal().Buy(btc).Quantity(decimal.NewFromFloat(0.1)).Build()
+    signal := s.k.Signal(s.GetName()).
+        Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+        Build()
+    return []*strategy.Signal{signal}, nil
 }
 ```
 
@@ -275,7 +279,9 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
         
         if rsi.LessThan(decimal.NewFromInt(30)) {
             signals = append(signals, 
-                s.Signal().Buy(asset).Quantity(decimal.NewFromFloat(0.1)).Build())
+                s.k.Signal(s.GetName()).
+                    Buy(asset, connector.Binance, decimal.NewFromFloat(0.1)).
+                    Build())
         }
     }
     

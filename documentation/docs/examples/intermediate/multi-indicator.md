@@ -19,58 +19,57 @@ Require multiple indicators to agree before trading.
 package main
 
 import (
-    "fmt"
-    sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
-    "github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-    "github.com/shopspring/decimal"
+	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/shopspring/decimal"
 )
 
 type MultiConfirmation struct {
-    k *sdk.Kronos
+	k *sdk.Kronos
 }
 
 func NewMultiConfirmation(k *sdk.Kronos) *MultiConfirmation {
-    return &MultiConfirmation{k: k}
+	return &MultiConfirmation{k: k}
 }
 
 func (s *MultiConfirmation) GetSignals() ([]*strategy.Signal, error) {
-    btc := s.k.Asset("BTC")
-    
-    // Get all indicators
-    rsi := s.k.Indicators.RSI(btc, 14)
-    stoch := s.k.Indicators.Stochastic(btc, 14, 3)
-    bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)
-    macd := s.k.Indicators.MACD(btc, 12, 26, 9)
-    price := s.k.Market.Price(btc)
-    
-    // Count bullish signals
-    bullishSignals := 0
-    
-    if rsi.LessThan(decimal.NewFromInt(30)) {
-        bullishSignals++
-    }
-    if stoch.K.LessThan(decimal.NewFromInt(20)) {
-        bullishSignals++
-    }
-    if price.LessThan(bb.Lower) {
-        bullishSignals++
-    }
-    if macd.MACD.GreaterThan(macd.Signal) {
-        bullishSignals++
-    }
-    
-    // Require at least 3 of 4 indicators to agree
-    if bullishSignals >= 3 {
-        return []*strategy.Signal{
-            s.Signal().
-                Buy(btc).
-                Quantity(decimal.NewFromFloat(0.2)).
-                Reason(fmt.Sprintf("%d indicators confirm buy", bullishSignals)).
-                Build(),
-        }, nil
-    }
-    
-    return nil, nil
+	btc := s.k.Asset("BTC")
+
+	// Get all indicators
+	rsi, _ := s.k.Indicators.RSI(btc, 14)
+	stoch, _ := s.k.Indicators.Stochastic(btc, 14, 3)
+	bb, _ := s.k.Indicators.BollingerBands(btc, 20, 2.0)
+	macd, _ := s.k.Indicators.MACD(btc, 12, 26, 9)
+	price, _ := s.k.Market.Price(btc)
+
+	// Count bullish signals
+	bullishSignals := 0
+
+	if rsi.LessThan(decimal.NewFromInt(30)) {
+		bullishSignals++
+	}
+	if stoch.K.LessThan(decimal.NewFromInt(20)) {
+		bullishSignals++
+	}
+	if price.LessThan(bb.Lower) {
+		bullishSignals++
+	}
+	if macd.MACD.GreaterThan(macd.Signal) {
+		bullishSignals++
+	}
+
+	// Require at least 3 of 4 indicators to agree
+	if bullishSignals >= 3 {
+		s.k.Log().Opportunity("Multi-Confirmation", "BTC",
+			"%d indicators confirm buy", bullishSignals)
+		signal := s.k.Signal(s.GetName()).
+			Buy(btc, connector.Binance, decimal.NewFromFloat(0.2)).
+			Build()
+		return []*strategy.Signal{signal}, nil
+	}
+
+	return nil, nil
 }
 
 func (s *MultiConfirmation) GetName() strategy.StrategyName { return "Multi-Confirmation" }

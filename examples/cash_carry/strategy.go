@@ -1,114 +1,57 @@
 package main
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/kronos"
+	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/shopspring/decimal"
 )
 
-// CashCarryStrategy implements cash and carry arbitrage using Kronos SDK
-type CashCarryStrategy struct {
-	*strategy.BaseStrategy
-	k      *kronos.Kronos
-	config CashCarryConfig
+type Portfolio struct {
+	k *sdk.Kronos
 }
 
-// CashCarryConfig holds cash and carry strategy parameters
-type CashCarryConfig struct {
-	MinFundingRate decimal.Decimal
-	OrderSizeUSD   decimal.Decimal // Order size in USD
+func NewPortfolio(k *sdk.Kronos) *Portfolio {
+	return &Portfolio{k: k}
 }
 
-// NewCashCarryStrategy creates a new cash carry strategy instance
-func NewCashCarryStrategy(k *kronos.Kronos, config CashCarryConfig) *CashCarryStrategy {
-	base := strategy.NewBaseStrategy(
-		strategy.StrategyName("Cash and Carry"),
-		"Cash and carry arbitrage strategy exploiting funding rates",
-		strategy.RiskLevelLow,
-		strategy.StrategyTypeCashCarry,
-	)
-
-	return &CashCarryStrategy{
-		BaseStrategy: base,
-		k:            k,
-		config:       config,
-	}
-}
-
-// GetSignals generates trading signals for cash and carry strategy
-func (ccs *CashCarryStrategy) GetSignals() ([]*strategy.Signal, error) {
-	if !ccs.IsEnabled() {
-		return nil, nil
-	}
-
-	ccs.k.Log().Info("CashCarry", "", "Scanning for cash carry opportunities...")
-
-	// Get all assets with funding rate data using Kronos Market service
-	assets := ccs.k.Market.GetAllAssetsWithFundingRates()
-	if len(assets) == 0 {
-		ccs.k.Log().Info("CashCarry", "", "No assets with funding rate data available")
-		return nil, nil
-	}
-
-	ccs.k.Log().Info("CashCarry", "", "Checking %d assets for funding rate opportunities", len(assets))
+func (s *Portfolio) GetSignals() ([]*strategy.Signal, error) {
+	btc := s.k.Asset("BTC")
+	eth := s.k.Asset("ETH")
+	sol := s.k.Asset("SOL")
 
 	var signals []*strategy.Signal
-	for _, asset := range assets {
-		// Get funding rates across all exchanges for this asset
-		fundingRates := ccs.k.Market.FundingRates(asset)
 
-		for exchange, fundingRate := range fundingRates {
-			// Check if funding rate exceeds minimum threshold
-			if fundingRate.CurrentRate.GreaterThan(ccs.config.MinFundingRate) {
-				// Get current price to calculate quantity
-				price, err := ccs.k.Market.Price(asset)
-				if err != nil {
-					ccs.k.Log().Debug("CashCarry", asset.Symbol(), "Failed to get price: %v", err)
-					continue
-				}
-
-				// Calculate quantity based on USD order size
-				quantity := ccs.config.OrderSizeUSD.Div(price)
-
-				ccs.k.Log().Opportunity(
-					"CashCarry",
-					asset.Symbol(),
-					"High funding rate on %s: %s%% (threshold: %s%%), quantity: %s",
-					exchange,
-					fundingRate.CurrentRate.Mul(decimal.NewFromInt(100)).String(),
-					ccs.config.MinFundingRate.Mul(decimal.NewFromInt(100)).String(),
-					quantity.String(),
-				)
-
-				signal := ccs.k.Signal(ccs.GetName()).
-					Buy(asset, exchange, quantity).
-					SellShort(asset, exchange, quantity).
-					Build()
-
-				signals = append(signals, signal)
-			}
-		}
+	// Check each asset
+	assets := []struct {
+		asset portfolio.Asset
+		size  float64
+	}{
+		{btc, 0.1},
+		{eth, 1.0},
+		{sol, 10.0},
 	}
 
-	if len(signals) > 0 {
-		ccs.k.Log().Success("CashCarry", "", "Found %d opportunities", len(signals))
+	for _, a := range assets {
+		rsi, _ := s.k.Indicators.RSI(a.asset, 14)
+		sma200, _ := s.k.Indicators.SMA(a.asset, 200)
+		price, _ := s.k.Market.Price(a.asset)
+
+		// Buy if oversold and in uptrend
+		if rsi.LessThan(decimal.NewFromInt(30)) && price.GreaterThan(sma200) {
+			s.k.Log().Opportunity("Portfolio", a.asset.Symbol(), "Oversold in uptrend")
+			signal := s.k.Signal(s.GetName()).
+				Buy(a.asset, connector.Binance, decimal.NewFromFloat(a.size)).
+				Build()
+			signals = append(signals, signal)
+		}
 	}
 
 	return signals, nil
 }
 
-// NewStrategy creates a new strategy instance for plugin loading
-// This is called by the plugin manager to extract metadata
-func NewStrategy() strategy.Strategy {
-	// Create with nil Kronos and default config for metadata extraction
-	return NewCashCarryStrategy(
-		nil, // Kronos not needed for metadata
-		CashCarryConfig{
-			MinFundingRate: decimal.NewFromFloat(0.0001), // 0.01% funding rate threshold
-			OrderSizeUSD:   decimal.NewFromFloat(100),    // $100 per order
-		},
-	)
-}
-
-// Plugin export - required for Go plugin system
-var Strategy strategy.Strategy = NewStrategy()
+func (s *Portfolio) GetName() strategy.StrategyName         { return "Portfolio" }
+func (s *Portfolio) GetDescription() string                 { return "Multi-asset portfolio strategy" }
+func (s *Portfolio) GetRiskLevel() strategy.RiskLevel       { return strategy.RiskLevelMedium }
+func (s *Portfolio) GetStrategyType() strategy.StrategyType { return strategy.StrategyTypeTechnical }
