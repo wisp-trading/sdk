@@ -11,32 +11,32 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
+    title: 'Type-Safe by Design',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Write strategies with full IDE autocomplete and compile-time guarantees.
+        Catch errors before they reach production.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'Focus on Strategy Logic',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Don&apos;t worry about exchange APIs or data management.
+        Just write <code>s.Indicators.RSI(btc, 14)</code> and Kronos handles the rest.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Write Once, Run Anywhere',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Same code works in backtesting and live trading.
+        No environment-specific logic. No adapter layers.
       </>
     ),
   },

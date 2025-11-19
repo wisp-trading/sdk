@@ -31,7 +31,7 @@ Gopkg.lock
 Gopkg.toml
 
 # Generated files by Swaggo or other tools
-docs/
+/docs/
 
 # Secrets
 .env
