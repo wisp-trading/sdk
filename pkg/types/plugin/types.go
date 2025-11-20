@@ -44,8 +44,3 @@ type ParameterDef struct {
 type ParameterProvider interface {
 	GetParameters() []ParameterDef
 }
-
-// KronosAware is implemented by strategies that accept a Kronos context injection
-type KronosAware interface {
-	SetKronos(interface{}) // Use interface{} to avoid circular dependency
-}

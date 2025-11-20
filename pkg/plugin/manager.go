@@ -8,39 +8,33 @@ import (
 	"plugin"
 	"sync"
 
+	plugintypes "github.com/backtesting-org/kronos-sdk/pkg/types/plugin"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/google/uuid"
 )
 
-// Manager handles plugin loading and management
-type Manager struct {
-	storage       Storage
-	logger        Logger
+// manager is the unexported implementation of plugintypes.Manager
+type manager struct {
+	storage       plugintypes.Storage
+	logger        plugintypes.Config
 	pluginDir     string
-	loadedPlugins map[uuid.UUID]*LoadedPlugin
+	loadedPlugins map[uuid.UUID]*plugintypes.LoadedPlugin
 	mu            sync.RWMutex
 }
 
-// Config for plugin manager
-type Config struct {
-	Storage   Storage
-	Logger    Logger
-	PluginDir string
-}
-
 // NewManager creates a new plugin manager
-func NewManager(cfg Config) *Manager {
-	return &Manager{
+func NewManager(cfg plugintypes.Config) plugintypes.Manager {
+	return &manager{
 		storage:       cfg.Storage,
-		logger:        cfg.Logger,
+		logger:        cfg,
 		pluginDir:     cfg.PluginDir,
-		loadedPlugins: make(map[uuid.UUID]*LoadedPlugin),
+		loadedPlugins: make(map[uuid.UUID]*plugintypes.LoadedPlugin),
 	}
 }
 
 // LoadPlugin loads a plugin from a file path and stores its metadata
-func (m *Manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) (*Metadata, error) {
-	m.logger.Info("Loading plugin", "path", pluginPath)
+func (m *manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) (*plugintypes.Metadata, error) {
+	m.logger.Logger.Info("Loading plugin", "path", pluginPath)
 
 	// Validate file exists
 	if _, err := os.Stat(pluginPath); os.IsNotExist(err) {
@@ -79,7 +73,7 @@ func (m *Manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) 
 			return nil, fmt.Errorf("failed to store plugin metadata: %w", err)
 		}
 
-		m.logger.Info("Plugin loaded successfully", "id", metadata.ID.String(), "name", metadata.Name)
+		m.logger.Logger.Info("Plugin loaded successfully", "id", metadata.ID.String(), "name", metadata.Name)
 		return metadata, nil
 	}
 
@@ -108,7 +102,7 @@ func (m *Manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) 
 
 	// Cache the loaded plugin
 	m.mu.Lock()
-	m.loadedPlugins[metadata.ID] = &LoadedPlugin{
+	m.loadedPlugins[metadata.ID] = &plugintypes.LoadedPlugin{
 		ID:           metadata.ID,
 		Name:         metadata.Name,
 		Plugin:       p,
@@ -117,12 +111,12 @@ func (m *Manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) 
 	}
 	m.mu.Unlock()
 
-	m.logger.Info("Plugin loaded successfully", "id", metadata.ID.String(), "name", metadata.Name)
+	m.logger.Logger.Info("Plugin loaded successfully", "id", metadata.ID.String(), "name", metadata.Name)
 	return metadata, nil
 }
 
 // GetLoadedPlugin retrieves a loaded plugin by ID
-func (m *Manager) GetLoadedPlugin(ctx context.Context, id uuid.UUID) (*LoadedPlugin, error) {
+func (m *manager) GetLoadedPlugin(ctx context.Context, id uuid.UUID) (*plugintypes.LoadedPlugin, error) {
 	m.mu.RLock()
 	loaded, exists := m.loadedPlugins[id]
 	m.mu.RUnlock()
@@ -155,7 +149,7 @@ func (m *Manager) GetLoadedPlugin(ctx context.Context, id uuid.UUID) (*LoadedPlu
 	}
 
 	// Cache and return
-	loaded = &LoadedPlugin{
+	loaded = &plugintypes.LoadedPlugin{
 		ID:           metadata.ID,
 		Name:         metadata.Name,
 		Plugin:       p,
@@ -171,7 +165,7 @@ func (m *Manager) GetLoadedPlugin(ctx context.Context, id uuid.UUID) (*LoadedPlu
 }
 
 // InstantiateStrategy creates a new strategy instance from a loaded plugin
-func (m *Manager) InstantiateStrategy(ctx context.Context, id uuid.UUID) (strategy.Strategy, error) {
+func (m *manager) InstantiateStrategy(ctx context.Context, id uuid.UUID) (strategy.Strategy, error) {
 	loaded, err := m.GetLoadedPlugin(ctx, id)
 	if err != nil {
 		return nil, err
@@ -190,17 +184,17 @@ func (m *Manager) InstantiateStrategy(ctx context.Context, id uuid.UUID) (strate
 }
 
 // ListPlugins retrieves all plugins from storage
-func (m *Manager) ListPlugins(ctx context.Context, limit, offset int) ([]*Metadata, error) {
+func (m *manager) ListPlugins(ctx context.Context, limit, offset int) ([]*plugintypes.Metadata, error) {
 	return m.storage.ListPlugins(ctx, limit, offset)
 }
 
 // GetPluginMetadata retrieves plugin metadata by ID
-func (m *Manager) GetPluginMetadata(ctx context.Context, id uuid.UUID) (*Metadata, error) {
+func (m *manager) GetPluginMetadata(ctx context.Context, id uuid.UUID) (*plugintypes.Metadata, error) {
 	return m.storage.GetPlugin(ctx, id)
 }
 
 // DeletePlugin removes a plugin
-func (m *Manager) DeletePlugin(ctx context.Context, id uuid.UUID) error {
+func (m *manager) DeletePlugin(ctx context.Context, id uuid.UUID) error {
 	// Remove from cache
 	m.mu.Lock()
 	delete(m.loadedPlugins, id)
@@ -211,12 +205,12 @@ func (m *Manager) DeletePlugin(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 
-	m.logger.Info("Plugin deleted", "id", id.String())
+	m.logger.Logger.Info("Plugin deleted", "id", id.String())
 	return nil
 }
 
 // SavePluginFile saves an uploaded plugin file to the plugin directory
-func (m *Manager) SavePluginFile(fileName string, data []byte) (string, error) {
+func (m *manager) SavePluginFile(fileName string, data []byte) (string, error) {
 	// Ensure plugin directory exists
 	if err := os.MkdirAll(m.pluginDir, 0755); err != nil {
 		return "", fmt.Errorf("failed to create plugin directory: %w", err)
@@ -237,6 +231,6 @@ func (m *Manager) SavePluginFile(fileName string, data []byte) (string, error) {
 		return "", fmt.Errorf("failed to write plugin file: %w", err)
 	}
 
-	m.logger.Info("Plugin file saved", "path", filePath)
+	m.logger.Logger.Info("Plugin file saved", "path", filePath)
 	return filePath, nil
 }
