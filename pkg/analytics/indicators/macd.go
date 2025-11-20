@@ -3,17 +3,12 @@ package indicators
 import (
 	"fmt"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/shopspring/decimal"
 )
 
-type MACDResult struct {
-	MACD      decimal.Decimal
-	Signal    decimal.Decimal
-	Histogram decimal.Decimal
-}
-
 // MACD calculates the Moving Average Convergence Divergence
-func MACD(prices []decimal.Decimal, fastPeriod, slowPeriod, signalPeriod int) ([]MACDResult, error) {
+func MACD(prices []decimal.Decimal, fastPeriod, slowPeriod, signalPeriod int) ([]analytics.MACDResult, error) {
 	if len(prices) < slowPeriod {
 		return nil, fmt.Errorf("insufficient data: need %d prices, got %d", slowPeriod, len(prices))
 	}
@@ -44,12 +39,12 @@ func MACD(prices []decimal.Decimal, fastPeriod, slowPeriod, signalPeriod int) ([
 	}
 
 	// Calculate histogram (MACD - Signal)
-	result := make([]MACDResult, len(signalLine))
+	result := make([]analytics.MACDResult, len(signalLine))
 	startOffset = len(macdLine) - len(signalLine)
 	for i := 0; i < len(signalLine); i++ {
 		macdValue := macdLine[i+startOffset]
 		signalValue := signalLine[i]
-		result[i] = MACDResult{
+		result[i] = analytics.MACDResult{
 			MACD:      macdValue,
 			Signal:    signalValue,
 			Histogram: macdValue.Sub(signalValue),

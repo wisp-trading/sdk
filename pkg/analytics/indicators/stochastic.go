@@ -3,22 +3,9 @@ package indicators
 import (
 	"fmt"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/shopspring/decimal"
 )
-
-// StochasticResult represents the output of the Stochastic Oscillator calculation.
-// The Stochastic Oscillator is a momentum indicator that compares a security's closing price
-// to its price range over a given time period.
-type StochasticResult struct {
-	// K represents the %K line (fast stochastic), which measures the current close
-	// relative to the high-low range over the specified period. Values range from 0 to 100.
-	K decimal.Decimal
-
-	// D represents the %D line (slow stochastic), which is the simple moving average
-	// of the %K line over the specified period. Values range from 0 to 100.
-	// The %D line provides a smoothed signal line.
-	D decimal.Decimal
-}
 
 // Stochastic calculates the Stochastic Oscillator for the given price data.
 //
@@ -48,7 +35,7 @@ type StochasticResult struct {
 //	lows := []decimal.Decimal{...}
 //	closes := []decimal.Decimal{...}
 //	results, err := Stochastic(highs, lows, closes, 14, 3)
-func Stochastic(highs, lows, closes []decimal.Decimal, kPeriod, dPeriod int) ([]StochasticResult, error) {
+func Stochastic(highs, lows, closes []decimal.Decimal, kPeriod, dPeriod int) ([]analytics.StochasticResult, error) {
 	if len(highs) != len(lows) || len(highs) != len(closes) {
 		return nil, fmt.Errorf("price arrays must have equal length")
 	}
@@ -89,7 +76,7 @@ func Stochastic(highs, lows, closes []decimal.Decimal, kPeriod, dPeriod int) ([]
 		return nil, fmt.Errorf("insufficient K values for D calculation: need %d, got %d", dPeriod, len(kValues))
 	}
 
-	result := make([]StochasticResult, 0, len(kValues)-dPeriod+1)
+	result := make([]analytics.StochasticResult, 0, len(kValues)-dPeriod+1)
 
 	for i := dPeriod - 1; i < len(kValues); i++ {
 		sum := decimal.Zero
@@ -98,7 +85,7 @@ func Stochastic(highs, lows, closes []decimal.Decimal, kPeriod, dPeriod int) ([]
 		}
 		d := sum.Div(decimal.NewFromInt(int64(dPeriod)))
 
-		result = append(result, StochasticResult{
+		result = append(result, analytics.StochasticResult{
 			K: kValues[i],
 			D: d,
 		})
