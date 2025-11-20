@@ -8,5 +8,6 @@ import (
 var Module = fx.Module("adapters",
 	fx.Provide(
 		logging.NewZapApplicationLogger,
+		logging.NewZapTradingLogger,
 	),
 )
