@@ -8,7 +8,7 @@ sidebar_position: 1
 
 ```go
 // Basic usage - uses configured exchange and interval
-stoch := s.k.Indicators.Stochastic(btc, 14, 3)
+stoch := s.k.Indicators().Stochastic(btc, 14, 3)
 
 k := stoch.K  // Fast stochastic (0-100)
 d := stoch.D  // Slow stochastic (0-100)
@@ -18,17 +18,17 @@ d := stoch.D  // Slow stochastic (0-100)
 
 ```go
 // Specify exchange
-stoch := s.k.Indicators.Stochastic(btc, 14, 3, indicators.IndicatorOptions{
+stoch := s.k.Indicators().Stochastic(btc, 14, 3, indicators.IndicatorOptions{
     Exchange: connector.Binance,
 })
 
 // Specify interval
-stoch := s.k.Indicators.Stochastic(btc, 14, 3, indicators.IndicatorOptions{
+stoch := s.k.Indicators().Stochastic(btc, 14, 3, indicators.IndicatorOptions{
     Interval: "4h",
 })
 
 // Both
-stoch := s.k.Indicators.Stochastic(btc, 14, 3, indicators.IndicatorOptions{
+stoch := s.k.Indicators().Stochastic(btc, 14, 3, indicators.IndicatorOptions{
     Exchange: connector.Bybit,
     Interval: "1h",
 })
@@ -41,7 +41,7 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
     // Get stochastic (14, 3 is standard)
-    stoch := s.k.Indicators.Stochastic(btc, 14, 3)
+    stoch := s.k.Indicators().Stochastic(btc, 14, 3)
     
     // Oversold: both lines below 20
     if stoch.K.LessThan(decimal.NewFromInt(20)) && 
@@ -100,7 +100,7 @@ type StochasticResult struct {
 ### Basic Oversold/Overbought
 
 ```go
-stoch := s.k.Indicators.Stochastic(btc, 14, 3)
+stoch := s.k.Indicators().Stochastic(btc, 14, 3)
 
 // Buy when oversold
 if stoch.K.LessThan(decimal.NewFromInt(20)) {
@@ -117,12 +117,12 @@ if stoch.K.GreaterThan(decimal.NewFromInt(80)) {
 
 ```go
 // Higher timeframe for trend
-stoch4h := s.k.Indicators.Stochastic(btc, 14, 3, indicators.IndicatorOptions{
+stoch4h := s.k.Indicators().Stochastic(btc, 14, 3, indicators.IndicatorOptions{
     Interval: "4h",
 })
 
 // Lower timeframe for entry
-stoch1h := s.k.Indicators.Stochastic(btc, 14, 3, indicators.IndicatorOptions{
+stoch1h := s.k.Indicators().Stochastic(btc, 14, 3, indicators.IndicatorOptions{
     Interval: "1h",
 })
 
@@ -136,10 +136,10 @@ if stoch4h.K.GreaterThan(decimal.NewFromInt(50)) &&
 ### Combined with Other Indicators
 
 ```go
-stoch := s.k.Indicators.Stochastic(btc, 14, 3)
-rsi := s.k.Indicators.RSI(btc, 14)
-price := s.k.Market.Price(btc)
-sma200 := s.k.Indicators.SMA(btc, 200)
+stoch := s.k.Indicators().Stochastic(btc, 14, 3)
+rsi := s.k.Indicators().RSI(btc, 14)
+price := s.k.Market().Price(btc)
+sma200 := s.k.Indicators().SMA(btc, 200)
 
 // Strong buy: uptrend + both indicators oversold
 if price.GreaterThan(sma200) &&
@@ -164,13 +164,13 @@ if price.GreaterThan(sma200) &&
 
 ```go
 // Standard
-stoch := s.k.Indicators.Stochastic(btc, 14, 3)
+stoch := s.k.Indicators().Stochastic(btc, 14, 3)
 
 // Fast (more responsive)
-stoch := s.k.Indicators.Stochastic(btc, 5, 3)
+stoch := s.k.Indicators().Stochastic(btc, 5, 3)
 
 // Slow (smoother)
-stoch := s.k.Indicators.Stochastic(btc, 14, 5)
+stoch := s.k.Indicators().Stochastic(btc, 14, 5)
 ```
 
 ## Interpretation Guide
@@ -233,9 +233,9 @@ When %K and %D are:
 
 ```go
 // Use with trend filter
-price := s.k.Market.Price(btc)
-sma := s.k.Indicators.SMA(btc, 200)
-stoch := s.k.Indicators.Stochastic(btc, 14, 3)
+price := s.k.Market().Price(btc)
+sma := s.k.Indicators().SMA(btc, 200)
+stoch := s.k.Indicators().Stochastic(btc, 14, 3)
 
 // Only buy oversold signals in uptrend
 if price.GreaterThan(sma) && stoch.K.LessThan(decimal.NewFromInt(20)) {
@@ -245,7 +245,7 @@ if price.GreaterThan(sma) && stoch.K.LessThan(decimal.NewFromInt(20)) {
 
 ```go
 // Wait for confirmation from both lines
-stoch := s.k.Indicators.Stochastic(btc, 14, 3)
+stoch := s.k.Indicators().Stochastic(btc, 14, 3)
 
 if stoch.K.LessThan(decimal.NewFromInt(20)) && 
    stoch.D.LessThan(decimal.NewFromInt(20)) {
@@ -256,8 +256,8 @@ if stoch.K.LessThan(decimal.NewFromInt(20)) &&
 
 ```go
 // Combine with other indicators
-stoch := s.k.Indicators.Stochastic(btc, 14, 3)
-rsi := s.k.Indicators.RSI(btc, 14)
+stoch := s.k.Indicators().Stochastic(btc, 14, 3)
+rsi := s.k.Indicators().RSI(btc, 14)
 
 // Strong signal when both agree
 if stoch.K.LessThan(decimal.NewFromInt(20)) && 
@@ -279,14 +279,14 @@ if stoch.K.GreaterThan(decimal.NewFromInt(80)) {
 ```go
 // Don't ignore the trend
 // ❌ Buying oversold in downtrend often fails
-stoch := s.k.Indicators.Stochastic(btc, 14, 3)
+stoch := s.k.Indicators().Stochastic(btc, 14, 3)
 if stoch.K.LessThan(decimal.NewFromInt(20)) {
     return s.Signal().Buy(btc).Build()  // ❌
 }
 
 // ✅ Check trend first
-price := s.k.Market.Price(btc)
-sma := s.k.Indicators.SMA(btc, 200)
+price := s.k.Market().Price(btc)
+sma := s.k.Indicators().SMA(btc, 200)
 if price.GreaterThan(sma) && stoch.K.LessThan(decimal.NewFromInt(20)) {
     return s.Signal().Buy(btc).Build()  // ✅
 }
@@ -301,9 +301,9 @@ if price.GreaterThan(sma) && stoch.K.LessThan(decimal.NewFromInt(20)) {
 **Solution:**
 ```go
 // Add trend filter
-price := s.k.Market.Price(btc)
-ema200 := s.k.Indicators.EMA(btc, 200)
-stoch := s.k.Indicators.Stochastic(btc, 14, 3)
+price := s.k.Market().Price(btc)
+ema200 := s.k.Indicators().EMA(btc, 200)
+stoch := s.k.Indicators().Stochastic(btc, 14, 3)
 
 // Only take signals aligned with trend
 if price.GreaterThan(ema200) {
@@ -321,7 +321,7 @@ if price.GreaterThan(ema200) {
 **Solution:**
 ```go
 // Require both lines in extreme zone
-stoch := s.k.Indicators.Stochastic(btc, 14, 3)
+stoch := s.k.Indicators().Stochastic(btc, 14, 3)
 
 if stoch.K.LessThan(decimal.NewFromInt(20)) && 
    stoch.D.LessThan(decimal.NewFromInt(20)) {
@@ -353,16 +353,16 @@ func (s *StochasticStrategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
     // Multi-timeframe stochastic
-    stoch4h := s.k.Indicators.Stochastic(btc, 14, 3, indicators.IndicatorOptions{
+    stoch4h := s.k.Indicators().Stochastic(btc, 14, 3, indicators.IndicatorOptions{
         Interval: "4h",
     })
-    stoch1h := s.k.Indicators.Stochastic(btc, 14, 3, indicators.IndicatorOptions{
+    stoch1h := s.k.Indicators().Stochastic(btc, 14, 3, indicators.IndicatorOptions{
         Interval: "1h",
     })
     
     // Trend filter
-    price := s.k.Market.Price(btc)
-    ema200 := s.k.Indicators.EMA(btc, 200, indicators.IndicatorOptions{
+    price := s.k.Market().Price(btc)
+    ema200 := s.k.Indicators().EMA(btc, 200, indicators.IndicatorOptions{
         Interval: "4h",
     })
     

@@ -36,9 +36,9 @@ func NewBollingerMR(k *sdk.Kronos) *BollingerMeanReversion {
 func (s *BollingerMeanReversion) GetSignals() ([]*strategy.Signal, error) {
 	btc := s.k.Asset("BTC")
 
-	bb, _ := s.k.Indicators.BollingerBands(btc, 20, 2.0)
-	price, _ := s.k.Market.Price(btc)
-	rsi, _ := s.k.Indicators.RSI(btc, 14)
+	bb, _ := s.k.Indicators().BollingerBands(btc, 20, 2.0)
+	price, _ := s.k.Market().Price(btc)
+	rsi, _ := s.k.Indicators().RSI(btc, 14)
 
 	// Buy at lower band with RSI confirmation
 	if price.LessThan(bb.Lower) && rsi.LessThan(decimal.NewFromInt(35)) {

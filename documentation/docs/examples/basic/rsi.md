@@ -35,7 +35,7 @@ func NewRSI(k *sdk.Kronos) *RSIStrategy {
 
 func (s *RSIStrategy) GetSignals() ([]*strategy.Signal, error) {
 	btc := s.k.Asset("BTC")
-	rsi, _ := s.k.Indicators.RSI(btc, 14)
+	rsi, _ := s.k.Indicators().RSI(btc, 14)
 
 	// Buy oversold
 	if rsi.LessThan(decimal.NewFromInt(30)) {

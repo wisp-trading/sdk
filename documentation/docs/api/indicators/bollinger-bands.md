@@ -8,13 +8,13 @@ sidebar_position: 5
 
 ```go
 // Basic usage (20, 2.0 is standard)
-bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)
+bb := s.k.Indicators().BollingerBands(btc, 20, 2.0)
 
 s.k.Log().Debug("Bollinger Bands", btc.Symbol(), "Upper: %s, Middle: %s, Lower: %s",
     bb.Upper, bb.Middle, bb.Lower)
 
 // With options
-bb := s.k.Indicators.BollingerBands(btc, 20, 2.0, indicators.IndicatorOptions{
+bb := s.k.Indicators().BollingerBands(btc, 20, 2.0, indicators.IndicatorOptions{
     Interval: "1h",
 })
 ```
@@ -25,8 +25,8 @@ bb := s.k.Indicators.BollingerBands(btc, 20, 2.0, indicators.IndicatorOptions{
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
-    price := s.k.Market.Price(btc)
-    bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)
+    price := s.k.Market().Price(btc)
+    bb := s.k.Indicators().BollingerBands(btc, 20, 2.0)
     
     // Buy when price touches lower band
     if price.LessThan(bb.Lower) {
@@ -82,8 +82,8 @@ type BollingerBandsResult struct {
 ### Mean Reversion
 
 ```go
-price := s.k.Market.Price(btc)
-bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)
+price := s.k.Market().Price(btc)
+bb := s.k.Indicators().BollingerBands(btc, 20, 2.0)
 
 // Buy at lower band
 if price.LessThan(bb.Lower) {
@@ -99,7 +99,7 @@ if price.GreaterThan(bb.Upper) {
 ### Breakout Detection
 
 ```go
-bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)
+bb := s.k.Indicators().BollingerBands(btc, 20, 2.0)
 
 // Band width (volatility measure)
 bandWidth := bb.Upper.Sub(bb.Lower).Div(bb.Middle).Mul(decimal.NewFromInt(100))

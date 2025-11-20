@@ -8,10 +8,10 @@ sidebar_position: 6
 
 ```go
 // Basic usage
-atr := s.k.Indicators.ATR(btc, 14)  // 14-period ATR
+atr. _ := s.k.Indicators().ATR(btc, 14)  // 14-period ATR
 
 // With options
-atr := s.k.Indicators.ATR(btc, 14, indicators.IndicatorOptions{
+atr, _ := s.k.Indicators().ATR(btc, 14, indicators.IndicatorOptions{
     Interval: "4h",
 })
 ```
@@ -22,14 +22,14 @@ atr := s.k.Indicators.ATR(btc, 14, indicators.IndicatorOptions{
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
-    price := s.k.Market.Price(btc)
-    atr := s.k.Indicators.ATR(btc, 14)
+    price, _ := s.k.Market().Price(btc)
+    atr, _ := s.k.Indicators().ATR(btc, 14)
     
     // Set stop loss at 2× ATR below entry
     stopLoss := price.Sub(atr.Mul(decimal.NewFromInt(2)))
     
     // Buy signal with dynamic stop loss
-    rsi := s.k.Indicators.RSI(btc, 14)
+    rsi := s.k.Indicators().RSI(btc, 14)
     if rsi.LessThan(decimal.NewFromInt(30)) {
         return []*strategy.Signal{
             s.Signal().
@@ -62,8 +62,8 @@ ATR(asset, period, ...options) decimal.Decimal
 ### Dynamic Stop Loss
 
 ```go
-price := s.k.Market.Price(btc)
-atr := s.k.Indicators.ATR(btc, 14)
+price := s.k.Market().Price(btc)
+atr := s.k.Indicators().ATR(btc, 14)
 
 // Stop loss at 2× ATR
 stopLoss := price.Sub(atr.Mul(decimal.NewFromInt(2)))
@@ -75,7 +75,7 @@ takeProfit := price.Add(atr.Mul(decimal.NewFromInt(3)))
 ### Position Sizing
 
 ```go
-atr := s.k.Indicators.ATR(btc, 14)
+atr := s.k.Indicators().ATR(btc, 14)
 accountBalance := decimal.NewFromInt(10000)
 riskPerTrade := accountBalance.Mul(decimal.NewFromFloat(0.02))  // 2% risk
 
@@ -86,8 +86,8 @@ positionSize := riskPerTrade.Div(atr.Mul(decimal.NewFromInt(2)))
 ### Volatility Filter
 
 ```go
-atr := s.k.Indicators.ATR(btc, 14)
-price := s.k.Market.Price(btc)
+atr := s.k.Indicators().ATR(btc, 14)
+price := s.k.Market().Price(btc)
 
 // ATR as percentage of price
 atrPercent := atr.Div(price).Mul(decimal.NewFromInt(100))
@@ -129,7 +129,7 @@ ATR = Average of True Range over period
 
 ```go
 // Use ATR for stop losses
-atr := s.k.Indicators.ATR(btc, 14)
+atr := s.k.Indicators().ATR(btc, 14)
 stopDistance := atr.Mul(decimal.NewFromInt(2))  // 2× ATR stop
 
 // Adjust position size based on volatility
@@ -144,7 +144,7 @@ positionSize := baseSize.Div(atr)  // Smaller positions in high volatility
 stopLoss := price.Sub(decimal.NewFromInt(1000))
 
 // ✅ Dynamic stop based on ATR
-atr := s.k.Indicators.ATR(btc, 14)
+atr := s.k.Indicators().ATR(btc, 14)
 stopLoss := price.Sub(atr.Mul(decimal.NewFromInt(2)))
 ```
 
@@ -154,9 +154,9 @@ stopLoss := price.Sub(atr.Mul(decimal.NewFromInt(2)))
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
-    price := s.k.Market.Price(btc)
-    atr := s.k.Indicators.ATR(btc, 14)
-    rsi := s.k.Indicators.RSI(btc, 14)
+    price := s.k.Market().Price(btc)
+    atr := s.k.Indicators().ATR(btc, 14)
+    rsi := s.k.Indicators().RSI(btc, 14)
     
     // Only trade in reasonable volatility
     atrPercent := atr.Div(price).Mul(decimal.NewFromInt(100))

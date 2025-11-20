@@ -36,9 +36,9 @@ func NewATRRiskManaged(k *sdk.Kronos) *ATRRiskManaged {
 func (s *ATRRiskManaged) GetSignals() ([]*strategy.Signal, error) {
 	btc := s.k.Asset("BTC")
 
-	rsi, _ := s.k.Indicators.RSI(btc, 14)
-	price, _ := s.k.Market.Price(btc)
-	atr, _ := s.k.Indicators.ATR(btc, 14)
+	rsi, _ := s.k.Indicators().RSI(btc, 14)
+	price, _ := s.k.Market().Price(btc)
+	atr, _ := s.k.Indicators().ATR(btc, 14)
 
 	// Check volatility
 	atrPercent := atr.Div(price).Mul(decimal.NewFromInt(100))

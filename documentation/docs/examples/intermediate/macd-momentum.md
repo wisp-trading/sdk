@@ -36,9 +36,9 @@ func NewMACDMomentum(k *sdk.Kronos) *MACDMomentum {
 func (s *MACDMomentum) GetSignals() ([]*strategy.Signal, error) {
 	btc := s.k.Asset("BTC")
 
-	macd, _ := s.k.Indicators.MACD(btc, 12, 26, 9)
-	sma200, _ := s.k.Indicators.SMA(btc, 200)
-	price, _ := s.k.Market.Price(btc)
+	macd, _ := s.k.Indicators().MACD(btc, 12, 26, 9)
+	sma200, _ := s.k.Indicators().SMA(btc, 200)
+	price, _ := s.k.Market().Price(btc)
 
 	// Only trade with the trend
 	inUptrend := price.GreaterThan(sma200)

@@ -41,30 +41,30 @@ All indicators follow the same pattern: pass the asset and parameters.
 
 ```go
 // RSI - Relative Strength Index
-rsi := s.k.Indicators.RSI(btc, 14)
+rsi := s.k.Indicators().RSI(btc, 14)
 
 // SMA - Simple Moving Average  
-sma := s.k.Indicators.SMA(btc, 20)
+sma := s.k.Indicators().SMA(btc, 20)
 
 // EMA - Exponential Moving Average
-ema := s.k.Indicators.EMA(btc, 50)
+ema := s.k.Indicators().EMA(btc, 50)
 
 // MACD - Moving Average Convergence Divergence
-macd := s.k.Indicators.MACD(btc, 12, 26, 9)
+macd := s.k.Indicators().MACD(btc, 12, 26, 9)
 s.k.Log().Debug("MACD", btc.Symbol(), "MACD: %s, Signal: %s, Histogram: %s", 
     macd.MACD, macd.Signal, macd.Histogram)
 
 // Bollinger Bands
-bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)
+bb := s.k.Indicators().BollingerBands(btc, 20, 2.0)
 s.k.Log().Debug("BB", btc.Symbol(), "Upper: %s, Middle: %s, Lower: %s",
     bb.Upper, bb.Middle, bb.Lower)
 
 // Stochastic Oscillator
-stoch := s.k.Indicators.Stochastic(btc, 14, 3)
+stoch := s.k.Indicators().Stochastic(btc, 14, 3)
 s.k.Log().Debug("Stochastic", btc.Symbol(), "K: %s, D: %s", stoch.K, stoch.D)
 
 // ATR - Average True Range
-atr := s.k.Indicators.ATR(btc, 14)
+atr := s.k.Indicators().ATR(btc, 14)
 ```
 
 Kronos automatically:
@@ -81,17 +81,17 @@ import "github.com/backtesting-org/kronos-sdk/pkg/kronos/indicators"
 import "github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 
 // Use specific exchange
-rsi := s.k.Indicators.RSI(btc, 14, indicators.IndicatorOptions{
+rsi := s.k.Indicators().RSI(btc, 14, indicators.IndicatorOptions{
     Exchange: connector.Binance,
 })
 
 // Use different timeframe
-sma := s.k.Indicators.SMA(btc, 200, indicators.IndicatorOptions{
+sma := s.k.Indicators().SMA(btc, 200, indicators.IndicatorOptions{
     Interval: "4h",
 })
 
 // Both
-ema := s.k.Indicators.EMA(btc, 50, indicators.IndicatorOptions{
+ema := s.k.Indicators().EMA(btc, 50, indicators.IndicatorOptions{
     Exchange: connector.Bybit,
     Interval: "1h",
 })
@@ -103,29 +103,29 @@ Access real-time market data:
 
 ```go
 // Current price
-price := s.k.Market.Price(btc)
+price := s.k.Market().Price(btc)
 
 // Price from specific exchange
-price := s.k.Market.Price(btc, market.MarketOptions{
+price := s.k.Market().Price(btc, market.MarketOptions{
     Exchange: connector.Binance,
 })
 
 // Prices from all exchanges
-prices := s.k.Market.Prices(btc)
+prices := s.k.Market().Prices(btc)
 for exchange, price := range prices {
     s.k.Log().Info("%s: %s", exchange, price)
 }
 
 // Order book
-book := s.k.Market.OrderBook(btc)
+book := s.k.Market().OrderBook(btc)
 topBid := book.Bids[0]  // Best bid
 topAsk := book.Asks[0]  // Best ask
 
 // Funding rate (perpetuals)
-funding := s.k.Market.FundingRate(btc)
+funding := s.k.Market().FundingRate(btc)
 
 // Historical klines
-klines := s.k.Market.Klines(btc, "1h", 100)  // Last 100 1h candles
+klines := s.k.Market().Klines(btc, "1h", 100)  // Last 100 1h candles
 ```
 
 ## Signals
@@ -167,7 +167,7 @@ Return signals from `GetSignals()`:
 ```go
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
-    rsi := s.k.Indicators.RSI(btc, 14)
+    rsi := s.k.Indicators().RSI(btc, 14)
     
     if rsi.LessThan(decimal.NewFromInt(30)) {
         signal := s.k.Signal(s.GetName()).
@@ -247,7 +247,7 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
     // Check if indicators have valid data
-    rsi := s.k.Indicators.RSI(btc, 14)
+    rsi := s.k.Indicators().RSI(btc, 14)
     if rsi.IsZero() {
         // No data yet, skip this cycle
         return nil, nil
@@ -284,7 +284,7 @@ func (s *RSIStrategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
     // Get RSI - Kronos handles everything
-    rsi := s.k.Indicators.RSI(btc, 14)
+    rsi := s.k.Indicators().RSI(btc, 14)
     
     // Buy when oversold
     if rsi.LessThan(decimal.NewFromInt(30)) {
