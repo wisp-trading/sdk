@@ -5,6 +5,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/events"
 	"github.com/backtesting-org/kronos-sdk/pkg/ingestors"
+	"github.com/backtesting-org/kronos-sdk/pkg/plugin"
 	"github.com/backtesting-org/kronos-sdk/pkg/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/runtime"
 	"github.com/backtesting-org/kronos-sdk/pkg/signal"
@@ -17,6 +18,7 @@ var Module = fx.Options(
 	analytics.Module,
 	events.Module,
 	ingestors.Module,
+	plugin.Module,
 	registry.Module,
 	runtime.Module,
 	signal.Module,

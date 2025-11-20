@@ -17,5 +17,6 @@ var Module = fx.Module("adapters",
 			}),
 		),
 		logging.NewZapApplicationLogger,
+		logging.NewZapTradingLogger,
 	),
 )
