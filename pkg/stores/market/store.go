@@ -1,7 +1,7 @@
 package market
 
 import (
-	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/stores/market"
+	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 )
 
 func NewStore() marketTypes.MarketData {

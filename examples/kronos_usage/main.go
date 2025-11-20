@@ -18,7 +18,9 @@ type ExampleStrategy struct {
 
 // NewExampleStrategy creates a new example strategy
 func NewExampleStrategy(k kronos.Kronos) strategy.Strategy {
-	return &ExampleStrategy{k: k}
+	return &ExampleStrategy{
+		k: k,
+	}
 }
 
 // GetSignals demonstrates all Kronos API features
@@ -204,6 +206,24 @@ func (s *ExampleStrategy) GetRiskLevel() strategy.RiskLevel {
 
 func (s *ExampleStrategy) GetStrategyType() strategy.StrategyType {
 	return strategy.StrategyTypeTechnical
+}
+
+func (s *ExampleStrategy) GetRequiredAssets() []strategy.RequiredAsset {
+	// This strategy requires BTC and ETH with perpetual futures
+	return []strategy.RequiredAsset{
+		{
+			Symbol: s.k.Asset("BTC"),
+			Instruments: []connector.Instrument{
+				connector.TypePerpetual,
+			},
+		},
+		{
+			Symbol: s.k.Asset("ETH"),
+			Instruments: []connector.Instrument{
+				connector.TypePerpetual,
+			},
+		},
+	}
 }
 
 func main() {

@@ -7,16 +7,16 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/stores/market"
 )
 
 type Ingestor struct {
 	store            market.MarketData
 	exchangeRegistry registry.ConnectorRegistry
-	assetInterest    market.AssetInterest
+	assetRegistry    registry.AssetRegistry
 	logger           logging.ApplicationLogger
 
 	// WebSocket management
@@ -35,13 +35,13 @@ type Ingestor struct {
 func NewIngestor(
 	store market.MarketData,
 	exchangeRegistry registry.ConnectorRegistry,
-	assetInterest market.AssetInterest,
+	assetRegistry registry.AssetRegistry,
 	logger logging.ApplicationLogger,
 ) *Ingestor {
 	return &Ingestor{
 		store:             store,
 		exchangeRegistry:  exchangeRegistry,
-		assetInterest:     assetInterest,
+		assetRegistry:     assetRegistry,
 		logger:            logger,
 		activeConnections: make(map[connector.ExchangeName]connector.WebSocketConnector),
 		subscriptions:     make(map[portfolio.Asset][]connector.Instrument),
@@ -60,7 +60,7 @@ func (ri *Ingestor) Start(ctx context.Context) error {
 	ri.isActive = true
 
 	// Get required assets from strategy configs
-	tradingAssets := ri.assetInterest.GetRequiredAssets()
+	tradingAssets := ri.assetRegistry.GetRequiredAssets()
 	ri.logger.Info("📋 Required trading assets from strategies: %d assets", len(tradingAssets))
 	for _, asset := range tradingAssets {
 		ri.logger.Info("  - %s", asset.Symbol())
@@ -98,7 +98,7 @@ func (ri *Ingestor) startExchangeStream(wsConn connector.WebSocketConnector, ass
 	}
 
 	// Get detailed asset requirements (which instrument types per asset)
-	assetRequirements := ri.assetInterest.GetAssetRequirements()
+	assetRequirements := ri.assetRegistry.GetAssetRequirements()
 
 	// Subscribe to data based on actual requirements
 	for _, req := range assetRequirements {
@@ -242,9 +242,7 @@ func (ri *Ingestor) Stop() error {
 
 	// Stop all WebSocket connections
 	for _, conn := range ri.exchangeRegistry.GetTradingWebSocketConnectors() {
-		if wsConn, ok := conn.(connector.WebSocketConnector); ok {
-			wsConn.StopWebSocket()
-		}
+		conn.StopWebSocket()
 	}
 
 	ri.isActive = false

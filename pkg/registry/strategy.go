@@ -4,199 +4,109 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 )
 
-// StrategyRegistry manages loaded strategy instances
-type StrategyRegistry interface {
-	// Register adds a strategy instance to the registry
-	// id: unique identifier for this instance
-	Register(id string, strat strategy.Strategy) error
-
-	// Unregister removes a strategy instance
-	Unregister(id string) error
-
-	// Get retrieves a strategy instance by ID
-	Get(id string) (strategy.Strategy, error)
-
-	// GetByName retrieves the first strategy with the given name
-	GetByName(name strategy.StrategyName) (strategy.Strategy, error)
-
-	// List returns all registered strategy IDs
-	List() []string
-
-	// ListByName returns IDs of strategies with the given name
-	ListByName(name strategy.StrategyName) []string
-
-	// GetAll returns all registered strategies
-	GetAll() map[string]strategy.Strategy
-
-	// GetEnabled returns only enabled strategy instances
-	GetEnabled() map[string]strategy.Strategy
-
-	// Enable enables a strategy by ID
-	Enable(id string) error
-
-	// Disable disables a strategy by ID
-	Disable(id string) error
-
-	// IsEnabled checks if a strategy is enabled
-	IsEnabled(id string) bool
-
-	// Count returns the number of registered strategies
-	Count() int
-}
-
 type strategyRegistry struct {
-	strategies map[string]strategy.Strategy
+	strategies map[strategy.StrategyName]strategy.Strategy
 	mu         sync.RWMutex
 }
 
 // NewStrategyRegistry creates a new strategy registry
-func NewStrategyRegistry() StrategyRegistry {
+func NewStrategyRegistry() registry.StrategyRegistry {
 	return &strategyRegistry{
-		strategies: make(map[string]strategy.Strategy),
+		strategies: make(map[strategy.StrategyName]strategy.Strategy),
 	}
 }
 
-func (sr *strategyRegistry) Register(id string, strat strategy.Strategy) error {
-	sr.mu.Lock()
-	defer sr.mu.Unlock()
-
-	if _, exists := sr.strategies[id]; exists {
-		return fmt.Errorf("strategy with ID %s already registered", id)
-	}
-
-	sr.strategies[id] = strat
-	return nil
-}
-
-func (sr *strategyRegistry) Unregister(id string) error {
-	sr.mu.Lock()
-	defer sr.mu.Unlock()
-
-	if _, exists := sr.strategies[id]; !exists {
-		return fmt.Errorf("strategy with ID %s not found", id)
-	}
-
-	delete(sr.strategies, id)
-	return nil
-}
-
-func (sr *strategyRegistry) Get(id string) (strategy.Strategy, error) {
+func (sr *strategyRegistry) GetStrategy(name strategy.StrategyName) (strategy.Strategy, bool) {
 	sr.mu.RLock()
 	defer sr.mu.RUnlock()
 
-	strat, exists := sr.strategies[id]
-	if !exists {
-		return nil, fmt.Errorf("strategy with ID %s not found", id)
-	}
-
-	return strat, nil
+	strat, exists := sr.strategies[name]
+	return strat, exists
 }
 
-func (sr *strategyRegistry) GetByName(name strategy.StrategyName) (strategy.Strategy, error) {
+func (sr *strategyRegistry) RegisterStrategy(strat strategy.Strategy) {
+	sr.mu.Lock()
+	defer sr.mu.Unlock()
+
+	sr.strategies[strat.GetName()] = strat
+}
+
+func (sr *strategyRegistry) RegisterAllStrategies(strategies []strategy.Strategy) {
+	sr.mu.Lock()
+	defer sr.mu.Unlock()
+
+	for _, strat := range strategies {
+		sr.strategies[strat.GetName()] = strat
+	}
+}
+
+func (sr *strategyRegistry) GetAllStrategies() []strategy.Strategy {
 	sr.mu.RLock()
 	defer sr.mu.RUnlock()
 
+	strategies := make([]strategy.Strategy, 0, len(sr.strategies))
 	for _, strat := range sr.strategies {
-		if strat.GetName() == name {
-			return strat, nil
-		}
-	}
-
-	return nil, fmt.Errorf("strategy with name %s not found", name)
-}
-
-func (sr *strategyRegistry) List() []string {
-	sr.mu.RLock()
-	defer sr.mu.RUnlock()
-
-	ids := make([]string, 0, len(sr.strategies))
-	for id := range sr.strategies {
-		ids = append(ids, id)
-	}
-
-	return ids
-}
-
-func (sr *strategyRegistry) ListByName(name strategy.StrategyName) []string {
-	sr.mu.RLock()
-	defer sr.mu.RUnlock()
-
-	ids := make([]string, 0)
-	for id, strat := range sr.strategies {
-		if strat.GetName() == name {
-			ids = append(ids, id)
-		}
-	}
-
-	return ids
-}
-
-func (sr *strategyRegistry) GetAll() map[string]strategy.Strategy {
-	sr.mu.RLock()
-	defer sr.mu.RUnlock()
-
-	// Return a copy to prevent external modification
-	strategies := make(map[string]strategy.Strategy, len(sr.strategies))
-	for id, strat := range sr.strategies {
-		strategies[id] = strat
+		strategies = append(strategies, strat)
 	}
 
 	return strategies
 }
 
-func (sr *strategyRegistry) GetEnabled() map[string]strategy.Strategy {
+func (sr *strategyRegistry) GetEnabledStrategies() []strategy.Strategy {
 	sr.mu.RLock()
 	defer sr.mu.RUnlock()
 
-	enabled := make(map[string]strategy.Strategy)
-	for id, strat := range sr.strategies {
+	enabled := make([]strategy.Strategy, 0)
+	for _, strat := range sr.strategies {
 		if strat.IsEnabled() {
-			enabled[id] = strat
+			enabled = append(enabled, strat)
 		}
 	}
 
 	return enabled
 }
 
-func (sr *strategyRegistry) Enable(id string) error {
+func (sr *strategyRegistry) EnableStrategy(name strategy.StrategyName) error {
 	sr.mu.RLock()
-	strat, exists := sr.strategies[id]
+	strat, exists := sr.strategies[name]
 	sr.mu.RUnlock()
 
 	if !exists {
-		return fmt.Errorf("strategy with ID %s not found", id)
+		return fmt.Errorf("strategy %s not found", name)
 	}
 
 	return strat.Enable()
 }
 
-func (sr *strategyRegistry) Disable(id string) error {
+func (sr *strategyRegistry) DisableStrategy(name strategy.StrategyName) error {
 	sr.mu.RLock()
-	strat, exists := sr.strategies[id]
+	strat, exists := sr.strategies[name]
 	sr.mu.RUnlock()
 
 	if !exists {
-		return fmt.Errorf("strategy with ID %s not found", id)
+		return fmt.Errorf("strategy %s not found", name)
 	}
 
 	return strat.Disable()
 }
 
-func (sr *strategyRegistry) IsEnabled(id string) bool {
+func (sr *strategyRegistry) IsStrategyEnabled(name strategy.StrategyName) bool {
 	sr.mu.RLock()
 	defer sr.mu.RUnlock()
 
-	if strat, exists := sr.strategies[id]; exists {
-		return strat.IsEnabled()
+	strat, exists := sr.strategies[name]
+	if !exists {
+		return false
 	}
 
-	return false
+	return strat.IsEnabled()
 }
 
-func (sr *strategyRegistry) Count() int {
+func (sr *strategyRegistry) GetStrategyCount() int {
 	sr.mu.RLock()
 	defer sr.mu.RUnlock()
 

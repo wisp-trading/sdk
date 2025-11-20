@@ -2,8 +2,8 @@ package market
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/stores/market"
 )
 
 func (ds *dataStore) UpdateAssetPrice(asset portfolio.Asset, exchangeName connector.ExchangeName, price connector.Price) {

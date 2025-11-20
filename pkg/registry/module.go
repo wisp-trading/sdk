@@ -6,5 +6,6 @@ var Module = fx.Module("registry",
 	fx.Provide(
 		NewConnectorRegistry,
 		NewStrategyRegistry,
+		NewAssetRegistry,
 	),
 )
