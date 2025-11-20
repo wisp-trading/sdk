@@ -6,16 +6,17 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
+	market2 "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
 type BatchIngestor struct {
-	store            market.MarketData
+	store            market2.MarketData
 	exchangeRegistry registry.ConnectorRegistry
-	assetInterest    market.AssetInterest
+	assetInterest    ingestors.AssetInterest
 	logger           logging.ApplicationLogger
 	timeProvider     temporal.TimeProvider
 
@@ -27,9 +28,9 @@ type BatchIngestor struct {
 }
 
 func NewBatchIngestor(
-	store market.MarketData,
+	store market2.MarketData,
 	exchangeRegistry registry.ConnectorRegistry,
-	assetInterest market.AssetInterest,
+	assetInterest ingestors.AssetInterest,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 ) *BatchIngestor {

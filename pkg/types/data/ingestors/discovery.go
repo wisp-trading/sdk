@@ -1,4 +1,4 @@
-package market
+package ingestors
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"

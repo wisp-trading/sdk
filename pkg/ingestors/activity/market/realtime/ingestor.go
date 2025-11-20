@@ -7,16 +7,17 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
+	market2 "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/stores/market"
 )
 
 type Ingestor struct {
-	store            market.MarketData
+	store            market2.MarketData
 	exchangeRegistry registry.ConnectorRegistry
-	assetInterest    market.AssetInterest
+	assetInterest    ingestors.AssetInterest
 	logger           logging.ApplicationLogger
 
 	// WebSocket management
@@ -33,9 +34,9 @@ type Ingestor struct {
 }
 
 func NewIngestor(
-	store market.MarketData,
+	store market2.MarketData,
 	exchangeRegistry registry.ConnectorRegistry,
-	assetInterest market.AssetInterest,
+	assetInterest ingestors.AssetInterest,
 	logger logging.ApplicationLogger,
 ) *Ingestor {
 	return &Ingestor{

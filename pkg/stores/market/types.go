@@ -4,8 +4,8 @@ import (
 	"sync"
 	"sync/atomic"
 
+	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/stores/market"
 )
 
 // Data types for atomic storage
