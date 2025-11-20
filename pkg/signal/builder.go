@@ -9,37 +9,15 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// Service provides signal building functionality with injected time provider.
-// This is a singleton injected via fx DI.
-type Service struct {
-	timeProvider temporal.TimeProvider
-}
-
-// NewService creates a new signal service with the injected time provider.
-func NewService(timeProvider temporal.TimeProvider) *Service {
-	return &Service{
-		timeProvider: timeProvider,
-	}
-}
-
-// New creates a new signal builder for a strategy.
-func (s *Service) New(strategyName strategy.StrategyName) *Builder {
-	return &Builder{
-		strategyName: strategyName,
-		actions:      make([]strategy.TradeAction, 0),
-		timeProvider: s.timeProvider,
-	}
-}
-
-// Builder provides a fluent API for constructing trading signals.
-type Builder struct {
+// builder is the concrete implementation of strategy.SignalBuilder.
+type builder struct {
 	strategyName strategy.StrategyName
 	actions      []strategy.TradeAction
 	timeProvider temporal.TimeProvider
 }
 
 // Buy adds a buy action to the signal.
-func (b *Builder) Buy(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal) *Builder {
+func (b *builder) Buy(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionBuy,
 		Asset:    asset,
@@ -51,7 +29,7 @@ func (b *Builder) Buy(asset portfolio.Asset, exchange connector.ExchangeName, qu
 }
 
 // BuyLimit adds a limit buy action to the signal.
-func (b *Builder) BuyLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity, price decimal.Decimal) *Builder {
+func (b *builder) BuyLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity, price decimal.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionBuy,
 		Asset:    asset,
@@ -63,7 +41,7 @@ func (b *Builder) BuyLimit(asset portfolio.Asset, exchange connector.ExchangeNam
 }
 
 // Sell adds a sell action to the signal.
-func (b *Builder) Sell(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal) *Builder {
+func (b *builder) Sell(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionSell,
 		Asset:    asset,
@@ -75,7 +53,7 @@ func (b *Builder) Sell(asset portfolio.Asset, exchange connector.ExchangeName, q
 }
 
 // SellLimit adds a limit sell action to the signal.
-func (b *Builder) SellLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity, price decimal.Decimal) *Builder {
+func (b *builder) SellLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity, price decimal.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionSell,
 		Asset:    asset,
@@ -87,7 +65,7 @@ func (b *Builder) SellLimit(asset portfolio.Asset, exchange connector.ExchangeNa
 }
 
 // SellShort adds a short sell action to the signal.
-func (b *Builder) SellShort(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal) *Builder {
+func (b *builder) SellShort(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionSellShort,
 		Asset:    asset,
@@ -99,7 +77,7 @@ func (b *Builder) SellShort(asset portfolio.Asset, exchange connector.ExchangeNa
 }
 
 // SellShortLimit adds a limit short sell action to the signal.
-func (b *Builder) SellShortLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity, price decimal.Decimal) *Builder {
+func (b *builder) SellShortLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity, price decimal.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionSellShort,
 		Asset:    asset,
@@ -111,7 +89,7 @@ func (b *Builder) SellShortLimit(asset portfolio.Asset, exchange connector.Excha
 }
 
 // Build constructs the final Signal object with the correct timestamp from the time provider.
-func (b *Builder) Build() *strategy.Signal {
+func (b *builder) Build() *strategy.Signal {
 	return &strategy.Signal{
 		ID:        uuid.New(),
 		Strategy:  b.strategyName,

@@ -2,10 +2,10 @@ package kronos
 
 import (
 	"github.com/backtesting-org/kronos-sdk/kronos/market"
-	"github.com/backtesting-org/kronos-sdk/kronos/signal"
 	"github.com/backtesting-org/kronos-sdk/kronos/trade"
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators"
+	"github.com/backtesting-org/kronos-sdk/pkg/signal"
 	"go.uber.org/fx"
 )
 
@@ -16,7 +16,7 @@ var Module = fx.Module("kronos",
 		indicators.NewIndicators,
 		market.NewMarketService,
 		analytics.NewAnalyticsService,
-		signal.NewService,
+		signal.NewFactory,
 		trade.NewTradeService,
 	),
 
