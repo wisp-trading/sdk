@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	activity2 "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
@@ -14,8 +14,8 @@ import (
 
 // Coordinator handles trade backfill on startup
 type Coordinator struct {
-	positionStore activity2.Positions
-	tradeStore    activity2.Trades
+	positionStore activity.Positions
+	tradeStore    activity.Trades
 	connectors    map[connector.ExchangeName]connector.Connector
 	logger        logging.ApplicationLogger
 
@@ -26,8 +26,8 @@ type Coordinator struct {
 }
 
 func NewCoordinator(
-	positionStore activity2.Positions,
-	tradeStore activity2.Trades,
+	positionStore activity.Positions,
+	tradeStore activity.Trades,
 	connectors map[connector.ExchangeName]connector.Connector,
 	logger logging.ApplicationLogger,
 ) *Coordinator {

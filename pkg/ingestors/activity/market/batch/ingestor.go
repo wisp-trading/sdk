@@ -6,17 +6,16 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
-	market2 "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
 type BatchIngestor struct {
-	store            market2.MarketData
+	store            market.MarketData
 	exchangeRegistry registry.ConnectorRegistry
-	assetInterest    ingestors.AssetInterest
+	assetRegistry    registry.AssetRegistry
 	logger           logging.ApplicationLogger
 	timeProvider     temporal.TimeProvider
 
@@ -28,16 +27,16 @@ type BatchIngestor struct {
 }
 
 func NewBatchIngestor(
-	store market2.MarketData,
+	store market.MarketData,
 	exchangeRegistry registry.ConnectorRegistry,
-	assetInterest ingestors.AssetInterest,
+	assetRegistry registry.AssetRegistry,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 ) *BatchIngestor {
 	return &BatchIngestor{
 		store:            store,
 		exchangeRegistry: exchangeRegistry,
-		assetInterest:    assetInterest,
+		assetRegistry:    assetRegistry,
 		logger:           logger,
 		timeProvider:     timeProvider,
 		stopChan:         make(chan struct{}),
@@ -77,7 +76,7 @@ func (bi *BatchIngestor) collectLoop() {
 
 func (bi *BatchIngestor) collectOrderBooks() {
 	// Get required assets from strategy configs
-	requiredAssets := bi.assetInterest.GetRequiredAssets()
+	requiredAssets := bi.assetRegistry.GetRequiredAssets()
 
 	if len(requiredAssets) == 0 {
 		bi.logger.Debug("No assets required by enabled strategies")

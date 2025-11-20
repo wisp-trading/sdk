@@ -2,6 +2,7 @@ package strategy
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
 // StrategyType represents the type of trading strategy
@@ -32,9 +33,19 @@ type Strategy interface {
 	GetRiskLevel() RiskLevel
 	GetStrategyType() StrategyType
 
+	// GetRequiredAssets declares which assets this strategy needs to operate
+	// This is called BEFORE GetSignals to ensure data is available
+	GetRequiredAssets() []RequiredAsset
+
 	Enable() error
 	Disable() error
 	IsEnabled() bool
+}
+
+// RequiredAsset specifies an asset and which instrument types are needed
+type RequiredAsset struct {
+	Symbol      portfolio.Asset
+	Instruments []connector.Instrument
 }
 
 type StrategyConfig struct {
