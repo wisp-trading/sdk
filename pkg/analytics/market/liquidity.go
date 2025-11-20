@@ -2,20 +2,14 @@ package market
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/shopspring/decimal"
 )
 
-// LiquidityOptions configures how liquidity is calculated
-type LiquidityOptions struct {
-	MaxOrderSizeUSD    decimal.Decimal // Maximum order size in USD
-	LiquidityDepthPct  decimal.Decimal // Percentage of order book depth to use (e.g., 0.1 = 10%)
-	MinLiquidityLevels int             // Minimum number of price levels to check
-}
-
 // DefaultLiquidityOptions returns sensible defaults
-func DefaultLiquidityOptions() LiquidityOptions {
-	return LiquidityOptions{
+func DefaultLiquidityOptions() analytics.LiquidityOptions {
+	return analytics.LiquidityOptions{
 		MaxOrderSizeUSD:    decimal.NewFromInt(10000), // $10k default
 		LiquidityDepthPct:  decimal.NewFromFloat(0.1), // Use 10% of available liquidity
 		MinLiquidityLevels: 5,                         // Check top 5 levels
@@ -24,7 +18,7 @@ func DefaultLiquidityOptions() LiquidityOptions {
 
 // GetTradableQuantity calculates the maximum tradable quantity based on order book liquidity
 // Returns the quantity in base currency that can be safely traded
-func (s *MarketService) GetTradableQuantity(asset portfolio.Asset, opts ...LiquidityOptions) decimal.Decimal {
+func (s *marketService) GetTradableQuantity(asset portfolio.Asset, opts ...analytics.LiquidityOptions) decimal.Decimal {
 	options := DefaultLiquidityOptions()
 	if len(opts) > 0 {
 		options = opts[0]

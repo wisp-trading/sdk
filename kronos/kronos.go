@@ -1,7 +1,6 @@
 package kronos
 
 import (
-	marketService "github.com/backtesting-org/kronos-sdk/kronos/market"
 	kronosTypes "github.com/backtesting-org/kronos-sdk/pkg/types/kronos"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
@@ -16,11 +15,10 @@ type kronos struct {
 	store         market.MarketData
 	tradingLogger logging.TradingLogger
 
-	// Namespaced services for user-friendly API
-	Indicators analytics.Indicators
-	Analytics  analytics.Analytics
+	indicators analytics.Indicators
+	analytics  analytics.Analytics
+	market     analytics.Market
 
-	Market *marketService.MarketService
 	signal strategy.SignalFactory
 }
 
@@ -30,18 +28,30 @@ func NewKronos(
 	store market.MarketData,
 	tradingLogger logging.TradingLogger,
 	indicators analytics.Indicators,
-	analytics analytics.Analytics,
-	market *marketService.MarketService,
+	analyticsService analytics.Analytics,
+	marketService analytics.Market,
 	signal strategy.SignalFactory,
 ) kronosTypes.Kronos {
 	return &kronos{
 		store:         store,
 		tradingLogger: tradingLogger,
-		Indicators:    indicators,
-		Market:        market,
-		Analytics:     analytics,
+		indicators:    indicators,
+		market:        marketService,
+		analytics:     analyticsService,
 		signal:        signal,
 	}
+}
+
+func (k *kronos) Indicators() analytics.Indicators {
+	return k.indicators
+}
+
+func (k *kronos) Analytics() analytics.Analytics {
+	return k.analytics
+}
+
+func (k *kronos) Market() analytics.Market {
+	return k.market
 }
 
 // Log returns the trading logger for strategy logging.

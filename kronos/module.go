@@ -1,10 +1,10 @@
 package kronos
 
 import (
-	"github.com/backtesting-org/kronos-sdk/kronos/market"
 	"github.com/backtesting-org/kronos-sdk/kronos/trade"
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators"
+	"github.com/backtesting-org/kronos-sdk/pkg/analytics/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/signal"
 	"go.uber.org/fx"
 )
