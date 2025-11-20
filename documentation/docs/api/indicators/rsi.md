@@ -8,10 +8,10 @@ sidebar_position: 2
 
 ```go
 // Basic usage
-rsi := s.k.Indicators.RSI(btc, 14)  // 14-period RSI
+rsi := s.k.Indicators().RSI(btc, 14)  // 14-period RSI
 
 // With options
-rsi := s.k.Indicators.RSI(btc, 14, indicators.IndicatorOptions{
+rsi := s.k.Indicators().RSI(btc, 14, indicators.IndicatorOptions{
     Exchange: connector.Binance,
     Interval: "4h",
 })
@@ -24,7 +24,7 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
     // Get 14-period RSI (standard)
-    rsi := s.k.Indicators.RSI(btc, 14)
+    rsi := s.k.Indicators().RSI(btc, 14)
     
     // Oversold: RSI < 30
     if rsi.LessThan(decimal.NewFromInt(30)) {
@@ -73,7 +73,7 @@ Returns a `decimal.Decimal` value between 0 and 100.
 ### Basic Oversold/Overbought
 
 ```go
-rsi := s.k.Indicators.RSI(btc, 14)
+rsi := s.k.Indicators().RSI(btc, 14)
 
 // Buy when oversold
 if rsi.LessThan(decimal.NewFromInt(30)) {
@@ -89,9 +89,9 @@ if rsi.GreaterThan(decimal.NewFromInt(70)) {
 ### With Trend Filter
 
 ```go
-price := s.k.Market.Price(btc)
-sma200 := s.k.Indicators.SMA(btc, 200)
-rsi := s.k.Indicators.RSI(btc, 14)
+price := s.k.Market().Price(btc)
+sma200 := s.k.Indicators().SMA(btc, 200)
+rsi := s.k.Indicators().RSI(btc, 14)
 
 // Only buy oversold signals in uptrend
 if price.GreaterThan(sma200) && rsi.LessThan(decimal.NewFromInt(30)) {
@@ -103,12 +103,12 @@ if price.GreaterThan(sma200) && rsi.LessThan(decimal.NewFromInt(30)) {
 
 ```go
 // Higher timeframe for trend
-rsi4h := s.k.Indicators.RSI(btc, 14, indicators.IndicatorOptions{
+rsi4h := s.k.Indicators().RSI(btc, 14, indicators.IndicatorOptions{
     Interval: "4h",
 })
 
 // Lower timeframe for entry
-rsi1h := s.k.Indicators.RSI(btc, 14, indicators.IndicatorOptions{
+rsi1h := s.k.Indicators().RSI(btc, 14, indicators.IndicatorOptions{
     Interval: "1h",
 })
 
@@ -123,11 +123,11 @@ if rsi4h.LessThan(decimal.NewFromInt(70)) &&
 
 ```go
 // Bullish divergence: price makes lower lows, RSI makes higher lows
-prevPrice := s.k.Market.PricePrevious(btc, 1)
-prevRSI := s.k.Indicators.RSIPrevious(btc, 14, 1)
+prevPrice := s.k.Market().PricePrevious(btc, 1)
+prevRSI := s.k.Indicators().RSIPrevious(btc, 14, 1)
 
-price := s.k.Market.Price(btc)
-rsi := s.k.Indicators.RSI(btc, 14)
+price := s.k.Market().Price(btc)
+rsi := s.k.Indicators().RSI(btc, 14)
 
 if price.LessThan(prevPrice) && rsi.GreaterThan(prevRSI) {
     // Bullish divergence detected
@@ -188,9 +188,9 @@ Where:
 
 ```go
 // Use with trend confirmation
-price := s.k.Market.Price(btc)
-ema200 := s.k.Indicators.EMA(btc, 200)
-rsi := s.k.Indicators.RSI(btc, 14)
+price := s.k.Market().Price(btc)
+ema200 := s.k.Indicators().EMA(btc, 200)
+rsi := s.k.Indicators().RSI(btc, 14)
 
 // Only buy oversold in uptrend
 if price.GreaterThan(ema200) && rsi.LessThan(decimal.NewFromInt(30)) {
@@ -200,8 +200,8 @@ if price.GreaterThan(ema200) && rsi.LessThan(decimal.NewFromInt(30)) {
 
 ```go
 // Combine with other indicators
-rsi := s.k.Indicators.RSI(btc, 14)
-macd := s.k.Indicators.MACD(btc, 12, 26, 9)
+rsi := s.k.Indicators().RSI(btc, 14)
+macd := s.k.Indicators().MACD(btc, 12, 26, 9)
 
 // Both confirm bullish
 if rsi.GreaterThan(decimal.NewFromInt(50)) && 
@@ -223,7 +223,7 @@ if rsi.LessThan(decimal.NewFromInt(30)) {
 ```go
 // Don't use same levels for all assets
 // ❌ Volatile assets may need different thresholds
-rsi := s.k.Indicators.RSI(volatileAsset, 14)
+rsi := s.k.Indicators().RSI(volatileAsset, 14)
 if rsi.LessThan(decimal.NewFromInt(30)) {
     return s.Signal().Buy(volatileAsset).Build()
 }
@@ -245,13 +245,13 @@ if rsi.LessThan(decimal.NewFromInt(20)) {  // Tighter threshold
 
 ```go
 // Standard
-rsi14 := s.k.Indicators.RSI(btc, 14)
+rsi14 := s.k.Indicators().RSI(btc, 14)
 
 // More sensitive
-rsi9 := s.k.Indicators.RSI(btc, 9)
+rsi9 := s.k.Indicators().RSI(btc, 9)
 
 // Smoother
-rsi21 := s.k.Indicators.RSI(btc, 21)
+rsi21 := s.k.Indicators().RSI(btc, 21)
 ```
 
 ## Common Pitfalls
@@ -263,9 +263,9 @@ rsi21 := s.k.Indicators.RSI(btc, 21)
 **Solution:**
 ```go
 // Add trend filter
-ema := s.k.Indicators.EMA(btc, 200)
-price := s.k.Market.Price(btc)
-rsi := s.k.Indicators.RSI(btc, 14)
+ema := s.k.Indicators().EMA(btc, 200)
+price := s.k.Market().Price(btc)
+rsi := s.k.Indicators().RSI(btc, 14)
 
 inUptrend := price.GreaterThan(ema)
 
@@ -284,8 +284,8 @@ if inUptrend {
 **Solution:**
 ```go
 // Adjust levels based on volatility
-vol := s.k.Analytics.Volatility(btc, 24)
-rsi := s.k.Indicators.RSI(btc, 14)
+vol := s.k.Analytics().Volatility(btc, 24)
+rsi := s.k.Indicators().RSI(btc, 14)
 
 oversoldLevel := decimal.NewFromInt(30)
 if vol.GreaterThan(decimal.NewFromInt(50)) {
@@ -321,16 +321,16 @@ func (s *RSIStrategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
     // Multi-timeframe RSI
-    rsi4h := s.k.Indicators.RSI(btc, 14, indicators.IndicatorOptions{
+    rsi4h := s.k.Indicators().RSI(btc, 14, indicators.IndicatorOptions{
         Interval: "4h",
     })
-    rsi1h := s.k.Indicators.RSI(btc, 14, indicators.IndicatorOptions{
+    rsi1h := s.k.Indicators().RSI(btc, 14, indicators.IndicatorOptions{
         Interval: "1h",
     })
     
     // Trend filter
-    price := s.k.Market.Price(btc)
-    ema200 := s.k.Indicators.EMA(btc, 200, indicators.IndicatorOptions{
+    price := s.k.Market().Price(btc)
+    ema200 := s.k.Indicators().EMA(btc, 200, indicators.IndicatorOptions{
         Interval: "4h",
     })
     

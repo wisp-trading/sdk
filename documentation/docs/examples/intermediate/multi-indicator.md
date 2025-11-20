@@ -37,11 +37,11 @@ func (s *MultiConfirmation) GetSignals() ([]*strategy.Signal, error) {
 	btc := s.k.Asset("BTC")
 
 	// Get all indicators
-	rsi, _ := s.k.Indicators.RSI(btc, 14)
-	stoch, _ := s.k.Indicators.Stochastic(btc, 14, 3)
-	bb, _ := s.k.Indicators.BollingerBands(btc, 20, 2.0)
-	macd, _ := s.k.Indicators.MACD(btc, 12, 26, 9)
-	price, _ := s.k.Market.Price(btc)
+	rsi, _ := s.k.Indicators().RSI(btc, 14)
+	stoch, _ := s.k.Indicators().Stochastic(btc, 14, 3)
+	bb, _ := s.k.Indicators().BollingerBands(btc, 20, 2.0)
+	macd, _ := s.k.Indicators().MACD(btc, 12, 26, 9)
+	price, _ := s.k.Market().Price(btc)
 
 	// Count bullish signals
 	bullishSignals := 0

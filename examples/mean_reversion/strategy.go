@@ -8,17 +8,18 @@ import (
 )
 
 // MeanReversionStrategy implements a Bollinger Bands mean reversion strategy
-type MeanReversionStrategy struct {
+type meanReversionStrategy struct {
+	strategy.BaseStrategy
 	k *sdk.Kronos
 }
 
 // NewMeanReversion creates a new mean reversion strategy instance
-func NewMeanReversion(k *sdk.Kronos) *MeanReversionStrategy {
-	return &MeanReversionStrategy{k: k}
+func NewMeanReversion(k *sdk.Kronos) strategy.Strategy {
+	return &meanReversionStrategy{k: k}
 }
 
 // GetSignals generates trading signals based on Bollinger Bands mean reversion
-func (s *MeanReversionStrategy) GetSignals() ([]*strategy.Signal, error) {
+func (s *meanReversionStrategy) GetSignals() ([]*strategy.Signal, error) {
 	btc := s.k.Asset("BTC")
 
 	// Get indicators
@@ -68,18 +69,18 @@ func (s *MeanReversionStrategy) GetSignals() ([]*strategy.Signal, error) {
 }
 
 // Interface implementation
-func (s *MeanReversionStrategy) GetName() strategy.StrategyName {
+func (s *meanReversionStrategy) GetName() strategy.StrategyName {
 	return "Mean Reversion"
 }
 
-func (s *MeanReversionStrategy) GetDescription() string {
+func (s *meanReversionStrategy) GetDescription() string {
 	return "Bollinger Bands mean reversion with RSI confirmation"
 }
 
-func (s *MeanReversionStrategy) GetRiskLevel() strategy.RiskLevel {
+func (s *meanReversionStrategy) GetRiskLevel() strategy.RiskLevel {
 	return strategy.RiskLevelMedium
 }
 
-func (s *MeanReversionStrategy) GetStrategyType() strategy.StrategyType {
+func (s *meanReversionStrategy) GetStrategyType() strategy.StrategyType {
 	return strategy.StrategyTypeMeanReversion
 }

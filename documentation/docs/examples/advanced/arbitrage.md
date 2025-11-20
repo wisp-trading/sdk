@@ -37,7 +37,7 @@ func (s *Arbitrage) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
     // Get prices from all exchanges
-    prices := s.k.Market.Prices(btc)
+    prices := s.k.Market().Prices(btc)
     
     // Find min and max
     var minPrice, maxPrice decimal.Decimal

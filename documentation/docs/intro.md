@@ -15,8 +15,8 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
     // Just ask for what you need - Kronos figures out the rest
-    rsi := s.k.Indicators.RSI(btc, 14)
-    price := s.k.Market.Price(btc)
+    rsi, _ := s.k.Indicators().RSI(btc, 14)
+    price, _ := s.k.Market().Price(btc)
     
     if rsi.LessThan(decimal.NewFromInt(30)) {
         signal := s.k.Signal(s.GetName()).
@@ -37,7 +37,7 @@ That's it. No exchange client setup. No data fetching. No indicator calculations
 
 ```go
 // You write:
-rsi := s.k.Indicators.RSI(btc, 14)
+rsi, _ := s.k.Indicators().RSI(btc, 14)
 
 // Kronos handles:
 // - Fetching price data from the exchange
@@ -50,10 +50,10 @@ rsi := s.k.Indicators.RSI(btc, 14)
 
 ```go
 // Same code works on any exchange
-price := s.k.Market.Price(btc)  // Automatically uses your default exchange
+price, _ := s.k.Market().Price(btc)  // Automatically uses your default exchange
 
 // Or specify explicitly
-price := s.k.Market.Price(btc, indicators.IndicatorOptions{
+price, _ := s.k.Market().Price(btc, indicators.IndicatorOptions{
     Exchange: connector.Binance,
 })
 ```
@@ -63,13 +63,13 @@ price := s.k.Market.Price(btc, indicators.IndicatorOptions{
 All technical indicators work the same way:
 
 ```go
-rsi := s.k.Indicators.RSI(btc, 14)
-sma := s.k.Indicators.SMA(btc, 20)
-ema := s.k.Indicators.EMA(btc, 50)
-macd := s.k.Indicators.MACD(btc, 12, 26, 9)
-bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)
-stoch := s.k.Indicators.Stochastic(btc, 14, 3)
-atr := s.k.Indicators.ATR(btc, 14)
+rsi, _ := s.k.Indicators().RSI(btc, 14)
+sma, _ := s.k.Indicators().SMA(btc, 20)
+ema, _ := s.k.Indicators().EMA(btc, 50)
+macd, _ := s.k.Indicators().MACD(btc, 12, 26, 9)
+bb, _ := s.k.Indicators().BollingerBands(btc, 20, 2.0)
+stoch, _ := s.k.Indicators().Stochastic(btc, 14, 3)
+atr, _ := s.k.Indicators().ATR(btc, 14)
 ```
 
 Clean, consistent API. Pass the asset and parameters. Kronos does the rest.
@@ -78,26 +78,23 @@ Clean, consistent API. Pass the asset and parameters. Kronos does the rest.
 
 ```go
 // Current price
-price := s.k.Market.Price(btc)
+price, _ := s.k.Market().Price(btc)
 
 // Funding rates (for perpetuals)
-funding := s.k.Market.FundingRate(btc)
+funding, _ := s.k.Market().FundingRate(btc)
 
 // Order book
-book := s.k.Market.OrderBook(btc)
-
-// Historical klines
-klines := s.k.Market.Klines(btc, "1h", 100)
+book, _ := s.k.Market().OrderBook(btc)
 
 // Prices across all exchanges
-prices := s.k.Market.Prices(btc)
+prices := s.k.Market().Prices(btc)
 ```
 
 ### Cross-Exchange Operations
 
 ```go
 // Find arbitrage opportunities
-arbOpps := s.k.Market.FindArbitrage(btc, decimal.NewFromInt(10)) // 10 bps minimum
+arbOpps := s.k.Market().FindArbitrage(btc, decimal.NewFromInt(10)) // 10 bps minimum
 
 for _, opp := range arbOpps {
     fmt.Printf("Buy on %s @ %s, Sell on %s @ %s\n",
@@ -132,8 +129,8 @@ func (s *MomentumStrategy) GetSignals() ([]*strategy.Signal, error) {
     eth := s.k.Asset("ETH")
     
     // Get indicators (Kronos fetches data automatically)
-    btcRSI := s.k.Indicators.RSI(btc, 14)
-    ethRSI := s.k.Indicators.RSI(eth, 14)
+    btcRSI, _ := s.k.Indicators().RSI(btc, 14)
+    ethRSI, _ := s.k.Indicators().RSI(eth, 14)
     
     var signals []*strategy.Signal
     
@@ -184,10 +181,10 @@ Full compile-time checking with Go's type system:
 
 ```go
 // This won't compile - caught before runtime
-rsi := s.k.Indicators.RSI(btc, "14")  // ❌ string instead of int
+rsi, _ := s.k.Indicators().RSI(btc, "14")  // ❌ string instead of int
 
 // This is correct
-rsi := s.k.Indicators.RSI(btc, 14)    // ✅
+rsi, _ := s.k.Indicators().RSI(btc, 14)    // ✅
 ```
 
 ### Decimal Precision
@@ -231,7 +228,7 @@ When you call an indicator or market data function, Kronos:
 4. **Calculates/returns** - Computes indicators or returns market data
 5. **Handles errors** - Manages rate limits, retries, and error cases
 
-You just write `s.k.Indicators.RSI(btc, 14)` and Kronos does the rest.
+You just write `s.k.Indicators().RSI(btc, 14)` and Kronos does the rest.
 
 ## Multiple Timeframes
 
@@ -239,16 +236,16 @@ Use different intervals for different purposes:
 
 ```go
 // Long-term trend (4-hour chart)
-sma200 := s.k.Indicators.SMA(btc, 200, indicators.IndicatorOptions{
+sma200, _ := s.k.Indicators().SMA(btc, 200, indicators.IndicatorOptions{
     Interval: "4h",
 })
 
 // Short-term signal (1-hour chart)
-rsi := s.k.Indicators.RSI(btc, 14, indicators.IndicatorOptions{
+rsi, _ := s.k.Indicators().RSI(btc, 14, indicators.IndicatorOptions{
     Interval: "1h",
 })
 
-price := s.k.Market.Price(btc)
+price, _ := s.k.Market().Price(btc)
 
 // Only buy if:
 // - Price is above 4h SMA200 (uptrend)
@@ -275,7 +272,7 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     
     // Check each asset
     for _, asset := range []portfolio.Asset{btc, eth, sol} {
-        rsi := s.k.Indicators.RSI(asset, 14)
+        rsi := s.k.Indicators().RSI(asset, 14)
         
         if rsi.LessThan(decimal.NewFromInt(30)) {
             signals = append(signals, 
@@ -295,21 +292,21 @@ Beyond indicators, Kronos provides market analytics:
 
 ```go
 // Volatility analysis
-vol := s.k.Analytics.Volatility(btc, 24)
+vol, _ := s.k.Analytics().Volatility(btc, 24)
 
 // Trend analysis
-trend := s.k.Analytics.Trend(btc, 50)
+trend, _ := s.k.Analytics().Trend(btc, 50)
 s.k.Log().Info("Trend: %s (Strength: %s%%)", 
     trend.Direction, trend.Strength)
 
 // Volume analysis
-volAnalysis := s.k.Analytics.VolumeAnalysis(btc, 24)
+volAnalysis, _ := s.k.Analytics().VolumeAnalysis(btc, 24)
 if volAnalysis.IsVolumeSpike {
     s.k.Log().MarketCondition("Volume spike detected")
 }
 
 // Price change
-change := s.k.Analytics.GetPriceChange(btc, 24)
+change, _ := s.k.Analytics().GetPriceChange(btc, 24)
 s.k.Log().Info("24h change: %s%%", change.ChangePercent)
 ```
 

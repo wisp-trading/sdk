@@ -4,22 +4,17 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/shopspring/decimal"
 )
 
-type BollingerBandsResult struct {
-	Upper  decimal.Decimal
-	Middle decimal.Decimal
-	Lower  decimal.Decimal
-}
-
 // BollingerBands calculates Bollinger Bands
-func BollingerBands(prices []decimal.Decimal, period int, stdDev float64) ([]BollingerBandsResult, error) {
+func BollingerBands(prices []decimal.Decimal, period int, stdDev float64) ([]analytics.BollingerBandsResult, error) {
 	if len(prices) < period {
 		return nil, fmt.Errorf("insufficient data: need %d prices, got %d", period, len(prices))
 	}
 
-	result := make([]BollingerBandsResult, 0, len(prices)-period+1)
+	result := make([]analytics.BollingerBandsResult, 0, len(prices)-period+1)
 
 	for i := period - 1; i < len(prices); i++ {
 		// Calculate SMA (middle band)
@@ -40,7 +35,7 @@ func BollingerBands(prices []decimal.Decimal, period int, stdDev float64) ([]Bol
 
 		stdDevDecimal := decimal.NewFromFloat(sd * stdDev)
 
-		result = append(result, BollingerBandsResult{
+		result = append(result, analytics.BollingerBandsResult{
 			Upper:  sma.Add(stdDevDecimal),
 			Middle: sma,
 			Lower:  sma.Sub(stdDevDecimal),

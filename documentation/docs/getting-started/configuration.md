@@ -150,15 +150,15 @@ In your strategy:
 
 ```go
 // Uses default exchange
-price := s.k.Market.Price(btc)
+price := s.k.Market().Price(btc)
 
 // Specify exchange
-price := s.k.Market.Price(btc, market.MarketOptions{
+price := s.k.Market().Price(btc, market.MarketOptions{
     Exchange: connector.Bybit,
 })
 
 // Get all prices
-prices := s.k.Market.Prices(btc)
+prices := s.k.Market().Prices(btc)
 ```
 
 

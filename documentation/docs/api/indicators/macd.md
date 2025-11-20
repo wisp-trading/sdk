@@ -8,13 +8,13 @@ sidebar_position: 4
 
 ```go
 // Basic usage (12, 26, 9 is standard)
-macd := s.k.Indicators.MACD(btc, 12, 26, 9)
+macd := s.k.Indicators().MACD(btc, 12, 26, 9)
 
 s.k.Log().Debug("MACD", btc.Symbol(), "MACD: %s, Signal: %s, Histogram: %s",
     macd.MACD, macd.Signal, macd.Histogram)
 
 // With options
-macd := s.k.Indicators.MACD(btc, 12, 26, 9, indicators.IndicatorOptions{
+macd := s.k.Indicators().MACD(btc, 12, 26, 9, indicators.IndicatorOptions{
     Interval: "4h",
 })
 ```
@@ -25,7 +25,7 @@ macd := s.k.Indicators.MACD(btc, 12, 26, 9, indicators.IndicatorOptions{
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
-    macd := s.k.Indicators.MACD(btc, 12, 26, 9)
+    macd := s.k.Indicators().MACD(btc, 12, 26, 9)
     
     // Bullish crossover: MACD crosses above Signal
     if macd.MACD.GreaterThan(macd.Signal) && macd.Histogram.GreaterThan(decimal.Zero) {
@@ -82,7 +82,7 @@ type MACDResult struct {
 ### Crossover Signals
 
 ```go
-macd := s.k.Indicators.MACD(btc, 12, 26, 9)
+macd := s.k.Indicators().MACD(btc, 12, 26, 9)
 
 // Bullish: MACD crosses above Signal
 if macd.MACD.GreaterThan(macd.Signal) {
@@ -98,7 +98,7 @@ if macd.MACD.LessThan(macd.Signal) {
 ### Histogram Momentum
 
 ```go
-macd := s.k.Indicators.MACD(btc, 12, 26, 9)
+macd := s.k.Indicators().MACD(btc, 12, 26, 9)
 
 // Histogram growing = momentum strengthening
 if macd.Histogram.GreaterThan(decimal.Zero) {
@@ -114,7 +114,7 @@ if macd.Histogram.LessThan(decimal.Zero) {
 ### Zero Line Cross
 
 ```go
-macd := s.k.Indicators.MACD(btc, 12, 26, 9)
+macd := s.k.Indicators().MACD(btc, 12, 26, 9)
 
 // MACD above zero = uptrend
 if macd.MACD.GreaterThan(decimal.Zero) {

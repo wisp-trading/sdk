@@ -10,12 +10,12 @@ sidebar_position: 3
 
 ```go
 // Basic usage
-sma20 := s.k.Indicators.SMA(btc, 20)    // 20-period SMA
-sma50 := s.k.Indicators.SMA(btc, 50)    // 50-period SMA
-sma200 := s.k.Indicators.SMA(btc, 200)  // 200-period SMA
+sma20 := s.k.Indicators().SMA(btc, 20)    // 20-period SMA
+sma50 := s.k.Indicators().SMA(btc, 50)    // 50-period SMA
+sma200 := s.k.Indicators().SMA(btc, 200)  // 200-period SMA
 
 // With options
-sma := s.k.Indicators.SMA(btc, 50, indicators.IndicatorOptions{
+sma := s.k.Indicators().SMA(btc, 50, indicators.IndicatorOptions{
     Exchange: connector.Binance,
     Interval: "4h",
 })
@@ -27,9 +27,9 @@ sma := s.k.Indicators.SMA(btc, 50, indicators.IndicatorOptions{
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
-    price := s.k.Market.Price(btc)
-    sma50 := s.k.Indicators.SMA(btc, 50)
-    sma200 := s.k.Indicators.SMA(btc, 200)
+    price := s.k.Market().Price(btc)
+    sma50 := s.k.Indicators().SMA(btc, 50)
+    sma200 := s.k.Indicators().SMA(btc, 200)
     
     // Golden cross: SMA50 > SMA200 and price > SMA50
     if sma50.GreaterThan(sma200) && price.GreaterThan(sma50) {
@@ -52,12 +52,12 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
 
 ```go
 // Basic usage
-ema12 := s.k.Indicators.EMA(btc, 12)  // Fast EMA
-ema26 := s.k.Indicators.EMA(btc, 26)  // Slow EMA
-ema200 := s.k.Indicators.EMA(btc, 200) // Long-term trend
+ema12 := s.k.Indicators().EMA(btc, 12)  // Fast EMA
+ema26 := s.k.Indicators().EMA(btc, 26)  // Slow EMA
+ema200 := s.k.Indicators().EMA(btc, 200) // Long-term trend
 
 // With options
-ema := s.k.Indicators.EMA(eth, 50, indicators.IndicatorOptions{
+ema := s.k.Indicators().EMA(eth, 50, indicators.IndicatorOptions{
     Interval: "1h",
 })
 ```
@@ -68,9 +68,9 @@ ema := s.k.Indicators.EMA(eth, 50, indicators.IndicatorOptions{
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     eth := s.k.Asset("ETH")
     
-    price := s.k.Market.Price(eth)
-    ema20 := s.k.Indicators.EMA(eth, 20)
-    ema50 := s.k.Indicators.EMA(eth, 50)
+    price := s.k.Market().Price(eth)
+    ema20 := s.k.Indicators().EMA(eth, 20)
+    ema50 := s.k.Indicators().EMA(eth, 50)
     
     // EMA crossover
     if ema20.GreaterThan(ema50) && price.GreaterThan(ema20) {
@@ -110,8 +110,8 @@ EMA(asset, period, ...options) decimal.Decimal
 ### Trend Identification
 
 ```go
-price := s.k.Market.Price(btc)
-sma200 := s.k.Indicators.SMA(btc, 200)
+price := s.k.Market().Price(btc)
+sma200 := s.k.Indicators().SMA(btc, 200)
 
 // Uptrend: price above 200 SMA
 if price.GreaterThan(sma200) {
@@ -127,8 +127,8 @@ if price.LessThan(sma200) {
 ### Support/Resistance
 
 ```go
-price := s.k.Market.Price(btc)
-ema50 := s.k.Indicators.EMA(btc, 50)
+price := s.k.Market().Price(btc)
+ema50 := s.k.Indicators().EMA(btc, 50)
 
 // EMA acting as support in uptrend
 if price.GreaterThan(ema50) {
@@ -144,8 +144,8 @@ if price.GreaterThan(ema50) {
 ### Golden Cross / Death Cross
 
 ```go
-sma50 := s.k.Indicators.SMA(btc, 50)
-sma200 := s.k.Indicators.SMA(btc, 200)
+sma50 := s.k.Indicators().SMA(btc, 50)
+sma200 := s.k.Indicators().SMA(btc, 200)
 
 // Golden cross: SMA50 crosses above SMA200 (bullish)
 if sma50.GreaterThan(sma200) {
@@ -161,13 +161,13 @@ if sma50.LessThan(sma200) {
 ### Multi-MA Trend System
 
 ```go
-ema20 := s.k.Indicators.EMA(btc, 20)
-ema50 := s.k.Indicators.EMA(btc, 50)
-ema200 := s.k.Indicators.EMA(btc, 200)
+ema20 := s.k.Indicators().EMA(btc, 20)
+ema50 := s.k.Indicators().EMA(btc, 50)
+ema200 := s.k.Indicators().EMA(btc, 200)
 
 // Strong uptrend: all EMAs aligned
 if ema20.GreaterThan(ema50) && ema50.GreaterThan(ema200) {
-    price := s.k.Market.Price(btc)
+    price := s.k.Market().Price(btc)
     
     // Buy pullbacks to fast EMA
     if price.LessThan(ema20.Mul(decimal.NewFromFloat(1.02))) {  // Within 2%
@@ -191,7 +191,7 @@ if ema20.GreaterThan(ema50) && ema50.GreaterThan(ema200) {
 
 ```go
 // Long-term trend identification
-sma200 := s.k.Indicators.SMA(btc, 200, indicators.IndicatorOptions{
+sma200 := s.k.Indicators().SMA(btc, 200, indicators.IndicatorOptions{
     Interval: "1d",  // Daily
 })
 
@@ -205,7 +205,7 @@ sma200 := s.k.Indicators.SMA(btc, 200, indicators.IndicatorOptions{
 
 ```go
 // Responsive trend following
-ema20 := s.k.Indicators.EMA(btc, 20)
+ema20 := s.k.Indicators().EMA(btc, 20)
 
 // EMA is better for:
 // - Short to medium-term trading
@@ -236,15 +236,15 @@ ema20 := s.k.Indicators.EMA(btc, 20)
 
 ```go
 // Common SMA periods
-sma20 := s.k.Indicators.SMA(btc, 20)    // Short-term
-sma50 := s.k.Indicators.SMA(btc, 50)    // Medium-term
-sma200 := s.k.Indicators.SMA(btc, 200)  // Long-term
+sma20 := s.k.Indicators().SMA(btc, 20)    // Short-term
+sma50 := s.k.Indicators().SMA(btc, 50)    // Medium-term
+sma200 := s.k.Indicators().SMA(btc, 200)  // Long-term
 
 // Common EMA periods
-ema12 := s.k.Indicators.EMA(btc, 12)    // Fast
-ema26 := s.k.Indicators.EMA(btc, 26)    // Slow
-ema50 := s.k.Indicators.EMA(btc, 50)    // Medium
-ema200 := s.k.Indicators.EMA(btc, 200)  // Long-term
+ema12 := s.k.Indicators().EMA(btc, 12)    // Fast
+ema26 := s.k.Indicators().EMA(btc, 26)    // Slow
+ema50 := s.k.Indicators().EMA(btc, 50)    // Medium
+ema200 := s.k.Indicators().EMA(btc, 200)  // Long-term
 ```
 
 ## What They Measure
@@ -276,10 +276,10 @@ Recent prices have exponentially more weight.
 
 ```go
 // Use multiple timeframes
-sma200_4h := s.k.Indicators.SMA(btc, 200, indicators.IndicatorOptions{
+sma200_4h := s.k.Indicators().SMA(btc, 200, indicators.IndicatorOptions{
     Interval: "4h",
 })
-price := s.k.Market.Price(btc)
+price := s.k.Market().Price(btc)
 
 // Only trade with the trend
 if price.GreaterThan(sma200_4h) {
@@ -289,10 +289,10 @@ if price.GreaterThan(sma200_4h) {
 
 ```go
 // Combine SMA and EMA
-sma200 := s.k.Indicators.SMA(btc, 200)  // Trend filter
-ema20 := s.k.Indicators.EMA(btc, 20)    // Entry signal
+sma200 := s.k.Indicators().SMA(btc, 200)  // Trend filter
+ema20 := s.k.Indicators().EMA(btc, 20)    // Entry signal
 
-price := s.k.Market.Price(btc)
+price := s.k.Market().Price(btc)
 
 // Buy: above SMA200 + pullback to EMA20
 if price.GreaterThan(sma200) && price.LessThan(ema20.Mul(decimal.NewFromFloat(1.01))) {
@@ -304,8 +304,8 @@ if price.GreaterThan(sma200) && price.LessThan(ema20.Mul(decimal.NewFromFloat(1.
 
 ```go
 // Don't use MA alone without confirmation
-sma50 := s.k.Indicators.SMA(btc, 50)
-price := s.k.Market.Price(btc)
+sma50 := s.k.Indicators().SMA(btc, 50)
+price := s.k.Market().Price(btc)
 
 if price.GreaterThan(sma50) {
     // ❌ Too simplistic, needs confirmation
@@ -336,10 +336,10 @@ func (s *MAStrategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
     // Get moving averages
-    price := s.k.Market.Price(btc)
-    ema20 := s.k.Indicators.EMA(btc, 20)
-    ema50 := s.k.Indicators.EMA(btc, 50)
-    sma200 := s.k.Indicators.SMA(btc, 200)
+    price := s.k.Market().Price(btc)
+    ema20 := s.k.Indicators().EMA(btc, 20)
+    ema50 := s.k.Indicators().EMA(btc, 50)
+    sma200 := s.k.Indicators().SMA(btc, 200)
     
     // Trend filter: above SMA200
     inUptrend := price.GreaterThan(sma200)

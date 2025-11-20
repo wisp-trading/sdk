@@ -36,9 +36,9 @@ func NewMACrossover(k *sdk.Kronos) *MACrossover {
 func (s *MACrossover) GetSignals() ([]*strategy.Signal, error) {
 	btc := s.k.Asset("BTC")
 
-	sma50, _ := s.k.Indicators.SMA(btc, 50)
-	sma200, _ := s.k.Indicators.SMA(btc, 200)
-	price, _ := s.k.Market.Price(btc)
+	sma50, _ := s.k.Indicators().SMA(btc, 50)
+	sma200, _ := s.k.Indicators().SMA(btc, 200)
+	price, _ := s.k.Market().Price(btc)
 
 	// Golden cross: 50 crosses above 200
 	if sma50.GreaterThan(sma200) && price.GreaterThan(sma50) {

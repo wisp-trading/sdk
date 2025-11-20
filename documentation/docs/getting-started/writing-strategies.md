@@ -35,8 +35,8 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
     // 2. Analyze market
-    rsi := s.k.Indicators.RSI(btc, 14)
-    price := s.k.Market.Price(btc)
+    rsi := s.k.Indicators().RSI(btc, 14)
+    price := s.k.Market().Price(btc)
     
     // 3. Decide
     if rsi.LessThan(decimal.NewFromInt(30)) {
@@ -65,7 +65,7 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     
     // Check each asset
     for _, asset := range []types.Asset{btc, eth, sol} {
-        rsi := s.k.Indicators.RSI(asset, 14)
+        rsi := s.k.Indicators().RSI(asset, 14)
         
         if rsi.LessThan(decimal.NewFromInt(30)) {
             signal := s.k.Signal(s.GetName()).
@@ -90,16 +90,16 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
     // Long-term trend (4-hour)
-    sma200 := s.k.Indicators.SMA(btc, 200, indicators.IndicatorOptions{
+    sma200 := s.k.Indicators().SMA(btc, 200, indicators.IndicatorOptions{
         Interval: "4h",
     })
     
     // Short-term signal (1-hour)
-    rsi := s.k.Indicators.RSI(btc, 14, indicators.IndicatorOptions{
+    rsi := s.k.Indicators().RSI(btc, 14, indicators.IndicatorOptions{
         Interval: "1h",
     })
     
-    price := s.k.Market.Price(btc)
+    price := s.k.Market().Price(btc)
     
     // Only buy if in uptrend AND oversold
     if price.GreaterThan(sma200) && rsi.LessThan(decimal.NewFromInt(30)) {
@@ -123,10 +123,10 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
     // Get multiple indicators
-    rsi := s.k.Indicators.RSI(btc, 14)
-    stoch := s.k.Indicators.Stochastic(btc, 14, 3)
-    bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)
-    price := s.k.Market.Price(btc)
+    rsi := s.k.Indicators().RSI(btc, 14)
+    stoch := s.k.Indicators().Stochastic(btc, 14, 3)
+    bb := s.k.Indicators().BollingerBands(btc, 20, 2.0)
+    price := s.k.Market().Price(btc)
     
     // Require all three to confirm oversold
     oversold := rsi.LessThan(decimal.NewFromInt(30)) &&
@@ -155,9 +155,9 @@ Use ATR for dynamic stops:
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
-    rsi := s.k.Indicators.RSI(btc, 14)
-    price := s.k.Market.Price(btc)
-    atr := s.k.Indicators.ATR(btc, 14)
+    rsi := s.k.Indicators().RSI(btc, 14)
+    price := s.k.Market().Price(btc)
+    atr := s.k.Indicators().ATR(btc, 14)
     
     if rsi.LessThan(decimal.NewFromInt(30)) {
         // Calculate stops based on ATR
@@ -190,8 +190,8 @@ Size positions based on volatility:
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
-    atr := s.k.Indicators.ATR(btc, 14)
-    price := s.k.Market.Price(btc)
+    atr := s.k.Indicators().ATR(btc, 14)
+    price := s.k.Market().Price(btc)
     
     // Risk 2% of account on this trade
     accountBalance := decimal.NewFromInt(10000)
@@ -215,8 +215,8 @@ Skip trading in extreme volatility:
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
-    atr := s.k.Indicators.ATR(btc, 14)
-    price := s.k.Market.Price(btc)
+    atr := s.k.Indicators().ATR(btc, 14)
+    price := s.k.Market().Price(btc)
     
     // ATR as percentage of price
     atrPercent := atr.Div(price).Mul(decimal.NewFromInt(100))
@@ -242,7 +242,7 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
     // Get prices from all exchanges
-    prices := s.k.Market.Prices(btc)
+    prices := s.k.Market().Prices(btc)
     
     binancePrice := prices[connector.Binance]
     bybitPrice := prices[connector.Bybit]
@@ -275,11 +275,11 @@ Always trade on the exchange with best price:
 ```go
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
-    rsi := s.k.Indicators.RSI(btc, 14)
+    rsi := s.k.Indicators().RSI(btc, 14)
     
     if rsi.LessThan(decimal.NewFromInt(30)) {
         // Find exchange with lowest price
-        prices := s.k.Market.Prices(btc)
+        prices := s.k.Market().Prices(btc)
         
         var bestExchange connector.ExchangeName
         var bestPrice decimal.Decimal
@@ -313,9 +313,9 @@ Follow the trend with moving average crossovers:
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
-    sma50 := s.k.Indicators.SMA(btc, 50)
-    sma200 := s.k.Indicators.SMA(btc, 200)
-    price := s.k.Market.Price(btc)
+    sma50 := s.k.Indicators().SMA(btc, 50)
+    sma200 := s.k.Indicators().SMA(btc, 200)
+    price := s.k.Market().Price(btc)
     
     // Golden cross: 50 SMA crosses above 200 SMA
     if sma50.GreaterThan(sma200) && price.GreaterThan(sma50) {
@@ -347,9 +347,9 @@ Trade bounces from Bollinger Bands:
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
-    bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)
-    price := s.k.Market.Price(btc)
-    rsi := s.k.Indicators.RSI(btc, 14)
+    bb := s.k.Indicators().BollingerBands(btc, 20, 2.0)
+    price := s.k.Market().Price(btc)
+    rsi := s.k.Indicators().RSI(btc, 14)
     
     // Buy when price touches lower band AND RSI confirms
     if price.LessThan(bb.Lower) && rsi.LessThan(decimal.NewFromInt(30)) {
@@ -373,8 +373,8 @@ Trade breakouts with volume confirmation:
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
-    bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)
-    price := s.k.Market.Price(btc)
+    bb := s.k.Indicators().BollingerBands(btc, 20, 2.0)
+    price := s.k.Market().Price(btc)
     
     // Band width (volatility)
     bandWidth := bb.Upper.Sub(bb.Lower).Div(bb.Middle).Mul(decimal.NewFromInt(100))
@@ -411,12 +411,12 @@ type TrendStrategy struct {
 
 func (s *TrendStrategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
-    price := s.k.Market.Price(btc)
-    atr := s.k.Indicators.ATR(btc, 14)
+    price := s.k.Market().Price(btc)
+    atr := s.k.Indicators().ATR(btc, 14)
     
     // Entry logic
     if !s.inPosition {
-        rsi := s.k.Indicators.RSI(btc, 14)
+        rsi := s.k.Indicators().RSI(btc, 14)
         if rsi.LessThan(decimal.NewFromInt(30)) {
             s.inPosition = true
             s.entryPrice = price

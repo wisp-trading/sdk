@@ -52,9 +52,9 @@ func (s *Portfolio) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	for _, a := range assets {
-		rsi, _ := s.k.Indicators.RSI(a.asset, 14)
-		sma200, _ := s.k.Indicators.SMA(a.asset, 200)
-		price, _ := s.k.Market.Price(a.asset)
+		rsi, _ := s.k.Indicators().RSI(a.asset, 14)
+		sma200, _ := s.k.Indicators().SMA(a.asset, 200)
+		price, _ := s.k.Market().Price(a.asset)
 
 		// Buy if oversold and in uptrend
 		if rsi.LessThan(decimal.NewFromInt(30)) && price.GreaterThan(sma200) {
