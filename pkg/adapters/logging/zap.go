@@ -3,11 +3,22 @@ package logging
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // ZapApplicationLogger adapts zap.Logger to ApplicationLogger interface
 type ZapApplicationLogger struct {
 	logger *zap.Logger
+}
+
+// NewDefaultZapLogger creates a production-ready zap logger with proper encoding
+func NewDefaultZapLogger() (*zap.Logger, error) {
+	config := zap.NewProductionConfig()
+	config.Encoding = "json"
+	config.EncoderConfig.TimeKey = "timestamp"
+	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	config.EncoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+	return config.Build()
 }
 
 // NewZapApplicationLogger creates an application logger from a zap logger
