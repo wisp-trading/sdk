@@ -2,7 +2,7 @@ package trade
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/stores/activity"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
 )
 
 func NewStore() activity.Trades {

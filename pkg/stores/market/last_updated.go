@@ -3,7 +3,7 @@ package market
 import (
 	"time"
 
-	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/stores/market"
+	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 )
 
 func (ds *dataStore) GetLastUpdated() marketTypes.LastUpdatedMap {

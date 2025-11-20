@@ -3,7 +3,7 @@ package position
 import (
 	"fmt"
 
-	portfolioTypes "github.com/backtesting-org/kronos-sdk/pkg/types/stores/activity"
+	portfolioTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 )
 

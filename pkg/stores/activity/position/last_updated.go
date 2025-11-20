@@ -3,7 +3,7 @@ package position
 import (
 	"time"
 
-	portfolioTypes "github.com/backtesting-org/kronos-sdk/pkg/types/stores/activity"
+	portfolioTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
 )
 
 func (ds *dataStore) GetLastUpdated() portfolioTypes.LastUpdatedMap {
