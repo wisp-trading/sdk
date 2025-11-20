@@ -34,7 +34,6 @@ type Strategy interface {
 	GetStrategyType() StrategyType
 
 	// GetRequiredAssets declares which assets this strategy needs to operate
-	// This is called BEFORE GetSignals to ensure data is available
 	GetRequiredAssets() []RequiredAsset
 
 	Enable() error
