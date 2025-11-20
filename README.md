@@ -8,33 +8,33 @@ Build algorithmic trading strategies in Go with a clean, intuitive API.
 package main
 
 import (
-    sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
-    "github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-    "github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-    "github.com/shopspring/decimal"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/shopspring/decimal"
 )
 
 type MyStrategy struct {
-    k *sdk.Kronos
+	k kronos.Kronos
 }
 
 func (s *MyStrategy) GetSignals() ([]*strategy.Signal, error) {
-    btc := s.k.Asset("BTC")
-    rsi := s.k.Indicators.RSI(btc, 14)
-    
-    if rsi.LessThan(decimal.NewFromInt(30)) {
-        signal := s.k.Signal(s.GetName()).
-            Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
-            Build()
-        return []*strategy.Signal{signal}, nil
-    }
-    
-    return nil, nil
+	btc := s.k.Asset("BTC")
+	rsi, _ := s.k.Indicators().RSI(btc, 14)
+
+	if rsi.LessThan(decimal.NewFromInt(30)) {
+		signal := s.k.Signal(s.GetName()).
+			Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+			Build()
+		return []*strategy.Signal{signal}, nil
+	}
+
+	return nil, nil
 }
 
-func (s *MyStrategy) GetName() strategy.StrategyName { return "MyStrategy" }
-func (s *MyStrategy) GetDescription() string { return "RSI momentum" }
-func (s *MyStrategy) GetRiskLevel() strategy.RiskLevel { return strategy.RiskLevelMedium }
+func (s *MyStrategy) GetName() strategy.StrategyName         { return "MyStrategy" }
+func (s *MyStrategy) GetDescription() string                 { return "RSI momentum" }
+func (s *MyStrategy) GetRiskLevel() strategy.RiskLevel       { return strategy.RiskLevelMedium }
 func (s *MyStrategy) GetStrategyType() strategy.StrategyType { return strategy.StrategyTypeTechnical }
 ```
 
