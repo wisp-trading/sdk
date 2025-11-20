@@ -4,50 +4,28 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	analyticsTypes "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/stores/market"
 	"github.com/shopspring/decimal"
 )
 
-// AnalyticsService provides user-friendly methods for market analytics.
-type AnalyticsService struct {
+// analytics provides user-friendly methods for market analytics.
+type analytics struct {
 	store market.MarketData
 }
 
-// NewAnalyticsService creates a new AnalyticsService
-func NewAnalyticsService(store market.MarketData) *AnalyticsService {
-	return &AnalyticsService{
+// NewAnalyticsService creates a new analytics
+func NewAnalyticsService(store market.MarketData) analyticsTypes.Analytics {
+	return &analytics{
 		store: store,
 	}
 }
 
-// AnalyticsOptions configures analytics calculations
-type AnalyticsOptions struct {
-	Exchange connector.ExchangeName
-	Interval string
-}
-
-// TrendDirection represents the trend direction
-type TrendDirection string
-
-const (
-	TrendBullish TrendDirection = "bullish"
-	TrendBearish TrendDirection = "bearish"
-	TrendNeutral TrendDirection = "neutral"
-)
-
-// TrendResult holds trend analysis results
-type TrendResult struct {
-	Direction TrendDirection
-	Strength  decimal.Decimal // 0-100, higher means stronger trend
-	Slope     decimal.Decimal // Linear regression slope
-}
-
 // Volatility calculates the standard deviation of returns for an asset.
 // Returns annualized volatility as a percentage.
-func (s *AnalyticsService) Volatility(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (decimal.Decimal, error) {
+func (s *analytics) Volatility(asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (decimal.Decimal, error) {
 	options := s.parseOptions(opts...)
 
 	prices, err := s.fetchClosePrices(asset, period+1, opts...)
@@ -94,7 +72,7 @@ func (s *AnalyticsService) Volatility(asset portfolio.Asset, period int, opts ..
 
 // Trend analyzes the price trend for an asset using linear regression.
 // Returns trend direction and strength.
-func (s *AnalyticsService) Trend(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*TrendResult, error) {
+func (s *analytics) Trend(asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.TrendResult, error) {
 	prices, err := s.fetchClosePrices(asset, period, opts...)
 	if err != nil {
 		return nil, err
@@ -146,34 +124,25 @@ func (s *AnalyticsService) Trend(asset portfolio.Asset, period int, opts ...Anal
 	// Determine direction based on slope
 	// Use a threshold to avoid calling tiny slopes a trend
 	slopeThreshold := 0.01
-	var direction TrendDirection
+	var direction analyticsTypes.TrendDirection
 
 	if slope > slopeThreshold && rSquared > 0.3 {
-		direction = TrendBullish
+		direction = analyticsTypes.TrendBullish
 	} else if slope < -slopeThreshold && rSquared > 0.3 {
-		direction = TrendBearish
+		direction = analyticsTypes.TrendBearish
 	} else {
-		direction = TrendNeutral
+		direction = analyticsTypes.TrendNeutral
 	}
 
-	return &TrendResult{
+	return &analyticsTypes.TrendResult{
 		Direction: direction,
 		Strength:  strength,
 		Slope:     slopeDecimal,
 	}, nil
 }
 
-// VolumeAnalysis holds volume analysis results
-type VolumeAnalysis struct {
-	CurrentVolume decimal.Decimal
-	AverageVolume decimal.Decimal
-	VolumeRatio   decimal.Decimal // Current / Average
-	IsVolumeSpike bool            // True if current volume > 2x average
-	VolumeTrend   TrendDirection  // Increasing, decreasing, or neutral
-}
-
 // VolumeAnalysis detects volume patterns and spikes.
-func (s *AnalyticsService) VolumeAnalysis(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*VolumeAnalysis, error) {
+func (s *analytics) VolumeAnalysis(asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.VolumeAnalysis, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -227,18 +196,18 @@ func (s *AnalyticsService) VolumeAnalysis(asset portfolio.Asset, period int, opt
 	firstHalfAvg := firstHalfVolume.Div(decimal.NewFromInt(int64(midPoint)))
 	secondHalfAvg := secondHalfVolume.Div(decimal.NewFromInt(int64(len(klines) - midPoint)))
 
-	var volumeTrend TrendDirection
+	var volumeTrend analyticsTypes.TrendDirection
 	trendThreshold := decimal.NewFromFloat(1.2) // 20% increase/decrease
 
 	if !firstHalfAvg.IsZero() && secondHalfAvg.Div(firstHalfAvg).GreaterThan(trendThreshold) {
-		volumeTrend = TrendBullish // Increasing volume
+		volumeTrend = analyticsTypes.TrendBullish // Increasing volume
 	} else if !secondHalfAvg.IsZero() && firstHalfAvg.Div(secondHalfAvg).GreaterThan(trendThreshold) {
-		volumeTrend = TrendBearish // Decreasing volume
+		volumeTrend = analyticsTypes.TrendBearish // Decreasing volume
 	} else {
-		volumeTrend = TrendNeutral
+		volumeTrend = analyticsTypes.TrendNeutral
 	}
 
-	return &VolumeAnalysis{
+	return &analyticsTypes.VolumeAnalysis{
 		CurrentVolume: currentVolume,
 		AverageVolume: avgVolume,
 		VolumeRatio:   volumeRatio,
@@ -247,20 +216,8 @@ func (s *AnalyticsService) VolumeAnalysis(asset portfolio.Asset, period int, opt
 	}, nil
 }
 
-// PriceChange calculates the price change over a period.
-type PriceChange struct {
-	StartPrice        decimal.Decimal
-	EndPrice          decimal.Decimal
-	Change            decimal.Decimal // Absolute change
-	ChangePercent     decimal.Decimal // Percentage change
-	HighPrice         decimal.Decimal // Highest price in period
-	LowPrice          decimal.Decimal // Lowest price in period
-	PriceRange        decimal.Decimal // High - Low
-	PriceRangePercent decimal.Decimal // Range as % of start price
-}
-
 // GetPriceChange calculates price statistics over a period.
-func (s *AnalyticsService) GetPriceChange(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*PriceChange, error) {
+func (s *analytics) GetPriceChange(asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.PriceChange, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -298,7 +255,7 @@ func (s *AnalyticsService) GetPriceChange(asset portfolio.Asset, period int, opt
 	priceRange := highPrice.Sub(lowPrice)
 	priceRangePercent := priceRange.Div(startPrice).Mul(decimal.NewFromInt(100))
 
-	return &PriceChange{
+	return &analyticsTypes.PriceChange{
 		StartPrice:        startPrice,
 		EndPrice:          endPrice,
 		Change:            change,
@@ -311,7 +268,7 @@ func (s *AnalyticsService) GetPriceChange(asset portfolio.Asset, period int, opt
 }
 
 // fetchClosePrices is a helper that fetches klines and extracts close prices
-func (s *AnalyticsService) fetchClosePrices(asset portfolio.Asset, limit int, opts ...AnalyticsOptions) ([]decimal.Decimal, error) {
+func (s *analytics) fetchClosePrices(asset portfolio.Asset, limit int, opts ...analyticsTypes.AnalyticsOptions) ([]decimal.Decimal, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -337,7 +294,7 @@ func (s *AnalyticsService) fetchClosePrices(asset portfolio.Asset, limit int, op
 }
 
 // getDefaultExchange returns the first available exchange for an asset
-func (s *AnalyticsService) getDefaultExchange(asset portfolio.Asset) connector.ExchangeName {
+func (s *analytics) getDefaultExchange(asset portfolio.Asset) connector.ExchangeName {
 	priceMap := s.store.GetAssetPrices(asset)
 	for exchange := range priceMap {
 		return exchange
@@ -346,26 +303,26 @@ func (s *AnalyticsService) getDefaultExchange(asset portfolio.Asset) connector.E
 }
 
 // parseOptions extracts options with defaults
-func (s *AnalyticsService) parseOptions(opts ...AnalyticsOptions) AnalyticsOptions {
+func (s *analytics) parseOptions(opts ...analyticsTypes.AnalyticsOptions) analyticsTypes.AnalyticsOptions {
 	if len(opts) > 0 {
 		options := opts[0]
 		if options.Interval == "" {
-			options.Interval = analytics.DefaultInterval
+			options.Interval = analyticsTypes.DefaultInterval
 		}
 		return options
 	}
-	return AnalyticsOptions{
-		Interval: analytics.DefaultInterval,
+	return analyticsTypes.AnalyticsOptions{
+		Interval: analyticsTypes.DefaultInterval,
 	}
 }
 
 // getAnnualizationFactor returns the factor to annualize volatility based on interval
 // Formula: sqrt(periods_per_year)
-func (s *AnalyticsService) getAnnualizationFactor(interval string) float64 {
-	periods, ok := analytics.PeriodsPerYear[interval]
+func (s *analytics) getAnnualizationFactor(interval string) float64 {
+	periods, ok := analyticsTypes.PeriodsPerYear[interval]
 	if !ok {
 		// Default to hourly if unknown interval
-		periods = analytics.PeriodsPerYear[analytics.DefaultInterval]
+		periods = analyticsTypes.PeriodsPerYear[analyticsTypes.DefaultInterval]
 	}
 
 	return math.Sqrt(periods)

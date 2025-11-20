@@ -1,21 +1,19 @@
 package kronos
 
 import (
+	"github.com/backtesting-org/kronos-sdk/kronos/market"
+	"github.com/backtesting-org/kronos-sdk/kronos/signal"
+	"github.com/backtesting-org/kronos-sdk/kronos/trade"
+	"github.com/backtesting-org/kronos-sdk/pkg/analytics"
+	"github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators"
 	"go.uber.org/fx"
-
-	"github.com/backtesting-org/kronos-sdk/pkg/kronos/analytics"
-	"github.com/backtesting-org/kronos-sdk/pkg/kronos/indicators"
-	"github.com/backtesting-org/kronos-sdk/pkg/kronos/market"
-	"github.com/backtesting-org/kronos-sdk/pkg/kronos/signal"
-	"github.com/backtesting-org/kronos-sdk/pkg/kronos/trade"
 )
 
 // Module provides the Kronos SDK with all its services wired up via fx DI.
-// This should be included in the fx.Options for your application.
 var Module = fx.Module("kronos",
 	// Provide all the internal services
 	fx.Provide(
-		indicators.NewIndicatorService,
+		indicators.NewIndicators,
 		market.NewMarketService,
 		analytics.NewAnalyticsService,
 		signal.NewService,

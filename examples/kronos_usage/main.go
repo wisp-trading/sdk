@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/kronos"
-	"github.com/backtesting-org/kronos-sdk/pkg/kronos/indicators"
-	"github.com/backtesting-org/kronos-sdk/pkg/kronos/trade"
+	"github.com/backtesting-org/kronos-sdk/kronos"
+	"github.com/backtesting-org/kronos-sdk/kronos/indicators"
+	"github.com/backtesting-org/kronos-sdk/kronos/trade"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/shopspring/decimal"

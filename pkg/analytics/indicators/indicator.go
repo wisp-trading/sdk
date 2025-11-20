@@ -14,12 +14,12 @@
 // All indicator methods support optional configuration:
 //
 //	// Use specific exchange
-//	rsi := s.k.Indicators.RSI(btc, 14, indicators.IndicatorOptions{
+//	rsi := s.k.Indicators.RSI(btc, 14, indicators.analytics.IndicatorOptions{
 //	    Exchange: "binance",
 //	})
 //
 //	// Use different timeframe
-//	sma := s.k.Indicators.SMA(btc, 200, indicators.IndicatorOptions{
+//	sma := s.k.Indicators.SMA(btc, 200, indicators.analytics.IndicatorOptions{
 //	    Interval: "4h",
 //	})
 package indicators
@@ -27,9 +27,8 @@ package indicators
 import (
 	"fmt"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/stores/market"
 	"github.com/shopspring/decimal"
@@ -42,29 +41,15 @@ const (
 
 // IndicatorService provides user-friendly methods for technical indicators.
 // All methods handle data fetching internally - users never manually extract klines.
-type IndicatorService struct {
+type indicators struct {
 	store market.MarketData
 }
 
-// NewIndicatorService creates a new IndicatorService
-func NewIndicatorService(store market.MarketData) *IndicatorService {
-	return &IndicatorService{
+// NewIndicators creates a new IndicatorService
+func NewIndicators(store market.MarketData) analytics.Indicators {
+	return &indicators{
 		store: store,
 	}
-}
-
-// IndicatorOptions configures indicator calculations.
-// All fields are optional. If not specified, Kronos uses sensible defaults:
-// - Exchange: First available exchange with data for the asset
-// - Interval: 1h (hourly candles)
-type IndicatorOptions struct {
-	// Exchange specifies which exchange to fetch data from.
-	// If empty, Kronos automatically selects the first available exchange.
-	Exchange connector.ExchangeName
-
-	// Interval specifies the timeframe for calculations (e.g., "1h", "4h", "1d").
-	// If empty, defaults to "1h".
-	Interval string
 }
 
 // SMA calculates the Simple Moving Average for an asset.
@@ -83,7 +68,7 @@ type IndicatorOptions struct {
 //
 //	btc := s.k.Asset("BTC")
 //	sma50 := s.k.Indicators.SMA(btc, 50)  // 50-period SMA
-//	sma200 := s.k.Indicators.SMA(btc, 200, indicators.IndicatorOptions{
+//	sma200 := s.k.Indicators.SMA(btc, 200, analytics.analytics.IndicatorOptions{
 //	    Interval: "4h",  // 4-hour timeframe
 //	})
 //
@@ -91,13 +76,13 @@ type IndicatorOptions struct {
 //   - Fetches price data from the exchange
 //   - Calculates the moving average
 //   - Returns the current value
-func (s *IndicatorService) SMA(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error) {
+func (s *indicators) SMA(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (decimal.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
 		return decimal.Zero, err
 	}
 
-	smaValues, err := indicators.SMA(prices, period)
+	smaValues, err := SMA(prices, period)
 	if err != nil {
 		return decimal.Zero, err
 	}
@@ -139,13 +124,13 @@ func (s *IndicatorService) SMA(asset portfolio.Asset, period int, opts ...Indica
 //   - Fetches historical price data
 //   - Applies exponential weighting
 //   - Returns the current EMA value
-func (s *IndicatorService) EMA(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error) {
+func (s *indicators) EMA(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (decimal.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
 		return decimal.Zero, err
 	}
 
-	emaValues, err := indicators.EMA(prices, period)
+	emaValues, err := EMA(prices, period)
 	if err != nil {
 		return decimal.Zero, err
 	}
@@ -192,13 +177,13 @@ func (s *IndicatorService) EMA(asset portfolio.Asset, period int, opts ...Indica
 //   - Fetches price history
 //   - Calculates gains and losses
 //   - Computes the RSI value
-func (s *IndicatorService) RSI(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error) {
+func (s *indicators) RSI(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (decimal.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, (period+1)*dataMultiplier, opts...)
 	if err != nil {
 		return decimal.Zero, err
 	}
 
-	rsiValues, err := indicators.RSI(prices, period)
+	rsiValues, err := RSI(prices, period)
 	if err != nil {
 		return decimal.Zero, err
 	}
@@ -248,7 +233,7 @@ func (s *IndicatorService) RSI(asset portfolio.Asset, period int, opts ...Indica
 //   - MACD < Signal: Bearish momentum
 //   - Histogram growing: Momentum strengthening
 //   - Histogram shrinking: Momentum weakening
-func (s *IndicatorService) MACD(asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...IndicatorOptions) (*indicators.MACDResult, error) {
+func (s *indicators) MACD(asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...analytics.IndicatorOptions) (*analytics.MACDResult, error) {
 	// Need enough data for slow period + signal period
 	requiredData := (slowPeriod + signalPeriod) * dataMultiplier
 	prices, err := s.fetchClosePrices(asset, requiredData, opts...)
@@ -256,7 +241,7 @@ func (s *IndicatorService) MACD(asset portfolio.Asset, fastPeriod, slowPeriod, s
 		return nil, err
 	}
 
-	macdResults, err := indicators.MACD(prices, fastPeriod, slowPeriod, signalPeriod)
+	macdResults, err := MACD(prices, fastPeriod, slowPeriod, signalPeriod)
 	if err != nil {
 		return nil, err
 	}
@@ -307,13 +292,13 @@ func (s *IndicatorService) MACD(asset portfolio.Asset, fastPeriod, slowPeriod, s
 //   - Price near lower band: Oversold
 //   - Bands narrowing: Low volatility (potential breakout)
 //   - Bands widening: High volatility
-func (s *IndicatorService) BollingerBands(asset portfolio.Asset, period int, stdDev float64, opts ...IndicatorOptions) (*indicators.BollingerBandsResult, error) {
+func (s *indicators) BollingerBands(asset portfolio.Asset, period int, stdDev float64, opts ...analytics.IndicatorOptions) (*analytics.BollingerBandsResult, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	bbResults, err := indicators.BollingerBands(prices, period, stdDev)
+	bbResults, err := BollingerBands(prices, period, stdDev)
 	if err != nil {
 		return nil, err
 	}
@@ -367,7 +352,7 @@ func (s *IndicatorService) BollingerBands(asset portfolio.Asset, period int, std
 //   - %K crosses below %D: Bearish signal
 //   - Both in oversold zone: Potential reversal up
 //   - Both in overbought zone: Potential reversal down
-func (s *IndicatorService) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opts ...IndicatorOptions) (*indicators.StochasticResult, error) {
+func (s *indicators) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opts ...analytics.IndicatorOptions) (*analytics.StochasticResult, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -397,7 +382,7 @@ func (s *IndicatorService) Stochastic(asset portfolio.Asset, kPeriod, dPeriod in
 		closes[i] = kline.Close
 	}
 
-	stochResults, err := indicators.Stochastic(highs, lows, closes, kPeriod, dPeriod)
+	stochResults, err := Stochastic(highs, lows, closes, kPeriod, dPeriod)
 	if err != nil {
 		return nil, err
 	}
@@ -448,7 +433,7 @@ func (s *IndicatorService) Stochastic(asset portfolio.Asset, kPeriod, dPeriod in
 //   - Low ATR: Low volatility, price consolidation
 //   - Rising ATR: Volatility increasing
 //   - Falling ATR: Volatility decreasing
-func (s *IndicatorService) ATR(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error) {
+func (s *indicators) ATR(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (decimal.Decimal, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -478,7 +463,7 @@ func (s *IndicatorService) ATR(asset portfolio.Asset, period int, opts ...Indica
 		closes[i] = kline.Close
 	}
 
-	atrValues, err := indicators.ATR(highs, lows, closes, period)
+	atrValues, err := ATR(highs, lows, closes, period)
 	if err != nil {
 		return decimal.Zero, err
 	}
@@ -492,7 +477,7 @@ func (s *IndicatorService) ATR(asset portfolio.Asset, period int, opts ...Indica
 }
 
 // fetchClosePrices is a helper that fetches klines and extracts close prices
-func (s *IndicatorService) fetchClosePrices(asset portfolio.Asset, limit int, opts ...IndicatorOptions) ([]decimal.Decimal, error) {
+func (s *indicators) fetchClosePrices(asset portfolio.Asset, limit int, opts ...analytics.IndicatorOptions) ([]decimal.Decimal, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -518,7 +503,7 @@ func (s *IndicatorService) fetchClosePrices(asset portfolio.Asset, limit int, op
 }
 
 // getDefaultExchange returns the first available exchange for an asset
-func (s *IndicatorService) getDefaultExchange(asset portfolio.Asset) connector.ExchangeName {
+func (s *indicators) getDefaultExchange(asset portfolio.Asset) connector.ExchangeName {
 	priceMap := s.store.GetAssetPrices(asset)
 	for exchange := range priceMap {
 		return exchange
@@ -527,7 +512,7 @@ func (s *IndicatorService) getDefaultExchange(asset portfolio.Asset) connector.E
 }
 
 // parseOptions extracts options with defaults
-func (s *IndicatorService) parseOptions(opts ...IndicatorOptions) IndicatorOptions {
+func (s *indicators) parseOptions(opts ...analytics.IndicatorOptions) analytics.IndicatorOptions {
 	if len(opts) > 0 {
 		options := opts[0]
 		if options.Interval == "" {
@@ -535,7 +520,7 @@ func (s *IndicatorService) parseOptions(opts ...IndicatorOptions) IndicatorOptio
 		}
 		return options
 	}
-	return IndicatorOptions{
+	return analytics.IndicatorOptions{
 		Interval: analytics.DefaultInterval,
 	}
 }
