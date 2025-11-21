@@ -1,18 +1,18 @@
 package lifecycle
 
 import (
-"context"
+	"context"
 )
 
 // State represents the current state of the SDK
 type State int
 
 const (
-StateCreated State = iota
-StateStarting
-StateReady
-StateStopping
-StateStopped
+	StateCreated State = iota
+	StateStarting
+	StateReady
+	StateStopping
+	StateStopped
 )
 
 func (s State) String() string {

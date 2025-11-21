@@ -4,7 +4,7 @@ import (
 	"context"
 
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
-		"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"go.uber.org/fx"
 )
 

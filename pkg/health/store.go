@@ -1,12 +1,12 @@
 package health
 
 import (
-"fmt"
-"sync"
-"time"
+	"fmt"
+	"sync"
+	"time"
 
-"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-healthTypes "github.com/backtesting-org/kronos-sdk/pkg/types/health"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	healthTypes "github.com/backtesting-org/kronos-sdk/pkg/types/health"
 )
 
 type healthStore struct {
@@ -73,7 +73,7 @@ func (h *healthStore) RecordDataReceived(name connector.ExchangeName, dataType h
 	dt.LastError = nil
 
 	conn.LastHealthCheck = time.Now()
-	
+
 	if conn.State != healthTypes.StateConnected {
 		conn.State = healthTypes.StateConnected
 	}
