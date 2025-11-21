@@ -1,29 +1,35 @@
 package plugin
 
 import (
+	"debug/buildinfo"
 	"fmt"
-	"plugin"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/version"
 )
 
-// extractSDKVersion extracts the SDK version from a loaded plugin
-// Plugins must export: var SDKVersion = version.SDKVersion
-func extractSDKVersion(p *plugin.Plugin) (string, error) {
-	// Look up the SDK version variable that plugins export
-	// Plugins should include: var SDKVersion = version.SDKVersion
-	sym, err := p.Lookup("SDKVersion")
+// extractSDKVersionFromPath extracts the SDK version from a plugin file
+// Uses Go's build info to automatically read the SDK module version
+// Plugin authors don't need to do anything - this is fully automatic!
+func extractSDKVersionFromPath(pluginPath string) (string, error) {
+	// Read build info from the plugin binary
+	info, err := buildinfo.ReadFile(pluginPath)
 	if err != nil {
-		return "", fmt.Errorf("plugin does not export SDKVersion variable. Plugins must include: var SDKVersion = version.SDKVersion")
+		return "", fmt.Errorf("failed to read build info from plugin: %w", err)
 	}
 
-	// Type assert to string pointer
-	versionPtr, ok := sym.(*string)
-	if !ok {
-		return "", fmt.Errorf("SDKVersion symbol has unexpected type: %T", sym)
+	// Look for the kronos-sdk module in dependencies
+	const sdkModulePath = "github.com/backtesting-org/kronos-sdk"
+
+	for _, dep := range info.Deps {
+		if dep != nil && dep.Path == sdkModulePath {
+			if dep.Version == "" || dep.Version == "(devel)" {
+				return "", fmt.Errorf("plugin was built with development version of SDK (use 'go get github.com/backtesting-org/kronos-sdk@vX.Y.Z')")
+			}
+			return dep.Version, nil
+		}
 	}
 
-	return *versionPtr, nil
+	return "", fmt.Errorf("plugin does not depend on %s", sdkModulePath)
 }
 
 // validateSDKVersion enforces strict version matching

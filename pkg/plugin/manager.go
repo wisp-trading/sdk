@@ -41,20 +41,21 @@ func (m *manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) 
 		return nil, fmt.Errorf("plugin file does not exist: %s", pluginPath)
 	}
 
-	// Load the plugin
-	p, err := plugin.Open(pluginPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open plugin: %w", err)
-	}
-
-	// Extract and validate SDK version (strict version checking)
-	pluginSDKVersion, err := extractSDKVersion(p)
+	// Extract and validate SDK version BEFORE loading plugin (strict version checking)
+	// This reads the build info from the .so file automatically
+	pluginSDKVersion, err := extractSDKVersionFromPath(pluginPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract SDK version: %w", err)
 	}
 
 	if err := validateSDKVersion(pluginSDKVersion); err != nil {
 		return nil, err
+	}
+
+	// Load the plugin (only after version validation passes)
+	p, err := plugin.Open(pluginPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open plugin: %w", err)
 	}
 
 	// Look up the NewStrategy symbol
@@ -143,20 +144,20 @@ func (m *manager) GetLoadedPlugin(ctx context.Context, id uuid.UUID) (*plugintyp
 		return nil, fmt.Errorf("plugin not found in storage: %w", err)
 	}
 
-	// Load the plugin file
-	p, err := plugin.Open(metadata.PluginPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open plugin file: %w", err)
-	}
-
-	// Extract and validate SDK version
-	pluginSDKVersion, err := extractSDKVersion(p)
+	// Extract and validate SDK version BEFORE loading plugin
+	pluginSDKVersion, err := extractSDKVersionFromPath(metadata.PluginPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract SDK version: %w", err)
 	}
 
 	if err := validateSDKVersion(pluginSDKVersion); err != nil {
 		return nil, err
+	}
+
+	// Load the plugin file (only after version validation passes)
+	p, err := plugin.Open(metadata.PluginPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open plugin file: %w", err)
 	}
 
 	// Try to get NewStrategy function
