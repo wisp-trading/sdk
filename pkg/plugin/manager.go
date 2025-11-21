@@ -41,7 +41,18 @@ func (m *manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) 
 		return nil, fmt.Errorf("plugin file does not exist: %s", pluginPath)
 	}
 
-	// Load the plugin
+	// Extract and validate SDK version BEFORE loading plugin (strict version checking)
+	// This reads the build info from the .so file automatically
+	pluginSDKVersion, err := extractSDKVersionFromPath(pluginPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract SDK version: %w", err)
+	}
+
+	if err := validateSDKVersion(pluginSDKVersion); err != nil {
+		return nil, err
+	}
+
+	// Load the plugin (only after version validation passes)
 	p, err := plugin.Open(pluginPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open plugin: %w", err)
@@ -67,6 +78,7 @@ func (m *manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) 
 		metadata.ID = uuid.New()
 		metadata.PluginPath = pluginPath
 		metadata.CreatedBy = createdBy
+		metadata.SDKVersion = pluginSDKVersion
 
 		// Store in storage
 		if err := m.storage.SavePlugin(ctx, metadata); err != nil {
@@ -94,6 +106,7 @@ func (m *manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) 
 	metadata.ID = uuid.New()
 	metadata.PluginPath = pluginPath
 	metadata.CreatedBy = createdBy
+	metadata.SDKVersion = pluginSDKVersion
 
 	// Store in storage
 	if err := m.storage.SavePlugin(ctx, metadata); err != nil {
@@ -131,7 +144,17 @@ func (m *manager) GetLoadedPlugin(ctx context.Context, id uuid.UUID) (*plugintyp
 		return nil, fmt.Errorf("plugin not found in storage: %w", err)
 	}
 
-	// Load the plugin file
+	// Extract and validate SDK version BEFORE loading plugin
+	pluginSDKVersion, err := extractSDKVersionFromPath(metadata.PluginPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract SDK version: %w", err)
+	}
+
+	if err := validateSDKVersion(pluginSDKVersion); err != nil {
+		return nil, err
+	}
+
+	// Load the plugin file (only after version validation passes)
 	p, err := plugin.Open(metadata.PluginPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open plugin file: %w", err)
