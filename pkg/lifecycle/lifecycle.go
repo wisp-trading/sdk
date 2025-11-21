@@ -54,36 +54,40 @@ func (c *controller) Start(ctx context.Context) error {
 	c.state = lifecycleTypes.StateStarting
 	c.stateMu.Unlock()
 
-	c.logger.Info("Starting Kronos SDK...")
+	c.logger.Info("🚀 Initializing Kronos SDK...")
 
-	// Verify at least one connector is ready
-	readyConnectors := c.connectorRegistry.GetReadyConnectors()
-	if len(readyConnectors) == 0 {
+	// Wait for connectors to be ready
+	if err := c.waitForConnectors(); err != nil {
 		c.stateMu.Lock()
 		c.state = lifecycleTypes.StateCreated
 		c.stateMu.Unlock()
-		c.logger.Warn("No connectors marked as ready - SDK will start but data ingestion may fail")
-	} else {
-		c.logger.Info("Found %d ready connectors", len(readyConnectors))
+		return err
 	}
+
+	// Start coordinators
+	c.logger.Info("⚡ Starting data coordinators...")
 
 	// Start position coordinator (if needed)
 	if c.positionCoordinator != nil {
+		c.logger.Info("  📊 Starting position tracking...")
 		if err := c.positionCoordinator.Start(ctx); err != nil {
 			c.stateMu.Lock()
 			c.state = lifecycleTypes.StateCreated
 			c.stateMu.Unlock()
 			return fmt.Errorf("failed to start position coordinator: %w", err)
 		}
+		c.logger.Info("  ✓ Position tracking ready")
 	}
 
 	// Start market data ingestion
+	c.logger.Info("  📈 Starting market data ingestion...")
 	if err := c.marketCoordinator.StartDataCollection(ctx); err != nil {
 		c.stateMu.Lock()
 		c.state = lifecycleTypes.StateCreated
 		c.stateMu.Unlock()
 		return fmt.Errorf("failed to start market data collection: %w", err)
 	}
+	c.logger.Info("  ✓ Market data ingestion ready")
 
 	// Mark as ready
 	c.stateMu.Lock()
@@ -94,7 +98,7 @@ func (c *controller) Start(ctx context.Context) error {
 		close(c.readyChan)
 	})
 
-	c.logger.Info("✅ Kronos SDK ready")
+	c.logger.Info("✅ Kronos SDK ready - strategies can now execute")
 	return nil
 }
 
@@ -152,4 +156,24 @@ func (c *controller) IsReady() bool {
 	c.stateMu.RLock()
 	defer c.stateMu.RUnlock()
 	return c.state == lifecycleTypes.StateReady
+}
+
+// waitForConnectors waits for connectors to be marked ready
+func (c *controller) waitForConnectors() error {
+	c.logger.Info("🔌 Waiting for connectors to initialize...")
+
+	readyConnectors := c.connectorRegistry.GetReadyConnectors()
+	if len(readyConnectors) == 0 {
+		c.logger.Warn("⚠️  No connectors marked as ready - SDK will start but data ingestion may fail")
+		return nil
+	}
+
+	// Log each ready connector
+	for _, conn := range readyConnectors {
+		info := conn.GetConnectorInfo()
+		c.logger.Info("  ✓ %s connected", info.Name)
+	}
+
+	c.logger.Info("✓ All %d connector(s) ready", len(readyConnectors))
+	return nil
 }
