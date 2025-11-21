@@ -14,10 +14,10 @@ type ConnectorRegistry interface {
 	GetWebSocketConnectors() []connector.WebSocketConnector
 	GetTradingWebSocketConnectors() []connector.WebSocketConnector
 
-	EnableConnector(name connector.ExchangeName) error
-	DisableConnector(name connector.ExchangeName) error
-	IsConnectorEnabled(name connector.ExchangeName) bool
-	GetEnabledConnectors() []connector.Connector
+	// Readiness tracking
+	MarkConnectorReady(name connector.ExchangeName) error
+	IsConnectorReady(name connector.ExchangeName) bool
+	GetReadyConnectors() []connector.Connector
 
 	// GetDataTimeRange returns the time range of historical data if available
 	GetDataTimeRange() (start, end time.Time, err error)

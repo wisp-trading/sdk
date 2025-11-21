@@ -22,98 +22,6 @@ func (_m *ConnectorRegistry) EXPECT() *ConnectorRegistry_Expecter {
 	return &ConnectorRegistry_Expecter{mock: &_m.Mock}
 }
 
-// DisableConnector provides a mock function with given fields: name
-func (_m *ConnectorRegistry) DisableConnector(name connector.ExchangeName) error {
-	ret := _m.Called(name)
-
-	if len(ret) == 0 {
-		panic("no return value specified for DisableConnector")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(connector.ExchangeName) error); ok {
-		r0 = rf(name)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_DisableConnector_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DisableConnector'
-type ConnectorRegistry_DisableConnector_Call struct {
-	*mock.Call
-}
-
-// DisableConnector is a helper method to define mock.On call
-//   - name connector.ExchangeName
-func (_e *ConnectorRegistry_Expecter) DisableConnector(name interface{}) *ConnectorRegistry_DisableConnector_Call {
-	return &ConnectorRegistry_DisableConnector_Call{Call: _e.mock.On("DisableConnector", name)}
-}
-
-func (_c *ConnectorRegistry_DisableConnector_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_DisableConnector_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(connector.ExchangeName))
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_DisableConnector_Call) Return(_a0 error) *ConnectorRegistry_DisableConnector_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_DisableConnector_Call) RunAndReturn(run func(connector.ExchangeName) error) *ConnectorRegistry_DisableConnector_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// EnableConnector provides a mock function with given fields: name
-func (_m *ConnectorRegistry) EnableConnector(name connector.ExchangeName) error {
-	ret := _m.Called(name)
-
-	if len(ret) == 0 {
-		panic("no return value specified for EnableConnector")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(connector.ExchangeName) error); ok {
-		r0 = rf(name)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_EnableConnector_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EnableConnector'
-type ConnectorRegistry_EnableConnector_Call struct {
-	*mock.Call
-}
-
-// EnableConnector is a helper method to define mock.On call
-//   - name connector.ExchangeName
-func (_e *ConnectorRegistry_Expecter) EnableConnector(name interface{}) *ConnectorRegistry_EnableConnector_Call {
-	return &ConnectorRegistry_EnableConnector_Call{Call: _e.mock.On("EnableConnector", name)}
-}
-
-func (_c *ConnectorRegistry_EnableConnector_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_EnableConnector_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(connector.ExchangeName))
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_EnableConnector_Call) Return(_a0 error) *ConnectorRegistry_EnableConnector_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_EnableConnector_Call) RunAndReturn(run func(connector.ExchangeName) error) *ConnectorRegistry_EnableConnector_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetAvailableConnectors provides a mock function with no fields
 func (_m *ConnectorRegistry) GetAvailableConnectors() []connector.Connector {
 	ret := _m.Called()
@@ -281,53 +189,6 @@ func (_c *ConnectorRegistry_GetDataTimeRange_Call) RunAndReturn(run func() (time
 	return _c
 }
 
-// GetEnabledConnectors provides a mock function with no fields
-func (_m *ConnectorRegistry) GetEnabledConnectors() []connector.Connector {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetEnabledConnectors")
-	}
-
-	var r0 []connector.Connector
-	if rf, ok := ret.Get(0).(func() []connector.Connector); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]connector.Connector)
-		}
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_GetEnabledConnectors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetEnabledConnectors'
-type ConnectorRegistry_GetEnabledConnectors_Call struct {
-	*mock.Call
-}
-
-// GetEnabledConnectors is a helper method to define mock.On call
-func (_e *ConnectorRegistry_Expecter) GetEnabledConnectors() *ConnectorRegistry_GetEnabledConnectors_Call {
-	return &ConnectorRegistry_GetEnabledConnectors_Call{Call: _e.mock.On("GetEnabledConnectors")}
-}
-
-func (_c *ConnectorRegistry_GetEnabledConnectors_Call) Run(run func()) *ConnectorRegistry_GetEnabledConnectors_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetEnabledConnectors_Call) Return(_a0 []connector.Connector) *ConnectorRegistry_GetEnabledConnectors_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetEnabledConnectors_Call) RunAndReturn(run func() []connector.Connector) *ConnectorRegistry_GetEnabledConnectors_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetReadyConnectors provides a mock function with no fields
 func (_m *ConnectorRegistry) GetReadyConnectors() []connector.Connector {
 	ret := _m.Called()
@@ -465,52 +326,6 @@ func (_c *ConnectorRegistry_GetWebSocketConnectors_Call) Return(_a0 []connector.
 }
 
 func (_c *ConnectorRegistry_GetWebSocketConnectors_Call) RunAndReturn(run func() []connector.WebSocketConnector) *ConnectorRegistry_GetWebSocketConnectors_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// IsConnectorEnabled provides a mock function with given fields: name
-func (_m *ConnectorRegistry) IsConnectorEnabled(name connector.ExchangeName) bool {
-	ret := _m.Called(name)
-
-	if len(ret) == 0 {
-		panic("no return value specified for IsConnectorEnabled")
-	}
-
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(connector.ExchangeName) bool); ok {
-		r0 = rf(name)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_IsConnectorEnabled_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsConnectorEnabled'
-type ConnectorRegistry_IsConnectorEnabled_Call struct {
-	*mock.Call
-}
-
-// IsConnectorEnabled is a helper method to define mock.On call
-//   - name connector.ExchangeName
-func (_e *ConnectorRegistry_Expecter) IsConnectorEnabled(name interface{}) *ConnectorRegistry_IsConnectorEnabled_Call {
-	return &ConnectorRegistry_IsConnectorEnabled_Call{Call: _e.mock.On("IsConnectorEnabled", name)}
-}
-
-func (_c *ConnectorRegistry_IsConnectorEnabled_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_IsConnectorEnabled_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(connector.ExchangeName))
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_IsConnectorEnabled_Call) Return(_a0 bool) *ConnectorRegistry_IsConnectorEnabled_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_IsConnectorEnabled_Call) RunAndReturn(run func(connector.ExchangeName) bool) *ConnectorRegistry_IsConnectorEnabled_Call {
 	_c.Call.Return(run)
 	return _c
 }

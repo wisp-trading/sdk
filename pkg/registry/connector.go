@@ -9,17 +9,21 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 )
 
+type connectorState struct {
+	connector connector.Connector
+	ready     bool
+	readyAt   time.Time
+}
+
 type connectorRegistry struct {
-	connectors map[connector.ExchangeName]connector.Connector
-	enabled    map[connector.ExchangeName]bool
+	connectors map[connector.ExchangeName]*connectorState
 	mu         sync.RWMutex
 }
 
 // NewConnectorRegistry creates a new connector registry
 func NewConnectorRegistry() registry.ConnectorRegistry {
 	return &connectorRegistry{
-		connectors: make(map[connector.ExchangeName]connector.Connector),
-		enabled:    make(map[connector.ExchangeName]bool),
+		connectors: make(map[connector.ExchangeName]*connectorState),
 	}
 }
 
@@ -27,16 +31,21 @@ func (cr *connectorRegistry) GetConnector(name connector.ExchangeName) (connecto
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 
-	conn, exists := cr.connectors[name]
-	return conn, exists
+	state, exists := cr.connectors[name]
+	if !exists {
+		return nil, false
+	}
+	return state.connector, true
 }
 
 func (cr *connectorRegistry) RegisterConnector(name connector.ExchangeName, conn connector.Connector) {
 	cr.mu.Lock()
 	defer cr.mu.Unlock()
 
-	cr.connectors[name] = conn
-	cr.enabled[name] = true // Enabled by default
+	cr.connectors[name] = &connectorState{
+		connector: conn,
+		ready:     false, // Not ready until explicitly marked
+	}
 }
 
 func (cr *connectorRegistry) RegisterAllConnectors(connectors []connector.Connector) {
@@ -45,8 +54,10 @@ func (cr *connectorRegistry) RegisterAllConnectors(connectors []connector.Connec
 
 	for _, conn := range connectors {
 		name := conn.GetConnectorInfo().Name
-		cr.connectors[name] = conn
-		cr.enabled[name] = true
+		cr.connectors[name] = &connectorState{
+			connector: conn,
+			ready:     false,
+		}
 	}
 }
 
@@ -55,8 +66,8 @@ func (cr *connectorRegistry) GetAvailableConnectors() []connector.Connector {
 	defer cr.mu.RUnlock()
 
 	connectors := make([]connector.Connector, 0, len(cr.connectors))
-	for _, conn := range cr.connectors {
-		connectors = append(connectors, conn)
+	for _, state := range cr.connectors {
+		connectors = append(connectors, state.connector)
 	}
 
 	return connectors
@@ -67,8 +78,8 @@ func (cr *connectorRegistry) GetWebSocketConnectors() []connector.WebSocketConne
 	defer cr.mu.RUnlock()
 
 	var wsConnectors []connector.WebSocketConnector
-	for _, conn := range cr.connectors {
-		if wsConn, ok := conn.(connector.WebSocketConnector); ok {
+	for _, state := range cr.connectors {
+		if wsConn, ok := state.connector.(connector.WebSocketConnector); ok {
 			wsConnectors = append(wsConnectors, wsConn)
 		}
 	}
@@ -81,9 +92,9 @@ func (cr *connectorRegistry) GetTradingWebSocketConnectors() []connector.WebSock
 	defer cr.mu.RUnlock()
 
 	var tradingWSConnectors []connector.WebSocketConnector
-	for _, conn := range cr.connectors {
+	for _, state := range cr.connectors {
 		// Check if connector supports trading via WebSocket
-		if wsConn, ok := conn.(connector.WebSocketConnector); ok {
+		if wsConn, ok := state.connector.(connector.WebSocketConnector); ok {
 			// Additional check could be added here for trading-specific websocket
 			tradingWSConnectors = append(tradingWSConnectors, wsConn)
 		}
@@ -92,46 +103,39 @@ func (cr *connectorRegistry) GetTradingWebSocketConnectors() []connector.WebSock
 	return tradingWSConnectors
 }
 
-func (cr *connectorRegistry) EnableConnector(name connector.ExchangeName) error {
+// MarkConnectorReady marks a connector as ready for use
+func (cr *connectorRegistry) MarkConnectorReady(name connector.ExchangeName) error {
 	cr.mu.Lock()
 	defer cr.mu.Unlock()
 
-	if _, exists := cr.connectors[name]; !exists {
+	state, exists := cr.connectors[name]
+	if !exists {
 		return fmt.Errorf("connector %s not found", name)
 	}
 
-	cr.enabled[name] = true
+	state.ready = true
+	state.readyAt = time.Now()
 	return nil
 }
 
-func (cr *connectorRegistry) DisableConnector(name connector.ExchangeName) error {
-	cr.mu.Lock()
-	defer cr.mu.Unlock()
-
-	if _, exists := cr.connectors[name]; !exists {
-		return fmt.Errorf("connector %s not found", name)
-	}
-
-	cr.enabled[name] = false
-	return nil
-}
-
-func (cr *connectorRegistry) IsConnectorEnabled(name connector.ExchangeName) bool {
+// IsConnectorReady returns true if the connector is marked as ready
+func (cr *connectorRegistry) IsConnectorReady(name connector.ExchangeName) bool {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 
-	enabled, exists := cr.enabled[name]
-	return exists && enabled
+	state, exists := cr.connectors[name]
+	return exists && state.ready
 }
 
-func (cr *connectorRegistry) GetEnabledConnectors() []connector.Connector {
+// GetReadyConnectors returns all connectors that are marked as ready
+func (cr *connectorRegistry) GetReadyConnectors() []connector.Connector {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 
 	connectors := make([]connector.Connector, 0)
-	for name, conn := range cr.connectors {
-		if cr.enabled[name] {
-			connectors = append(connectors, conn)
+	for _, state := range cr.connectors {
+		if state.ready {
+			connectors = append(connectors, state.connector)
 		}
 	}
 
