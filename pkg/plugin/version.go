@@ -8,20 +8,19 @@ import (
 )
 
 // extractSDKVersion extracts the SDK version from a loaded plugin
-// The plugin's compiled binary contains the version.SDKVersion constant
-// since the plugin imports SDK packages
+// Plugins must export: var SDKVersion = version.SDKVersion
 func extractSDKVersion(p *plugin.Plugin) (string, error) {
-	// Look up the SDK version constant that's embedded in the plugin
-	// When the plugin is built, it imports SDK packages which embed this constant
-	sym, err := p.Lookup("github.com/backtesting-org/kronos-sdk/pkg/version.SDKVersion")
+	// Look up the SDK version variable that plugins export
+	// Plugins should include: var SDKVersion = version.SDKVersion
+	sym, err := p.Lookup("SDKVersion")
 	if err != nil {
-		return "", fmt.Errorf("plugin does not contain SDK version information: %w", err)
+		return "", fmt.Errorf("plugin does not export SDKVersion variable. Plugins must include: var SDKVersion = version.SDKVersion")
 	}
 
-	// Type assert to string pointer (constants are stored as pointers in plugin symbols)
+	// Type assert to string pointer
 	versionPtr, ok := sym.(*string)
 	if !ok {
-		return "", fmt.Errorf("SDK version symbol has unexpected type")
+		return "", fmt.Errorf("SDKVersion symbol has unexpected type: %T", sym)
 	}
 
 	return *versionPtr, nil

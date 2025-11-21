@@ -5,4 +5,5 @@ package version
 // To create a new release, go to Actions → Release → Run workflow
 
 // SDKVersion is the current Kronos SDK version
-const SDKVersion = "v0.0.2"
+// This is a var (not const) so it can be looked up from plugin symbol table
+var SDKVersion = "v0.0.2"
