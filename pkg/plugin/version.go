@@ -22,8 +22,9 @@ func extractSDKVersionFromPath(pluginPath string) (string, error) {
 
 	for _, dep := range info.Deps {
 		if dep != nil && dep.Path == sdkModulePath {
-			if dep.Version == "" || dep.Version == "(devel)" {
-				return "", fmt.Errorf("plugin was built with development version of SDK (use 'go get github.com/backtesting-org/kronos-sdk@vX.Y.Z')")
+			// Check for development/local versions
+			if dep.Version == "" || dep.Version == "(devel)" || dep.Version == "v0.0.0" {
+				return "", fmt.Errorf("plugin was built with development/local version of SDK (use 'go get github.com/backtesting-org/kronos-sdk@vX.Y.Z' instead of 'replace' directive)")
 			}
 			return dep.Version, nil
 		}
