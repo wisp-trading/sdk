@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
@@ -17,6 +19,7 @@ type controller struct {
 	marketCoordinator   ingestors.MarketDataCoordinator
 	positionCoordinator ingestors.PositionCoordinator
 	connectorRegistry   registry.ConnectorRegistry
+	healthStore         health.HealthStore
 	logger              logging.ApplicationLogger
 
 	// Lifecycle state
@@ -31,12 +34,14 @@ func NewController(
 	marketCoordinator ingestors.MarketDataCoordinator,
 	positionCoordinator ingestors.PositionCoordinator,
 	connectorRegistry registry.ConnectorRegistry,
+	healthStore health.HealthStore,
 	logger logging.ApplicationLogger,
 ) lifecycleTypes.Controller {
 	return &controller{
 		marketCoordinator:   marketCoordinator,
 		positionCoordinator: positionCoordinator,
 		connectorRegistry:   connectorRegistry,
+		healthStore:         healthStore,
 		logger:              logger,
 		state:               lifecycleTypes.StateCreated,
 		readyChan:           make(chan struct{}),
@@ -88,6 +93,9 @@ func (c *controller) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to start market data collection: %w", err)
 	}
 	c.logger.Info("  ✓ Market data ingestion ready")
+
+	// Start runtime health monitoring
+	go c.monitorHealth(ctx)
 
 	// Mark as ready
 	c.stateMu.Lock()
@@ -158,7 +166,7 @@ func (c *controller) IsReady() bool {
 	return c.state == lifecycleTypes.StateReady
 }
 
-// waitForConnectors waits for connectors to be marked ready
+// waitForConnectors waits for connectors to be marked ready and for first data to arrive
 func (c *controller) waitForConnectors() error {
 	c.logger.Info("🔌 Waiting for connectors to initialize...")
 
@@ -168,12 +176,83 @@ func (c *controller) waitForConnectors() error {
 		return nil
 	}
 
-	// Log each ready connector
+	// Register connectors with health store
 	for _, conn := range readyConnectors {
 		info := conn.GetConnectorInfo()
+		c.healthStore.RegisterConnector(info.Name)
 		c.logger.Info("  ✓ %s connected", info.Name)
 	}
 
 	c.logger.Info("✓ All %d connector(s) ready", len(readyConnectors))
+
+	// Wait for first data to arrive (30 second timeout)
+	c.logger.Info("📡 Waiting for first market data...")
+
+	timeout := 30 * time.Second
+	dataReceived := false
+
+	for _, conn := range readyConnectors {
+		info := conn.GetConnectorInfo()
+
+		// Check if we've received klines or orderbooks
+		if c.healthStore.HasReceivedData(info.Name, health.DataTypeKlines) ||
+			c.healthStore.HasReceivedData(info.Name, health.DataTypeOrderbooks) {
+			c.logger.Info("  ✓ %s - data flowing", info.Name)
+			dataReceived = true
+			continue
+		}
+
+		// Wait for first data with timeout
+		if err := c.healthStore.WaitForFirstData(info.Name, health.DataTypeKlines, timeout); err != nil {
+			// Try orderbooks as fallback
+			if err := c.healthStore.WaitForFirstData(info.Name, health.DataTypeOrderbooks, timeout); err != nil {
+				c.logger.Warn("  ⚠️  %s - no data received within %v (continuing anyway)", info.Name, timeout)
+				continue
+			}
+		}
+
+		c.logger.Info("  ✓ %s - data flowing", info.Name)
+		dataReceived = true
+	}
+
+	if dataReceived {
+		c.logger.Info("✓ Market data confirmed flowing")
+	} else {
+		c.logger.Warn("⚠️  No market data received - strategies may not function correctly")
+	}
+
 	return nil
+}
+
+// monitorHealth continuously monitors system health and logs degraded services
+func (c *controller) monitorHealth(ctx context.Context) {
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			// Check for degraded or unhealthy connectors
+			unhealthy := c.healthStore.GetUnhealthyConnectors()
+			if len(unhealthy) > 0 {
+				c.logger.Warn("⚠️  Unhealthy connectors detected:")
+				for _, name := range unhealthy {
+					c.logger.Warn("  - %s", name)
+				}
+			}
+
+			// Check for degraded data types across all connectors
+			degraded := c.healthStore.GetDegradedDataTypes()
+			if len(degraded) > 0 {
+				c.logger.Warn("⚠️  Degraded data types:")
+				for connector, dataTypes := range degraded {
+					for _, dt := range dataTypes {
+						c.logger.Warn("  - %s: %s", connector, dt)
+					}
+				}
+			}
+		}
+	}
 }

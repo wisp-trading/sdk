@@ -7,6 +7,7 @@ import (
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
@@ -18,6 +19,7 @@ type BatchIngestor struct {
 	assetRegistry    registry.AssetRegistry
 	logger           logging.ApplicationLogger
 	timeProvider     temporal.TimeProvider
+	healthStore      health.HealthStore
 
 	// Scheduling
 	ticker   temporal.Ticker
@@ -32,6 +34,7 @@ func NewBatchIngestor(
 	assetRegistry registry.AssetRegistry,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
+	healthStore health.HealthStore,
 ) *BatchIngestor {
 	return &BatchIngestor{
 		store:            store,
@@ -39,6 +42,7 @@ func NewBatchIngestor(
 		assetRegistry:    assetRegistry,
 		logger:           logger,
 		timeProvider:     timeProvider,
+		healthStore:      healthStore,
 		stopChan:         make(chan struct{}),
 	}
 }
@@ -102,10 +106,15 @@ func (bi *BatchIngestor) collectOrderBooks() {
 					if err != nil {
 						bi.logger.Debug("Failed to fetch %s orderbook for %s on %s: %v",
 							instrumentType, asset.Symbol(), string(exchangeName), err)
+						// Report error to health monitoring
+						bi.healthStore.RecordDataError(exchangeName, health.DataTypeOrderbooks, err)
 						continue
 					}
 
 					bi.store.UpdateOrderBook(asset, exchangeName, instrumentType, *orderBook)
+
+					// Report successful data receipt
+					bi.healthStore.RecordDataReceived(exchangeName, health.DataTypeOrderbooks, health.SourceBatch, 0)
 
 					if len(orderBook.Bids) == 0 || len(orderBook.Asks) == 0 {
 						bi.logger.Debug("Empty %s orderbook for %s on %s - no bids or asks",

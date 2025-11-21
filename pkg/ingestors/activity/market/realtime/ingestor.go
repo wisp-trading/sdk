@@ -8,6 +8,7 @@ import (
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
@@ -18,6 +19,7 @@ type Ingestor struct {
 	exchangeRegistry registry.ConnectorRegistry
 	assetRegistry    registry.AssetRegistry
 	logger           logging.ApplicationLogger
+	healthStore      health.HealthStore
 
 	// WebSocket management
 	wsContext context.Context
@@ -37,12 +39,14 @@ func NewIngestor(
 	exchangeRegistry registry.ConnectorRegistry,
 	assetRegistry registry.AssetRegistry,
 	logger logging.ApplicationLogger,
+	healthStore health.HealthStore,
 ) *Ingestor {
 	return &Ingestor{
 		store:             store,
 		exchangeRegistry:  exchangeRegistry,
 		assetRegistry:     assetRegistry,
 		logger:            logger,
+		healthStore:       healthStore,
 		activeConnections: make(map[connector.ExchangeName]connector.WebSocketConnector),
 		subscriptions:     make(map[portfolio.Asset][]connector.Instrument),
 	}
@@ -160,6 +164,9 @@ func (ri *Ingestor) processKlineStream(wsConn connector.WebSocketConnector, exch
 
 			ri.store.UpdateKline(asset, exchangeName, klineUpdate)
 
+			// Report successful data receipt to health monitoring
+			ri.healthStore.RecordDataReceived(exchangeName, health.DataTypeKlines, health.SourceWebSocket, 0)
+
 			// CRITICAL: Update market data when klines arrive to refresh orderbook/prices
 			if exchange, exists := ri.exchangeRegistry.GetConnector(exchangeName); exists {
 				// Access the market simulator directly through interface with proper method signature
@@ -213,6 +220,9 @@ func (ri *Ingestor) processOrderBookStream(wsConn connector.WebSocketConnector, 
 				ri.logger.Debug("📊 Updated %s orderbook for %s on %s",
 					instrumentType, orderBookUpdate.Asset.Symbol(), exchangeName)
 			}
+
+			// Report successful data receipt to health monitoring
+			ri.healthStore.RecordDataReceived(exchangeName, health.DataTypeOrderbooks, health.SourceWebSocket, 0)
 		}
 	}
 }
@@ -224,6 +234,9 @@ func (ri *Ingestor) processErrorStream(wsConn connector.WebSocketConnector, exch
 			return
 		case err := <-wsConn.ErrorChannel():
 			ri.logger.Error("WebSocket error for %s: %v", exchangeName, err)
+			// Report error to health monitoring - affects all data types on this websocket
+			ri.healthStore.RecordDataError(exchangeName, health.DataTypeKlines, err)
+			ri.healthStore.RecordDataError(exchangeName, health.DataTypeOrderbooks, err)
 		}
 	}
 }
