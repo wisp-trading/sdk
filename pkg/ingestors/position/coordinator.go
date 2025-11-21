@@ -5,20 +5,20 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 )
 
 // coordinator handles trade backfill on startup
 type coordinator struct {
-	positionStore activity.Positions
-	tradeStore    activity.Trades
-	connectors    map[connector.ExchangeName]connector.Connector
-	logger        logging.ApplicationLogger
+	positionStore     activity.Positions
+	tradeStore        activity.Trades
+	connectorRegistry registry.ConnectorRegistry
+	logger            logging.ApplicationLogger
 
 	isActive           bool
 	mutex              sync.RWMutex
@@ -29,13 +29,13 @@ type coordinator struct {
 func NewCoordinator(
 	positionStore activity.Positions,
 	tradeStore activity.Trades,
-	connectors map[connector.ExchangeName]connector.Connector,
+	connectorRegistry registry.ConnectorRegistry,
 	logger logging.ApplicationLogger,
 ) ingestors.PositionCoordinator {
 	return &coordinator{
 		positionStore:      positionStore,
 		tradeStore:         tradeStore,
-		connectors:         connectors,
+		connectorRegistry:  connectorRegistry,
 		logger:             logger,
 		tradeBackfillLimit: 100, // Fetch last 100 trades on startup
 		backfillCompleted:  false,
@@ -90,7 +90,15 @@ func (pc *coordinator) IsActive() bool {
 func (pc *coordinator) backfillTrades() error {
 	totalBackfilled := 0
 
-	for exchangeName, conn := range pc.connectors {
+	// Get all available connectors from registry
+	connectors := pc.connectorRegistry.GetAvailableConnectors()
+	if len(connectors) == 0 {
+		pc.logger.Warn("⚠️  No connectors available for trade backfill")
+		return nil
+	}
+
+	for _, conn := range connectors {
+		exchangeName := conn.GetConnectorInfo().Name
 		pc.logger.Info("📥 Backfilling trades from %s...", exchangeName)
 
 		// Get all strategy executions to know which symbols to fetch
