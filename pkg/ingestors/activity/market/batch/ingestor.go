@@ -6,18 +6,21 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
-type BatchIngestor struct {
+type ingestor struct {
 	store            market.MarketData
 	exchangeRegistry registry.ConnectorRegistry
 	assetRegistry    registry.AssetRegistry
 	logger           logging.ApplicationLogger
 	timeProvider     temporal.TimeProvider
+	healthStore      health.HealthStore
 
 	// Scheduling
 	ticker   temporal.Ticker
@@ -32,18 +35,20 @@ func NewBatchIngestor(
 	assetRegistry registry.AssetRegistry,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
-) *BatchIngestor {
-	return &BatchIngestor{
+	healthStore health.HealthStore,
+) ingestors.BatchIngestor {
+	return &ingestor{
 		store:            store,
 		exchangeRegistry: exchangeRegistry,
 		assetRegistry:    assetRegistry,
 		logger:           logger,
 		timeProvider:     timeProvider,
+		healthStore:      healthStore,
 		stopChan:         make(chan struct{}),
 	}
 }
 
-func (bi *BatchIngestor) Start(interval time.Duration) error {
+func (bi *ingestor) Start(interval time.Duration) error {
 	bi.mutex.Lock()
 	defer bi.mutex.Unlock()
 
@@ -60,7 +65,7 @@ func (bi *BatchIngestor) Start(interval time.Duration) error {
 	return nil
 }
 
-func (bi *BatchIngestor) collectLoop() {
+func (bi *ingestor) collectLoop() {
 	// Run initial collection immediately
 	bi.collectOrderBooks()
 
@@ -74,7 +79,7 @@ func (bi *BatchIngestor) collectLoop() {
 	}
 }
 
-func (bi *BatchIngestor) collectOrderBooks() {
+func (bi *ingestor) collectOrderBooks() {
 	// Get required assets from strategy configs
 	requiredAssets := bi.assetRegistry.GetRequiredAssets()
 
@@ -102,10 +107,15 @@ func (bi *BatchIngestor) collectOrderBooks() {
 					if err != nil {
 						bi.logger.Debug("Failed to fetch %s orderbook for %s on %s: %v",
 							instrumentType, asset.Symbol(), string(exchangeName), err)
+						// Report error to health monitoring
+						bi.healthStore.RecordDataError(exchangeName, health.DataTypeOrderbooks, err)
 						continue
 					}
 
 					bi.store.UpdateOrderBook(asset, exchangeName, instrumentType, *orderBook)
+
+					// Report successful data receipt
+					bi.healthStore.RecordDataReceived(exchangeName, health.DataTypeOrderbooks, health.SourceBatch, 0)
 
 					if len(orderBook.Bids) == 0 || len(orderBook.Asks) == 0 {
 						bi.logger.Debug("Empty %s orderbook for %s on %s - no bids or asks",
@@ -126,7 +136,7 @@ func (bi *BatchIngestor) collectOrderBooks() {
 }
 
 // Get supported instrument types from exchange capabilities
-func (bi *BatchIngestor) getSupportedInstrumentTypes(conn connector.Connector) []connector.Instrument {
+func (bi *ingestor) getSupportedInstrumentTypes(conn connector.Connector) []connector.Instrument {
 	var types []connector.Instrument
 
 	if conn.SupportsPerpetuals() {
@@ -140,7 +150,7 @@ func (bi *BatchIngestor) getSupportedInstrumentTypes(conn connector.Connector) [
 	return types
 }
 
-func (bi *BatchIngestor) CollectNow() {
+func (bi *ingestor) CollectNow() {
 	if bi.IsActive() {
 		bi.logger.Info("Triggering immediate data collection")
 		go bi.collectOrderBooks()
@@ -149,7 +159,7 @@ func (bi *BatchIngestor) CollectNow() {
 	}
 }
 
-func (bi *BatchIngestor) Stop() error {
+func (bi *ingestor) Stop() error {
 	bi.mutex.Lock()
 	defer bi.mutex.Unlock()
 
@@ -168,7 +178,7 @@ func (bi *BatchIngestor) Stop() error {
 	return nil
 }
 
-func (bi *BatchIngestor) IsActive() bool {
+func (bi *ingestor) IsActive() bool {
 	bi.mutex.RLock()
 	defer bi.mutex.RUnlock()
 	return bi.isActive

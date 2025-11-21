@@ -7,17 +7,20 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 )
 
-type Ingestor struct {
+type ingestor struct {
 	store            market.MarketData
 	exchangeRegistry registry.ConnectorRegistry
 	assetRegistry    registry.AssetRegistry
 	logger           logging.ApplicationLogger
+	healthStore      health.HealthStore
 
 	// WebSocket management
 	wsContext context.Context
@@ -37,18 +40,20 @@ func NewIngestor(
 	exchangeRegistry registry.ConnectorRegistry,
 	assetRegistry registry.AssetRegistry,
 	logger logging.ApplicationLogger,
-) *Ingestor {
-	return &Ingestor{
+	healthStore health.HealthStore,
+) ingestors.RealtimeIngestor {
+	return &ingestor{
 		store:             store,
 		exchangeRegistry:  exchangeRegistry,
 		assetRegistry:     assetRegistry,
 		logger:            logger,
+		healthStore:       healthStore,
 		activeConnections: make(map[connector.ExchangeName]connector.WebSocketConnector),
 		subscriptions:     make(map[portfolio.Asset][]connector.Instrument),
 	}
 }
 
-func (ri *Ingestor) Start(ctx context.Context) error {
+func (ri *ingestor) Start(ctx context.Context) error {
 	ri.mutex.Lock()
 	defer ri.mutex.Unlock()
 
@@ -88,7 +93,7 @@ func (ri *Ingestor) Start(ctx context.Context) error {
 	return nil
 }
 
-func (ri *Ingestor) startExchangeStream(wsConn connector.WebSocketConnector, assets []portfolio.Asset) {
+func (ri *ingestor) startExchangeStream(wsConn connector.WebSocketConnector, assets []portfolio.Asset) {
 	exchangeName := wsConn.GetConnectorInfo().Name
 
 	// Start WebSocket connection
@@ -134,7 +139,7 @@ func (ri *Ingestor) startExchangeStream(wsConn connector.WebSocketConnector, ass
 	go ri.processErrorStream(wsConn, exchangeName)
 }
 
-func (ri *Ingestor) processKlineStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
+func (ri *ingestor) processKlineStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
 	ri.logger.Info("🔄 Starting kline stream processing for %s", exchangeName)
 
 	klineChan := wsConn.KlineUpdates()
@@ -160,6 +165,9 @@ func (ri *Ingestor) processKlineStream(wsConn connector.WebSocketConnector, exch
 
 			ri.store.UpdateKline(asset, exchangeName, klineUpdate)
 
+			// Report successful data receipt to health monitoring
+			ri.healthStore.RecordDataReceived(exchangeName, health.DataTypeKlines, health.SourceWebSocket, 0)
+
 			// CRITICAL: Update market data when klines arrive to refresh orderbook/prices
 			if exchange, exists := ri.exchangeRegistry.GetConnector(exchangeName); exists {
 				// Access the market simulator directly through interface with proper method signature
@@ -179,7 +187,7 @@ func (ri *Ingestor) processKlineStream(wsConn connector.WebSocketConnector, exch
 	}
 }
 
-func (ri *Ingestor) processOrderBookStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
+func (ri *ingestor) processOrderBookStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
 	ri.logger.Info("🔄 Starting orderbook stream processing for %s", exchangeName)
 
 	orderBookChan := wsConn.OrderBookUpdates()
@@ -213,22 +221,28 @@ func (ri *Ingestor) processOrderBookStream(wsConn connector.WebSocketConnector, 
 				ri.logger.Debug("📊 Updated %s orderbook for %s on %s",
 					instrumentType, orderBookUpdate.Asset.Symbol(), exchangeName)
 			}
+
+			// Report successful data receipt to health monitoring
+			ri.healthStore.RecordDataReceived(exchangeName, health.DataTypeOrderbooks, health.SourceWebSocket, 0)
 		}
 	}
 }
 
-func (ri *Ingestor) processErrorStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
+func (ri *ingestor) processErrorStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
 	for {
 		select {
 		case <-ri.wsContext.Done():
 			return
 		case err := <-wsConn.ErrorChannel():
 			ri.logger.Error("WebSocket error for %s: %v", exchangeName, err)
+			// Report error to health monitoring - affects all data types on this websocket
+			ri.healthStore.RecordDataError(exchangeName, health.DataTypeKlines, err)
+			ri.healthStore.RecordDataError(exchangeName, health.DataTypeOrderbooks, err)
 		}
 	}
 }
 
-func (ri *Ingestor) Stop() error {
+func (ri *ingestor) Stop() error {
 	ri.mutex.Lock()
 	defer ri.mutex.Unlock()
 
@@ -250,13 +264,13 @@ func (ri *Ingestor) Stop() error {
 	return nil
 }
 
-func (ri *Ingestor) IsActive() bool {
+func (ri *ingestor) IsActive() bool {
 	ri.mutex.RLock()
 	defer ri.mutex.RUnlock()
 	return ri.isActive
 }
 
-func (ri *Ingestor) GetActiveConnections() map[connector.ExchangeName]connector.WebSocketConnector {
+func (ri *ingestor) GetActiveConnections() map[connector.ExchangeName]connector.WebSocketConnector {
 	ri.mutex.RLock()
 	defer ri.mutex.RUnlock()
 
