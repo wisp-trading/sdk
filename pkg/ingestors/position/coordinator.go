@@ -6,14 +6,15 @@ import (
 	"sync"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 )
 
-// Coordinator handles trade backfill on startup
-type Coordinator struct {
+// coordinator handles trade backfill on startup
+type coordinator struct {
 	positionStore activity.Positions
 	tradeStore    activity.Trades
 	connectors    map[connector.ExchangeName]connector.Connector
@@ -30,8 +31,8 @@ func NewCoordinator(
 	tradeStore activity.Trades,
 	connectors map[connector.ExchangeName]connector.Connector,
 	logger logging.ApplicationLogger,
-) *Coordinator {
-	return &Coordinator{
+) ingestors.PositionCoordinator {
+	return &coordinator{
 		positionStore:      positionStore,
 		tradeStore:         tradeStore,
 		connectors:         connectors,
@@ -41,7 +42,7 @@ func NewCoordinator(
 	}
 }
 
-func (pc *Coordinator) Start(_ context.Context) error {
+func (pc *coordinator) Start(_ context.Context) error {
 	pc.mutex.Lock()
 	defer pc.mutex.Unlock()
 
@@ -66,7 +67,7 @@ func (pc *Coordinator) Start(_ context.Context) error {
 	return nil
 }
 
-func (pc *Coordinator) Stop() error {
+func (pc *coordinator) Stop() error {
 	pc.mutex.Lock()
 	defer pc.mutex.Unlock()
 
@@ -79,14 +80,14 @@ func (pc *Coordinator) Stop() error {
 	return nil
 }
 
-func (pc *Coordinator) IsActive() bool {
+func (pc *coordinator) IsActive() bool {
 	pc.mutex.RLock()
 	defer pc.mutex.RUnlock()
 	return pc.isActive
 }
 
 // backfillTrades fetches recent trade history from all exchanges on startup
-func (pc *Coordinator) backfillTrades() error {
+func (pc *coordinator) backfillTrades() error {
 	totalBackfilled := 0
 
 	for exchangeName, conn := range pc.connectors {
@@ -136,7 +137,7 @@ func (pc *Coordinator) backfillTrades() error {
 }
 
 // getUniqueSymbols extracts all unique symbols from strategy executions
-func (pc *Coordinator) getUniqueSymbols(executions map[strategy.StrategyName]*strategy.StrategyExecution) []portfolio.Asset {
+func (pc *coordinator) getUniqueSymbols(executions map[strategy.StrategyName]*strategy.StrategyExecution) []portfolio.Asset {
 	symbolMap := make(map[string]portfolio.Asset)
 
 	for _, execution := range executions {
@@ -158,7 +159,7 @@ func (pc *Coordinator) getUniqueSymbols(executions map[strategy.StrategyName]*st
 }
 
 // findStrategyForSymbol determines which strategy is trading a given symbol
-func (pc *Coordinator) findStrategyForSymbol(executions map[strategy.StrategyName]*strategy.StrategyExecution, asset portfolio.Asset) strategy.StrategyName {
+func (pc *coordinator) findStrategyForSymbol(executions map[strategy.StrategyName]*strategy.StrategyExecution, asset portfolio.Asset) strategy.StrategyName {
 	for strategyName, execution := range executions {
 		if execution == nil {
 			continue
@@ -175,7 +176,7 @@ func (pc *Coordinator) findStrategyForSymbol(executions map[strategy.StrategyNam
 	return ""
 }
 
-func (pc *Coordinator) GetStatus() map[string]interface{} {
+func (pc *coordinator) GetStatus() map[string]interface{} {
 	pc.mutex.RLock()
 	defer pc.mutex.RUnlock()
 

@@ -6,15 +6,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/ingestors/activity/market/batch"
-	"github.com/backtesting-org/kronos-sdk/pkg/ingestors/activity/market/realtime"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
-type Coordinator struct {
-	realtimeIngestor *realtime.Ingestor
-	batchIngestor    *batch.BatchIngestor
+type coordinator struct {
+	realtimeIngestor ingestors.RealtimeIngestor
+	batchIngestor    ingestors.BatchIngestor
 	logger           logging.ApplicationLogger
 	timeProvider     temporal.TimeProvider
 
@@ -24,12 +23,12 @@ type Coordinator struct {
 }
 
 func NewCoordinator(
-	realtimeIngestor *realtime.Ingestor,
-	batchIngestor *batch.BatchIngestor,
+	realtimeIngestor ingestors.RealtimeIngestor,
+	batchIngestor ingestors.BatchIngestor,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
-) *Coordinator {
-	return &Coordinator{
+) ingestors.MarketDataCoordinator {
+	return &coordinator{
 		realtimeIngestor: realtimeIngestor,
 		batchIngestor:    batchIngestor,
 		timeProvider:     timeProvider,
@@ -38,13 +37,13 @@ func NewCoordinator(
 	}
 }
 
-func (dic *Coordinator) IsRunning() bool {
+func (dic *coordinator) IsRunning() bool {
 	dic.mu.RLock()
 	defer dic.mu.RUnlock()
 	return dic.isRunning
 }
 
-func (dic *Coordinator) StartDataCollection(ctx context.Context) error {
+func (dic *coordinator) StartDataCollection(ctx context.Context) error {
 	dic.mu.Lock()
 	defer dic.mu.Unlock()
 
@@ -70,7 +69,7 @@ func (dic *Coordinator) StartDataCollection(ctx context.Context) error {
 	return nil
 }
 
-func (dic *Coordinator) StopDataCollection() error {
+func (dic *coordinator) StopDataCollection() error {
 	dic.mu.Lock()
 	defer dic.mu.Unlock()
 
@@ -99,7 +98,7 @@ func (dic *Coordinator) StopDataCollection() error {
 	return nil
 }
 
-func (dic *Coordinator) GetStatus() map[string]interface{} {
+func (dic *coordinator) GetStatus() map[string]interface{} {
 	dic.mu.RLock()
 	defer dic.mu.RUnlock()
 
@@ -122,12 +121,12 @@ func (dic *Coordinator) GetStatus() map[string]interface{} {
 	return status
 }
 
-func (dic *Coordinator) ForceCollectNow() {
+func (dic *coordinator) ForceCollectNow() {
 	dic.logger.Info("Forcing immediate data collection")
 	dic.batchIngestor.CollectNow()
 }
 
-func (dic *Coordinator) RestartRealtime(ctx context.Context) error {
+func (dic *coordinator) RestartRealtime(ctx context.Context) error {
 	dic.logger.Info("Restarting realtime ingestion")
 
 	if err := dic.realtimeIngestor.Stop(); err != nil {

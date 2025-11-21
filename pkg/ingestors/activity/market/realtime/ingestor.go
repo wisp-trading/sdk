@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
@@ -14,7 +15,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 )
 
-type Ingestor struct {
+type ingestor struct {
 	store            market.MarketData
 	exchangeRegistry registry.ConnectorRegistry
 	assetRegistry    registry.AssetRegistry
@@ -40,8 +41,8 @@ func NewIngestor(
 	assetRegistry registry.AssetRegistry,
 	logger logging.ApplicationLogger,
 	healthStore health.HealthStore,
-) *Ingestor {
-	return &Ingestor{
+) ingestors.RealtimeIngestor {
+	return &ingestor{
 		store:             store,
 		exchangeRegistry:  exchangeRegistry,
 		assetRegistry:     assetRegistry,
@@ -52,7 +53,7 @@ func NewIngestor(
 	}
 }
 
-func (ri *Ingestor) Start(ctx context.Context) error {
+func (ri *ingestor) Start(ctx context.Context) error {
 	ri.mutex.Lock()
 	defer ri.mutex.Unlock()
 
@@ -92,7 +93,7 @@ func (ri *Ingestor) Start(ctx context.Context) error {
 	return nil
 }
 
-func (ri *Ingestor) startExchangeStream(wsConn connector.WebSocketConnector, assets []portfolio.Asset) {
+func (ri *ingestor) startExchangeStream(wsConn connector.WebSocketConnector, assets []portfolio.Asset) {
 	exchangeName := wsConn.GetConnectorInfo().Name
 
 	// Start WebSocket connection
@@ -138,7 +139,7 @@ func (ri *Ingestor) startExchangeStream(wsConn connector.WebSocketConnector, ass
 	go ri.processErrorStream(wsConn, exchangeName)
 }
 
-func (ri *Ingestor) processKlineStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
+func (ri *ingestor) processKlineStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
 	ri.logger.Info("🔄 Starting kline stream processing for %s", exchangeName)
 
 	klineChan := wsConn.KlineUpdates()
@@ -186,7 +187,7 @@ func (ri *Ingestor) processKlineStream(wsConn connector.WebSocketConnector, exch
 	}
 }
 
-func (ri *Ingestor) processOrderBookStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
+func (ri *ingestor) processOrderBookStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
 	ri.logger.Info("🔄 Starting orderbook stream processing for %s", exchangeName)
 
 	orderBookChan := wsConn.OrderBookUpdates()
@@ -227,7 +228,7 @@ func (ri *Ingestor) processOrderBookStream(wsConn connector.WebSocketConnector, 
 	}
 }
 
-func (ri *Ingestor) processErrorStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
+func (ri *ingestor) processErrorStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
 	for {
 		select {
 		case <-ri.wsContext.Done():
@@ -241,7 +242,7 @@ func (ri *Ingestor) processErrorStream(wsConn connector.WebSocketConnector, exch
 	}
 }
 
-func (ri *Ingestor) Stop() error {
+func (ri *ingestor) Stop() error {
 	ri.mutex.Lock()
 	defer ri.mutex.Unlock()
 
@@ -263,13 +264,13 @@ func (ri *Ingestor) Stop() error {
 	return nil
 }
 
-func (ri *Ingestor) IsActive() bool {
+func (ri *ingestor) IsActive() bool {
 	ri.mutex.RLock()
 	defer ri.mutex.RUnlock()
 	return ri.isActive
 }
 
-func (ri *Ingestor) GetActiveConnections() map[connector.ExchangeName]connector.WebSocketConnector {
+func (ri *ingestor) GetActiveConnections() map[connector.ExchangeName]connector.WebSocketConnector {
 	ri.mutex.RLock()
 	defer ri.mutex.RUnlock()
 
