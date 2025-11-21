@@ -27,6 +27,7 @@ type Metadata struct {
 	PluginPath  string
 	CreatedBy   string
 	Parameters  map[string]ParameterDef
+	SDKVersion  string // SDK version the plugin was built against
 }
 
 // ParameterDef defines a strategy parameter

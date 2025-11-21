@@ -47,6 +47,16 @@ func (m *manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) 
 		return nil, fmt.Errorf("failed to open plugin: %w", err)
 	}
 
+	// Extract and validate SDK version (strict version checking)
+	pluginSDKVersion, err := extractSDKVersion(p)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract SDK version: %w", err)
+	}
+
+	if err := validateSDKVersion(pluginSDKVersion); err != nil {
+		return nil, err
+	}
+
 	// Look up the NewStrategy symbol
 	newStrategySymbol, err := p.Lookup("NewStrategy")
 	if err != nil {
@@ -67,6 +77,7 @@ func (m *manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) 
 		metadata.ID = uuid.New()
 		metadata.PluginPath = pluginPath
 		metadata.CreatedBy = createdBy
+		metadata.SDKVersion = pluginSDKVersion
 
 		// Store in storage
 		if err := m.storage.SavePlugin(ctx, metadata); err != nil {
@@ -94,6 +105,7 @@ func (m *manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) 
 	metadata.ID = uuid.New()
 	metadata.PluginPath = pluginPath
 	metadata.CreatedBy = createdBy
+	metadata.SDKVersion = pluginSDKVersion
 
 	// Store in storage
 	if err := m.storage.SavePlugin(ctx, metadata); err != nil {
@@ -135,6 +147,16 @@ func (m *manager) GetLoadedPlugin(ctx context.Context, id uuid.UUID) (*plugintyp
 	p, err := plugin.Open(metadata.PluginPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open plugin file: %w", err)
+	}
+
+	// Extract and validate SDK version
+	pluginSDKVersion, err := extractSDKVersion(p)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract SDK version: %w", err)
+	}
+
+	if err := validateSDKVersion(pluginSDKVersion); err != nil {
+		return nil, err
 	}
 
 	// Try to get NewStrategy function

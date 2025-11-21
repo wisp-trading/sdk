@@ -1,0 +1,4 @@
+# Kronos SDK Version
+# This is the source of truth for the SDK version
+# Update this file and run 'make generate' to update version.go
+version: v0.0.2
