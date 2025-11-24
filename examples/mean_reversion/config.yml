@@ -8,6 +8,8 @@ icon: "📈"
 # Strategy Parameters
 # (Assets and exchanges configured in global exchanges.yml)
 
+exchange: binance  # Which exchange to use (must be enabled in exchanges.yml)
+
 indicators:
   bollinger_bands:
     period: 20
