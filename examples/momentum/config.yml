@@ -1,0 +1,28 @@
+# Strategy Metadata (required for Kronos CLI discovery)
+name: momentum
+display_name: "Momentum Strategy"
+description: "RSI-based momentum trading with overbought/oversold signals"
+type: momentum
+icon: "📈"
+
+# Strategy Parameters
+# (Assets and exchanges configured in global exchanges.yml)
+
+indicators:
+  rsi:
+    period: 14
+    oversold: 30
+    overbought: 70
+
+parameters:
+  momentum_threshold: 0.02
+  position_size: 0.1  # Quantity per trade
+
+risk:
+  max_position_size: 1000
+  stop_loss_percent: 2.5
+  take_profit_percent: 5.0
+
+execution:
+  order_type: market
+  slippage_tolerance: 0.2
