@@ -10,7 +10,10 @@ import (
 
 // Module provides the SDK lifecycle controller for dependency injection
 var Module = fx.Module("lifecycle",
-	fx.Provide(NewController),
+	fx.Provide(
+		NewController,
+		NewOrchestrator,
+	),
 
 	// Register lifecycle hooks to automatically start/stop the controller
 	fx.Invoke(registerLifecycleHooks),

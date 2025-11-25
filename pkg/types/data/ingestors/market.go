@@ -13,8 +13,14 @@ type MarketDataCoordinator interface {
 	StartDataCollection(ctx context.Context) error
 	StopDataCollection() error
 	GetStatus() map[string]interface{}
-	ForceCollectNow()
-	RestartRealtime(ctx context.Context) error
+
+	// AddDataUpdateListener registers a listener to be notified when market data updates
+	AddDataUpdateListener(listener DataUpdateListener)
+}
+
+// DataUpdateListener is notified when market data updates
+type DataUpdateListener interface {
+	NotifyDataUpdate()
 }
 
 // RealtimeIngestor handles real-time market data ingestion via WebSocket

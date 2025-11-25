@@ -17,6 +17,10 @@ type coordinator struct {
 	logger           logging.ApplicationLogger
 	timeProvider     temporal.TimeProvider
 
+	// Data update listeners
+	listeners   []ingestors.DataUpdateListener
+	listenersMu sync.RWMutex
+
 	// State management
 	isRunning bool
 	mu        sync.RWMutex
@@ -33,6 +37,7 @@ func NewCoordinator(
 		batchIngestor:    batchIngestor,
 		timeProvider:     timeProvider,
 		logger:           logger,
+		listeners:        make([]ingestors.DataUpdateListener, 0),
 		isRunning:        false,
 	}
 }
@@ -142,4 +147,23 @@ func (dic *coordinator) RestartRealtime(ctx context.Context) error {
 
 	dic.logger.Info("Successfully restarted realtime ingestion")
 	return nil
+}
+
+// AddDataUpdateListener registers a listener to be notified when market data updates
+func (dic *coordinator) AddDataUpdateListener(listener ingestors.DataUpdateListener) {
+	dic.listenersMu.Lock()
+	defer dic.listenersMu.Unlock()
+	dic.listeners = append(dic.listeners, listener)
+}
+
+// notifyDataUpdate notifies all listeners that market data has been updated
+func (dic *coordinator) notifyDataUpdate() {
+	dic.listenersMu.RLock()
+	listeners := make([]ingestors.DataUpdateListener, len(dic.listeners))
+	copy(listeners, dic.listeners)
+	dic.listenersMu.RUnlock()
+
+	for _, listener := range listeners {
+		listener.NotifyDataUpdate()
+	}
 }

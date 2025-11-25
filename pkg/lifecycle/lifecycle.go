@@ -20,6 +20,7 @@ type controller struct {
 	positionCoordinator ingestors.PositionCoordinator
 	connectorRegistry   registry.ConnectorRegistry
 	healthStore         health.HealthStore
+	orchestrator        lifecycleTypes.Orchestrator
 	logger              logging.ApplicationLogger
 
 	// Lifecycle state
@@ -35,6 +36,7 @@ func NewController(
 	positionCoordinator ingestors.PositionCoordinator,
 	connectorRegistry registry.ConnectorRegistry,
 	healthStore health.HealthStore,
+	orchestrator lifecycleTypes.Orchestrator,
 	logger logging.ApplicationLogger,
 ) lifecycleTypes.Controller {
 	return &controller{
@@ -42,6 +44,7 @@ func NewController(
 		positionCoordinator: positionCoordinator,
 		connectorRegistry:   connectorRegistry,
 		healthStore:         healthStore,
+		orchestrator:        orchestrator,
 		logger:              logger,
 		state:               lifecycleTypes.StateCreated,
 		readyChan:           make(chan struct{}),
@@ -92,7 +95,21 @@ func (c *controller) Start(ctx context.Context) error {
 		c.stateMu.Unlock()
 		return fmt.Errorf("failed to start market data collection: %w", err)
 	}
+
+	// Wire orchestrator to receive market data notifications
+	c.marketCoordinator.AddDataUpdateListener(c.orchestrator)
+
 	c.logger.Info("  ✓ Market data ingestion ready")
+
+	// Start orchestrator
+	c.logger.Info("  🎯 Starting strategy orchestrator...")
+	if err := c.orchestrator.Start(ctx); err != nil {
+		c.stateMu.Lock()
+		c.state = lifecycleTypes.StateCreated
+		c.stateMu.Unlock()
+		return fmt.Errorf("failed to start orchestrator: %w", err)
+	}
+	c.logger.Info("  ✓ Strategy orchestrator ready")
 
 	// Start runtime health monitoring
 	go c.monitorHealth(ctx)
@@ -121,6 +138,11 @@ func (c *controller) Stop(ctx context.Context) error {
 	c.stateMu.Unlock()
 
 	c.logger.Info("Stopping Kronos SDK...")
+
+	// Stop orchestrator first (stop generating new signals)
+	if err := c.orchestrator.Stop(ctx); err != nil {
+		c.logger.Error("Error stopping orchestrator: %v", err)
+	}
 
 	// Stop market data ingestion
 	if err := c.marketCoordinator.StopDataCollection(); err != nil {
@@ -164,6 +186,11 @@ func (c *controller) IsReady() bool {
 	c.stateMu.RLock()
 	defer c.stateMu.RUnlock()
 	return c.state == lifecycleTypes.StateReady
+}
+
+// Orchestrator returns the strategy orchestrator
+func (c *controller) Orchestrator() lifecycleTypes.Orchestrator {
+	return c.orchestrator
 }
 
 // waitForConnectors waits for connectors to be marked ready and for first data to arrive
