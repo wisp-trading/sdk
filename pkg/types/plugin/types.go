@@ -3,7 +3,6 @@ package plugin
 import (
 	"plugin"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/execution"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/google/uuid"
 )
@@ -15,15 +14,6 @@ type LoadedPlugin struct {
 	Plugin       *plugin.Plugin
 	StrategyFunc func() strategy.Strategy
 	Metadata     *Metadata
-}
-
-// LoadedHookPlugin represents a hook plugin that has been loaded into memory
-type LoadedHookPlugin struct {
-	ID         uuid.UUID
-	Name       string
-	Plugin     *plugin.Plugin
-	HookPlugin execution.HookPlugin
-	Metadata   *Metadata
 }
 
 // Metadata contains information about a plugin
