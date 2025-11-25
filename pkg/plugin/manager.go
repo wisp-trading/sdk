@@ -8,6 +8,7 @@ import (
 	"plugin"
 	"sync"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/types/execution"
 	plugintypes "github.com/backtesting-org/kronos-sdk/pkg/types/plugin"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/google/uuid"
@@ -15,20 +16,22 @@ import (
 
 // manager is the unexported implementation of plugintypes.Manager
 type manager struct {
-	storage       plugintypes.Storage
-	logger        plugintypes.Config
-	pluginDir     string
-	loadedPlugins map[uuid.UUID]*plugintypes.LoadedPlugin
-	mu            sync.RWMutex
+	storage           plugintypes.Storage
+	logger            plugintypes.Config
+	pluginDir         string
+	loadedPlugins     map[uuid.UUID]*plugintypes.LoadedPlugin
+	loadedHookPlugins map[uuid.UUID]*plugintypes.LoadedHookPlugin
+	mu                sync.RWMutex
 }
 
 // NewManager creates a new plugin manager
 func NewManager(cfg plugintypes.Config) plugintypes.Manager {
 	return &manager{
-		storage:       cfg.Storage,
-		logger:        cfg,
-		pluginDir:     cfg.PluginDir,
-		loadedPlugins: make(map[uuid.UUID]*plugintypes.LoadedPlugin),
+		storage:           cfg.Storage,
+		logger:            cfg,
+		pluginDir:         cfg.PluginDir,
+		loadedPlugins:     make(map[uuid.UUID]*plugintypes.LoadedPlugin),
+		loadedHookPlugins: make(map[uuid.UUID]*plugintypes.LoadedHookPlugin),
 	}
 }
 
@@ -79,6 +82,7 @@ func (m *manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) 
 		metadata.PluginPath = pluginPath
 		metadata.CreatedBy = createdBy
 		metadata.SDKVersion = pluginSDKVersion
+		metadata.PluginType = plugintypes.StrategyPlugin
 
 		// Store in storage
 		if err := m.storage.SavePlugin(ctx, metadata); err != nil {
@@ -107,6 +111,7 @@ func (m *manager) LoadPlugin(ctx context.Context, pluginPath, createdBy string) 
 	metadata.PluginPath = pluginPath
 	metadata.CreatedBy = createdBy
 	metadata.SDKVersion = pluginSDKVersion
+	metadata.PluginType = plugintypes.StrategyPlugin
 
 	// Store in storage
 	if err := m.storage.SavePlugin(ctx, metadata); err != nil {
@@ -218,9 +223,10 @@ func (m *manager) GetPluginMetadata(ctx context.Context, id uuid.UUID) (*plugint
 
 // DeletePlugin removes a plugin
 func (m *manager) DeletePlugin(ctx context.Context, id uuid.UUID) error {
-	// Remove from cache
+	// Remove from cache (both strategy and hook caches)
 	m.mu.Lock()
 	delete(m.loadedPlugins, id)
+	delete(m.loadedHookPlugins, id)
 	m.mu.Unlock()
 
 	// Delete from storage
@@ -256,4 +262,155 @@ func (m *manager) SavePluginFile(fileName string, data []byte) (string, error) {
 
 	m.logger.Logger.Info("Plugin file saved", "path", filePath)
 	return filePath, nil
+}
+
+// LoadHookPlugin loads a hook plugin from a file path and stores its metadata
+func (m *manager) LoadHookPlugin(ctx context.Context, pluginPath, createdBy string) (*plugintypes.Metadata, error) {
+	m.logger.Logger.Info("Loading hook plugin", "path", pluginPath)
+
+	// Validate file exists
+	if _, err := os.Stat(pluginPath); os.IsNotExist(err) {
+		return nil, fmt.Errorf("hook plugin file does not exist: %s", pluginPath)
+	}
+
+	// Extract and validate SDK version
+	pluginSDKVersion, err := extractSDKVersionFromPath(pluginPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract SDK version: %w", err)
+	}
+
+	if err := validateSDKVersion(pluginSDKVersion); err != nil {
+		return nil, err
+	}
+
+	// Load the plugin
+	p, err := plugin.Open(pluginPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open hook plugin: %w", err)
+	}
+
+	// Look up the HookPlugin symbol
+	hookPluginSymbol, err := p.Lookup("HookPlugin")
+	if err != nil {
+		return nil, fmt.Errorf("hook plugin must export HookPlugin symbol: %w", err)
+	}
+
+	// Type assert to execution.HookPlugin
+	hookPlugin, ok := hookPluginSymbol.(execution.HookPlugin)
+	if !ok {
+		return nil, fmt.Errorf("HookPlugin symbol is not of type execution.HookPlugin")
+	}
+
+	// Extract metadata
+	metadata := &plugintypes.Metadata{
+		ID:          uuid.New(),
+		Name:        hookPlugin.Name(),
+		Description: "Hook Plugin",
+		Version:     hookPlugin.Version(),
+		PluginPath:  pluginPath,
+		CreatedBy:   createdBy,
+		SDKVersion:  pluginSDKVersion,
+		PluginType:  plugintypes.HookPlugin,
+	}
+
+	// Store in storage
+	if err := m.storage.SavePlugin(ctx, metadata); err != nil {
+		return nil, fmt.Errorf("failed to store hook plugin metadata: %w", err)
+	}
+
+	// Cache the loaded hook plugin
+	m.mu.Lock()
+	m.loadedHookPlugins[metadata.ID] = &plugintypes.LoadedHookPlugin{
+		ID:         metadata.ID,
+		Name:       metadata.Name,
+		Plugin:     p,
+		HookPlugin: hookPlugin,
+		Metadata:   metadata,
+	}
+	m.mu.Unlock()
+
+	m.logger.Logger.Info("Hook plugin loaded successfully", "id", metadata.ID.String(), "name", metadata.Name)
+	return metadata, nil
+}
+
+// GetLoadedHookPlugin retrieves a loaded hook plugin by ID
+func (m *manager) GetLoadedHookPlugin(ctx context.Context, id uuid.UUID) (*plugintypes.LoadedHookPlugin, error) {
+	m.mu.RLock()
+	loaded, exists := m.loadedHookPlugins[id]
+	m.mu.RUnlock()
+
+	if exists {
+		return loaded, nil
+	}
+
+	// Hook plugin not in memory, try to load from storage and file
+	metadata, err := m.storage.GetPlugin(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("hook plugin not found in storage: %w", err)
+	}
+
+	if metadata.PluginType != plugintypes.HookPlugin {
+		return nil, fmt.Errorf("plugin %s is not a hook plugin", id)
+	}
+
+	// Extract and validate SDK version
+	pluginSDKVersion, err := extractSDKVersionFromPath(metadata.PluginPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract SDK version: %w", err)
+	}
+
+	if err := validateSDKVersion(pluginSDKVersion); err != nil {
+		return nil, err
+	}
+
+	// Load the plugin file
+	p, err := plugin.Open(metadata.PluginPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open hook plugin file: %w", err)
+	}
+
+	// Look up the HookPlugin symbol
+	hookPluginSymbol, err := p.Lookup("HookPlugin")
+	if err != nil {
+		return nil, fmt.Errorf("hook plugin must export HookPlugin symbol: %w", err)
+	}
+
+	hookPlugin, ok := hookPluginSymbol.(execution.HookPlugin)
+	if !ok {
+		return nil, fmt.Errorf("HookPlugin symbol is not of type execution.HookPlugin")
+	}
+
+	// Cache and return
+	loaded = &plugintypes.LoadedHookPlugin{
+		ID:         metadata.ID,
+		Name:       metadata.Name,
+		Plugin:     p,
+		HookPlugin: hookPlugin,
+		Metadata:   metadata,
+	}
+
+	m.mu.Lock()
+	m.loadedHookPlugins[id] = loaded
+	m.mu.Unlock()
+
+	return loaded, nil
+}
+
+// InstantiateHooks creates hook instances from a loaded hook plugin
+func (m *manager) InstantiateHooks(ctx context.Context, id uuid.UUID) ([]execution.ExecutionHook, error) {
+	loaded, err := m.GetLoadedHookPlugin(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if loaded.HookPlugin == nil {
+		return nil, fmt.Errorf("hook plugin does not have a valid HookPlugin implementation")
+	}
+
+	hooks := loaded.HookPlugin.CreateHooks()
+	if hooks == nil {
+		return nil, fmt.Errorf("CreateHooks() returned nil")
+	}
+
+	return hooks, nil
 }

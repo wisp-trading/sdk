@@ -3,6 +3,7 @@ package plugin
 import (
 	"plugin"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/types/execution"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/google/uuid"
 )
@@ -16,6 +17,15 @@ type LoadedPlugin struct {
 	Metadata     *Metadata
 }
 
+// LoadedHookPlugin represents a hook plugin that has been loaded into memory
+type LoadedHookPlugin struct {
+	ID         uuid.UUID
+	Name       string
+	Plugin     *plugin.Plugin
+	HookPlugin execution.HookPlugin
+	Metadata   *Metadata
+}
+
 // Metadata contains information about a plugin
 type Metadata struct {
 	ID          uuid.UUID
@@ -27,7 +37,8 @@ type Metadata struct {
 	PluginPath  string
 	CreatedBy   string
 	Parameters  map[string]ParameterDef
-	SDKVersion  string // SDK version the plugin was built against
+	SDKVersion  string     // SDK version the plugin was built against
+	PluginType  PluginType // Type of plugin (strategy or hook)
 }
 
 // ParameterDef defines a strategy parameter
@@ -45,3 +56,14 @@ type ParameterDef struct {
 type ParameterProvider interface {
 	GetParameters() []ParameterDef
 }
+
+// PluginType indicates the type of plugin (strategy or hook)
+type PluginType int
+
+const (
+	// StrategyPlugin indicates a strategy plugin
+	StrategyPlugin PluginType = iota
+
+	// HookPlugin indicates a hook plugin
+	HookPlugin
+)
