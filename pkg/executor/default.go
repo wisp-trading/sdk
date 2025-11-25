@@ -19,8 +19,8 @@ type executor struct {
 	logger       logging.ApplicationLogger
 	timeProvider temporal.TimeProvider
 
-	// Execution hooks
-	hooks []execution.ExecutionHook
+	// Hook registry for runtime hook management
+	hookRegistry registry.Hooks
 }
 
 // NewExecutor creates a new default executor
@@ -29,23 +29,16 @@ func NewExecutor(
 	positions activity.Positions,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
-	hooks []execution.ExecutionHook,
+	hookRegistry registry.Hooks,
 ) execution.Executor {
-	if hooks == nil {
-		hooks = make([]execution.ExecutionHook, 0)
-	}
-
-	logger.Info("📌 Initializing executor with %d hooks", len(hooks))
-	for _, hook := range hooks {
-		logger.Info("  - Hook: %T", hook)
-	}
+	logger.Info("📌 Initializing executor with hook registry")
 
 	return &executor{
 		connectors:   connectors,
 		positions:    positions,
 		logger:       logger,
 		timeProvider: timeProvider,
-		hooks:        hooks,
+		hookRegistry: hookRegistry,
 	}
 }
 
@@ -59,11 +52,14 @@ func (e *executor) ExecuteSignal(signal *strategy.Signal) error {
 
 	e.logger.Info("🎯 Executing signal %s with %d actions", signal.ID, len(signal.Actions))
 
+	// Get hooks from registry at execution time
+	hooks := e.hookRegistry.GetHooks()
+
 	// Run BeforeExecute hooks
-	for _, hook := range e.hooks {
+	for _, hook := range hooks {
 		if err := hook.BeforeExecute(ctx); err != nil {
 			e.logger.Warn("🚫 Hook blocked execution: %v", err)
-			e.handleError(ctx, err)
+			e.handleError(ctx, err, hooks)
 			return err
 		}
 	}
@@ -80,7 +76,7 @@ func (e *executor) ExecuteSignal(signal *strategy.Signal) error {
 			e.logger.Error("Failed to execute action %d for signal %s: %v", i, signal.ID, err)
 			result.Error = err
 			result.Success = false
-			e.handleError(ctx, err)
+			e.handleError(ctx, err, hooks)
 			return err
 		}
 		if orderID != "" {
@@ -89,7 +85,7 @@ func (e *executor) ExecuteSignal(signal *strategy.Signal) error {
 	}
 
 	// Run AfterExecute hooks
-	for _, hook := range e.hooks {
+	for _, hook := range hooks {
 		if err := hook.AfterExecute(ctx, result); err != nil {
 			e.logger.Error("Hook AfterExecute failed: %v", err)
 			// Don't fail the execution if post-execution hooks fail
@@ -211,8 +207,8 @@ func (e *executor) HandleTradeExecution(trade connector.Trade) error {
 }
 
 // handleError calls OnError hooks
-func (e *executor) handleError(ctx *execution.ExecutionContext, err error) {
-	for _, hook := range e.hooks {
+func (e *executor) handleError(ctx *execution.ExecutionContext, err error, hooks []execution.ExecutionHook) {
+	for _, hook := range hooks {
 		if hookErr := hook.OnError(ctx, err); hookErr != nil {
 			e.logger.Error("Hook OnError failed: %v", hookErr)
 		}

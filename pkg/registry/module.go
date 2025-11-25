@@ -7,5 +7,6 @@ var Module = fx.Module("registry",
 		NewConnectorRegistry,
 		NewStrategyRegistry,
 		NewAssetRegistry,
+		NewHookRegistry,
 	),
 )
