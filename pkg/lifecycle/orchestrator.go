@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/execution"
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
@@ -37,6 +38,7 @@ func NewOrchestrator(
 	strategyRegistry registry.StrategyRegistry,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
+	notifier ingestors.DataUpdateNotifier,
 ) lifecycleTypes.Orchestrator {
 	tickTimer := NewTickTimer(
 		5,                    // Execute after 5 data updates
@@ -45,13 +47,25 @@ func NewOrchestrator(
 		timeProvider,
 	)
 
-	return &orchestrator{
+	orch := &orchestrator{
 		executor:         executor,
 		strategyRegistry: strategyRegistry,
 		logger:           logger,
 		timeProvider:     timeProvider,
 		tickTimer:        tickTimer,
 		strategyMutexes:  make(map[strategy.StrategyName]*sync.Mutex),
+	}
+
+	// Wire notifier to tick timer
+	go orch.listenForDataUpdates(notifier)
+
+	return orch
+}
+
+// listenForDataUpdates forwards data update notifications to the tick timer
+func (o *orchestrator) listenForDataUpdates(notifier ingestors.DataUpdateNotifier) {
+	for range notifier.Updates() {
+		o.tickTimer.NotifyDataUpdate()
 	}
 }
 

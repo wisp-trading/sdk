@@ -21,6 +21,7 @@ type ingestor struct {
 	assetRegistry    registry.AssetRegistry
 	logger           logging.ApplicationLogger
 	healthStore      health.HealthStore
+	notifier         ingestors.DataUpdateNotifier
 
 	// WebSocket management
 	wsContext context.Context
@@ -41,6 +42,7 @@ func NewIngestor(
 	assetRegistry registry.AssetRegistry,
 	logger logging.ApplicationLogger,
 	healthStore health.HealthStore,
+	notifier ingestors.DataUpdateNotifier,
 ) ingestors.RealtimeIngestor {
 	return &ingestor{
 		store:             store,
@@ -48,9 +50,15 @@ func NewIngestor(
 		assetRegistry:     assetRegistry,
 		logger:            logger,
 		healthStore:       healthStore,
+		notifier:          notifier,
 		activeConnections: make(map[connector.ExchangeName]connector.WebSocketConnector),
 		subscriptions:     make(map[portfolio.Asset][]connector.Instrument),
 	}
+}
+
+// notifyDataUpdate signals that data was updated
+func (ri *ingestor) notifyDataUpdate() {
+	ri.notifier.Notify()
 }
 
 func (ri *ingestor) Start(ctx context.Context) error {
@@ -165,6 +173,9 @@ func (ri *ingestor) processKlineStream(wsConn connector.WebSocketConnector, exch
 
 			ri.store.UpdateKline(asset, exchangeName, klineUpdate)
 
+			// Notify coordinator that data was updated
+			ri.notifyDataUpdate()
+
 			// Report successful data receipt to health monitoring
 			ri.healthStore.RecordDataReceived(exchangeName, health.DataTypeKlines, health.SourceWebSocket, 0)
 
@@ -221,6 +232,9 @@ func (ri *ingestor) processOrderBookStream(wsConn connector.WebSocketConnector, 
 				ri.logger.Debug("📊 Updated %s orderbook for %s on %s",
 					instrumentType, orderBookUpdate.Asset.Symbol(), exchangeName)
 			}
+
+			// Notify coordinator that data was updated
+			ri.notifyDataUpdate()
 
 			// Report successful data receipt to health monitoring
 			ri.healthStore.RecordDataReceived(exchangeName, health.DataTypeOrderbooks, health.SourceWebSocket, 0)
