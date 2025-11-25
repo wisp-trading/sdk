@@ -1,8 +1,6 @@
 package market
 
 import (
-	"time"
-
 	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 )
 
@@ -19,6 +17,6 @@ func (ds *dataStore) UpdateLastUpdated(key marketTypes.UpdateKey) {
 	for k, v := range current {
 		updated[k] = v
 	}
-	updated[key] = time.Now()
+	updated[key] = ds.timeProvider.Now()
 	ds.lastUpdated.Store(updated)
 }

@@ -2,7 +2,6 @@ package position
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
@@ -50,7 +49,7 @@ func (ds *dataStore) UpdateOrderStatus(strategyName strategy.StrategyName, order
 	for i := range execution.Orders {
 		if execution.Orders[i].ID == orderID {
 			execution.Orders[i].Status = status
-			execution.Orders[i].UpdatedAt = time.Now()
+			execution.Orders[i].UpdatedAt = ds.timeProvider.Now()
 			found = true
 			break
 		}
