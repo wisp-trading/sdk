@@ -2,7 +2,6 @@ package executor
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
@@ -20,13 +19,8 @@ type executor struct {
 	logger       logging.ApplicationLogger
 	timeProvider temporal.TimeProvider
 
-	// Track which strategy placed each order
-	orderToStrategy map[string]strategy.StrategyName
-	mu              sync.RWMutex
-
 	// Execution hooks
-	hooks   []execution.ExecutionHook
-	hooksMu sync.RWMutex
+	hooks []execution.ExecutionHook
 }
 
 // NewExecutor creates a new default executor
@@ -35,28 +29,29 @@ func NewExecutor(
 	positions activity.Positions,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
+	hooks []execution.ExecutionHook,
 ) execution.Executor {
-	return &executor{
-		connectors:      connectors,
-		positions:       positions,
-		logger:          logger,
-		timeProvider:    timeProvider,
-		orderToStrategy: make(map[string]strategy.StrategyName),
-		hooks:           make([]execution.ExecutionHook, 0),
+	if hooks == nil {
+		hooks = make([]execution.ExecutionHook, 0)
 	}
-}
 
-// RegisterHook adds an execution hook
-func (e *executor) RegisterHook(hook execution.ExecutionHook) {
-	e.hooksMu.Lock()
-	defer e.hooksMu.Unlock()
-	e.hooks = append(e.hooks, hook)
-	e.logger.Info("📌 Registered execution hook: %T", hook)
+	logger.Info("📌 Initializing executor with %d hooks", len(hooks))
+	for _, hook := range hooks {
+		logger.Info("  - Hook: %T", hook)
+	}
+
+	return &executor{
+		connectors:   connectors,
+		positions:    positions,
+		logger:       logger,
+		timeProvider: timeProvider,
+		hooks:        hooks,
+	}
 }
 
 // ExecuteSignal processes a signal and executes the associated actions
 func (e *executor) ExecuteSignal(signal *strategy.Signal) error {
-	ctx := &ExecutionContext{
+	ctx := &execution.ExecutionContext{
 		Signal:    signal,
 		Timestamp: e.timeProvider.Now(),
 		Metadata:  make(map[string]interface{}),
@@ -64,23 +59,17 @@ func (e *executor) ExecuteSignal(signal *strategy.Signal) error {
 
 	e.logger.Info("🎯 Executing signal %s with %d actions", signal.ID, len(signal.Actions))
 
-	// Get hooks snapshot
-	e.hooksMu.RLock()
-	hooks := make([]execution.ExecutionHook, len(e.hooks))
-	copy(hooks, e.hooks)
-	e.hooksMu.RUnlock()
-
 	// Run BeforeExecute hooks
-	for _, hook := range hooks {
+	for _, hook := range e.hooks {
 		if err := hook.BeforeExecute(ctx); err != nil {
 			e.logger.Warn("🚫 Hook blocked execution: %v", err)
-			e.handleError(ctx, err, hooks)
+			e.handleError(ctx, err)
 			return err
 		}
 	}
 
 	// Execute core logic
-	result := &ExecutionResult{
+	result := &execution.ExecutionResult{
 		OrderIDs: make([]string, 0),
 		Success:  true,
 	}
@@ -91,7 +80,7 @@ func (e *executor) ExecuteSignal(signal *strategy.Signal) error {
 			e.logger.Error("Failed to execute action %d for signal %s: %v", i, signal.ID, err)
 			result.Error = err
 			result.Success = false
-			e.handleError(ctx, err, hooks)
+			e.handleError(ctx, err)
 			return err
 		}
 		if orderID != "" {
@@ -100,7 +89,7 @@ func (e *executor) ExecuteSignal(signal *strategy.Signal) error {
 	}
 
 	// Run AfterExecute hooks
-	for _, hook := range hooks {
+	for _, hook := range e.hooks {
 		if err := hook.AfterExecute(ctx, result); err != nil {
 			e.logger.Error("Hook AfterExecute failed: %v", err)
 			// Don't fail the execution if post-execution hooks fail
@@ -167,11 +156,6 @@ func (e *executor) executeTradeAction(signal *strategy.Signal, action strategy.T
 	// Add order to strategy execution
 	e.positions.AddOrderToStrategy(signal.Strategy, order)
 
-	// Track which strategy placed this order
-	e.mu.Lock()
-	e.orderToStrategy[orderResponse.OrderID] = signal.Strategy
-	e.mu.Unlock()
-
 	e.logger.Info("✅ Order recorded for strategy %s: %s", signal.Strategy, orderResponse.OrderID)
 	return orderResponse.OrderID, nil
 }
@@ -208,10 +192,8 @@ func (e *executor) HandleTradeExecution(trade connector.Trade) error {
 		orderID = trade.ID[6:] // Remove "trade_" prefix
 	}
 
-	e.mu.RLock()
-	strategyName, exists := e.orderToStrategy[orderID]
-	e.mu.RUnlock()
-
+	// Find which strategy owns this order
+	strategyName, exists := e.positions.GetStrategyForOrder(orderID)
 	if exists {
 		// Record the trade for the strategy
 		e.positions.AddTradeToStrategy(strategyName, trade)
@@ -219,14 +201,8 @@ func (e *executor) HandleTradeExecution(trade connector.Trade) error {
 		// Update the corresponding order to mark it as filled
 		err := e.positions.UpdateOrderStatus(strategyName, orderID, connector.OrderStatusFilled)
 		if err != nil {
-			// Order might not exist in position store yet, which is okay
 			e.logger.Debug("Could not update order %s: %v", orderID, err)
 		}
-
-		// Clean up the tracking
-		e.mu.Lock()
-		delete(e.orderToStrategy, orderID)
-		e.mu.Unlock()
 
 		e.logger.Info("✅ Trade executed and recorded for strategy %s: %s", strategyName, trade.ID)
 	}
@@ -235,8 +211,8 @@ func (e *executor) HandleTradeExecution(trade connector.Trade) error {
 }
 
 // handleError calls OnError hooks
-func (e *executor) handleError(ctx *ExecutionContext, err error, hooks []execution.ExecutionHook) {
-	for _, hook := range hooks {
+func (e *executor) handleError(ctx *execution.ExecutionContext, err error) {
+	for _, hook := range e.hooks {
 		if hookErr := hook.OnError(ctx, err); hookErr != nil {
 			e.logger.Error("Hook OnError failed: %v", hookErr)
 		}

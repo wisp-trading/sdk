@@ -10,8 +10,6 @@ import (
 // Module provides the executor functionality to the application
 var Module = fx.Module("executor",
 	fx.Provide(
-		fx.Annotate(
-			NewExecutor,
-		),
+		NewExecutor,
 	),
 )

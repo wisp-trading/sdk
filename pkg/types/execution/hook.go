@@ -19,23 +19,20 @@ type HookPlugin interface {
 
 // Executor is the core interface for executing trading signals
 type Executor interface {
-	// ExecuteSignal processes a signal and executes the associated actions
+	// ExecuteSignal processes a trading signal and executes the associated actions
 	ExecuteSignal(signal *strategy.Signal) error
 
-	// HandleTradeExecution is called when a trade is executed to record it
+	// HandleTradeExecution is called when a trade executes on the exchange
 	HandleTradeExecution(trade connector.Trade) error
-
-	// RegisterHook adds an execution hook
-	RegisterHook(hook ExecutionHook)
 }
 
-// ExecutionHook allows customization of the execution pipeline
+// ExecutionHook defines the interface for execution hooks
 type ExecutionHook interface {
-	// BeforeExecute is called before executing a signal
-	// Returning an error will cancel the execution
+	// BeforeExecute is called before an order is placed
+	// Return an error to prevent the execution
 	BeforeExecute(ctx *ExecutionContext) error
 
-	// AfterExecute is called after successful execution
+	// AfterExecute is called after an order is successfully placed
 	AfterExecute(ctx *ExecutionContext, result *ExecutionResult) error
 
 	// OnError is called when an error occurs during execution
