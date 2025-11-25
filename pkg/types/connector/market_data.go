@@ -52,6 +52,7 @@ type PriceLevel struct {
 // Trade represents a trade executed on the exchange.
 type Trade struct {
 	ID        string          `json:"id"`
+	OrderID   string          `json:"order_id,omitempty"` // Link to the originating order
 	Symbol    string          `json:"symbol"`
 	Exchange  ExchangeName    `json:"exchange"`
 	Price     decimal.Decimal `json:"price"`

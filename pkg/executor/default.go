@@ -182,27 +182,31 @@ func (e *executor) getOrderSide(action strategy.Action) connector.OrderSide {
 
 // HandleTradeExecution is called when a trade executes to record it for the strategy
 func (e *executor) HandleTradeExecution(trade connector.Trade) error {
-	// Extract order ID from trade ID (trades are typically named after orders)
-	orderID := trade.ID
-	if len(trade.ID) > 6 && trade.ID[:6] == "trade_" {
-		orderID = trade.ID[6:] // Remove "trade_" prefix
+	// Use the trade's order ID if available, otherwise fall back to trade ID
+	// The connector should populate the OrderID field to link trades to orders
+	orderID := trade.OrderID
+	if orderID == "" {
+		orderID = trade.ID
+		e.logger.Debug("Trade %s has no OrderID field, using trade ID as fallback", trade.ID)
 	}
 
 	// Find which strategy owns this order
 	strategyName, exists := e.positions.GetStrategyForOrder(orderID)
-	if exists {
-		// Record the trade for the strategy
-		e.positions.AddTradeToStrategy(strategyName, trade)
-
-		// Update the corresponding order to mark it as filled
-		err := e.positions.UpdateOrderStatus(strategyName, orderID, connector.OrderStatusFilled)
-		if err != nil {
-			e.logger.Debug("Could not update order %s: %v", orderID, err)
-		}
-
-		e.logger.Info("✅ Trade executed and recorded for strategy %s: %s", strategyName, trade.ID)
+	if !exists {
+		e.logger.Debug("Trade %s (order %s) could not be matched to any strategy order", trade.ID, orderID)
+		return nil
 	}
 
+	// Record the trade for the strategy
+	e.positions.AddTradeToStrategy(strategyName, trade)
+
+	// Update the corresponding order to mark it as filled
+	err := e.positions.UpdateOrderStatus(strategyName, orderID, connector.OrderStatusFilled)
+	if err != nil {
+		e.logger.Debug("Could not update order %s: %v", orderID, err)
+	}
+
+	e.logger.Info("✅ Trade executed and recorded for strategy %s: %s", strategyName, trade.ID)
 	return nil
 }
 
