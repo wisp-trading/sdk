@@ -21,8 +21,8 @@ type ExchangesConfig struct {
 
 // GridTradingConfig holds configuration for grid trading strategy
 type GridTradingConfig struct {
-	Exchange string `yaml:"exchange"`
-	Quantity float64 `yaml:"quantity"`
+	Exchange   string  `yaml:"exchange"`
+	Quantity   float64 `yaml:"quantity"`
 	Parameters struct {
 		GridLevels         int     `yaml:"grid_levels"`
 		GridSpacingPercent float64 `yaml:"grid_spacing_percent"`
