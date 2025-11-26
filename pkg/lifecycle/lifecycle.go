@@ -96,9 +96,6 @@ func (c *controller) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to start market data collection: %w", err)
 	}
 
-	// Wire orchestrator to receive market data notifications
-	c.marketCoordinator.AddDataUpdateListener(c.orchestrator)
-
 	c.logger.Info("  ✓ Market data ingestion ready")
 
 	// Start orchestrator

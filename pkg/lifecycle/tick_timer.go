@@ -52,9 +52,12 @@ func (t *TickTimer) NotifyDataUpdate() {
 
 	count := t.dataUpdateCount.Add(1)
 
+	// Atomically check if we hit threshold and reset to 0
 	if count >= t.dataUpdatesThreshold {
-		t.tryTriggerExecution()
-		t.dataUpdateCount.Store(0)
+		if t.dataUpdateCount.CompareAndSwap(count, 0) {
+			// We won the race - trigger execution
+			t.tryTriggerExecution()
+		}
 	}
 }
 

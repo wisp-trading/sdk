@@ -19,6 +19,7 @@ type orchestrator struct {
 	strategyRegistry registry.StrategyRegistry
 	logger           logging.ApplicationLogger
 	timeProvider     temporal.TimeProvider
+	notifier         ingestors.DataUpdateNotifier
 
 	// Execution control
 	ctx    context.Context
@@ -54,18 +55,26 @@ func NewOrchestrator(
 		timeProvider:     timeProvider,
 		tickTimer:        tickTimer,
 		strategyMutexes:  make(map[strategy.StrategyName]*sync.Mutex),
+		notifier:         notifier,
 	}
 
 	// Wire notifier to tick timer
-	go orch.listenForDataUpdates(notifier)
+	go orch.listenForDataUpdates()
 
 	return orch
 }
 
 // listenForDataUpdates forwards data update notifications to the tick timer
-func (o *orchestrator) listenForDataUpdates(notifier ingestors.DataUpdateNotifier) {
-	for range notifier.Updates() {
-		o.tickTimer.NotifyDataUpdate()
+func (o *orchestrator) listenForDataUpdates() {
+	for {
+		select {
+		case <-o.ctx.Done():
+			// Orchestrator stopped, exit goroutine
+			return
+		case <-o.notifier.Updates():
+			// Forward notification to tick timer
+			o.tickTimer.NotifyDataUpdate()
+		}
 	}
 }
 
@@ -92,6 +101,11 @@ func (o *orchestrator) Stop(ctx context.Context) error {
 	}
 
 	o.logger.Info("🛑 Stopping strategy orchestrator")
+
+	// Stop the tick timer first to clean up its goroutine
+	o.tickTimer.Stop()
+
+	// Then cancel the orchestrator's context
 	o.cancel()
 	o.cancel = nil
 
