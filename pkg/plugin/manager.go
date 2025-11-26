@@ -320,6 +320,6 @@ func (m *manager) LoadHookPlugin(ctx context.Context, pluginPath, createdBy stri
 		m.logger.Logger.Info("Registered %d hooks from plugin %s", len(hooks), metadata.Name)
 	}
 
-	m.logger.Logger.Info("Hook plugin loaded successfully", "id", metadata.ID.String(), "name", metadata.Name)
+	m.logger.Logger.Info("Registered hooks from plugin", "count", len(hooks), "name", metadata.Name)
 	return metadata, nil
 }
