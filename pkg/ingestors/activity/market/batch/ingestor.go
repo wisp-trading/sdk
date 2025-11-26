@@ -21,6 +21,7 @@ type ingestor struct {
 	logger           logging.ApplicationLogger
 	timeProvider     temporal.TimeProvider
 	healthStore      health.HealthStore
+	notifier         ingestors.DataUpdateNotifier
 
 	// Scheduling
 	ticker   temporal.Ticker
@@ -36,6 +37,7 @@ func NewBatchIngestor(
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 	healthStore health.HealthStore,
+	notifier ingestors.DataUpdateNotifier,
 ) ingestors.BatchIngestor {
 	return &ingestor{
 		store:            store,
@@ -44,6 +46,7 @@ func NewBatchIngestor(
 		logger:           logger,
 		timeProvider:     timeProvider,
 		healthStore:      healthStore,
+		notifier:         notifier,
 		stopChan:         make(chan struct{}),
 	}
 }
@@ -133,6 +136,14 @@ func (bi *ingestor) collectOrderBooks() {
 	}
 
 	wg.Wait()
+
+	// Notify that data was updated
+	bi.notifyDataUpdate()
+}
+
+// notifyDataUpdate signals that data was updated
+func (bi *ingestor) notifyDataUpdate() {
+	bi.notifier.Notify()
 }
 
 // Get supported instrument types from exchange capabilities

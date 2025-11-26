@@ -7,6 +7,7 @@ import (
 
 	mockIngestors "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	mockHealth "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/health"
+	mockLifecycle "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
 	mockRegistry "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
@@ -18,16 +19,19 @@ func TestLifecycleController_StateTransitions(t *testing.T) {
 	mockPosition := mockIngestors.NewPositionCoordinator(t)
 	mockReg := mockRegistry.NewConnectorRegistry(t)
 	mockHealthStore := mockHealth.NewHealthStore(t)
+	mockOrchestrator := mockLifecycle.NewOrchestrator(t)
 	noopLog := logging.NewNoOpLogger()
 
 	// Setup expectations
 	mockMarket.EXPECT().StartDataCollection(context.Background()).Return(nil).Once()
 	mockPosition.EXPECT().Start(context.Background()).Return(nil).Once()
+	mockOrchestrator.EXPECT().Start(context.Background()).Return(nil).Once()
 	mockReg.EXPECT().GetReadyConnectors().Return([]connector.Connector{}).Maybe()
 	mockMarket.EXPECT().StopDataCollection().Return(nil).Once()
 	mockPosition.EXPECT().Stop().Return(nil).Once()
+	mockOrchestrator.EXPECT().Stop(context.Background()).Return(nil).Once()
 
-	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, noopLog)
+	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog)
 
 	// Initial state should be Created
 	if controller.State() != lifecycleTypes.StateCreated {
@@ -71,14 +75,16 @@ func TestLifecycleController_WaitUntilReady(t *testing.T) {
 	mockPosition := mockIngestors.NewPositionCoordinator(t)
 	mockReg := mockRegistry.NewConnectorRegistry(t)
 	mockHealthStore := mockHealth.NewHealthStore(t)
+	mockOrchestrator := mockLifecycle.NewOrchestrator(t)
 	noopLog := logging.NewNoOpLogger()
 
 	// Setup expectations
 	mockMarket.EXPECT().StartDataCollection(context.Background()).Return(nil).Once()
 	mockPosition.EXPECT().Start(context.Background()).Return(nil).Once()
+	mockOrchestrator.EXPECT().Start(context.Background()).Return(nil).Once()
 	mockReg.EXPECT().GetReadyConnectors().Return([]connector.Connector{}).Maybe()
 
-	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, noopLog)
+	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog)
 
 	// Start in background
 	ctx := context.Background()
@@ -105,14 +111,16 @@ func TestLifecycleController_CannotStartTwice(t *testing.T) {
 	mockPosition := mockIngestors.NewPositionCoordinator(t)
 	mockReg := mockRegistry.NewConnectorRegistry(t)
 	mockHealthStore := mockHealth.NewHealthStore(t)
+	mockOrchestrator := mockLifecycle.NewOrchestrator(t)
 	noopLog := logging.NewNoOpLogger()
 
 	// Setup expectations
 	mockMarket.EXPECT().StartDataCollection(context.Background()).Return(nil).Once()
 	mockPosition.EXPECT().Start(context.Background()).Return(nil).Once()
+	mockOrchestrator.EXPECT().Start(context.Background()).Return(nil).Once()
 	mockReg.EXPECT().GetReadyConnectors().Return([]connector.Connector{}).Maybe()
 
-	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, noopLog)
+	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog)
 
 	ctx := context.Background()
 

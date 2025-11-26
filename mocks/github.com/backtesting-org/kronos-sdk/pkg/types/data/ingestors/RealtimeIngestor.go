@@ -5,6 +5,8 @@ package ingestors
 import (
 	context "context"
 
+	connector "github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -19,6 +21,53 @@ type RealtimeIngestor_Expecter struct {
 
 func (_m *RealtimeIngestor) EXPECT() *RealtimeIngestor_Expecter {
 	return &RealtimeIngestor_Expecter{mock: &_m.Mock}
+}
+
+// GetActiveConnections provides a mock function with no fields
+func (_m *RealtimeIngestor) GetActiveConnections() map[connector.ExchangeName]connector.WebSocketConnector {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetActiveConnections")
+	}
+
+	var r0 map[connector.ExchangeName]connector.WebSocketConnector
+	if rf, ok := ret.Get(0).(func() map[connector.ExchangeName]connector.WebSocketConnector); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[connector.ExchangeName]connector.WebSocketConnector)
+		}
+	}
+
+	return r0
+}
+
+// RealtimeIngestor_GetActiveConnections_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetActiveConnections'
+type RealtimeIngestor_GetActiveConnections_Call struct {
+	*mock.Call
+}
+
+// GetActiveConnections is a helper method to define mock.On call
+func (_e *RealtimeIngestor_Expecter) GetActiveConnections() *RealtimeIngestor_GetActiveConnections_Call {
+	return &RealtimeIngestor_GetActiveConnections_Call{Call: _e.mock.On("GetActiveConnections")}
+}
+
+func (_c *RealtimeIngestor_GetActiveConnections_Call) Run(run func()) *RealtimeIngestor_GetActiveConnections_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *RealtimeIngestor_GetActiveConnections_Call) Return(_a0 map[connector.ExchangeName]connector.WebSocketConnector) *RealtimeIngestor_GetActiveConnections_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *RealtimeIngestor_GetActiveConnections_Call) RunAndReturn(run func() map[connector.ExchangeName]connector.WebSocketConnector) *RealtimeIngestor_GetActiveConnections_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // IsActive provides a mock function with no fields

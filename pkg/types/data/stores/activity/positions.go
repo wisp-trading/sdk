@@ -25,6 +25,7 @@ type Positions interface {
 	// Order storage
 	AddOrderToStrategy(strategy strategy.StrategyName, order connector.Order)
 	UpdateOrderStatus(strategy strategy.StrategyName, orderID string, status connector.OrderStatus) error
+	GetStrategyForOrder(orderID string) (strategy.StrategyName, bool)
 
 	// Trade storage
 	AddTradeToStrategy(strategy strategy.StrategyName, trade connector.Trade)

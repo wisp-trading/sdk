@@ -2,10 +2,13 @@ package position
 
 import (
 	portfolioTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
-func NewStore() portfolioTypes.Positions {
-	ds := &dataStore{}
+func NewStore(timeProvider temporal.TimeProvider) portfolioTypes.Positions {
+	ds := &dataStore{
+		timeProvider: timeProvider,
+	}
 	ds.executions.Store(make(portfolioTypes.StrategyExecutionMap))
 	ds.lastUpdated.Store(make(portfolioTypes.LastUpdatedMap))
 	return ds

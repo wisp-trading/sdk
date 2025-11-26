@@ -49,6 +49,7 @@ func (ds *dataStore) UpdateOrderStatus(strategyName strategy.StrategyName, order
 	for i := range execution.Orders {
 		if execution.Orders[i].ID == orderID {
 			execution.Orders[i].Status = status
+			execution.Orders[i].UpdatedAt = ds.timeProvider.Now()
 			found = true
 			break
 		}
@@ -67,4 +68,17 @@ func (ds *dataStore) UpdateOrderStatus(strategyName strategy.StrategyName, order
 	ds.executions.Store(updated)
 
 	return nil
+}
+
+// GetStrategyForOrder returns the strategy name that owns the given order ID
+func (ds *dataStore) GetStrategyForOrder(orderID string) (strategy.StrategyName, bool) {
+	executions := ds.GetAllStrategyExecutions()
+	for strategyName, execution := range executions {
+		for _, order := range execution.Orders {
+			if order.ID == orderID {
+				return strategyName, true
+			}
+		}
+	}
+	return "", false
 }

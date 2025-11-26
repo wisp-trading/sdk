@@ -266,6 +266,62 @@ func (_c *Positions_GetStrategyExecution_Call) RunAndReturn(run func(strategy.St
 	return _c
 }
 
+// GetStrategyForOrder provides a mock function with given fields: orderID
+func (_m *Positions) GetStrategyForOrder(orderID string) (strategy.StrategyName, bool) {
+	ret := _m.Called(orderID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetStrategyForOrder")
+	}
+
+	var r0 strategy.StrategyName
+	var r1 bool
+	if rf, ok := ret.Get(0).(func(string) (strategy.StrategyName, bool)); ok {
+		return rf(orderID)
+	}
+	if rf, ok := ret.Get(0).(func(string) strategy.StrategyName); ok {
+		r0 = rf(orderID)
+	} else {
+		r0 = ret.Get(0).(strategy.StrategyName)
+	}
+
+	if rf, ok := ret.Get(1).(func(string) bool); ok {
+		r1 = rf(orderID)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+
+	return r0, r1
+}
+
+// Positions_GetStrategyForOrder_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetStrategyForOrder'
+type Positions_GetStrategyForOrder_Call struct {
+	*mock.Call
+}
+
+// GetStrategyForOrder is a helper method to define mock.On call
+//   - orderID string
+func (_e *Positions_Expecter) GetStrategyForOrder(orderID interface{}) *Positions_GetStrategyForOrder_Call {
+	return &Positions_GetStrategyForOrder_Call{Call: _e.mock.On("GetStrategyForOrder", orderID)}
+}
+
+func (_c *Positions_GetStrategyForOrder_Call) Run(run func(orderID string)) *Positions_GetStrategyForOrder_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *Positions_GetStrategyForOrder_Call) Return(_a0 strategy.StrategyName, _a1 bool) *Positions_GetStrategyForOrder_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Positions_GetStrategyForOrder_Call) RunAndReturn(run func(string) (strategy.StrategyName, bool)) *Positions_GetStrategyForOrder_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetTotalOrderCount provides a mock function with no fields
 func (_m *Positions) GetTotalOrderCount() int64 {
 	ret := _m.Called()

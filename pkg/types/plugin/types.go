@@ -27,7 +27,8 @@ type Metadata struct {
 	PluginPath  string
 	CreatedBy   string
 	Parameters  map[string]ParameterDef
-	SDKVersion  string // SDK version the plugin was built against
+	SDKVersion  string     // SDK version the plugin was built against
+	PluginType  PluginType // Type of plugin (strategy or hook)
 }
 
 // ParameterDef defines a strategy parameter
@@ -45,3 +46,17 @@ type ParameterDef struct {
 type ParameterProvider interface {
 	GetParameters() []ParameterDef
 }
+
+// PluginType indicates the type of plugin (strategy or hook)
+type PluginType int
+
+const (
+	// UnknownPlugin indicates an uninitialized or invalid plugin type
+	UnknownPlugin PluginType = iota
+
+	// StrategyPlugin indicates a strategy plugin
+	StrategyPlugin
+
+	// HookPlugin indicates a hook plugin
+	HookPlugin
+)

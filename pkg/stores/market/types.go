@@ -6,6 +6,7 @@ import (
 
 	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
 // Data types for atomic storage
@@ -16,6 +17,7 @@ type assetPrices map[portfolio.Asset]marketTypes.PriceMap
 type assetKlines map[portfolio.Asset]marketTypes.KlineMap
 
 type dataStore struct {
+	timeProvider           temporal.TimeProvider
 	fundingRates           atomic.Value // assetFundingRates
 	historicalFundingRates atomic.Value // assetHistoricalFunding
 	orderBooks             atomic.Value // assetOrderBooks

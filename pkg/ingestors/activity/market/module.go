@@ -3,6 +3,7 @@ package market
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/ingestors/activity/market/batch"
 	"github.com/backtesting-org/kronos-sdk/pkg/ingestors/activity/market/realtime"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"go.uber.org/fx"
 )
 
@@ -12,5 +13,10 @@ var Module = fx.Options(
 		realtime.NewIngestor,
 		batch.NewBatchIngestor,
 		NewCoordinator,
+		newDataUpdateNotifier,
 	),
 )
+
+func newDataUpdateNotifier() ingestors.DataUpdateNotifier {
+	return NewDataUpdateNotifier(100)
+}

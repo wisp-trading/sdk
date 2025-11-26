@@ -2,10 +2,13 @@ package market
 
 import (
 	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
-func NewStore() marketTypes.MarketData {
-	ds := &dataStore{}
+func NewStore(timeProvider temporal.TimeProvider) marketTypes.MarketData {
+	ds := &dataStore{
+		timeProvider: timeProvider,
+	}
 	ds.fundingRates.Store(make(assetFundingRates))
 	ds.historicalFundingRates.Store(make(assetHistoricalFunding))
 	ds.orderBooks.Store(make(assetOrderBooks))
