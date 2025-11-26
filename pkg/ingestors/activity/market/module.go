@@ -13,9 +13,10 @@ var Module = fx.Options(
 		realtime.NewIngestor,
 		batch.NewBatchIngestor,
 		NewCoordinator,
-		// Provide DataUpdateNotifier as a singleton
-		func() ingestors.DataUpdateNotifier {
-			return ingestors.NewDataUpdateNotifier(100)
-		},
+		newDataUpdateNotifier,
 	),
 )
+
+func newDataUpdateNotifier() ingestors.DataUpdateNotifier {
+	return NewDataUpdateNotifier(100)
+}

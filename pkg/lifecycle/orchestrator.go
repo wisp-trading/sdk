@@ -58,9 +58,6 @@ func NewOrchestrator(
 		notifier:         notifier,
 	}
 
-	// Wire notifier to tick timer
-	go orch.listenForDataUpdates()
-
 	return orch
 }
 
@@ -88,6 +85,7 @@ func (o *orchestrator) Start(ctx context.Context) error {
 	o.ctx, o.cancel = context.WithCancel(ctx)
 	o.logger.Info("🎯 Starting strategy orchestrator")
 
+	go o.listenForDataUpdates()
 	go o.executionLoop()
 
 	o.logger.Info("✅ Strategy orchestrator started")
