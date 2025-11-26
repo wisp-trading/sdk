@@ -68,7 +68,11 @@ func (o *orchestrator) listenForDataUpdates() {
 		case <-o.ctx.Done():
 			// Orchestrator stopped, exit goroutine
 			return
-		case <-o.notifier.Updates():
+		case _, ok := <-o.notifier.Updates():
+			if !ok {
+				// Channel closed, exit goroutine
+				return
+			}
 			// Forward notification to tick timer
 			o.tickTimer.NotifyDataUpdate()
 		}

@@ -51,8 +51,11 @@ type ParameterProvider interface {
 type PluginType int
 
 const (
+	// UnknownPlugin indicates an uninitialized or invalid plugin type
+	UnknownPlugin PluginType = iota
+
 	// StrategyPlugin indicates a strategy plugin
-	StrategyPlugin PluginType = iota
+	StrategyPlugin
 
 	// HookPlugin indicates a hook plugin
 	HookPlugin
