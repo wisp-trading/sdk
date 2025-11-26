@@ -116,12 +116,6 @@ func (o *orchestrator) NotifyDataUpdate() {
 	o.tickTimer.NotifyDataUpdate()
 }
 
-// AddStrategy registers a strategy for execution
-func (o *orchestrator) AddStrategy(strat strategy.Strategy) {
-	o.strategyRegistry.RegisterStrategy(strat)
-	o.logger.Info("📋 Strategy registered: %s", strat.GetName())
-}
-
 // GetStrategies returns all registered strategies
 func (o *orchestrator) GetStrategies() []strategy.Strategy {
 	return o.strategyRegistry.GetAllStrategies()

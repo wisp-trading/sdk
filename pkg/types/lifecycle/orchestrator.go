@@ -17,9 +17,6 @@ type Orchestrator interface {
 	// NotifyDataUpdate triggers strategy execution on new market data (implements DataUpdateListener)
 	NotifyDataUpdate()
 
-	// AddStrategy registers a strategy for execution
-	AddStrategy(strat strategy.Strategy)
-
 	// GetStrategies returns all registered strategies
 	GetStrategies() []strategy.Strategy
 }
