@@ -50,7 +50,4 @@ type Controller interface {
 
 	// IsReady returns true if the SDK is ready
 	IsReady() bool
-
-	// Orchestrator returns the strategy orchestrator for registering strategies
-	Orchestrator() Orchestrator
 }

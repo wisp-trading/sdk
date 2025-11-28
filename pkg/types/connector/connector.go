@@ -18,15 +18,6 @@ const (
 	TypePerpetual Instrument = "perpetual"
 )
 
-const (
-	Hyperliquid ExchangeName = "Hyperliquid"
-	Paradex     ExchangeName = "Paradex"
-	Binance     ExchangeName = "Binance"
-	Bybit       ExchangeName = "Bybit"
-
-	TestExchange ExchangeName = "TestExchange" // For testing purposes
-)
-
 // Connector defines the interface for comprehensive exchange operations including market data, trading, and account management.
 type Connector interface {
 	FetchRiskFundBalance(symbol string) (*RiskFundBalance, error)
@@ -50,9 +41,6 @@ type Connector interface {
 	GetPositions() ([]Position, error)
 	GetTradingHistory(symbol string, limit int) ([]Trade, error)
 
-	// Reset connector state to initial configuration (for simulation restarts)
-	Reset() error
-
 	FetchAvailableSpotAssets() ([]portfolio.Asset, error)
 	FetchAvailablePerpetualAssets() ([]portfolio.Asset, error)
 
@@ -63,4 +51,7 @@ type Connector interface {
 	SupportsFundingRates() bool
 	SupportsPerpetuals() bool
 	SupportsSpot() bool
+
+	Initialize(config Config) error
+	IsInitialized() bool
 }
