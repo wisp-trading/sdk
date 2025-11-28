@@ -1,6 +1,7 @@
 package features
 
 import (
+	"github.com/backtesting-org/kronos-sdk/pkg/inference/features/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/inference/features/technical"
 	"go.uber.org/fx"
 )
@@ -11,5 +12,6 @@ import (
 var Module = fx.Module("inference-features",
 	fx.Provide(NewAggregator),
 	// Feature extractor sub-modules:
+	market.Module,
 	technical.Module,
 )
