@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-	"github.com/shopspring/decimal"
 	"gopkg.in/yaml.v3"
 )
 
@@ -37,8 +37,8 @@ type gridTradingStrategy struct {
 	k          *sdk.Kronos
 	config     GridTradingConfig
 	exConfig   ExchangesConfig
-	gridLevels []decimal.Decimal
-	spacing    decimal.Decimal
+	gridLevels []numerical.Decimal
+	spacing    numerical.Decimal
 }
 
 // NewGridTrading creates a new grid trading strategy instance
@@ -75,20 +75,20 @@ func NewGridTrading(k *sdk.Kronos) strategy.Strategy {
 		k:          k,
 		config:     config,
 		exConfig:   exConfig,
-		gridLevels: make([]decimal.Decimal, 0),
+		gridLevels: make([]numerical.Decimal, 0),
 	}
 }
 
 // initializeGrid sets up the grid levels based on price bounds
-func (s *gridTradingStrategy) initializeGrid(lowerBound, upperBound decimal.Decimal, levels int) {
+func (s *gridTradingStrategy) initializeGrid(lowerBound, upperBound numerical.Decimal, levels int) {
 	// Calculate spacing between grid levels
 	priceRange := upperBound.Sub(lowerBound)
-	s.spacing = priceRange.Div(decimal.NewFromInt(int64(levels)))
+	s.spacing = priceRange.Div(numerical.NewFromInt(int64(levels)))
 
 	// Create grid levels
-	s.gridLevels = make([]decimal.Decimal, levels+1)
+	s.gridLevels = make([]numerical.Decimal, levels+1)
 	for i := 0; i <= levels; i++ {
-		level := lowerBound.Add(s.spacing.Mul(decimal.NewFromInt(int64(i))))
+		level := lowerBound.Add(s.spacing.Mul(numerical.NewFromInt(int64(i))))
 		s.gridLevels[i] = level
 	}
 }
@@ -118,7 +118,7 @@ func (s *gridTradingStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	asset := s.k.Asset(assetSymbol)
-	quantity := decimal.NewFromFloat(s.config.Quantity)
+	quantity := numerical.NewFromFloat(s.config.Quantity)
 
 	// Get current price
 	price, err := s.k.Market.Price(asset)
@@ -129,8 +129,8 @@ func (s *gridTradingStrategy) GetSignals() ([]*strategy.Signal, error) {
 
 	// Initialize grid from config if not set
 	if len(s.gridLevels) == 0 {
-		lowerBound := decimal.NewFromFloat(s.config.Parameters.PriceLowerBound)
-		upperBound := decimal.NewFromFloat(s.config.Parameters.PriceUpperBound)
+		lowerBound := numerical.NewFromFloat(s.config.Parameters.PriceLowerBound)
+		upperBound := numerical.NewFromFloat(s.config.Parameters.PriceUpperBound)
 		gridLevels := s.config.Parameters.GridLevels
 		s.initializeGrid(lowerBound, upperBound, gridLevels)
 		s.k.Log().Info("GridTrading", assetSymbol,
@@ -141,7 +141,7 @@ func (s *gridTradingStrategy) GetSignals() ([]*strategy.Signal, error) {
 	var signals []*strategy.Signal
 
 	// Find the closest grid level below and above current price
-	var buyLevel, sellLevel decimal.Decimal
+	var buyLevel, sellLevel numerical.Decimal
 	for i := 0; i < len(s.gridLevels)-1; i++ {
 		if price.GreaterThanOrEqual(s.gridLevels[i]) && price.LessThan(s.gridLevels[i+1]) {
 			buyLevel = s.gridLevels[i]
@@ -151,7 +151,7 @@ func (s *gridTradingStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	// Check if price is near a buy level (within 0.5% tolerance)
-	tolerance := decimal.NewFromFloat(0.005) // 0.5%
+	tolerance := numerical.NewFromFloat(0.005) // 0.5%
 	buyTolerance := buyLevel.Mul(tolerance)
 
 	if price.Sub(buyLevel).Abs().LessThanOrEqual(buyTolerance) && !buyLevel.IsZero() {

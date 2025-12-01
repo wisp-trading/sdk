@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-	"github.com/shopspring/decimal"
 	"gopkg.in/yaml.v3"
 )
 
@@ -21,7 +21,7 @@ type ExchangesConfig struct {
 
 // MeanReversionConfig holds configuration for mean reversion strategy
 type MeanReversionConfig struct {
-	Exchange string `yaml:"exchange"`
+	Exchange   string `yaml:"exchange"`
 	Indicators struct {
 		BollingerBands struct {
 			Period int     `yaml:"period"`
@@ -108,7 +108,7 @@ func (s *meanReversionStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	asset := s.k.Asset(assetSymbol)
-	quantity := decimal.NewFromFloat(s.config.Parameters.PositionSize)
+	quantity := numerical.NewFromFloat(s.config.Parameters.PositionSize)
 
 	// Get indicators with config values
 	bb, err := s.k.Indicators.BollingerBands(asset, s.config.Indicators.BollingerBands.Period, s.config.Indicators.BollingerBands.StdDev)
@@ -129,8 +129,8 @@ func (s *meanReversionStrategy) GetSignals() ([]*strategy.Signal, error) {
 		return nil, nil
 	}
 
-	oversoldThreshold := decimal.NewFromInt(int64(s.config.Indicators.RSI.Oversold))
-	overboughtThreshold := decimal.NewFromInt(int64(s.config.Indicators.RSI.Overbought))
+	oversoldThreshold := numerical.NewFromInt(int64(s.config.Indicators.RSI.Oversold))
+	overboughtThreshold := numerical.NewFromInt(int64(s.config.Indicators.RSI.Overbought))
 
 	// Buy at lower band with RSI confirmation
 	if price.LessThan(bb.Lower) && rsi.LessThan(oversoldThreshold) {
