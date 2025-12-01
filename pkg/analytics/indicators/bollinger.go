@@ -5,11 +5,11 @@ import (
 	"math"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
-	"github.com/shopspring/decimal"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
 // BollingerBands calculates Bollinger Bands
-func BollingerBands(prices []decimal.Decimal, period int, stdDev float64) ([]analytics.BollingerBandsResult, error) {
+func BollingerBands(prices []numerical.Decimal, period int, stdDev float64) ([]analytics.BollingerBandsResult, error) {
 	if len(prices) < period {
 		return nil, fmt.Errorf("insufficient data: need %d prices, got %d", period, len(prices))
 	}
@@ -18,11 +18,11 @@ func BollingerBands(prices []decimal.Decimal, period int, stdDev float64) ([]ana
 
 	for i := period - 1; i < len(prices); i++ {
 		// Calculate SMA (middle band)
-		sum := decimal.Zero
+		sum := numerical.Zero()
 		for j := 0; j < period; j++ {
 			sum = sum.Add(prices[i-j])
 		}
-		sma := sum.Div(decimal.NewFromInt(int64(period)))
+		sma := sum.Div(numerical.NewFromInt(int64(period)))
 
 		// Calculate standard deviation
 		variance := 0.0
@@ -33,12 +33,12 @@ func BollingerBands(prices []decimal.Decimal, period int, stdDev float64) ([]ana
 		variance /= float64(period)
 		sd := math.Sqrt(variance)
 
-		stdDevDecimal := decimal.NewFromFloat(sd * stdDev)
+		stdDevnumerical := numerical.NewFromFloat(sd * stdDev)
 
 		result = append(result, analytics.BollingerBandsResult{
-			Upper:  sma.Add(stdDevDecimal),
+			Upper:  sma.Add(stdDevnumerical),
 			Middle: sma,
-			Lower:  sma.Sub(stdDevDecimal),
+			Lower:  sma.Sub(stdDevnumerical),
 		})
 	}
 

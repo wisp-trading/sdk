@@ -2,16 +2,16 @@ package strategy
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/shopspring/decimal"
 )
 
 type TradeAction struct {
 	Action   Action                 `json:"action"`
 	Asset    portfolio.Asset        `json:"asset"`
 	Exchange connector.ExchangeName `json:"exchange"`
-	Quantity decimal.Decimal        `json:"quantity"`
-	Price    decimal.Decimal        `json:"price"`
+	Quantity numerical.Decimal      `json:"quantity"`
+	Price    numerical.Decimal      `json:"price"`
 }
 
 type Action string

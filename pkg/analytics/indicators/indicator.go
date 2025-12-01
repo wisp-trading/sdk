@@ -30,8 +30,8 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/shopspring/decimal"
 )
 
 const (
@@ -76,19 +76,19 @@ func NewIndicators(store market.MarketData) analytics.Indicators {
 //   - Fetches price data from the exchange
 //   - Calculates the moving average
 //   - Returns the current value
-func (s *indicators) SMA(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (decimal.Decimal, error) {
+func (s *indicators) SMA(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
-		return decimal.Zero, err
+		return numerical.Zero(), err
 	}
 
 	smaValues, err := SMA(prices, period)
 	if err != nil {
-		return decimal.Zero, err
+		return numerical.Zero(), err
 	}
 
 	if len(smaValues) == 0 {
-		return decimal.Zero, fmt.Errorf("no SMA values calculated")
+		return numerical.Zero(), fmt.Errorf("no SMA values calculated")
 	}
 
 	// Return the latest value
@@ -124,19 +124,19 @@ func (s *indicators) SMA(asset portfolio.Asset, period int, opts ...analytics.In
 //   - Fetches historical price data
 //   - Applies exponential weighting
 //   - Returns the current EMA value
-func (s *indicators) EMA(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (decimal.Decimal, error) {
+func (s *indicators) EMA(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
-		return decimal.Zero, err
+		return numerical.Zero(), err
 	}
 
 	emaValues, err := EMA(prices, period)
 	if err != nil {
-		return decimal.Zero, err
+		return numerical.Zero(), err
 	}
 
 	if len(emaValues) == 0 {
-		return decimal.Zero, fmt.Errorf("no EMA values calculated")
+		return numerical.Zero(), fmt.Errorf("no EMA values calculated")
 	}
 
 	// Return the latest value
@@ -163,12 +163,12 @@ func (s *indicators) EMA(asset portfolio.Asset, period int, opts ...analytics.In
 //	btc := s.k.Asset("BTC")
 //	rsi := s.k.Indicators.RSI(btc, 14)  // Standard 14-period RSI
 //
-//	if rsi.LessThan(decimal.NewFromInt(30)) {
+//	if rsi.LessThan(numerical.NewFromInt(30)) {
 //	    // Oversold - potential buy signal
 //	    return s.Signal().Buy(btc).Build()
 //	}
 //
-//	if rsi.GreaterThan(decimal.NewFromInt(70)) {
+//	if rsi.GreaterThan(numerical.NewFromInt(70)) {
 //	    // Overbought - potential sell signal
 //	    return s.Signal().Sell(btc).Build()
 //	}
@@ -177,19 +177,19 @@ func (s *indicators) EMA(asset portfolio.Asset, period int, opts ...analytics.In
 //   - Fetches price history
 //   - Calculates gains and losses
 //   - Computes the RSI value
-func (s *indicators) RSI(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (decimal.Decimal, error) {
+func (s *indicators) RSI(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, (period+1)*dataMultiplier, opts...)
 	if err != nil {
-		return decimal.Zero, err
+		return numerical.Zero(), err
 	}
 
 	rsiValues, err := RSI(prices, period)
 	if err != nil {
-		return decimal.Zero, err
+		return numerical.Zero(), err
 	}
 
 	if len(rsiValues) == 0 {
-		return decimal.Zero, fmt.Errorf("no RSI values calculated")
+		return numerical.Zero(), fmt.Errorf("no RSI values calculated")
 	}
 
 	// Return the latest value
@@ -336,14 +336,14 @@ func (s *indicators) BollingerBands(asset portfolio.Asset, period int, stdDev fl
 //	stoch := s.k.Indicators.Stochastic(eth, 14, 3)  // Standard 14,3 settings
 //
 //	// Both lines oversold - strong buy signal
-//	if stoch.K.LessThan(decimal.NewFromInt(20)) &&
-//	   stoch.D.LessThan(decimal.NewFromInt(20)) {
+//	if stoch.K.LessThan(numerical.NewFromInt(20)) &&
+//	   stoch.D.LessThan(numerical.NewFromInt(20)) {
 //	    return s.Signal().Buy(eth).Reason("Stochastic oversold").Build()
 //	}
 //
 //	// Both lines overbought - strong sell signal
-//	if stoch.K.GreaterThan(decimal.NewFromInt(80)) &&
-//	   stoch.D.GreaterThan(decimal.NewFromInt(80)) {
+//	if stoch.K.GreaterThan(numerical.NewFromInt(80)) &&
+//	   stoch.D.GreaterThan(numerical.NewFromInt(80)) {
 //	    return s.Signal().Sell(eth).Reason("Stochastic overbought").Build()
 //	}
 //
@@ -372,9 +372,9 @@ func (s *indicators) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opt
 	}
 
 	// Extract high, low, close prices
-	highs := make([]decimal.Decimal, len(klines))
-	lows := make([]decimal.Decimal, len(klines))
-	closes := make([]decimal.Decimal, len(klines))
+	highs := make([]numerical.Decimal, len(klines))
+	lows := make([]numerical.Decimal, len(klines))
+	closes := make([]numerical.Decimal, len(klines))
 
 	for i, kline := range klines {
 		highs[i] = kline.High
@@ -419,12 +419,12 @@ func (s *indicators) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opt
 //	price := s.k.Market.Price(btc)
 //
 //	// Set stop loss at 2× ATR below entry
-//	stopLoss := price.Sub(atr.Mul(decimal.NewFromInt(2)))
+//	stopLoss := price.Sub(atr.Mul(numerical.NewFromInt(2)))
 //
 //	// Check if volatility is high
 //	avgPrice := s.k.Indicators.SMA(btc, 20)
-//	atrPercent := atr.Div(avgPrice).Mul(decimal.NewFromInt(100))
-//	if atrPercent.GreaterThan(decimal.NewFromInt(5)) {
+//	atrPercent := atr.Div(avgPrice).Mul(numerical.NewFromInt(100))
+//	if atrPercent.GreaterThan(numerical.NewFromInt(5)) {
 //	    // High volatility - reduce position size
 //	}
 //
@@ -433,7 +433,7 @@ func (s *indicators) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opt
 //   - Low ATR: Low volatility, price consolidation
 //   - Rising ATR: Volatility increasing
 //   - Falling ATR: Volatility decreasing
-func (s *indicators) ATR(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (decimal.Decimal, error) {
+func (s *indicators) ATR(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -441,7 +441,7 @@ func (s *indicators) ATR(asset portfolio.Asset, period int, opts ...analytics.In
 	if exchange == "" {
 		exchange = s.getDefaultExchange(asset)
 		if exchange == "" {
-			return decimal.Zero, fmt.Errorf("no exchange data available for asset %s", asset.Symbol())
+			return numerical.Zero(), fmt.Errorf("no exchange data available for asset %s", asset.Symbol())
 		}
 	}
 
@@ -449,13 +449,13 @@ func (s *indicators) ATR(asset portfolio.Asset, period int, opts ...analytics.In
 	requiredData := period * dataMultiplier
 	klines := s.store.GetKlines(asset, exchange, interval, requiredData)
 	if len(klines) == 0 {
-		return decimal.Zero, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
+		return numerical.Zero(), fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
 
 	// Extract high, low, close prices
-	highs := make([]decimal.Decimal, len(klines))
-	lows := make([]decimal.Decimal, len(klines))
-	closes := make([]decimal.Decimal, len(klines))
+	highs := make([]numerical.Decimal, len(klines))
+	lows := make([]numerical.Decimal, len(klines))
+	closes := make([]numerical.Decimal, len(klines))
 
 	for i, kline := range klines {
 		highs[i] = kline.High
@@ -465,11 +465,11 @@ func (s *indicators) ATR(asset portfolio.Asset, period int, opts ...analytics.In
 
 	atrValues, err := ATR(highs, lows, closes, period)
 	if err != nil {
-		return decimal.Zero, err
+		return numerical.Zero(), err
 	}
 
 	if len(atrValues) == 0 {
-		return decimal.Zero, fmt.Errorf("no ATR values calculated")
+		return numerical.Zero(), fmt.Errorf("no ATR values calculated")
 	}
 
 	// Return the latest value
@@ -477,7 +477,7 @@ func (s *indicators) ATR(asset portfolio.Asset, period int, opts ...analytics.In
 }
 
 // fetchClosePrices is a helper that fetches klines and extracts close prices
-func (s *indicators) fetchClosePrices(asset portfolio.Asset, limit int, opts ...analytics.IndicatorOptions) ([]decimal.Decimal, error) {
+func (s *indicators) fetchClosePrices(asset portfolio.Asset, limit int, opts ...analytics.IndicatorOptions) ([]numerical.Decimal, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -494,7 +494,7 @@ func (s *indicators) fetchClosePrices(asset portfolio.Asset, limit int, opts ...
 		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
 
-	prices := make([]decimal.Decimal, len(klines))
+	prices := make([]numerical.Decimal, len(klines))
 	for i, kline := range klines {
 		prices[i] = kline.Close
 	}

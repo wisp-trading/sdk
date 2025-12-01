@@ -48,7 +48,7 @@ func (r *rt) Boot(ctx context.Context, config runtime.BootConfig) error {
 		r.logger.Error(fmt.Sprintf("Failed to load strategy plugin: %v", err))
 		return fmt.Errorf("strategy load failed: %w", err)
 	}
-	
+
 	r.loadedStrategy = strat
 	r.logger.Info("✓ Strategy loaded: %s", strat.GetName())
 

@@ -3,24 +3,24 @@ package indicators
 import (
 	"fmt"
 
-	"github.com/shopspring/decimal"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
 // EMA calculates the Exponential Moving Average
-func EMA(prices []decimal.Decimal, period int) ([]decimal.Decimal, error) {
+func EMA(prices []numerical.Decimal, period int) ([]numerical.Decimal, error) {
 	if len(prices) < period {
 		return nil, fmt.Errorf("insufficient data: need %d prices, got %d", period, len(prices))
 	}
 
-	result := make([]decimal.Decimal, len(prices))
-	multiplier := decimal.NewFromInt(2).Div(decimal.NewFromInt(int64(period + 1)))
+	result := make([]numerical.Decimal, len(prices))
+	multiplier := numerical.NewFromInt(2).Div(numerical.NewFromInt(int64(period + 1)))
 
 	// First EMA is SMA
-	sum := decimal.Zero
+	sum := numerical.Zero()
 	for i := 0; i < period; i++ {
 		sum = sum.Add(prices[i])
 	}
-	result[period-1] = sum.Div(decimal.NewFromInt(int64(period)))
+	result[period-1] = sum.Div(numerical.NewFromInt(int64(period)))
 
 	// Calculate subsequent EMAs
 	for i := period; i < len(prices); i++ {
