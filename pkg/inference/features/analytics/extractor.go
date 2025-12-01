@@ -6,9 +6,9 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
 	analyticsTypes "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
-	"github.com/shopspring/decimal"
 )
 
 // Feature name constants (must match pkg/inference/features/types.go)
@@ -100,7 +100,7 @@ func (e *Extractor) Extract(asset portfolio.Asset, featureMap map[string]float64
 
 	if len(trades5m) > 0 {
 		// Total volume in last 5 minutes
-		var vol5m decimal.Decimal
+		var vol5m numerical.Decimal
 		for _, trade := range trades5m {
 			vol5m = vol5m.Add(trade.Quantity)
 		}
@@ -125,7 +125,7 @@ func (e *Extractor) getTradesInWindow(asset portfolio.Asset, start, end time.Tim
 
 // calculateBuySellVolumes returns (buyVolume, totalVolume) as float64
 func (e *Extractor) calculateBuySellVolumes(trades []connector.Trade) (float64, float64) {
-	var buyVol, sellVol decimal.Decimal
+	var buyVol, sellVol numerical.Decimal
 
 	for _, trade := range trades {
 		if trade.Side == connector.OrderSideBuy {

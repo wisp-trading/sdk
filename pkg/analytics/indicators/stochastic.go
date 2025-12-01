@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
-	"github.com/shopspring/decimal"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
 // Stochastic calculates the Stochastic Oscillator for the given price data.
@@ -31,11 +31,11 @@ import (
 //
 // Example:
 //
-//	highs := []decimal.Decimal{...}
-//	lows := []decimal.Decimal{...}
-//	closes := []decimal.Decimal{...}
+//	highs := []numerical.Decimal{...}
+//	lows := []numerical.Decimal{...}
+//	closes := []numerical.Decimal{...}
 //	results, err := Stochastic(highs, lows, closes, 14, 3)
-func Stochastic(highs, lows, closes []decimal.Decimal, kPeriod, dPeriod int) ([]analytics.StochasticResult, error) {
+func Stochastic(highs, lows, closes []numerical.Decimal, kPeriod, dPeriod int) ([]analytics.StochasticResult, error) {
 	if len(highs) != len(lows) || len(highs) != len(closes) {
 		return nil, fmt.Errorf("price arrays must have equal length")
 	}
@@ -44,7 +44,7 @@ func Stochastic(highs, lows, closes []decimal.Decimal, kPeriod, dPeriod int) ([]
 	}
 
 	// Calculate %K values
-	kValues := make([]decimal.Decimal, 0, len(closes)-kPeriod+1)
+	kValues := make([]numerical.Decimal, 0, len(closes)-kPeriod+1)
 
 	for i := kPeriod - 1; i < len(closes); i++ {
 		// Find highest high and lowest low in the period
@@ -62,11 +62,11 @@ func Stochastic(highs, lows, closes []decimal.Decimal, kPeriod, dPeriod int) ([]
 
 		// Calculate %K
 		denominator := highestHigh.Sub(lowestLow)
-		var k decimal.Decimal
+		var k numerical.Decimal
 		if denominator.IsZero() {
-			k = decimal.NewFromInt(50) // Default to middle if no range
+			k = numerical.NewFromInt(50) // Default to middle if no range
 		} else {
-			k = closes[i].Sub(lowestLow).Div(denominator).Mul(decimal.NewFromInt(100))
+			k = closes[i].Sub(lowestLow).Div(denominator).Mul(numerical.NewFromInt(100))
 		}
 		kValues = append(kValues, k)
 	}
@@ -79,11 +79,11 @@ func Stochastic(highs, lows, closes []decimal.Decimal, kPeriod, dPeriod int) ([]
 	result := make([]analytics.StochasticResult, 0, len(kValues)-dPeriod+1)
 
 	for i := dPeriod - 1; i < len(kValues); i++ {
-		sum := decimal.Zero
+		sum := numerical.Zero()
 		for j := 0; j < dPeriod; j++ {
 			sum = sum.Add(kValues[i-j])
 		}
-		d := sum.Div(decimal.NewFromInt(int64(dPeriod)))
+		d := sum.Div(numerical.NewFromInt(int64(dPeriod)))
 
 		result = append(result, analytics.StochasticResult{
 			K: kValues[i],

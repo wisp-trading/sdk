@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-	"github.com/shopspring/decimal"
 	"gopkg.in/yaml.v3"
 )
 
@@ -21,8 +21,8 @@ type ExchangesConfig struct {
 
 // MomentumConfig holds configuration for momentum strategy
 type MomentumConfig struct {
-	Exchange string `yaml:"exchange"`
-	Quantity float64 `yaml:"quantity"`
+	Exchange   string  `yaml:"exchange"`
+	Quantity   float64 `yaml:"quantity"`
 	Indicators struct {
 		RSI struct {
 			Period     int `yaml:"period"`
@@ -97,7 +97,7 @@ func (s *momentumStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	asset := s.k.Asset(assetSymbol)
-	quantity := decimal.NewFromFloat(s.config.Quantity)
+	quantity := numerical.NewFromFloat(s.config.Quantity)
 
 	// Get current price
 	price, err := s.k.Market.Price(asset)
@@ -114,7 +114,7 @@ func (s *momentumStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	// RSI oversold threshold from config - buy signal
-	oversoldThreshold := decimal.NewFromInt(int64(s.config.Indicators.RSI.Oversold))
+	oversoldThreshold := numerical.NewFromInt(int64(s.config.Indicators.RSI.Oversold))
 	if rsi.LessThan(oversoldThreshold) {
 		s.k.Log().Opportunity("Momentum", assetSymbol,
 			"RSI oversold at %.2f (threshold: %.2f), price: %.2f - BUYING",
@@ -127,7 +127,7 @@ func (s *momentumStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	// RSI overbought threshold from config - sell signal
-	overboughtThreshold := decimal.NewFromInt(int64(s.config.Indicators.RSI.Overbought))
+	overboughtThreshold := numerical.NewFromInt(int64(s.config.Indicators.RSI.Overbought))
 	if rsi.GreaterThan(overboughtThreshold) {
 		s.k.Log().Opportunity("Momentum", assetSymbol,
 			"RSI overbought at %.2f (threshold: %.2f), price: %.2f - SELLING",

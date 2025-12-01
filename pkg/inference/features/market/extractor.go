@@ -2,8 +2,8 @@ package market
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/shopspring/decimal"
 )
 
 // Feature name constants (must match pkg/inference/features/types.go)
@@ -44,7 +44,7 @@ func (e *Extractor) Extract(asset portfolio.Asset, featureMap map[string]float64
 
 	// TODO: Extract volume_24h
 	// The data exists in connector.Price.Volume24h, but analytics.Market.Prices()
-	// only returns map[ExchangeName]decimal.Decimal (just price values).
+	// only returns map[ExchangeName]numerical.Decimal (just price values).
 	// Need to extend analytics.Market interface to expose full Price struct,
 	// or inject market.MarketData store directly to access GetAssetPrice()
 
@@ -64,7 +64,7 @@ func (e *Extractor) Extract(asset portfolio.Asset, featureMap map[string]float64
 		if len(orderBook.Bids) > 0 && len(orderBook.Asks) > 0 {
 			bidPrice := orderBook.Bids[0].Price
 			askPrice := orderBook.Asks[0].Price
-			midPrice := bidPrice.Add(askPrice).Div(decimal.NewFromInt(2))
+			midPrice := bidPrice.Add(askPrice).Div(numerical.NewFromInt(2))
 			featureMap[featureMidPrice], _ = midPrice.Float64()
 		}
 	}

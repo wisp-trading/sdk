@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/shopspring/decimal"
 )
 
 // GetAllTrades retrieves all trades
@@ -94,9 +94,9 @@ func (ds *dataStore) GetTradeCount() int {
 }
 
 // GetTotalVolume calculates total volume for a specific asset
-func (ds *dataStore) GetTotalVolume(asset portfolio.Asset) decimal.Decimal {
+func (ds *dataStore) GetTotalVolume(asset portfolio.Asset) numerical.Decimal {
 	trades := ds.getTrades()
-	totalVolume := decimal.Zero
+	totalVolume := numerical.Zero()
 
 	for _, trade := range trades {
 		if trade.Symbol == asset.Symbol() {

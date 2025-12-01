@@ -1,8 +1,8 @@
 package connector
 
 import (
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/shopspring/decimal"
 )
 
 type Exchange struct {
@@ -27,8 +27,8 @@ type Connector interface {
 	FetchOrderBook(symbol portfolio.Asset, instrumentType Instrument, depth int) (*OrderBook, error)
 	FetchRecentTrades(symbol string, limit int) ([]Trade, error)
 
-	PlaceLimitOrder(symbol string, side OrderSide, quantity, price decimal.Decimal) (*OrderResponse, error)
-	PlaceMarketOrder(symbol string, side OrderSide, quantity decimal.Decimal) (*OrderResponse, error)
+	PlaceLimitOrder(symbol string, side OrderSide, quantity, price numerical.Decimal) (*OrderResponse, error)
+	PlaceMarketOrder(symbol string, side OrderSide, quantity numerical.Decimal) (*OrderResponse, error)
 	CancelOrder(symbol, orderID string) (*CancelResponse, error)
 	GetOpenOrders() ([]Order, error)
 	GetOrderStatus(orderID string) (*Order, error)

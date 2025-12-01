@@ -7,8 +7,8 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/shopspring/decimal"
 )
 
 // marketService is the concrete implementation of analytics.Market.
@@ -49,14 +49,14 @@ func (s *marketService) FundingRate(asset portfolio.Asset, exchange connector.Ex
 
 // Price returns the current price for an asset.
 // If exchange is not specified in opts, returns price from first available exchange.
-func (s *marketService) Price(asset portfolio.Asset, opts ...analytics.MarketOptions) (decimal.Decimal, error) {
+func (s *marketService) Price(asset portfolio.Asset, opts ...analytics.MarketOptions) (numerical.Decimal, error) {
 	options := s.parseOptions(opts...)
 
 	if options.Exchange != "" {
 		// Get price from specific exchange
 		price := s.store.GetAssetPrice(asset, options.Exchange)
 		if price == nil {
-			return decimal.Zero, fmt.Errorf("no price found for %s on %s", asset.Symbol(), options.Exchange)
+			return numerical.Zero(), fmt.Errorf("no price found for %s on %s", asset.Symbol(), options.Exchange)
 		}
 		return price.Price, nil
 	}
@@ -64,7 +64,7 @@ func (s *marketService) Price(asset portfolio.Asset, opts ...analytics.MarketOpt
 	// Get price from any available exchange
 	priceMap := s.store.GetAssetPrices(asset)
 	if len(priceMap) == 0 {
-		return decimal.Zero, fmt.Errorf("no price data available for %s", asset.Symbol())
+		return numerical.Zero(), fmt.Errorf("no price data available for %s", asset.Symbol())
 	}
 
 	// Return first available price
@@ -72,13 +72,13 @@ func (s *marketService) Price(asset portfolio.Asset, opts ...analytics.MarketOpt
 		return price.Price, nil
 	}
 
-	return decimal.Zero, fmt.Errorf("no price found for %s", asset.Symbol())
+	return numerical.Zero(), fmt.Errorf("no price found for %s", asset.Symbol())
 }
 
 // Prices returns prices for an asset across all exchanges.
-func (s *marketService) Prices(asset portfolio.Asset) map[connector.ExchangeName]decimal.Decimal {
+func (s *marketService) Prices(asset portfolio.Asset) map[connector.ExchangeName]numerical.Decimal {
 	priceMap := s.store.GetAssetPrices(asset)
-	result := make(map[connector.ExchangeName]decimal.Decimal)
+	result := make(map[connector.ExchangeName]numerical.Decimal)
 
 	for exchange, price := range priceMap {
 		result[exchange] = price.Price
@@ -119,7 +119,7 @@ func (s *marketService) OrderBook(asset portfolio.Asset, opts ...analytics.Marke
 
 // FindArbitrage finds arbitrage opportunities for an asset across exchanges.
 // Returns opportunities sorted by spread (highest first).
-func (s *marketService) FindArbitrage(asset portfolio.Asset, minSpreadBps decimal.Decimal) []analytics.ArbitrageOpportunity {
+func (s *marketService) FindArbitrage(asset portfolio.Asset, minSpreadBps numerical.Decimal) []analytics.ArbitrageOpportunity {
 	priceMap := s.store.GetAssetPrices(asset)
 	if len(priceMap) < 2 {
 		return nil // Need at least 2 exchanges for arbitrage
@@ -128,7 +128,7 @@ func (s *marketService) FindArbitrage(asset portfolio.Asset, minSpreadBps decima
 	// Convert map to sorted slice for consistent comparison
 	type exchangePrice struct {
 		exchange connector.ExchangeName
-		price    decimal.Decimal
+		price    numerical.Decimal
 	}
 
 	var prices []exchangePrice
@@ -158,8 +158,8 @@ func (s *marketService) FindArbitrage(asset portfolio.Asset, minSpreadBps decima
 
 			// Calculate spread
 			spread := sellPrice.Sub(buyPrice)
-			spreadPercent := spread.Div(buyPrice).Mul(decimal.NewFromInt(100))
-			spreadBps := spreadPercent.Mul(decimal.NewFromInt(100))
+			spreadPercent := spread.Div(buyPrice).Mul(numerical.NewFromInt(100))
+			spreadBps := spreadPercent.Mul(numerical.NewFromInt(100))
 
 			// Only include if spread exceeds minimum
 			if spreadBps.GreaterThanOrEqual(minSpreadBps) {

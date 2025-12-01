@@ -6,8 +6,8 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-	"github.com/shopspring/decimal"
 )
 
 // ExampleStrategy demonstrates using the Kronos SDK
@@ -43,7 +43,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 
 	// Get EMA with custom exchange
 	ema50, err := s.k.Indicators().EMA(btc, 50, analytics.IndicatorOptions{
-		Exchange: connector.Binance,
+		Exchange: connector.ExchangeName("binance"),
 		Interval: "4h",
 	})
 	if err != nil {
@@ -102,7 +102,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	// Find arbitrage opportunities (minimum 10 bps spread)
-	arbOpps := s.k.Market().FindArbitrage(btc, decimal.NewFromInt(10))
+	arbOpps := s.k.Market().FindArbitrage(btc, numerical.NewFromInt(10))
 	for _, opp := range arbOpps {
 		s.k.Log().Opportunity("ExampleStrategy", btc.Symbol(),
 			"Arbitrage: Buy %s @ %s, Sell %s @ %s, Spread: %s bps",
@@ -165,7 +165,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 				"Price %s > SMA(20) %s - Bullish signal", price.String(), sma20.String())
 
 			signal := s.k.Signal(s.GetName()).
-				Buy(btc, connector.Binance, decimal.NewFromInt(1)).
+				Buy(btc, connector.ExchangeName("binance"), numerical.NewFromInt(1)).
 				Build()
 
 			signals = append(signals, signal)
@@ -174,13 +174,13 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 
 	// Example: RSI oversold strategy
 	if !rsi.IsZero() {
-		oversoldThreshold := decimal.NewFromInt(30)
+		oversoldThreshold := numerical.NewFromInt(30)
 		if rsi.LessThan(oversoldThreshold) {
 			s.k.Log().Opportunity("ExampleStrategy", eth.Symbol(),
 				"RSI %s < 30 - Oversold signal", rsi.String())
 
 			signal := s.k.Signal(s.GetName()).
-				Buy(eth, connector.Binance, decimal.NewFromInt(5)).
+				Buy(eth, "hyperliquid", numerical.NewFromInt(5)).
 				Build()
 			signals = append(signals, signal)
 		}

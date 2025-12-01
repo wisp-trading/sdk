@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/shopspring/decimal"
 )
 
 // TradeService provides trade execution methods.
@@ -33,10 +33,10 @@ const (
 
 // TradeOptions configures trade execution
 type TradeOptions struct {
-	OrderType   OrderType       // Market or Limit
-	Price       decimal.Decimal // Required for limit orders
-	TimeInForce string          // GTC, IOC, FOK, etc.
-	ReduceOnly  bool            // Only reduce position
+	OrderType   OrderType         // Market or Limit
+	Price       numerical.Decimal // Required for limit orders
+	TimeInForce string            // GTC, IOC, FOK, etc.
+	ReduceOnly  bool              // Only reduce position
 }
 
 // TradeResult holds the result of a trade execution
@@ -45,32 +45,32 @@ type TradeResult struct {
 	Asset    portfolio.Asset
 	Exchange connector.ExchangeName
 	Side     connector.OrderSide
-	Quantity decimal.Decimal
-	Price    decimal.Decimal // Filled price
+	Quantity numerical.Decimal
+	Price    numerical.Decimal // Filled price
 	Status   string
 	Message  string
 }
 
 // Buy executes a buy order for an asset.
 // Default is market order unless price is specified in options.
-func (s *TradeService) Buy(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal, opts ...TradeOptions) (*TradeResult, error) {
+func (s *TradeService) Buy(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal, opts ...TradeOptions) (*TradeResult, error) {
 	return s.executeTrade(asset, exchange, connector.OrderSideBuy, quantity, opts...)
 }
 
 // Sell executes a sell order for an asset.
 // Default is market order unless price is specified in options.
-func (s *TradeService) Sell(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal, opts ...TradeOptions) (*TradeResult, error) {
+func (s *TradeService) Sell(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal, opts ...TradeOptions) (*TradeResult, error) {
 	return s.executeTrade(asset, exchange, connector.OrderSideSell, quantity, opts...)
 }
 
 // Short opens a short position (sell to open).
-func (s *TradeService) Short(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal, opts ...TradeOptions) (*TradeResult, error) {
+func (s *TradeService) Short(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal, opts ...TradeOptions) (*TradeResult, error) {
 	// In perpetual futures, this is typically a sell order
 	return s.executeTrade(asset, exchange, connector.OrderSideSell, quantity, opts...)
 }
 
 // CloseShort closes a short position (buy to close).
-func (s *TradeService) CloseShort(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal, opts ...TradeOptions) (*TradeResult, error) {
+func (s *TradeService) CloseShort(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal, opts ...TradeOptions) (*TradeResult, error) {
 	// In perpetual futures, this is typically a buy order to close
 	return s.executeTrade(asset, exchange, connector.OrderSideBuy, quantity, opts...)
 }
@@ -80,14 +80,14 @@ func (s *TradeService) executeTrade(
 	asset portfolio.Asset,
 	exchange connector.ExchangeName,
 	side connector.OrderSide,
-	quantity decimal.Decimal,
+	quantity numerical.Decimal,
 	opts ...TradeOptions,
 ) (*TradeResult, error) {
 	// Parse options
 	options := s.parseOptions(opts...)
 
 	// Validate inputs
-	if quantity.LessThanOrEqual(decimal.Zero) {
+	if quantity.LessThanOrEqual(numerical.Zero()) {
 		return nil, fmt.Errorf("quantity must be greater than zero")
 	}
 

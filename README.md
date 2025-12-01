@@ -10,8 +10,8 @@ package main
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-	"github.com/shopspring/decimal"
 )
 
 type MyStrategy struct {
@@ -22,9 +22,9 @@ func (s *MyStrategy) GetSignals() ([]*strategy.Signal, error) {
 	btc := s.k.Asset("BTC")
 	rsi, _ := s.k.Indicators().RSI(btc, 14)
 
-	if rsi.LessThan(decimal.NewFromInt(30)) {
+	if rsi.LessThan(numerical.NewFromInt(30)) {
 		signal := s.k.Signal(s.GetName()).
-			Buy(btc, connector.Binance, decimal.NewFromFloat(0.1)).
+			Buy(btc, connector.Binance, numerical.NewFromFloat(0.1)).
 			Build()
 		return []*strategy.Signal{signal}, nil
 	}

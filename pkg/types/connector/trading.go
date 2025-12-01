@@ -3,7 +3,7 @@ package connector
 import (
 	"time"
 
-	"github.com/shopspring/decimal"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
 // OrderSide represents the side of an order (buy or sell).
@@ -64,34 +64,34 @@ const (
 
 // OrderResponse represents the response after placing an order.
 type OrderResponse struct {
-	OrderID       string          `json:"order_id"`
-	ClientOrderID string          `json:"client_order_id,omitempty"`
-	Symbol        string          `json:"symbol"`
-	Status        OrderStatus     `json:"status"`
-	Side          OrderSide       `json:"side"`
-	Type          OrderType       `json:"type"`
-	Quantity      decimal.Decimal `json:"quantity"`
-	Price         decimal.Decimal `json:"price,omitempty"`
-	FilledQty     decimal.Decimal `json:"filled_quantity"`
-	AvgPrice      decimal.Decimal `json:"average_price,omitempty"`
-	Timestamp     time.Time       `json:"timestamp"`
+	OrderID       string            `json:"order_id"`
+	ClientOrderID string            `json:"client_order_id,omitempty"`
+	Symbol        string            `json:"symbol"`
+	Status        OrderStatus       `json:"status"`
+	Side          OrderSide         `json:"side"`
+	Type          OrderType         `json:"type"`
+	Quantity      numerical.Decimal `json:"quantity"`
+	Price         numerical.Decimal `json:"price,omitempty"`
+	FilledQty     numerical.Decimal `json:"filled_quantity"`
+	AvgPrice      numerical.Decimal `json:"average_price,omitempty"`
+	Timestamp     time.Time         `json:"timestamp"`
 }
 
 // Order represents an order on the exchange.
 type Order struct {
-	ID            string          `json:"id"`
-	ClientOrderID string          `json:"client_order_id,omitempty"`
-	Symbol        string          `json:"symbol"`
-	Side          OrderSide       `json:"side"`
-	Type          OrderType       `json:"type"`
-	Status        OrderStatus     `json:"status"`
-	Quantity      decimal.Decimal `json:"quantity"`
-	Price         decimal.Decimal `json:"price,omitempty"`
-	FilledQty     decimal.Decimal `json:"filled_quantity"`
-	RemainingQty  decimal.Decimal `json:"remaining_quantity"`
-	AvgPrice      decimal.Decimal `json:"average_price,omitempty"`
-	CreatedAt     time.Time       `json:"created_at"`
-	UpdatedAt     time.Time       `json:"updated_at"`
+	ID            string            `json:"id"`
+	ClientOrderID string            `json:"client_order_id,omitempty"`
+	Symbol        string            `json:"symbol"`
+	Side          OrderSide         `json:"side"`
+	Type          OrderType         `json:"type"`
+	Status        OrderStatus       `json:"status"`
+	Quantity      numerical.Decimal `json:"quantity"`
+	Price         numerical.Decimal `json:"price,omitempty"`
+	FilledQty     numerical.Decimal `json:"filled_quantity"`
+	RemainingQty  numerical.Decimal `json:"remaining_quantity"`
+	AvgPrice      numerical.Decimal `json:"average_price,omitempty"`
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
 }
 
 // CancelResponse represents the response after canceling an order.

@@ -18,8 +18,7 @@ type kronos struct {
 	indicators analytics.Indicators
 	analytics  analytics.Analytics
 	market     analytics.Market
-
-	signal strategy.SignalFactory
+	signal     strategy.SignalFactory
 }
 
 // NewKronos creates a new Kronos context with injected services.
