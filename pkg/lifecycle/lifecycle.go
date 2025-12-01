@@ -64,8 +64,8 @@ func (c *controller) Start(ctx context.Context) error {
 
 	c.logger.Info("🚀 Initializing Kronos SDK...")
 
-	// Wait for connectors to be ready
-	if err := c.waitForConnectors(); err != nil {
+	// Validate connectors are ready (must be initialized before Start())
+	if err := c.validateConnectorsReady(); err != nil {
 		c.stateMu.Lock()
 		c.state = lifecycleTypes.StateCreated
 		c.stateMu.Unlock()
@@ -185,64 +185,22 @@ func (c *controller) IsReady() bool {
 	return c.state == lifecycleTypes.StateReady
 }
 
-// Orchestrator returns the strategy orchestrator
-func (c *controller) Orchestrator() lifecycleTypes.Orchestrator {
-	return c.orchestrator
-}
-
-// waitForConnectors waits for connectors to be marked ready and for first data to arrive
-func (c *controller) waitForConnectors() error {
-	c.logger.Info("🔌 Waiting for connectors to initialize...")
-
+// validateConnectorsReady validates that at least one connector is ready.
+// Applications must initialize and mark connectors ready BEFORE calling Start().
+// This method does not wait - it only verifies the precondition.
+func (c *controller) validateConnectorsReady() error {
 	readyConnectors := c.connectorRegistry.GetReadyConnectors()
 	if len(readyConnectors) == 0 {
-		c.logger.Warn("⚠️  No connectors marked as ready - SDK will start but data ingestion may fail")
-		return nil
+		return fmt.Errorf("no connectors marked as ready - initialize and mark connectors ready before calling Start()")
 	}
+
+	c.logger.Info("✓ Validated %d connector(s) ready", len(readyConnectors))
 
 	// Register connectors with health store
 	for _, conn := range readyConnectors {
 		info := conn.GetConnectorInfo()
 		c.healthStore.RegisterConnector(info.Name)
-		c.logger.Info("  ✓ %s connected", info.Name)
-	}
-
-	c.logger.Info("✓ All %d connector(s) ready", len(readyConnectors))
-
-	// Wait for first data to arrive (30 second timeout)
-	c.logger.Info("📡 Waiting for first market data...")
-
-	timeout := 30 * time.Second
-	dataReceived := false
-
-	for _, conn := range readyConnectors {
-		info := conn.GetConnectorInfo()
-
-		// Check if we've received klines or orderbooks
-		if c.healthStore.HasReceivedData(info.Name, health.DataTypeKlines) ||
-			c.healthStore.HasReceivedData(info.Name, health.DataTypeOrderbooks) {
-			c.logger.Info("  ✓ %s - data flowing", info.Name)
-			dataReceived = true
-			continue
-		}
-
-		// Wait for first data with timeout
-		if err := c.healthStore.WaitForFirstData(info.Name, health.DataTypeKlines, timeout); err != nil {
-			// Try orderbooks as fallback
-			if err := c.healthStore.WaitForFirstData(info.Name, health.DataTypeOrderbooks, timeout); err != nil {
-				c.logger.Warn("  ⚠️  %s - no data received within %v (continuing anyway)", info.Name, timeout)
-				continue
-			}
-		}
-
-		c.logger.Info("  ✓ %s - data flowing", info.Name)
-		dataReceived = true
-	}
-
-	if dataReceived {
-		c.logger.Info("✓ Market data confirmed flowing")
-	} else {
-		c.logger.Warn("⚠️  No market data received - strategies may not function correctly")
+		c.logger.Info("  ✓ %s registered", info.Name)
 	}
 
 	return nil

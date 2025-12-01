@@ -7,4 +7,5 @@ import (
 
 var Module = fx.Options(
 	time.Module,
+	fx.Provide(NewRuntime),
 )
