@@ -1,8 +1,8 @@
 package connector
 
 import (
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/shopspring/decimal"
 )
 
 type Exchange struct {

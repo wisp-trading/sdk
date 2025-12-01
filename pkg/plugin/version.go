@@ -36,7 +36,6 @@ func extractSDKVersionFromPath(pluginPath string) (string, error) {
 // validateSDKVersion enforces strict version matching
 // Only exact version matches are allowed - no backward compatibility
 func validateSDKVersion(pluginSDKVersion string) error {
-	return nil // Temporarily disable version check
 	currentVersion := version.SDKVersion
 
 	if pluginSDKVersion != currentVersion {
