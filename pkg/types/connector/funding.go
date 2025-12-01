@@ -3,19 +3,19 @@ package connector
 import (
 	"time"
 
-	"github.com/shopspring/decimal"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
 type FundingRate struct {
-	CurrentRate     decimal.Decimal
+	CurrentRate     numerical.Decimal
 	NextFundingTime time.Time
 	Timestamp       time.Time
-	MarkPrice       decimal.Decimal
-	IndexPrice      decimal.Decimal
-	Premium         decimal.Decimal
+	MarkPrice       numerical.Decimal
+	IndexPrice      numerical.Decimal
+	Premium         numerical.Decimal
 }
 
 type HistoricalFundingRate struct {
-	FundingRate decimal.Decimal
+	FundingRate numerical.Decimal
 	Timestamp   time.Time
 }

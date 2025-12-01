@@ -2,15 +2,15 @@ package analytics
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/shopspring/decimal"
 )
 
 type Indicators interface {
-	ATR(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error)
-	SMA(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error)
-	EMA(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error)
-	RSI(asset portfolio.Asset, period int, opts ...IndicatorOptions) (decimal.Decimal, error)
+	ATR(asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
+	SMA(asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
+	EMA(asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
+	RSI(asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
 	MACD(asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...IndicatorOptions) (*MACDResult, error)
 	BollingerBands(asset portfolio.Asset, period int, stdDev float64, opts ...IndicatorOptions) (*BollingerBandsResult, error)
 	Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opts ...IndicatorOptions) (*StochasticResult, error)
@@ -31,15 +31,15 @@ type IndicatorOptions struct {
 }
 
 type BollingerBandsResult struct {
-	Upper  decimal.Decimal
-	Middle decimal.Decimal
-	Lower  decimal.Decimal
+	Upper  numerical.Decimal
+	Middle numerical.Decimal
+	Lower  numerical.Decimal
 }
 
 type MACDResult struct {
-	MACD      decimal.Decimal
-	Signal    decimal.Decimal
-	Histogram decimal.Decimal
+	MACD      numerical.Decimal
+	Signal    numerical.Decimal
+	Histogram numerical.Decimal
 }
 
 // StochasticResult represents the output of the Stochastic Oscillator calculation.
@@ -48,10 +48,10 @@ type MACDResult struct {
 type StochasticResult struct {
 	// K represents the %K line (fast stochastic), which measures the current close
 	// relative to the high-low range over the specified period. Values range from 0 to 100.
-	K decimal.Decimal
+	K numerical.Decimal
 
 	// D represents the %D line (slow stochastic), which is the simple moving average
 	// of the %K line over the specified period. Values range from 0 to 100.
 	// The %D line provides a smoothed signal line.
-	D decimal.Decimal
+	D numerical.Decimal
 }

@@ -7,8 +7,8 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	analyticsTypes "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/shopspring/decimal"
 )
 
 // analytics provides user-friendly methods for market analytics.
@@ -25,16 +25,16 @@ func NewAnalyticsService(store market.MarketData) analyticsTypes.Analytics {
 
 // Volatility calculates the standard deviation of returns for an asset.
 // Returns annualized volatility as a percentage.
-func (s *analytics) Volatility(asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (decimal.Decimal, error) {
+func (s *analytics) Volatility(asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (numerical.Decimal, error) {
 	options := s.parseOptions(opts...)
 
 	prices, err := s.fetchClosePrices(asset, period+1, opts...)
 	if err != nil {
-		return decimal.Zero, err
+		return numerical.Zero(), err
 	}
 
 	if len(prices) < 2 {
-		return decimal.Zero, fmt.Errorf("insufficient data for volatility calculation")
+		return numerical.Zero(), fmt.Errorf("insufficient data for volatility calculation")
 	}
 
 	// Calculate returns
@@ -67,7 +67,7 @@ func (s *analytics) Volatility(asset portfolio.Asset, period int, opts ...analyt
 	annualizationFactor := s.getAnnualizationFactor(options.Interval)
 	annualizedVol := stdDev * annualizationFactor * 100 // Convert to percentage
 
-	return decimal.NewFromFloat(annualizedVol), nil
+	return numerical.NewFromFloat(annualizedVol), nil
 }
 
 // Trend analyzes the price trend for an asset using linear regression.
@@ -118,8 +118,8 @@ func (s *analytics) Trend(asset portfolio.Asset, period int, opts ...analyticsTy
 		rSquared = 0
 	}
 
-	strength := decimal.NewFromFloat(rSquared * 100) // Convert to percentage
-	slopeDecimal := decimal.NewFromFloat(slope)
+	strength := numerical.NewFromFloat(rSquared * 100) // Convert to percentage
+	slopeDecimal := numerical.NewFromFloat(slope)
 
 	// Determine direction based on slope
 	// Use a threshold to avoid calling tiny slopes a trend
@@ -163,28 +163,28 @@ func (s *analytics) VolumeAnalysis(asset portfolio.Asset, period int, opts ...an
 	currentVolume := klines[len(klines)-1].Volume
 
 	// Calculate average volume over period
-	var totalVolume decimal.Decimal
+	var totalVolume numerical.Decimal
 	for i := 0; i < len(klines)-1; i++ {
 		totalVolume = totalVolume.Add(klines[i].Volume)
 	}
-	avgVolume := totalVolume.Div(decimal.NewFromInt(int64(len(klines) - 1)))
+	avgVolume := totalVolume.Div(numerical.NewFromInt(int64(len(klines) - 1)))
 
 	// Calculate volume ratio
-	var volumeRatio decimal.Decimal
+	var volumeRatio numerical.Decimal
 	if avgVolume.IsZero() {
-		volumeRatio = decimal.Zero
+		volumeRatio = numerical.Zero()
 	} else {
 		volumeRatio = currentVolume.Div(avgVolume)
 	}
 
 	// Detect spike (current > 2x average)
-	spikeThreshold := decimal.NewFromInt(2)
+	spikeThreshold := numerical.NewFromInt(2)
 	isSpike := volumeRatio.GreaterThan(spikeThreshold)
 
 	// Determine volume trend
 	// Compare first half average to second half average
 	midPoint := len(klines) / 2
-	var firstHalfVolume, secondHalfVolume decimal.Decimal
+	var firstHalfVolume, secondHalfVolume numerical.Decimal
 
 	for i := 0; i < midPoint; i++ {
 		firstHalfVolume = firstHalfVolume.Add(klines[i].Volume)
@@ -193,11 +193,11 @@ func (s *analytics) VolumeAnalysis(asset portfolio.Asset, period int, opts ...an
 		secondHalfVolume = secondHalfVolume.Add(klines[i].Volume)
 	}
 
-	firstHalfAvg := firstHalfVolume.Div(decimal.NewFromInt(int64(midPoint)))
-	secondHalfAvg := secondHalfVolume.Div(decimal.NewFromInt(int64(len(klines) - midPoint)))
+	firstHalfAvg := firstHalfVolume.Div(numerical.NewFromInt(int64(midPoint)))
+	secondHalfAvg := secondHalfVolume.Div(numerical.NewFromInt(int64(len(klines) - midPoint)))
 
 	var volumeTrend analyticsTypes.TrendDirection
-	trendThreshold := decimal.NewFromFloat(1.2) // 20% increase/decrease
+	trendThreshold := numerical.NewFromFloat(1.2) // 20% increase/decrease
 
 	if !firstHalfAvg.IsZero() && secondHalfAvg.Div(firstHalfAvg).GreaterThan(trendThreshold) {
 		volumeTrend = analyticsTypes.TrendBullish // Increasing volume
@@ -251,9 +251,9 @@ func (s *analytics) GetPriceChange(asset portfolio.Asset, period int, opts ...an
 	}
 
 	change := endPrice.Sub(startPrice)
-	changePercent := change.Div(startPrice).Mul(decimal.NewFromInt(100))
+	changePercent := change.Div(startPrice).Mul(numerical.NewFromInt(100))
 	priceRange := highPrice.Sub(lowPrice)
-	priceRangePercent := priceRange.Div(startPrice).Mul(decimal.NewFromInt(100))
+	priceRangePercent := priceRange.Div(startPrice).Mul(numerical.NewFromInt(100))
 
 	return &analyticsTypes.PriceChange{
 		StartPrice:        startPrice,
@@ -268,7 +268,7 @@ func (s *analytics) GetPriceChange(asset portfolio.Asset, period int, opts ...an
 }
 
 // fetchClosePrices is a helper that fetches klines and extracts close prices
-func (s *analytics) fetchClosePrices(asset portfolio.Asset, limit int, opts ...analyticsTypes.AnalyticsOptions) ([]decimal.Decimal, error) {
+func (s *analytics) fetchClosePrices(asset portfolio.Asset, limit int, opts ...analyticsTypes.AnalyticsOptions) ([]numerical.Decimal, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -285,7 +285,7 @@ func (s *analytics) fetchClosePrices(asset portfolio.Asset, limit int, opts ...a
 		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
 
-	prices := make([]decimal.Decimal, len(klines))
+	prices := make([]numerical.Decimal, len(klines))
 	for i, kline := range klines {
 		prices[i] = kline.Close
 	}

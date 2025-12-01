@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/shopspring/decimal"
 )
 
 // Trades manages trade execution history globally (trades contain their exchange info)
@@ -27,7 +27,7 @@ type Trades interface {
 
 	// Analytics helpers
 	GetTradeCount() int
-	GetTotalVolume(asset portfolio.Asset) decimal.Decimal
+	GetTotalVolume(asset portfolio.Asset) numerical.Decimal
 
 	// Clear for simulation restart
 	Clear()

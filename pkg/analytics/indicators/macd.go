@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
-	"github.com/shopspring/decimal"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
 // MACD calculates the Moving Average Convergence Divergence
-func MACD(prices []decimal.Decimal, fastPeriod, slowPeriod, signalPeriod int) ([]analytics.MACDResult, error) {
+func MACD(prices []numerical.Decimal, fastPeriod, slowPeriod, signalPeriod int) ([]analytics.MACDResult, error) {
 	if len(prices) < slowPeriod {
 		return nil, fmt.Errorf("insufficient data: need %d prices, got %d", slowPeriod, len(prices))
 	}
@@ -27,7 +27,7 @@ func MACD(prices []decimal.Decimal, fastPeriod, slowPeriod, signalPeriod int) ([
 	// Calculate MACD line (difference between fast and slow EMA)
 	// Align the arrays (slowEMA is shorter)
 	startOffset := len(fastEMA) - len(slowEMA)
-	macdLine := make([]decimal.Decimal, len(slowEMA))
+	macdLine := make([]numerical.Decimal, len(slowEMA))
 	for i := 0; i < len(slowEMA); i++ {
 		macdLine[i] = fastEMA[i+startOffset].Sub(slowEMA[i])
 	}

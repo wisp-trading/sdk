@@ -3,11 +3,11 @@ package indicators
 import (
 	"fmt"
 
-	"github.com/shopspring/decimal"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
 // ATR calculates the Average True Range
-func ATR(highs, lows, closes []decimal.Decimal, period int) ([]decimal.Decimal, error) {
+func ATR(highs, lows, closes []numerical.Decimal, period int) ([]numerical.Decimal, error) {
 	if len(highs) != len(lows) || len(highs) != len(closes) {
 		return nil, fmt.Errorf("price arrays must have equal length")
 	}
@@ -16,7 +16,7 @@ func ATR(highs, lows, closes []decimal.Decimal, period int) ([]decimal.Decimal, 
 	}
 
 	// Calculate True Range for each period
-	trueRanges := make([]decimal.Decimal, len(closes)-1)
+	trueRanges := make([]numerical.Decimal, len(closes)-1)
 
 	for i := 1; i < len(closes); i++ {
 		highLow := highs[i].Sub(lows[i])
@@ -35,20 +35,20 @@ func ATR(highs, lows, closes []decimal.Decimal, period int) ([]decimal.Decimal, 
 	}
 
 	// Calculate ATR using EMA-like smoothing
-	result := make([]decimal.Decimal, 0, len(trueRanges)-period+1)
+	result := make([]numerical.Decimal, 0, len(trueRanges)-period+1)
 
 	// First ATR is simple average
-	sum := decimal.Zero
+	sum := numerical.Zero()
 	for i := 0; i < period; i++ {
 		sum = sum.Add(trueRanges[i])
 	}
-	atr := sum.Div(decimal.NewFromInt(int64(period)))
+	atr := sum.Div(numerical.NewFromInt(int64(period)))
 	result = append(result, atr)
 
 	// Subsequent ATRs use smoothing
-	periodDecimal := decimal.NewFromInt(int64(period))
+	periodDecimal := numerical.NewFromInt(int64(period))
 	for i := period; i < len(trueRanges); i++ {
-		atr = atr.Mul(periodDecimal.Sub(decimal.NewFromInt(1))).Add(trueRanges[i]).Div(periodDecimal)
+		atr = atr.Mul(periodDecimal.Sub(numerical.NewFromInt(1))).Add(trueRanges[i]).Div(periodDecimal)
 		result = append(result, atr)
 	}
 

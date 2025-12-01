@@ -2,11 +2,11 @@ package signal
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 )
 
 // builder is the concrete implementation of strategy.SignalBuilder.
@@ -17,19 +17,19 @@ type builder struct {
 }
 
 // Buy adds a buy action to the signal.
-func (b *builder) Buy(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal) strategy.SignalBuilder {
+func (b *builder) Buy(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionBuy,
 		Asset:    asset,
 		Exchange: exchange,
 		Quantity: quantity,
-		Price:    decimal.Zero,
+		Price:    numerical.NewFromInt(0),
 	})
 	return b
 }
 
 // BuyLimit adds a limit buy action to the signal.
-func (b *builder) BuyLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity, price decimal.Decimal) strategy.SignalBuilder {
+func (b *builder) BuyLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionBuy,
 		Asset:    asset,
@@ -41,19 +41,19 @@ func (b *builder) BuyLimit(asset portfolio.Asset, exchange connector.ExchangeNam
 }
 
 // Sell adds a sell action to the signal.
-func (b *builder) Sell(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal) strategy.SignalBuilder {
+func (b *builder) Sell(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionSell,
 		Asset:    asset,
 		Exchange: exchange,
 		Quantity: quantity,
-		Price:    decimal.Zero,
+		Price:    numerical.NewFromInt(0),
 	})
 	return b
 }
 
 // SellLimit adds a limit sell action to the signal.
-func (b *builder) SellLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity, price decimal.Decimal) strategy.SignalBuilder {
+func (b *builder) SellLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionSell,
 		Asset:    asset,
@@ -65,19 +65,19 @@ func (b *builder) SellLimit(asset portfolio.Asset, exchange connector.ExchangeNa
 }
 
 // SellShort adds a short sell action to the signal.
-func (b *builder) SellShort(asset portfolio.Asset, exchange connector.ExchangeName, quantity decimal.Decimal) strategy.SignalBuilder {
+func (b *builder) SellShort(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionSellShort,
 		Asset:    asset,
 		Exchange: exchange,
 		Quantity: quantity,
-		Price:    decimal.Zero,
+		Price:    numerical.NewFromInt(0),
 	})
 	return b
 }
 
 // SellShortLimit adds a limit short sell action to the signal.
-func (b *builder) SellShortLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity, price decimal.Decimal) strategy.SignalBuilder {
+func (b *builder) SellShortLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionSellShort,
 		Asset:    asset,

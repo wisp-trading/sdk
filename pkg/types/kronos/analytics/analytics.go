@@ -2,12 +2,12 @@ package analytics
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/shopspring/decimal"
 )
 
 type Analytics interface {
-	Volatility(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (decimal.Decimal, error)
+	Volatility(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (numerical.Decimal, error)
 	Trend(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*TrendResult, error)
 	VolumeAnalysis(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*VolumeAnalysis, error)
 	GetPriceChange(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*PriceChange, error)
@@ -31,27 +31,27 @@ const (
 // TrendResult holds trend analysis results
 type TrendResult struct {
 	Direction TrendDirection
-	Strength  decimal.Decimal // 0-100, higher means stronger trend
-	Slope     decimal.Decimal // Linear regression slope
+	Strength  numerical.Decimal // 0-100, higher means stronger trend
+	Slope     numerical.Decimal // Linear regression slope
 }
 
 // PriceChange calculates the price change over a period.
 type PriceChange struct {
-	StartPrice        decimal.Decimal
-	EndPrice          decimal.Decimal
-	Change            decimal.Decimal // Absolute change
-	ChangePercent     decimal.Decimal // Percentage change
-	HighPrice         decimal.Decimal // Highest price in period
-	LowPrice          decimal.Decimal // Lowest price in period
-	PriceRange        decimal.Decimal // High - Low
-	PriceRangePercent decimal.Decimal // Range as % of start price
+	StartPrice        numerical.Decimal
+	EndPrice          numerical.Decimal
+	Change            numerical.Decimal // Absolute change
+	ChangePercent     numerical.Decimal // Percentage change
+	HighPrice         numerical.Decimal // Highest price in period
+	LowPrice          numerical.Decimal // Lowest price in period
+	PriceRange        numerical.Decimal // High - Low
+	PriceRangePercent numerical.Decimal // Range as % of start price
 }
 
 // VolumeAnalysis holds volume analysis results
 type VolumeAnalysis struct {
-	CurrentVolume decimal.Decimal
-	AverageVolume decimal.Decimal
-	VolumeRatio   decimal.Decimal // Current / Average
-	IsVolumeSpike bool            // True if current volume > 2x average
-	VolumeTrend   TrendDirection  // Increasing, decreasing, or neutral
+	CurrentVolume numerical.Decimal
+	AverageVolume numerical.Decimal
+	VolumeRatio   numerical.Decimal // Current / Average
+	IsVolumeSpike bool              // True if current volume > 2x average
+	VolumeTrend   TrendDirection    // Increasing, decreasing, or neutral
 }

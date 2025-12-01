@@ -3,36 +3,36 @@ package connector
 import (
 	"time"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/shopspring/decimal"
 )
 
 // Price represents the market price data for a symbol.
 type Price struct {
-	Symbol    string          `json:"symbol"`
-	Price     decimal.Decimal `json:"price"`
-	BidPrice  decimal.Decimal `json:"bid_price,omitempty"`
-	AskPrice  decimal.Decimal `json:"ask_price,omitempty"`
-	Volume24h decimal.Decimal `json:"volume_24h,omitempty"`
-	Change24h decimal.Decimal `json:"change_24h,omitempty"`
-	Source    ExchangeName    `json:"source"`
-	Timestamp time.Time       `json:"timestamp"`
+	Symbol    string            `json:"symbol"`
+	Price     numerical.Decimal `json:"price"`
+	BidPrice  numerical.Decimal `json:"bid_price,omitempty"`
+	AskPrice  numerical.Decimal `json:"ask_price,omitempty"`
+	Volume24h numerical.Decimal `json:"volume_24h,omitempty"`
+	Change24h numerical.Decimal `json:"change_24h,omitempty"`
+	Source    ExchangeName      `json:"source"`
+	Timestamp time.Time         `json:"timestamp"`
 }
 
 // Kline represents candlestick data for a trading symbol.
 type Kline struct {
-	Symbol      string          `json:"symbol"`
-	Interval    string          `json:"interval"`
-	OpenTime    time.Time       `json:"open_time"`
-	Open        decimal.Decimal `json:"open"`
-	High        decimal.Decimal `json:"high"`
-	Low         decimal.Decimal `json:"low"`
-	Close       decimal.Decimal `json:"close"`
-	Volume      decimal.Decimal `json:"volume"`
-	CloseTime   time.Time       `json:"close_time"`
-	QuoteVolume decimal.Decimal `json:"quote_volume,omitempty"`
-	TradeCount  int             `json:"trade_count,omitempty"`
-	TakerVolume decimal.Decimal `json:"taker_volume,omitempty"`
+	Symbol      string            `json:"symbol"`
+	Interval    string            `json:"interval"`
+	OpenTime    time.Time         `json:"open_time"`
+	Open        numerical.Decimal `json:"open"`
+	High        numerical.Decimal `json:"high"`
+	Low         numerical.Decimal `json:"low"`
+	Close       numerical.Decimal `json:"close"`
+	Volume      numerical.Decimal `json:"volume"`
+	CloseTime   time.Time         `json:"close_time"`
+	QuoteVolume numerical.Decimal `json:"quote_volume,omitempty"`
+	TradeCount  int               `json:"trade_count,omitempty"`
+	TakerVolume numerical.Decimal `json:"taker_volume,omitempty"`
 }
 
 // OrderBook represents the order book with bids and asks.
@@ -45,20 +45,20 @@ type OrderBook struct {
 
 // PriceLevel represents a price level in the order book.
 type PriceLevel struct {
-	Price    decimal.Decimal `json:"price"`
-	Quantity decimal.Decimal `json:"quantity"`
+	Price    numerical.Decimal `json:"price"`
+	Quantity numerical.Decimal `json:"quantity"`
 }
 
 // Trade represents a trade executed on the exchange.
 type Trade struct {
-	ID        string          `json:"id"`
-	OrderID   string          `json:"order_id,omitempty"` // Link to the originating order
-	Symbol    string          `json:"symbol"`
-	Exchange  ExchangeName    `json:"exchange"`
-	Price     decimal.Decimal `json:"price"`
-	Quantity  decimal.Decimal `json:"quantity"`
-	Side      OrderSide       `json:"side"`
-	IsMaker   bool            `json:"is_maker"`
-	Fee       decimal.Decimal `json:"fee,omitempty"`
-	Timestamp time.Time       `json:"timestamp"`
+	ID        string            `json:"id"`
+	OrderID   string            `json:"order_id,omitempty"` // Link to the originating order
+	Symbol    string            `json:"symbol"`
+	Exchange  ExchangeName      `json:"exchange"`
+	Price     numerical.Decimal `json:"price"`
+	Quantity  numerical.Decimal `json:"quantity"`
+	Side      OrderSide         `json:"side"`
+	IsMaker   bool              `json:"is_maker"`
+	Fee       numerical.Decimal `json:"fee,omitempty"`
+	Timestamp time.Time         `json:"timestamp"`
 }
