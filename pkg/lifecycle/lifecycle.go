@@ -219,7 +219,7 @@ func (c *controller) monitorHealth(ctx context.Context) {
 			// Check for degraded or unhealthy connectors
 			unhealthy := c.healthStore.GetUnhealthyConnectors()
 			if len(unhealthy) > 0 {
-				c.logger.Warn("⚠️  Unhealthy connectors detected:")
+				c.logger.Warn("⚠️ Unhealthy connectors detected:")
 				for _, name := range unhealthy {
 					c.logger.Warn("  - %s", name)
 				}
