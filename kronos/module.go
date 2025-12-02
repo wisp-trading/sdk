@@ -14,6 +14,9 @@ var Module = fx.Module("kronos",
 	// Provide the trade service
 	fx.Provide(trade.NewTradeService),
 
+	// Provide the universe provider (caches trading universe)
+	fx.Provide(NewUniverseProvider),
+
 	// Provide the main Kronos context
 	fx.Provide(NewKronos),
 

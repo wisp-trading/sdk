@@ -12,13 +12,13 @@ import (
 // Kronos is the base context object for strategy GetSignals methods.
 // It provides read-only access to market data, indicators, and analytics.
 type kronos struct {
-	store         market.MarketData
-	tradingLogger logging.TradingLogger
-
-	indicators analytics.Indicators
-	analytics  analytics.Analytics
-	market     analytics.Market
-	signal     strategy.SignalFactory
+	store            market.MarketData
+	tradingLogger    logging.TradingLogger
+	universeProvider UniverseProvider
+	indicators       analytics.Indicators
+	analytics        analytics.Analytics
+	market           analytics.Market
+	signal           strategy.SignalFactory
 }
 
 // NewKronos creates a new Kronos context with injected services.
@@ -26,18 +26,20 @@ type kronos struct {
 func NewKronos(
 	store market.MarketData,
 	tradingLogger logging.TradingLogger,
+	universeProvider UniverseProvider,
 	indicators analytics.Indicators,
 	analyticsService analytics.Analytics,
 	marketService analytics.Market,
 	signal strategy.SignalFactory,
 ) kronosTypes.Kronos {
 	return &kronos{
-		store:         store,
-		tradingLogger: tradingLogger,
-		indicators:    indicators,
-		market:        marketService,
-		analytics:     analyticsService,
-		signal:        signal,
+		store:            store,
+		tradingLogger:    tradingLogger,
+		universeProvider: universeProvider,
+		indicators:       indicators,
+		market:           marketService,
+		analytics:        analyticsService,
+		signal:           signal,
 	}
 }
 
@@ -76,4 +78,11 @@ func (k *kronos) Asset(symbol string) portfolio.Asset {
 // Usage: k.Signal(strategyName).Buy(asset, exchange, qty).SellShort(asset, exchange, qty).Build()
 func (k *kronos) Signal(strategyName strategy.StrategyName) strategy.SignalBuilder {
 	return k.signal.New(strategyName)
+}
+
+// Universe returns the tradeable assets, instruments, and ready exchanges.
+// Provides the complete trading universe available to the strategy.
+// Data is cached since it does not change after initialization.
+func (k *kronos) Universe() kronosTypes.Universe {
+	return k.universeProvider.Universe()
 }
