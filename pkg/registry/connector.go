@@ -87,22 +87,6 @@ func (cr *connectorRegistry) GetWebSocketConnectors() []connector.WebSocketConne
 	return wsConnectors
 }
 
-func (cr *connectorRegistry) GetTradingWebSocketConnectors() []connector.WebSocketConnector {
-	cr.mu.RLock()
-	defer cr.mu.RUnlock()
-
-	var tradingWSConnectors []connector.WebSocketConnector
-	for _, state := range cr.connectors {
-		// Check if connector supports trading via WebSocket
-		if wsConn, ok := state.connector.(connector.WebSocketConnector); ok {
-			// Additional check could be added here for trading-specific websocket
-			tradingWSConnectors = append(tradingWSConnectors, wsConn)
-		}
-	}
-
-	return tradingWSConnectors
-}
-
 // MarkConnectorReady marks a connector as ready for use
 func (cr *connectorRegistry) MarkConnectorReady(name connector.ExchangeName) error {
 	cr.mu.Lock()
@@ -127,7 +111,7 @@ func (cr *connectorRegistry) IsConnectorReady(name connector.ExchangeName) bool 
 	return exists && state.ready
 }
 
-// GetReadyConnectors returns all connectors that are marked as ready
+// GetReadyConnectors returns all connectors that are marked as ready (initialized)
 func (cr *connectorRegistry) GetReadyConnectors() []connector.Connector {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
@@ -142,12 +126,19 @@ func (cr *connectorRegistry) GetReadyConnectors() []connector.Connector {
 	return connectors
 }
 
-func (cr *connectorRegistry) GetDataTimeRange() (start, end time.Time, err error) {
+// GetReadyWebSocketConnectors returns ready connectors that support WebSocket
+func (cr *connectorRegistry) GetReadyWebSocketConnectors() []connector.WebSocketConnector {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 
-	// This is a placeholder implementation
-	// In practice, this would query the earliest and latest data timestamps
-	// across all enabled connectors
-	return time.Time{}, time.Time{}, fmt.Errorf("not implemented")
+	var wsConnectors []connector.WebSocketConnector
+	for _, state := range cr.connectors {
+		if state.ready {
+			if wsConn, ok := state.connector.(connector.WebSocketConnector); ok {
+				wsConnectors = append(wsConnectors, wsConn)
+			}
+		}
+	}
+
+	return wsConnectors
 }

@@ -79,7 +79,7 @@ func (ri *ingestor) Start(ctx context.Context) error {
 		ri.logger.Info("  - %s", asset.Symbol())
 	}
 
-	connectors := ri.exchangeRegistry.GetTradingWebSocketConnectors()
+	connectors := ri.exchangeRegistry.GetReadyWebSocketConnectors()
 
 	if len(tradingAssets) == 0 {
 		ri.logger.Info("❌ No assets required by enabled strategies - realtime ingestor won't start")
@@ -269,7 +269,7 @@ func (ri *ingestor) Stop() error {
 	}
 
 	// Stop all WebSocket connections
-	for _, conn := range ri.exchangeRegistry.GetTradingWebSocketConnectors() {
+	for _, conn := range ri.exchangeRegistry.GetReadyWebSocketConnectors() {
 		conn.StopWebSocket()
 	}
 
