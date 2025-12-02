@@ -208,3 +208,31 @@ func (c *coordinatorHealthStore) GetDegradedDataTypes() map[connector.ExchangeNa
 
 	return degraded
 }
+
+// GetErrorReport returns aggregated data flow errors
+func (c *coordinatorHealthStore) GetErrorReport() *health.DataFlowErrorReport {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	report := &health.DataFlowErrorReport{
+		Errors: make(map[string]map[string]health.DataFlowError),
+	}
+
+	for connName, connHealth := range c.connectors {
+		for dataType, dtHealth := range connHealth.DataTypes {
+			if !dtHealth.Available || dtHealth.ErrorCount > 0 {
+				if _, exists := report.Errors[string(connName)]; !exists {
+					report.Errors[string(connName)] = make(map[string]health.DataFlowError)
+				}
+
+				report.Errors[string(connName)][string(dataType)] = health.DataFlowError{
+					Error:      dtHealth.LastError,
+					ErrorTime:  dtHealth.LastReceived.Unix(),
+					ErrorCount: dtHealth.ErrorCount,
+				}
+			}
+		}
+	}
+
+	return report
+}

@@ -3,12 +3,11 @@ package health
 import (
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	healthTypes "github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
-// HealthStore aggregates error reporting from connectors and coordinators
+// HealthStore aggregates error reports from both stores into a unified view
 type healthStore struct {
 	connectorErrors healthTypes.ConnectorErrorStore
 	coordinatorData healthTypes.CoordinatorHealthStore
@@ -16,7 +15,7 @@ type healthStore struct {
 	startedAt       time.Time
 }
 
-// NewHealthStore creates a unified health store
+// NewHealthStore creates a unified health reporter
 func NewHealthStore(
 	timeProvider temporal.TimeProvider,
 	connectorErrors healthTypes.ConnectorErrorStore,
@@ -30,40 +29,22 @@ func NewHealthStore(
 	}
 }
 
-// GetSystemHealth returns the overall system health state
-func (h *healthStore) GetSystemHealth() *healthTypes.SystemHealth {
-	return &healthTypes.SystemHealth{
-		OverallState: healthTypes.StateConnected,
-		StartedAt:    h.startedAt,
+// GetSystemHealth returns aggregated health report combining both stores
+func (h *healthStore) GetSystemHealth() *healthTypes.SystemHealthReport {
+	connReport := h.connectorErrors.GetErrorReport()
+	dataReport := h.coordinatorData.GetErrorReport()
+
+	hasErrors := len(connReport.Errors) > 0 || len(dataReport.Errors) > 0
+	overallState := healthTypes.StateConnected
+	if hasErrors {
+		overallState = healthTypes.StateDegraded
 	}
-}
 
-// GetUnhealthyConnectors returns all connectors with connection errors
-func (h *healthStore) GetUnhealthyConnectors() []connector.ExchangeName {
-	return h.connectorErrors.GetUnhealthyConnectors()
-}
-
-// GetDegradedDataTypes returns data types with data flow errors
-func (h *healthStore) GetDegradedDataTypes() map[connector.ExchangeName][]healthTypes.DataType {
-	return h.coordinatorData.GetDegradedDataTypes()
-}
-
-// GetAvailableDataTypes delegates to coordinatorHealthStore
-func (h *healthStore) GetAvailableDataTypes(name connector.ExchangeName) []healthTypes.DataType {
-	return h.coordinatorData.GetAvailableDataTypes(name)
-}
-
-// IsDataTypeHealthy delegates to coordinatorHealthStore
-func (h *healthStore) IsDataTypeHealthy(name connector.ExchangeName, dataType healthTypes.DataType) bool {
-	return h.coordinatorData.IsDataTypeHealthy(name, dataType)
-}
-
-// HasReceivedData delegates to coordinatorHealthStore
-func (h *healthStore) HasReceivedData(name connector.ExchangeName, dataType healthTypes.DataType) bool {
-	return h.coordinatorData.HasReceivedData(name, dataType)
-}
-
-// WaitForFirstData delegates to coordinatorHealthStore
-func (h *healthStore) WaitForFirstData(name connector.ExchangeName, dataType healthTypes.DataType, timeout time.Duration) error {
-	return h.coordinatorData.WaitForFirstData(name, dataType, timeout)
+	return &healthTypes.SystemHealthReport{
+		OverallState:    overallState,
+		ConnectorErrors: connReport,
+		DataFlowErrors:  dataReport,
+		StartedAt:       h.startedAt,
+		HasErrors:       hasErrors,
+	}
 }

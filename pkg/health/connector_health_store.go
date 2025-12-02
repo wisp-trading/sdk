@@ -114,3 +114,24 @@ func (c *connectorHealthStore) GetUnhealthyConnectors() []connector.ExchangeName
 
 	return unhealthy
 }
+
+func (c *connectorHealthStore) GetErrorReport() *health.ConnectorErrorReport {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	report := &health.ConnectorErrorReport{
+		Errors: make(map[string]health.ConnectorError),
+	}
+
+	for name, status := range c.connectors {
+		if status.State != health.StateConnected {
+			report.Errors[string(name)] = health.ConnectorError{
+				State:     status.State,
+				Error:     status.LastError,
+				ErrorTime: status.ErrorTime.Unix(),
+			}
+		}
+	}
+
+	return report
+}

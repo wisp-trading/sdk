@@ -167,6 +167,53 @@ func (_c *CoordinatorHealthStore_GetDegradedDataTypes_Call) RunAndReturn(run fun
 	return _c
 }
 
+// GetErrorReport provides a mock function with no fields
+func (_m *CoordinatorHealthStore) GetErrorReport() *health.DataFlowErrorReport {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetErrorReport")
+	}
+
+	var r0 *health.DataFlowErrorReport
+	if rf, ok := ret.Get(0).(func() *health.DataFlowErrorReport); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*health.DataFlowErrorReport)
+		}
+	}
+
+	return r0
+}
+
+// CoordinatorHealthStore_GetErrorReport_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetErrorReport'
+type CoordinatorHealthStore_GetErrorReport_Call struct {
+	*mock.Call
+}
+
+// GetErrorReport is a helper method to define mock.On call
+func (_e *CoordinatorHealthStore_Expecter) GetErrorReport() *CoordinatorHealthStore_GetErrorReport_Call {
+	return &CoordinatorHealthStore_GetErrorReport_Call{Call: _e.mock.On("GetErrorReport")}
+}
+
+func (_c *CoordinatorHealthStore_GetErrorReport_Call) Run(run func()) *CoordinatorHealthStore_GetErrorReport_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *CoordinatorHealthStore_GetErrorReport_Call) Return(_a0 *health.DataFlowErrorReport) *CoordinatorHealthStore_GetErrorReport_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *CoordinatorHealthStore_GetErrorReport_Call) RunAndReturn(run func() *health.DataFlowErrorReport) *CoordinatorHealthStore_GetErrorReport_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // HasReceivedData provides a mock function with given fields: name, dataType
 func (_m *CoordinatorHealthStore) HasReceivedData(name connector.ExchangeName, dataType health.DataType) bool {
 	ret := _m.Called(name, dataType)

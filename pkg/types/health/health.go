@@ -47,26 +47,16 @@ type ConnectorHealth struct {
 	ErrorRate       float64
 }
 
-// SystemHealth represents overall system health
-type SystemHealth struct {
-	Connectors        map[connector.ExchangeName]*ConnectorHealth
-	TotalConnectors   int
-	HealthyConnectors int
-	OverallState      ConnectionState
-	StartedAt         time.Time
+// SystemHealthReport is an aggregated health report
+type SystemHealthReport struct {
+	OverallState    ConnectionState
+	ConnectorErrors *ConnectorErrorReport
+	DataFlowErrors  *DataFlowErrorReport
+	StartedAt       time.Time
+	HasErrors       bool
 }
 
-// HealthStore manages health status for all connectors and data flows.
-// It is a facade that surfaces errors from ConnectorErrorStore and CoordinatorHealthStore.
+// HealthStore reports aggregated system health.
 type HealthStore interface {
-	// System health
-	GetSystemHealth() *SystemHealth
-	GetUnhealthyConnectors() []connector.ExchangeName
-	GetDegradedDataTypes() map[connector.ExchangeName][]DataType
-
-	// Data availability checks
-	GetAvailableDataTypes(name connector.ExchangeName) []DataType
-	IsDataTypeHealthy(name connector.ExchangeName, dataType DataType) bool
-	HasReceivedData(name connector.ExchangeName, dataType DataType) bool
-	WaitForFirstData(name connector.ExchangeName, dataType DataType, timeout time.Duration) error
+	GetSystemHealth() *SystemHealthReport
 }

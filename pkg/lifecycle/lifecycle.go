@@ -199,7 +199,7 @@ func (c *controller) validateConnectorsReady() error {
 	return nil
 }
 
-// monitorHealth continuously monitors system health and logs degraded services
+// monitorHealth continuously monitors system health and reports aggregated errors
 func (c *controller) monitorHealth(ctx context.Context) {
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -209,22 +209,26 @@ func (c *controller) monitorHealth(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			// Check for degraded or unhealthy connectors
-			unhealthy := c.healthStore.GetUnhealthyConnectors()
-			if len(unhealthy) > 0 {
-				c.logger.Warn("⚠️ Unhealthy connectors detected:")
-				for _, name := range unhealthy {
-					c.logger.Warn("  - %s", name)
-				}
-			}
+			report := c.healthStore.GetSystemHealth()
 
-			// Check for degraded data types across all connectors
-			degraded := c.healthStore.GetDegradedDataTypes()
-			if len(degraded) > 0 {
-				c.logger.Warn("⚠️  Degraded data types:")
-				for connector, dataTypes := range degraded {
-					for _, dt := range dataTypes {
-						c.logger.Warn("  - %s: %s", connector, dt)
+			if report.HasErrors {
+				c.logger.Warn("⚠️  System health report:")
+
+				// Log connector errors
+				if len(report.ConnectorErrors.Errors) > 0 {
+					c.logger.Warn("  🔴 Connector errors:")
+					for connector, err := range report.ConnectorErrors.Errors {
+						c.logger.Warn("    - %s [%s]: %v", connector, err.State, err.Error)
+					}
+				}
+
+				// Log data flow errors
+				if len(report.DataFlowErrors.Errors) > 0 {
+					c.logger.Warn("  🟡 Data flow errors:")
+					for connector, dataTypeErrors := range report.DataFlowErrors.Errors {
+						for dataType, err := range dataTypeErrors {
+							c.logger.Warn("    - %s:%s [%d errors]: %v", connector, dataType, err.ErrorCount, err.Error)
+						}
 					}
 				}
 			}
