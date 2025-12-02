@@ -1,6 +1,7 @@
 package health
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -15,6 +16,7 @@ type connectorHealthStore struct {
 	connectors        map[connector.ExchangeName]*connectorStatus
 	timeProvider      temporal.TimeProvider
 	mu                sync.RWMutex
+	stopChan          chan struct{}
 }
 
 type connectorStatus struct {
@@ -31,16 +33,41 @@ func NewConnectorHealthStore(
 		timeProvider:      timeProvider,
 		connectorRegistry: connectorRegistry,
 		connectors:        make(map[connector.ExchangeName]*connectorStatus),
+		stopChan:          make(chan struct{}),
 	}
 
 	connectors := connectorRegistry.GetReadyWebSocketConnectors()
 
 	for _, socketConnector := range connectors {
 		name := socketConnector.GetConnectorInfo().Name
-		errorStore.connectors[name] = &connectorStatus{}
+		errorStore.connectors[name] = &connectorStatus{
+			State: health.StateConnected,
+		}
+	}
+
+	// Start listening to error channels from all connectors
+	for _, socketConnector := range connectors {
+		go errorStore.listenToConnectorErrors(socketConnector)
 	}
 
 	return errorStore
+}
+
+// listenToConnectorErrors reads from a connector's error channel and records errors
+func (c *connectorHealthStore) listenToConnectorErrors(socketConnector connector.WebSocketConnector) {
+	name := socketConnector.GetConnectorInfo().Name
+	errChan := socketConnector.ErrorChannel()
+
+	for {
+		select {
+		case <-c.stopChan:
+			return
+		case err := <-errChan:
+			if err != nil {
+				c.RecordConnectorError(name, err)
+			}
+		}
+	}
 }
 
 func (c *connectorHealthStore) RecordConnectorError(name connector.ExchangeName, err error) {
@@ -52,6 +79,9 @@ func (c *connectorHealthStore) RecordConnectorError(name connector.ExchangeName,
 			State: health.StateConnecting,
 		}
 	}
+
+	fmt.Printf("Warning: Recording error for untracked connector %s\n", name)
+	fmt.Printf("Error: %v\n", err)
 
 	c.connectors[name].LastError = err
 	c.connectors[name].ErrorTime = c.timeProvider.Now()
@@ -134,4 +164,9 @@ func (c *connectorHealthStore) GetErrorReport() *health.ConnectorErrorReport {
 	}
 
 	return report
+}
+
+// Stop stops listening to connector error channels
+func (c *connectorHealthStore) Stop() {
+	close(c.stopChan)
 }

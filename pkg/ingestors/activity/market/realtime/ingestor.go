@@ -94,18 +94,17 @@ func (ri *ingestor) Start(ctx context.Context) error {
 	for _, conn := range connectors {
 		exchangeName := conn.GetConnectorInfo().Name
 		ri.logger.Info("🚀 Starting WebSocket stream for %s", exchangeName)
-		go ri.startExchangeStream(conn, tradingAssets)
+		go ri.startExchangeStream(conn)
 	}
 
 	ri.logger.Info("✅ Started WebSocket ingestion for %d assets", len(tradingAssets))
 	return nil
 }
 
-func (ri *ingestor) startExchangeStream(wsConn connector.WebSocketConnector, assets []portfolio.Asset) {
+func (ri *ingestor) startExchangeStream(wsConn connector.WebSocketConnector) {
 	exchangeName := wsConn.GetConnectorInfo().Name
 
-	// Start WebSocket connection
-	if err := wsConn.StartWebSocket(ri.wsContext); err != nil {
+	if err := wsConn.StartWebSocket(context.Background()); err != nil {
 		ri.logger.Error("Failed to start WebSocket for %s: %v", exchangeName, err)
 		return
 	}
@@ -155,9 +154,6 @@ func (ri *ingestor) processKlineStream(wsConn connector.WebSocketConnector, exch
 
 	for {
 		select {
-		case <-ri.wsContext.Done():
-			ri.logger.Info("❌ Context cancelled, stopping kline stream for %s", exchangeName)
-			return
 		case klineUpdate, ok := <-klineChan:
 			if !ok {
 				ri.logger.Info("📪 Kline channel closed for %s", exchangeName)
@@ -204,21 +200,23 @@ func (ri *ingestor) processOrderBookStream(wsConn connector.WebSocketConnector, 
 	orderBookChan := wsConn.OrderBookUpdates()
 	ri.logger.Info("📡 Got orderbook channel for %s, waiting for updates...", exchangeName)
 
+	updateCount := 0
 	for {
 		select {
-		case <-ri.wsContext.Done():
-			ri.logger.Info("❌ Context cancelled, stopping orderbook stream for %s", exchangeName)
-			return
 		case orderBookUpdate, ok := <-orderBookChan:
 			if !ok {
-				ri.logger.Info("📪 OrderBook channel closed for %s", exchangeName)
+				ri.logger.Error("❌ OrderBook channel CLOSED for %s after %d updates - THIS IS THE PROBLEM", exchangeName, updateCount)
 				return
 			}
 
+			updateCount++
+			ri.logger.Info("📥 Got orderbook update #%d for %s", updateCount, orderBookUpdate.Asset.Symbol())
 			// Get which instrument types we subscribed to for this asset
 			ri.subscriptionMutex.RLock()
 			instrumentTypes := ri.subscriptions[orderBookUpdate.Asset]
 			ri.subscriptionMutex.RUnlock()
+
+			ri.logger.Info("🔍 Found %d subscribed instrument types for %s", len(instrumentTypes), orderBookUpdate.Asset.Symbol())
 
 			// Store the orderbook update for each subscribed instrument type
 			for _, instrumentType := range instrumentTypes {
@@ -243,16 +241,11 @@ func (ri *ingestor) processOrderBookStream(wsConn connector.WebSocketConnector, 
 }
 
 func (ri *ingestor) processErrorStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
-	for {
-		select {
-		case <-ri.wsContext.Done():
-			return
-		case err := <-wsConn.ErrorChannel():
-			ri.logger.Error("WebSocket error for %s: %v", exchangeName, err)
-			// Report error to health monitoring - affects all data types on this websocket
-			ri.healthStore.RecordDataError(exchangeName, health.DataTypeKlines, err)
-			ri.healthStore.RecordDataError(exchangeName, health.DataTypeOrderbooks, err)
-		}
+	for err := range wsConn.ErrorChannel() {
+		ri.logger.Error("WebSocket error for %s: %v", exchangeName, err)
+		// Report error to health monitoring - affects all data types on this websocket
+		ri.healthStore.RecordDataError(exchangeName, health.DataTypeKlines, err)
+		ri.healthStore.RecordDataError(exchangeName, health.DataTypeOrderbooks, err)
 	}
 }
 

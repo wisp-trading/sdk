@@ -76,17 +76,15 @@ func (c *controller) Start(ctx context.Context) error {
 	c.logger.Info("⚡ Starting data coordinators...")
 
 	// Start position coordinator (if needed)
-	if c.positionCoordinator != nil {
-		c.logger.Info("  📊 Starting position tracking...")
-		if err := c.positionCoordinator.Start(ctx); err != nil {
-			c.stateMu.Lock()
-			c.state = lifecycleTypes.StateCreated
-			c.stateMu.Unlock()
-			return fmt.Errorf("failed to start position coordinator: %w", err)
-		}
-		c.logger.Info("  ✓ Position tracking ready")
+	c.logger.Info("  📊 Starting position tracking...")
+	if err := c.positionCoordinator.Start(ctx); err != nil {
+		c.stateMu.Lock()
+		c.state = lifecycleTypes.StateCreated
+		c.stateMu.Unlock()
+		return fmt.Errorf("failed to start position coordinator: %w", err)
 	}
-
+	c.logger.Info("  ✓ Position tracking ready")
+	
 	// Start market data ingestion
 	c.logger.Info("  📈 Starting market data ingestion...")
 	if err := c.marketCoordinator.StartDataCollection(ctx); err != nil {
@@ -201,7 +199,7 @@ func (c *controller) validateConnectorsReady() error {
 
 // monitorHealth continuously monitors system health and reports aggregated errors
 func (c *controller) monitorHealth(ctx context.Context) {
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
 	for {
@@ -210,6 +208,8 @@ func (c *controller) monitorHealth(ctx context.Context) {
 			return
 		case <-ticker.C:
 			report := c.healthStore.GetSystemHealth()
+
+			fmt.Println("Starting system health monitoring...")
 
 			if report.HasErrors {
 				c.logger.Warn("⚠️  System health report:")
