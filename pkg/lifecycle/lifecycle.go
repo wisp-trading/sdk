@@ -196,13 +196,6 @@ func (c *controller) validateConnectorsReady() error {
 
 	c.logger.Info("✓ Validated %d connector(s) ready", len(readyConnectors))
 
-	// Register connectors with health store
-	for _, conn := range readyConnectors {
-		info := conn.GetConnectorInfo()
-		c.healthStore.RegisterConnector(info.Name)
-		c.logger.Info("  ✓ %s registered", info.Name)
-	}
-
 	return nil
 }
 

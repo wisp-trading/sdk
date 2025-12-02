@@ -17,16 +17,6 @@ const (
 	DataTypePositions    DataType = "positions"
 )
 
-// ConnectionState represents the connection status
-type ConnectionState string
-
-const (
-	StateConnected    ConnectionState = "connected"
-	StateDisconnected ConnectionState = "disconnected"
-	StateConnecting   ConnectionState = "connecting"
-	StateDegraded     ConnectionState = "degraded"
-)
-
 // DataSourceType indicates how data is being fetched
 type DataSourceType string
 
@@ -66,26 +56,17 @@ type SystemHealth struct {
 	StartedAt         time.Time
 }
 
-// HealthStore manages health status for all connectors and data flows
+// HealthStore manages health status for all connectors and data flows.
+// It is a facade that surfaces errors from ConnectorErrorStore and CoordinatorHealthStore.
 type HealthStore interface {
-	// Connector registration
-	RegisterConnector(name connector.ExchangeName)
-	UpdateConnectionState(name connector.ExchangeName, state ConnectionState)
-
-	// Data flow reporting (called by coordinators)
-	RecordDataReceived(name connector.ExchangeName, dataType DataType, source DataSourceType, latency time.Duration)
-	RecordDataError(name connector.ExchangeName, dataType DataType, err error)
-	MarkDataTypeAvailable(name connector.ExchangeName, dataType DataType, available bool)
-
-	// Health queries
-	GetConnectorHealth(name connector.ExchangeName) (*ConnectorHealth, bool)
+	// System health
 	GetSystemHealth() *SystemHealth
-	GetAvailableDataTypes(name connector.ExchangeName) []DataType
-	IsDataTypeHealthy(name connector.ExchangeName, dataType DataType) bool
 	GetUnhealthyConnectors() []connector.ExchangeName
 	GetDegradedDataTypes() map[connector.ExchangeName][]DataType
 
-	// Startup readiness checks
+	// Data availability checks
+	GetAvailableDataTypes(name connector.ExchangeName) []DataType
+	IsDataTypeHealthy(name connector.ExchangeName, dataType DataType) bool
 	HasReceivedData(name connector.ExchangeName, dataType DataType) bool
 	WaitForFirstData(name connector.ExchangeName, dataType DataType, timeout time.Duration) error
 }

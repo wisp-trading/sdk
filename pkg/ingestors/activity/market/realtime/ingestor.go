@@ -20,7 +20,7 @@ type ingestor struct {
 	exchangeRegistry registry.ConnectorRegistry
 	assetRegistry    registry.AssetRegistry
 	logger           logging.ApplicationLogger
-	healthStore      health.HealthStore
+	healthStore      health.CoordinatorHealthStore
 	notifier         ingestors.DataUpdateNotifier
 
 	// WebSocket management
@@ -41,7 +41,7 @@ func NewIngestor(
 	exchangeRegistry registry.ConnectorRegistry,
 	assetRegistry registry.AssetRegistry,
 	logger logging.ApplicationLogger,
-	healthStore health.HealthStore,
+	healthStore health.CoordinatorHealthStore,
 	notifier ingestors.DataUpdateNotifier,
 ) ingestors.RealtimeIngestor {
 	return &ingestor{
