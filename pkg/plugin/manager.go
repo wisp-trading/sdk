@@ -6,6 +6,7 @@ import (
 	"plugin"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/execution"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	plugintypes "github.com/backtesting-org/kronos-sdk/pkg/types/plugin"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
@@ -17,14 +18,21 @@ type manager struct {
 	logger           logging.ApplicationLogger
 	hookRegistry     registry.Hooks
 	strategyRegistry registry.StrategyRegistry
+	kronos           kronos.Kronos
 }
 
 // NewManager creates a new plugin manager
-func NewManager(logging logging.ApplicationLogger, hookRegistry registry.Hooks, strategyRegistry registry.StrategyRegistry) plugintypes.Manager {
+func NewManager(
+	logging logging.ApplicationLogger,
+	hookRegistry registry.Hooks,
+	strategyRegistry registry.StrategyRegistry,
+	kronos kronos.Kronos,
+) plugintypes.Manager {
 	return &manager{
 		logger:           logging,
 		hookRegistry:     hookRegistry,
 		strategyRegistry: strategyRegistry,
+		kronos:           kronos,
 	}
 }
 
@@ -60,13 +68,13 @@ func (m *manager) LoadStrategyPlugin(pluginPath string) (strategy.Strategy, erro
 	}
 
 	// Type assert to constructor function
-	newStrategyFunc, ok := newStrategySymbol.(func() strategy.Strategy)
+	newStrategyFunc, ok := newStrategySymbol.(func(kronos.Kronos) strategy.Strategy)
 	if !ok {
-		return nil, fmt.Errorf("NewStrategy must be a function returning strategy.Strategy")
+		return nil, fmt.Errorf("NewStrategy must have signature: func(kronos.Kronos) strategy.Strategy, got %T", newStrategySymbol)
 	}
-
+	
 	// Call it to get the strategy instance
-	strat := newStrategyFunc()
+	strat := newStrategyFunc(m.kronos)
 	if strat == nil {
 		return nil, fmt.Errorf("NewStrategy() returned nil")
 	}

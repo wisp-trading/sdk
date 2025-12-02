@@ -11,18 +11,17 @@ type AssetRequirement struct {
 	Instruments []connector.Instrument
 }
 
-// AssetRegistry manages required assets based on enabled strategies
+// AssetRegistry manages assets explicitly registered by the application
 type AssetRegistry interface {
-	// GetRequiredAssets returns all assets needed by enabled strategies
+	// RegisterAsset registers an asset with its supported instrument types
+	RegisterAsset(asset portfolio.Asset, instruments ...connector.Instrument)
+
+	// GetRequiredAssets returns all registered assets
 	GetRequiredAssets() []portfolio.Asset
 
 	// GetAssetRequirements returns detailed requirements including instrument types per asset
 	GetAssetRequirements() []AssetRequirement
 
-	// GetInstrumentTypes returns the instrument types needed for a specific asset
+	// GetInstrumentTypes returns the instrument types supported for a specific asset
 	GetInstrumentTypes(asset portfolio.Asset) []connector.Instrument
-
-	// RefreshAssets rebuilds the asset cache from current enabled strategies
-	// Should be called when strategies are registered/enabled/disabled
-	RefreshAssets()
 }

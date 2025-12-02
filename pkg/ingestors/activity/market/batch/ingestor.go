@@ -93,7 +93,7 @@ func (bi *ingestor) collectOrderBooks() {
 
 	var wg sync.WaitGroup
 
-	for _, conn := range bi.exchangeRegistry.GetAvailableConnectors() {
+	for _, conn := range bi.exchangeRegistry.GetReadyConnectors() {
 		wg.Add(1)
 
 		go func(conn connector.Connector) {

@@ -33,9 +33,6 @@ type Strategy interface {
 	GetRiskLevel() RiskLevel
 	GetStrategyType() StrategyType
 
-	// GetRequiredAssets declares which assets this strategy needs to operate
-	GetRequiredAssets() []RequiredAsset
-
 	Enable() error
 	Disable() error
 	IsEnabled() bool
