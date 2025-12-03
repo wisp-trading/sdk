@@ -1,7 +1,6 @@
 package market_test
 
 import (
-	"testing"
 	"time"
 
 	timeProvider "github.com/backtesting-org/kronos-sdk/pkg/runtime/time"
@@ -14,11 +13,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
-
-func TestKlines(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Market Store Klines Suite")
-}
 
 var _ = Describe("Market Data Store - Klines", func() {
 	var (

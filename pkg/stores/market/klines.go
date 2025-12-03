@@ -10,7 +10,7 @@ import (
 
 func (ds *dataStore) UpdateKline(asset portfolio.Asset, exchangeName connector.ExchangeName, kline connector.Kline) {
 	ds.mutex.Lock()
-
+	
 	current := ds.getKlines()
 	updated := make(assetKlines, len(current))
 	for k, v := range current {
@@ -59,15 +59,12 @@ func (ds *dataStore) UpdateKline(asset portfolio.Asset, exchangeName connector.E
 
 	ds.klines.Store(updated)
 	ds.mutex.Unlock()
-	
+
 	ds.UpdateLastUpdated(marketTypes.UpdateKey{
 		DataType: marketTypes.DataKeyKlines,
 		Asset:    asset,
 		Exchange: exchangeName,
 	})
-
-	// Notify orchestrator AFTER releasing the lock to avoid blocking other updates
-	//ds.notifyOrchestrator()
 }
 
 func (ds *dataStore) GetKlines(asset portfolio.Asset, exchangeName connector.ExchangeName, interval string, limit int) []connector.Kline {
