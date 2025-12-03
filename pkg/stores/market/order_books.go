@@ -1,8 +1,6 @@
 package market
 
 import (
-	"fmt"
-
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
