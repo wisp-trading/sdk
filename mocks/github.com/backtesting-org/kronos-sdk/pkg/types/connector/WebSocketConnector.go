@@ -7,9 +7,9 @@ import (
 
 	connector "github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 
-	decimal "github.com/shopspring/decimal"
-
 	mock "github.com/stretchr/testify/mock"
+
+	numerical "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 
 	portfolio "github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
@@ -1202,6 +1202,97 @@ func (_c *WebSocketConnector_GetTradingHistory_Call) RunAndReturn(run func(strin
 	return _c
 }
 
+// Initialize provides a mock function with given fields: config
+func (_m *WebSocketConnector) Initialize(config connector.Config) error {
+	ret := _m.Called(config)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Initialize")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(connector.Config) error); ok {
+		r0 = rf(config)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// WebSocketConnector_Initialize_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Initialize'
+type WebSocketConnector_Initialize_Call struct {
+	*mock.Call
+}
+
+// Initialize is a helper method to define mock.On call
+//   - config connector.Config
+func (_e *WebSocketConnector_Expecter) Initialize(config interface{}) *WebSocketConnector_Initialize_Call {
+	return &WebSocketConnector_Initialize_Call{Call: _e.mock.On("Initialize", config)}
+}
+
+func (_c *WebSocketConnector_Initialize_Call) Run(run func(config connector.Config)) *WebSocketConnector_Initialize_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.Config))
+	})
+	return _c
+}
+
+func (_c *WebSocketConnector_Initialize_Call) Return(_a0 error) *WebSocketConnector_Initialize_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebSocketConnector_Initialize_Call) RunAndReturn(run func(connector.Config) error) *WebSocketConnector_Initialize_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// IsInitialized provides a mock function with no fields
+func (_m *WebSocketConnector) IsInitialized() bool {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for IsInitialized")
+	}
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func() bool); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// WebSocketConnector_IsInitialized_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsInitialized'
+type WebSocketConnector_IsInitialized_Call struct {
+	*mock.Call
+}
+
+// IsInitialized is a helper method to define mock.On call
+func (_e *WebSocketConnector_Expecter) IsInitialized() *WebSocketConnector_IsInitialized_Call {
+	return &WebSocketConnector_IsInitialized_Call{Call: _e.mock.On("IsInitialized")}
+}
+
+func (_c *WebSocketConnector_IsInitialized_Call) Run(run func()) *WebSocketConnector_IsInitialized_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *WebSocketConnector_IsInitialized_Call) Return(_a0 bool) *WebSocketConnector_IsInitialized_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebSocketConnector_IsInitialized_Call) RunAndReturn(run func() bool) *WebSocketConnector_IsInitialized_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // IsWebSocketConnected provides a mock function with no fields
 func (_m *WebSocketConnector) IsWebSocketConnected() bool {
 	ret := _m.Called()
@@ -1342,7 +1433,7 @@ func (_c *WebSocketConnector_OrderBookUpdates_Call) RunAndReturn(run func() <-ch
 }
 
 // PlaceLimitOrder provides a mock function with given fields: symbol, side, quantity, price
-func (_m *WebSocketConnector) PlaceLimitOrder(symbol string, side connector.OrderSide, quantity decimal.Decimal, price decimal.Decimal) (*connector.OrderResponse, error) {
+func (_m *WebSocketConnector) PlaceLimitOrder(symbol string, side connector.OrderSide, quantity numerical.Decimal, price numerical.Decimal) (*connector.OrderResponse, error) {
 	ret := _m.Called(symbol, side, quantity, price)
 
 	if len(ret) == 0 {
@@ -1351,10 +1442,10 @@ func (_m *WebSocketConnector) PlaceLimitOrder(symbol string, side connector.Orde
 
 	var r0 *connector.OrderResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, decimal.Decimal, decimal.Decimal) (*connector.OrderResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, numerical.Decimal, numerical.Decimal) (*connector.OrderResponse, error)); ok {
 		return rf(symbol, side, quantity, price)
 	}
-	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, decimal.Decimal, decimal.Decimal) *connector.OrderResponse); ok {
+	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, numerical.Decimal, numerical.Decimal) *connector.OrderResponse); ok {
 		r0 = rf(symbol, side, quantity, price)
 	} else {
 		if ret.Get(0) != nil {
@@ -1362,7 +1453,7 @@ func (_m *WebSocketConnector) PlaceLimitOrder(symbol string, side connector.Orde
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, connector.OrderSide, decimal.Decimal, decimal.Decimal) error); ok {
+	if rf, ok := ret.Get(1).(func(string, connector.OrderSide, numerical.Decimal, numerical.Decimal) error); ok {
 		r1 = rf(symbol, side, quantity, price)
 	} else {
 		r1 = ret.Error(1)
@@ -1379,15 +1470,15 @@ type WebSocketConnector_PlaceLimitOrder_Call struct {
 // PlaceLimitOrder is a helper method to define mock.On call
 //   - symbol string
 //   - side connector.OrderSide
-//   - quantity decimal.Decimal
-//   - price decimal.Decimal
+//   - quantity numerical.Decimal
+//   - price numerical.Decimal
 func (_e *WebSocketConnector_Expecter) PlaceLimitOrder(symbol interface{}, side interface{}, quantity interface{}, price interface{}) *WebSocketConnector_PlaceLimitOrder_Call {
 	return &WebSocketConnector_PlaceLimitOrder_Call{Call: _e.mock.On("PlaceLimitOrder", symbol, side, quantity, price)}
 }
 
-func (_c *WebSocketConnector_PlaceLimitOrder_Call) Run(run func(symbol string, side connector.OrderSide, quantity decimal.Decimal, price decimal.Decimal)) *WebSocketConnector_PlaceLimitOrder_Call {
+func (_c *WebSocketConnector_PlaceLimitOrder_Call) Run(run func(symbol string, side connector.OrderSide, quantity numerical.Decimal, price numerical.Decimal)) *WebSocketConnector_PlaceLimitOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(connector.OrderSide), args[2].(decimal.Decimal), args[3].(decimal.Decimal))
+		run(args[0].(string), args[1].(connector.OrderSide), args[2].(numerical.Decimal), args[3].(numerical.Decimal))
 	})
 	return _c
 }
@@ -1397,13 +1488,13 @@ func (_c *WebSocketConnector_PlaceLimitOrder_Call) Return(_a0 *connector.OrderRe
 	return _c
 }
 
-func (_c *WebSocketConnector_PlaceLimitOrder_Call) RunAndReturn(run func(string, connector.OrderSide, decimal.Decimal, decimal.Decimal) (*connector.OrderResponse, error)) *WebSocketConnector_PlaceLimitOrder_Call {
+func (_c *WebSocketConnector_PlaceLimitOrder_Call) RunAndReturn(run func(string, connector.OrderSide, numerical.Decimal, numerical.Decimal) (*connector.OrderResponse, error)) *WebSocketConnector_PlaceLimitOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // PlaceMarketOrder provides a mock function with given fields: symbol, side, quantity
-func (_m *WebSocketConnector) PlaceMarketOrder(symbol string, side connector.OrderSide, quantity decimal.Decimal) (*connector.OrderResponse, error) {
+func (_m *WebSocketConnector) PlaceMarketOrder(symbol string, side connector.OrderSide, quantity numerical.Decimal) (*connector.OrderResponse, error) {
 	ret := _m.Called(symbol, side, quantity)
 
 	if len(ret) == 0 {
@@ -1412,10 +1503,10 @@ func (_m *WebSocketConnector) PlaceMarketOrder(symbol string, side connector.Ord
 
 	var r0 *connector.OrderResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, decimal.Decimal) (*connector.OrderResponse, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, numerical.Decimal) (*connector.OrderResponse, error)); ok {
 		return rf(symbol, side, quantity)
 	}
-	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, decimal.Decimal) *connector.OrderResponse); ok {
+	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, numerical.Decimal) *connector.OrderResponse); ok {
 		r0 = rf(symbol, side, quantity)
 	} else {
 		if ret.Get(0) != nil {
@@ -1423,7 +1514,7 @@ func (_m *WebSocketConnector) PlaceMarketOrder(symbol string, side connector.Ord
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, connector.OrderSide, decimal.Decimal) error); ok {
+	if rf, ok := ret.Get(1).(func(string, connector.OrderSide, numerical.Decimal) error); ok {
 		r1 = rf(symbol, side, quantity)
 	} else {
 		r1 = ret.Error(1)
@@ -1440,14 +1531,14 @@ type WebSocketConnector_PlaceMarketOrder_Call struct {
 // PlaceMarketOrder is a helper method to define mock.On call
 //   - symbol string
 //   - side connector.OrderSide
-//   - quantity decimal.Decimal
+//   - quantity numerical.Decimal
 func (_e *WebSocketConnector_Expecter) PlaceMarketOrder(symbol interface{}, side interface{}, quantity interface{}) *WebSocketConnector_PlaceMarketOrder_Call {
 	return &WebSocketConnector_PlaceMarketOrder_Call{Call: _e.mock.On("PlaceMarketOrder", symbol, side, quantity)}
 }
 
-func (_c *WebSocketConnector_PlaceMarketOrder_Call) Run(run func(symbol string, side connector.OrderSide, quantity decimal.Decimal)) *WebSocketConnector_PlaceMarketOrder_Call {
+func (_c *WebSocketConnector_PlaceMarketOrder_Call) Run(run func(symbol string, side connector.OrderSide, quantity numerical.Decimal)) *WebSocketConnector_PlaceMarketOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(connector.OrderSide), args[2].(decimal.Decimal))
+		run(args[0].(string), args[1].(connector.OrderSide), args[2].(numerical.Decimal))
 	})
 	return _c
 }
@@ -1457,7 +1548,7 @@ func (_c *WebSocketConnector_PlaceMarketOrder_Call) Return(_a0 *connector.OrderR
 	return _c
 }
 
-func (_c *WebSocketConnector_PlaceMarketOrder_Call) RunAndReturn(run func(string, connector.OrderSide, decimal.Decimal) (*connector.OrderResponse, error)) *WebSocketConnector_PlaceMarketOrder_Call {
+func (_c *WebSocketConnector_PlaceMarketOrder_Call) RunAndReturn(run func(string, connector.OrderSide, numerical.Decimal) (*connector.OrderResponse, error)) *WebSocketConnector_PlaceMarketOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1505,51 +1596,6 @@ func (_c *WebSocketConnector_PositionUpdates_Call) Return(_a0 <-chan connector.P
 }
 
 func (_c *WebSocketConnector_PositionUpdates_Call) RunAndReturn(run func() <-chan connector.Position) *WebSocketConnector_PositionUpdates_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Reset provides a mock function with no fields
-func (_m *WebSocketConnector) Reset() error {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for Reset")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func() error); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// WebSocketConnector_Reset_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Reset'
-type WebSocketConnector_Reset_Call struct {
-	*mock.Call
-}
-
-// Reset is a helper method to define mock.On call
-func (_e *WebSocketConnector_Expecter) Reset() *WebSocketConnector_Reset_Call {
-	return &WebSocketConnector_Reset_Call{Call: _e.mock.On("Reset")}
-}
-
-func (_c *WebSocketConnector_Reset_Call) Run(run func()) *WebSocketConnector_Reset_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *WebSocketConnector_Reset_Call) Return(_a0 error) *WebSocketConnector_Reset_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *WebSocketConnector_Reset_Call) RunAndReturn(run func() error) *WebSocketConnector_Reset_Call {
 	_c.Call.Return(run)
 	return _c
 }
