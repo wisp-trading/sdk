@@ -1,6 +1,8 @@
 package market
 
 import (
+	"fmt"
+
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
@@ -8,7 +10,6 @@ import (
 
 func (ds *dataStore) UpdateOrderBook(asset portfolio.Asset, exchangeName connector.ExchangeName, orderBookType connector.Instrument, orderBook connector.OrderBook) {
 	ds.mutex.Lock()
-	defer ds.mutex.Unlock()
 
 	current := ds.getOrderBooks()
 	updated := make(assetOrderBooks, len(current))
@@ -38,12 +39,14 @@ func (ds *dataStore) UpdateOrderBook(asset portfolio.Asset, exchangeName connect
 	updated[asset] = assetBooks
 
 	ds.orderBooks.Store(updated)
+
+	ds.mutex.Unlock()
+
 	ds.UpdateLastUpdated(marketTypes.UpdateKey{
 		DataType: marketTypes.DataKeyOrderBooks,
 		Asset:    asset,
 		Exchange: exchangeName,
 	})
-	ds.notifyOrchestrator()
 }
 
 func (ds *dataStore) GetOrderBooks(asset portfolio.Asset) marketTypes.OrderBookMap {
