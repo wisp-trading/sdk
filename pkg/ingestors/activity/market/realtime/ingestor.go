@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"sync"
-	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
@@ -146,98 +145,96 @@ func (ri *ingestor) startExchangeStream(wsConn connector.WebSocketConnector) {
 	go ri.processErrorStream(wsConn, exchangeName)
 }
 
-func (ri *ingestor) processKlineStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
-	ri.logger.Info("🔄 Starting kline stream processing for %s", exchangeName)
-
-	klineChan := wsConn.KlineUpdates()
-	ri.logger.Info("📊 Got kline channel for %s, waiting for updates...", exchangeName)
-
-	for {
-		select {
-		case klineUpdate, ok := <-klineChan:
-			if !ok {
-				ri.logger.Info("📪 Kline channel closed for %s", exchangeName)
-				return
-			}
-
-			asset := portfolio.NewAsset(klineUpdate.Symbol)
-			ri.logger.Info("📊 Received %s kline update for %s on %s", klineUpdate.Interval, klineUpdate.Symbol, exchangeName)
-			ri.logger.Info("💾 Storing kline in asset store: %s/%s - O:%.2f H:%.2f L:%.2f C:%.2f",
-				exchangeName, klineUpdate.Symbol,
-				klineUpdate.Open.InexactFloat64(), klineUpdate.High.InexactFloat64(),
-				klineUpdate.Low.InexactFloat64(), klineUpdate.Close.InexactFloat64())
-
-			ri.store.UpdateKline(asset, exchangeName, klineUpdate)
-
-			// Notify coordinator that data was updated
-			ri.notifyDataUpdate()
-
-			// Report successful data receipt to health monitoring
-			ri.healthStore.RecordDataReceived(exchangeName, health.DataTypeKlines, health.SourceWebSocket, 0)
-
-			// CRITICAL: Update market data when klines arrive to refresh orderbook/prices
-			if exchange, exists := ri.exchangeRegistry.GetConnector(exchangeName); exists {
-				// Access the market simulator directly through interface with proper method signature
-				if marketUpdater, ok := exchange.(interface{ UpdateMarketData(time.Time) error }); ok {
-					if err := marketUpdater.UpdateMarketData(klineUpdate.CloseTime); err != nil {
-						ri.logger.Error("Failed to update market data for %s: %v", exchangeName, err)
-					} else {
-						ri.logger.Info("🔄 Updated market data for %s with kline timestamp %v", exchangeName, klineUpdate.CloseTime)
-					}
-				} else {
-					ri.logger.Error("❌ Exchange %s does not implement UpdateMarketData method", exchangeName)
-				}
-			} else {
-				ri.logger.Error("❌ Exchange connector not found for %s", exchangeName)
-			}
-		}
-	}
-}
-
 func (ri *ingestor) processOrderBookStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
 	ri.logger.Info("🔄 Starting orderbook stream processing for %s", exchangeName)
 
-	orderBookChan := wsConn.OrderBookUpdates()
-	ri.logger.Info("📡 Got orderbook channel for %s, waiting for updates...", exchangeName)
+	channels := wsConn.GetOrderBookChannels()
+	ri.logger.Info("📊 Got %d dedicated orderbook channels for %s", len(channels), exchangeName)
+
+	// Launch goroutine for each orderbook channel
+	for channelKey, orderBookChan := range channels {
+		go ri.processOrderBookChannel(channelKey, orderBookChan, exchangeName)
+	}
+}
+
+// processOrderBookChannel processes orderbooks from a specific asset channel
+func (ri *ingestor) processOrderBookChannel(channelKey string, orderBookChan <-chan connector.OrderBook, exchangeName connector.ExchangeName) {
+	defer func() {
+		if r := recover(); r != nil {
+			ri.logger.Error("🔥 PANIC in processOrderBookChannel for %s/%s: %v", exchangeName, channelKey, r)
+		}
+	}()
+
+	ri.logger.Info("🔄 Starting channel processor for orderbook %s on %s", channelKey, exchangeName)
 
 	updateCount := 0
-	for {
-		select {
-		case orderBookUpdate, ok := <-orderBookChan:
-			if !ok {
-				ri.logger.Error("❌ OrderBook channel CLOSED for %s after %d updates - THIS IS THE PROBLEM", exchangeName, updateCount)
-				return
-			}
+	for orderBookUpdate := range orderBookChan {
+		updateCount++
+		ri.logger.Debug("📊 Received orderbook update #%d for %s from channel %s",
+			updateCount, orderBookUpdate.Asset.Symbol(), channelKey)
 
-			updateCount++
-			ri.logger.Info("📥 Got orderbook update #%d for %s", updateCount, orderBookUpdate.Asset.Symbol())
-			// Get which instrument types we subscribed to for this asset
-			ri.subscriptionMutex.RLock()
-			instrumentTypes := ri.subscriptions[orderBookUpdate.Asset]
-			ri.subscriptionMutex.RUnlock()
+		// Get which instrument types we subscribed to for this asset
+		ri.subscriptionMutex.RLock()
+		instrumentTypes := ri.subscriptions[orderBookUpdate.Asset]
+		ri.subscriptionMutex.RUnlock()
 
-			ri.logger.Info("🔍 Found %d subscribed instrument types for %s", len(instrumentTypes), orderBookUpdate.Asset.Symbol())
+		// Store the orderbook update for each subscribed instrument type
+		for _, instrumentType := range instrumentTypes {
+			ri.store.UpdateOrderBook(
+				orderBookUpdate.Asset,
+				exchangeName,
+				instrumentType,
+				orderBookUpdate,
+			)
 
-			// Store the orderbook update for each subscribed instrument type
-			for _, instrumentType := range instrumentTypes {
-				ri.store.UpdateOrderBook(
-					orderBookUpdate.Asset,
-					exchangeName,
-					instrumentType,
-					orderBookUpdate,
-				)
-
-				ri.logger.Debug("📊 Updated %s orderbook for %s on %s",
-					instrumentType, orderBookUpdate.Asset.Symbol(), exchangeName)
-			}
-
-			// Notify coordinator that data was updated
-			ri.notifyDataUpdate()
-
-			// Report successful data receipt to health monitoring
-			ri.healthStore.RecordDataReceived(exchangeName, health.DataTypeOrderbooks, health.SourceWebSocket, 0)
+			ri.logger.Debug("📊 Updated %s orderbook for %s on %s",
+				instrumentType, orderBookUpdate.Asset.Symbol(), exchangeName)
 		}
+
+		// Notify coordinator that data was updated
+		ri.notifyDataUpdate()
+
+		// Report successful data receipt to health monitoring
+		ri.healthStore.RecordDataReceived(exchangeName, health.DataTypeOrderbooks, health.SourceWebSocket, 0)
 	}
+
+	ri.logger.Info("📪 Orderbook channel %s closed for %s after %d updates", channelKey, exchangeName, updateCount)
+}
+
+func (ri *ingestor) processKlineStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
+	ri.logger.Info("🔄 Starting kline stream processing for %s", exchangeName)
+
+	channels := wsConn.GetKlineChannels()
+	ri.logger.Info("📊 Got %d dedicated kline channels for %s", len(channels), exchangeName)
+
+	// Launch goroutine for each channel
+	for channelKey, klineChan := range channels {
+		go ri.processKlineChannel(channelKey, klineChan, exchangeName)
+	}
+}
+
+// processKlineChannel processes klines from a specific channel
+func (ri *ingestor) processKlineChannel(channelKey string, klineChan <-chan connector.Kline, exchangeName connector.ExchangeName) {
+	defer func() {
+		if r := recover(); r != nil {
+			ri.logger.Error("🔥 PANIC in processKlineChannel for %s/%s: %v", exchangeName, channelKey, r)
+		}
+	}()
+
+	ri.logger.Info("🔄 Starting channel processor for %s on %s", channelKey, exchangeName)
+
+	for klineUpdate := range klineChan {
+		asset := portfolio.NewAsset(klineUpdate.Symbol)
+		ri.logger.Debug("📊 Received %s kline for %s on %s",
+			klineUpdate.Interval, klineUpdate.Symbol, exchangeName)
+
+		ri.store.UpdateKline(asset, exchangeName, klineUpdate)
+
+		ri.notifier.Notify()
+		ri.healthStore.RecordDataReceived(exchangeName, health.DataTypeKlines, health.SourceWebSocket, 0)
+	}
+
+	ri.logger.Info("📪 Kline channel %s closed for %s", channelKey, exchangeName)
 }
 
 func (ri *ingestor) processErrorStream(wsConn connector.WebSocketConnector, exchangeName connector.ExchangeName) {
