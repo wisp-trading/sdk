@@ -46,6 +46,9 @@ func (ds *dataStore) UpdateFundingRates(exchangeName connector.ExchangeName, rat
 		updated[k] = v
 	}
 
+	// Collect assets to update after releasing the lock
+	assetsToUpdate := make([]portfolio.Asset, 0, len(rates))
+
 	for asset, rate := range rates {
 		if updated[asset] == nil {
 			updated[asset] = make(marketTypes.FundingRateMap)
@@ -58,15 +61,20 @@ func (ds *dataStore) UpdateFundingRates(exchangeName connector.ExchangeName, rat
 		assetRates[exchangeName] = rate
 		updated[asset] = assetRates
 
+		assetsToUpdate = append(assetsToUpdate, asset)
+	}
+
+	ds.fundingRates.Store(updated)
+	ds.mutex.Unlock()
+
+	// Update timestamps after releasing the lock to avoid deadlock
+	for _, asset := range assetsToUpdate {
 		ds.UpdateLastUpdated(marketTypes.UpdateKey{
 			DataType: marketTypes.DataKeyFundingRates,
 			Asset:    asset,
 			Exchange: exchangeName,
 		})
 	}
-	ds.mutex.Unlock()
-
-	ds.fundingRates.Store(updated)
 }
 
 func (ds *dataStore) GetFundingRatesForAsset(asset portfolio.Asset) marketTypes.FundingRateMap {
