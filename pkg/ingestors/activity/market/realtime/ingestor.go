@@ -103,7 +103,7 @@ func (ri *ingestor) Start(ctx context.Context) error {
 func (ri *ingestor) startExchangeStream(wsConn connector.WebSocketConnector) {
 	exchangeName := wsConn.GetConnectorInfo().Name
 
-	if err := wsConn.StartWebSocket(context.Background()); err != nil {
+	if err := wsConn.StartWebSocket(); err != nil {
 		ri.logger.Error("Failed to start WebSocket for %s: %v", exchangeName, err)
 		return
 	}

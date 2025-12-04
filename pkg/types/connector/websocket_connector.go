@@ -1,8 +1,6 @@
 package connector
 
 import (
-	"context"
-
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
@@ -11,7 +9,7 @@ type WebSocketConnector interface {
 	Connector
 
 	// WebSocket lifecycle management
-	StartWebSocket(ctx context.Context) error
+	StartWebSocket() error
 	StopWebSocket() error
 	IsWebSocketConnected() bool
 
