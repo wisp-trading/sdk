@@ -56,9 +56,10 @@ func (pt *positionTracker) addTrade(trade connector.Trade) numerical.Decimal {
 		closeQty = pt.size.Abs()
 	}
 
-	// Calculate realized PNL
+	// Calculate realized PNL on the closed portion
 	var realizedPnl numerical.Decimal
-	if pt.size.IsPositive() {
+	wasPositive := pt.size.IsPositive()
+	if wasPositive {
 		// Closing long: PNL = (exit_price - entry_price) * quantity
 		realizedPnl = price.Sub(pt.avgEntry).Mul(closeQty)
 	} else {
@@ -66,15 +67,19 @@ func (pt *positionTracker) addTrade(trade connector.Trade) numerical.Decimal {
 		realizedPnl = pt.avgEntry.Sub(price).Mul(closeQty)
 	}
 
-	// Update position
-	pt.size = pt.size.Add(signedQty)
+	// Calculate new position size
+	newSize := pt.size.Add(signedQty)
 
-	// If position flipped, set new entry price for remaining
-	if !pt.size.IsZero() && ((pt.size.IsPositive() && signedQty.IsPositive()) ||
-		(pt.size.IsNegative() && signedQty.IsNegative())) {
+	// Check if position flipped direction
+	positionFlipped := !newSize.IsZero() &&
+		((wasPositive && newSize.IsNegative()) || (!wasPositive && newSize.IsPositive()))
+
+	if positionFlipped {
+		// New position starts at the trade price
 		pt.avgEntry = price
 	}
 
+	pt.size = newSize
 	return realizedPnl
 }
 
@@ -133,7 +138,7 @@ func calculateFromTrades(trades []connector.Trade) (numerical.Decimal, map[strin
 	return realizedPnl, positions
 }
 
-// GetRealizedPNL returns the realized PNL for a strategy (excluding fees)
+// GetRealizedPNL returns the realized PNL for a strategy (net of fees)
 func (p *pnl) GetRealizedPNL(strategyName strategy.StrategyName) numerical.Decimal {
 	trades := p.positions.GetTradesForStrategy(strategyName)
 	realizedPnl, _ := calculateFromTrades(trades)

@@ -273,6 +273,72 @@ var _ = Describe("PNL", func() {
 				Expect(result.Equal(numerical.NewFromFloat(6000))).To(BeTrue())
 			})
 		})
+
+		Context("position flipping long to short", func() {
+			It("should realize PNL on closed portion and track new short position", func() {
+				strategyName := strategy.StrategyName("test-strategy")
+				// Buy 1 BTC at 50000, sell 2 BTC at 55000
+				// Closes long 1 BTC for profit of 5000, opens short 1 BTC at 55000
+				trades := []connector.Trade{
+					{
+						ID:       "t1",
+						Symbol:   "BTC",
+						Side:     connector.OrderSideBuy,
+						Quantity: numerical.NewFromFloat(1),
+						Price:    numerical.NewFromFloat(50000),
+						Fee:      numerical.Zero(),
+					},
+					{
+						ID:       "t2",
+						Symbol:   "BTC",
+						Side:     connector.OrderSideSell,
+						Quantity: numerical.NewFromFloat(2),
+						Price:    numerical.NewFromFloat(55000),
+						Fee:      numerical.Zero(),
+					},
+				}
+
+				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+
+				result := pnl.GetRealizedPNL(strategyName)
+
+				// Only realized PNL from closing the long: (55000 - 50000) * 1 = 5000
+				Expect(result.Equal(numerical.NewFromFloat(5000))).To(BeTrue())
+			})
+		})
+
+		Context("position flipping short to long", func() {
+			It("should realize PNL on closed portion and track new long position", func() {
+				strategyName := strategy.StrategyName("test-strategy")
+				// Sell 1 BTC at 50000, buy 2 BTC at 45000
+				// Closes short 1 BTC for profit of 5000, opens long 1 BTC at 45000
+				trades := []connector.Trade{
+					{
+						ID:       "t1",
+						Symbol:   "BTC",
+						Side:     connector.OrderSideSell,
+						Quantity: numerical.NewFromFloat(1),
+						Price:    numerical.NewFromFloat(50000),
+						Fee:      numerical.Zero(),
+					},
+					{
+						ID:       "t2",
+						Symbol:   "BTC",
+						Side:     connector.OrderSideBuy,
+						Quantity: numerical.NewFromFloat(2),
+						Price:    numerical.NewFromFloat(45000),
+						Fee:      numerical.Zero(),
+					},
+				}
+
+				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+
+				result := pnl.GetRealizedPNL(strategyName)
+
+				// Only realized PNL from closing the short: (50000 - 45000) * 1 = 5000
+				Expect(result.Equal(numerical.NewFromFloat(5000))).To(BeTrue())
+			})
+		})
 	})
 
 	Describe("GetUnrealizedPNL", func() {
@@ -385,6 +451,78 @@ var _ = Describe("PNL", func() {
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.IsZero()).To(BeTrue())
+			})
+		})
+
+		Context("flipped position unrealized PNL", func() {
+			It("should use new entry price for flipped short position", func() {
+				strategyName := strategy.StrategyName("test-strategy")
+				btc := portfolio.NewAsset("BTC")
+
+				// Buy 1 BTC at 50000, sell 2 BTC at 55000 (now short 1 at 55000)
+				// Current price 60000 - short is losing 5000
+				trades := []connector.Trade{
+					{
+						ID:       "t1",
+						Symbol:   "BTC",
+						Side:     connector.OrderSideBuy,
+						Quantity: numerical.NewFromFloat(1),
+						Price:    numerical.NewFromFloat(50000),
+						Fee:      numerical.Zero(),
+					},
+					{
+						ID:       "t2",
+						Symbol:   "BTC",
+						Side:     connector.OrderSideSell,
+						Quantity: numerical.NewFromFloat(2),
+						Price:    numerical.NewFromFloat(55000),
+						Fee:      numerical.Zero(),
+					},
+				}
+
+				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+				mockMarket.EXPECT().Price(btc).Return(numerical.NewFromFloat(60000), nil)
+
+				result, err := pnl.GetUnrealizedPNL(strategyName)
+
+				Expect(err).NotTo(HaveOccurred())
+				// Short 1 BTC at 55000, current price 60000: (55000 - 60000) * 1 = -5000
+				Expect(result.Equal(numerical.NewFromFloat(-5000))).To(BeTrue())
+			})
+
+			It("should use new entry price for flipped long position", func() {
+				strategyName := strategy.StrategyName("test-strategy")
+				btc := portfolio.NewAsset("BTC")
+
+				// Sell 1 BTC at 50000, buy 2 BTC at 45000 (now long 1 at 45000)
+				// Current price 50000 - long is gaining 5000
+				trades := []connector.Trade{
+					{
+						ID:       "t1",
+						Symbol:   "BTC",
+						Side:     connector.OrderSideSell,
+						Quantity: numerical.NewFromFloat(1),
+						Price:    numerical.NewFromFloat(50000),
+						Fee:      numerical.Zero(),
+					},
+					{
+						ID:       "t2",
+						Symbol:   "BTC",
+						Side:     connector.OrderSideBuy,
+						Quantity: numerical.NewFromFloat(2),
+						Price:    numerical.NewFromFloat(45000),
+						Fee:      numerical.Zero(),
+					},
+				}
+
+				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+				mockMarket.EXPECT().Price(btc).Return(numerical.NewFromFloat(50000), nil)
+
+				result, err := pnl.GetUnrealizedPNL(strategyName)
+
+				Expect(err).NotTo(HaveOccurred())
+				// Long 1 BTC at 45000, current price 50000: (50000 - 45000) * 1 = 5000
+				Expect(result.Equal(numerical.NewFromFloat(5000))).To(BeTrue())
 			})
 		})
 	})
