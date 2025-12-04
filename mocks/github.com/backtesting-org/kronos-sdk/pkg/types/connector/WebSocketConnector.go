@@ -3,10 +3,7 @@
 package connector
 
 import (
-	context "context"
-
 	connector "github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-
 	mock "github.com/stretchr/testify/mock"
 
 	numerical "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
@@ -1600,17 +1597,17 @@ func (_c *WebSocketConnector_PositionUpdates_Call) RunAndReturn(run func() <-cha
 	return _c
 }
 
-// StartWebSocket provides a mock function with given fields: ctx
-func (_m *WebSocketConnector) StartWebSocket(ctx context.Context) error {
-	ret := _m.Called(ctx)
+// StartWebSocket provides a mock function with no fields
+func (_m *WebSocketConnector) StartWebSocket() error {
+	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartWebSocket")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -1624,14 +1621,13 @@ type WebSocketConnector_StartWebSocket_Call struct {
 }
 
 // StartWebSocket is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *WebSocketConnector_Expecter) StartWebSocket(ctx interface{}) *WebSocketConnector_StartWebSocket_Call {
-	return &WebSocketConnector_StartWebSocket_Call{Call: _e.mock.On("StartWebSocket", ctx)}
+func (_e *WebSocketConnector_Expecter) StartWebSocket() *WebSocketConnector_StartWebSocket_Call {
+	return &WebSocketConnector_StartWebSocket_Call{Call: _e.mock.On("StartWebSocket")}
 }
 
-func (_c *WebSocketConnector_StartWebSocket_Call) Run(run func(ctx context.Context)) *WebSocketConnector_StartWebSocket_Call {
+func (_c *WebSocketConnector_StartWebSocket_Call) Run(run func()) *WebSocketConnector_StartWebSocket_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run()
 	})
 	return _c
 }
@@ -1641,7 +1637,7 @@ func (_c *WebSocketConnector_StartWebSocket_Call) Return(_a0 error) *WebSocketCo
 	return _c
 }
 
-func (_c *WebSocketConnector_StartWebSocket_Call) RunAndReturn(run func(context.Context) error) *WebSocketConnector_StartWebSocket_Call {
+func (_c *WebSocketConnector_StartWebSocket_Call) RunAndReturn(run func() error) *WebSocketConnector_StartWebSocket_Call {
 	_c.Call.Return(run)
 	return _c
 }
