@@ -94,7 +94,7 @@ var _ = Describe("Ingestor", func() {
 				mockWSConn.EXPECT().GetKlineChannels().Return(klineChannels).Maybe()
 				mockWSConn.EXPECT().ErrorChannel().Return((<-chan error)(errorChan)).Maybe()
 				mockWSConn.EXPECT().GetConnectorInfo().Return(&connector.Info{Name: "hyperliquid"}).Maybe()
-				mockWSConn.EXPECT().StartWebSocket(mock.Anything).Return(nil).Maybe()
+				mockWSConn.EXPECT().StartWebSocket().Return(nil).Maybe()
 				mockWSConn.EXPECT().SubscribeOrderBook(mock.Anything, mock.Anything).Return(nil).Maybe()
 				mockWSConn.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 
@@ -158,7 +158,7 @@ var _ = Describe("Ingestor", func() {
 				mockWSConn.EXPECT().GetOrderBookChannels().Return(orderbookChannels).Maybe()
 				mockWSConn.EXPECT().ErrorChannel().Return((<-chan error)(errorChan)).Maybe()
 				mockWSConn.EXPECT().GetConnectorInfo().Return(&connector.Info{Name: "hyperliquid"}).Maybe()
-				mockWSConn.EXPECT().StartWebSocket(mock.Anything).Return(nil).Maybe()
+				mockWSConn.EXPECT().StartWebSocket().Return(nil).Maybe()
 				mockWSConn.EXPECT().SubscribeOrderBook(mock.Anything, mock.Anything).Return(nil).Maybe()
 				mockWSConn.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 
@@ -229,7 +229,7 @@ var _ = Describe("Ingestor", func() {
 				mockWSConn.EXPECT().GetOrderBookChannels().Return(orderbookChannels).Maybe()
 				mockWSConn.EXPECT().ErrorChannel().Return((<-chan error)(errorChan)).Maybe()
 				mockWSConn.EXPECT().GetConnectorInfo().Return(&connector.Info{Name: "hyperliquid"}).Maybe()
-				mockWSConn.EXPECT().StartWebSocket(mock.Anything).Return(nil).Maybe()
+				mockWSConn.EXPECT().StartWebSocket().Return(nil).Maybe()
 				mockWSConn.EXPECT().SubscribeOrderBook(mock.Anything, mock.Anything).Return(nil).Maybe()
 				mockWSConn.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 
