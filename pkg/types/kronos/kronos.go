@@ -3,6 +3,7 @@ package kronos
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
@@ -37,6 +38,11 @@ type Kronos interface {
 	// Store returns the underlying market data store for advanced use cases.
 	// Most users should use the Indicators, Analytics, and Market services instead.
 	Store() market.MarketData
+
+	// Activity returns read-only access to positions, trades, and PNL data.
+	// Provides methods to query strategy executions, orders, and trade history.
+	// Example: k.Activity().Positions().GetStrategyExecution(strategyName)
+	Activity() activity.Activity
 
 	// Asset creates a new portfolio.Asset from a symbol string.
 	// Convenience method to avoid importing portfolio package in strategies.

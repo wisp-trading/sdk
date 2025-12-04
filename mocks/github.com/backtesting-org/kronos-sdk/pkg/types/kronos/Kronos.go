@@ -3,8 +3,10 @@
 package kronos
 
 import (
-	kronos "github.com/backtesting-org/kronos-sdk/pkg/types/kronos"
+	activity "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
 	analytics "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
+
+	kronos "github.com/backtesting-org/kronos-sdk/pkg/types/kronos"
 
 	logging "github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 
@@ -28,6 +30,53 @@ type Kronos_Expecter struct {
 
 func (_m *Kronos) EXPECT() *Kronos_Expecter {
 	return &Kronos_Expecter{mock: &_m.Mock}
+}
+
+// Activity provides a mock function with no fields
+func (_m *Kronos) Activity() activity.Activity {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Activity")
+	}
+
+	var r0 activity.Activity
+	if rf, ok := ret.Get(0).(func() activity.Activity); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(activity.Activity)
+		}
+	}
+
+	return r0
+}
+
+// Kronos_Activity_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Activity'
+type Kronos_Activity_Call struct {
+	*mock.Call
+}
+
+// Activity is a helper method to define mock.On call
+func (_e *Kronos_Expecter) Activity() *Kronos_Activity_Call {
+	return &Kronos_Activity_Call{Call: _e.mock.On("Activity")}
+}
+
+func (_c *Kronos_Activity_Call) Run(run func()) *Kronos_Activity_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Kronos_Activity_Call) Return(_a0 activity.Activity) *Kronos_Activity_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Kronos_Activity_Call) RunAndReturn(run func() activity.Activity) *Kronos_Activity_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // Analytics provides a mock function with no fields
@@ -261,38 +310,6 @@ func (_c *Kronos_Market_Call) Return(_a0 analytics.Market) *Kronos_Market_Call {
 
 func (_c *Kronos_Market_Call) RunAndReturn(run func() analytics.Market) *Kronos_Market_Call {
 	_c.Call.Return(run)
-	return _c
-}
-
-// Positions provides a mock function with no fields
-func (_m *Kronos) Positions() {
-	_m.Called()
-}
-
-// Kronos_Positions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Positions'
-type Kronos_Positions_Call struct {
-	*mock.Call
-}
-
-// Positions is a helper method to define mock.On call
-func (_e *Kronos_Expecter) Positions() *Kronos_Positions_Call {
-	return &Kronos_Positions_Call{Call: _e.mock.On("Positions")}
-}
-
-func (_c *Kronos_Positions_Call) Run(run func()) *Kronos_Positions_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *Kronos_Positions_Call) Return() *Kronos_Positions_Call {
-	_c.Call.Return()
-	return _c
-}
-
-func (_c *Kronos_Positions_Call) RunAndReturn(run func()) *Kronos_Positions_Call {
-	_c.Run(run)
 	return _c
 }
 
