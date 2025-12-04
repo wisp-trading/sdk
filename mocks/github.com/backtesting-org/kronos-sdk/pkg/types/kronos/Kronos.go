@@ -264,6 +264,38 @@ func (_c *Kronos_Market_Call) RunAndReturn(run func() analytics.Market) *Kronos_
 	return _c
 }
 
+// Positions provides a mock function with no fields
+func (_m *Kronos) Positions() {
+	_m.Called()
+}
+
+// Kronos_Positions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Positions'
+type Kronos_Positions_Call struct {
+	*mock.Call
+}
+
+// Positions is a helper method to define mock.On call
+func (_e *Kronos_Expecter) Positions() *Kronos_Positions_Call {
+	return &Kronos_Positions_Call{Call: _e.mock.On("Positions")}
+}
+
+func (_c *Kronos_Positions_Call) Run(run func()) *Kronos_Positions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Kronos_Positions_Call) Return() *Kronos_Positions_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *Kronos_Positions_Call) RunAndReturn(run func()) *Kronos_Positions_Call {
+	_c.Run(run)
+	return _c
+}
+
 // Signal provides a mock function with given fields: strategyName
 func (_m *Kronos) Signal(strategyName strategy.StrategyName) strategy.SignalBuilder {
 	ret := _m.Called(strategyName)
