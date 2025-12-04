@@ -6,6 +6,9 @@ import (
 
 var Module = fx.Options(
 	fx.Provide(
+		NewPositions,
+		NewTrades,
+		NewPNL,
 		NewActivity,
 	),
 )

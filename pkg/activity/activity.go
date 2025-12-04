@@ -1,7 +1,6 @@
 package activity
 
 import (
-	storeActivity "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
 	kronosActivity "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
 )
 
@@ -12,15 +11,15 @@ type activity struct {
 	pnl       kronosActivity.PNL
 }
 
-// NewActivity creates a new Activity instance from the underlying stores
-func NewActivity(positionStore storeActivity.Positions, tradeStore storeActivity.Trades) kronosActivity.Activity {
-	pos := NewPositions(positionStore)
-	trd := NewTrades(tradeStore)
-	pnl := NewPNL(pos, trd)
-
+// NewActivity creates a new Activity instance with injected dependencies
+func NewActivity(
+	positions kronosActivity.Positions,
+	trades kronosActivity.Trades,
+	pnl kronosActivity.PNL,
+) kronosActivity.Activity {
 	return &activity{
-		positions: pos,
-		trades:    trd,
+		positions: positions,
+		trades:    trades,
 		pnl:       pnl,
 	}
 }
