@@ -46,7 +46,7 @@ var _ = Describe("EMA", func() {
 			sma, _ := indicators.SMA(prices, 3)
 
 			emaValue, _ := ema.Float64()
-			smaValue, _ := sma[len(sma)-1].Float64()
+			smaValue, _ := sma.Float64()
 
 			Expect(emaValue).To(BeNumerically(">", smaValue))
 		})

@@ -82,17 +82,7 @@ func (s *indicators) SMA(asset portfolio.Asset, period int, opts ...analytics.In
 		return numerical.Zero(), err
 	}
 
-	smaValues, err := SMA(prices, period)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	if len(smaValues) == 0 {
-		return numerical.Zero(), fmt.Errorf("no SMA values calculated")
-	}
-
-	// Return the latest value
-	return smaValues[len(smaValues)-1], nil
+	return SMA(prices, period)
 }
 
 // EMA calculates the Exponential Moving Average for an asset.
@@ -282,17 +272,12 @@ func (s *indicators) BollingerBands(asset portfolio.Asset, period int, stdDev fl
 		return nil, err
 	}
 
-	bbResults, err := BollingerBands(prices, period, stdDev)
+	bbResult, err := BollingerBands(prices, period, stdDev)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(bbResults) == 0 {
-		return nil, fmt.Errorf("no Bollinger Bands values calculated")
-	}
-
-	// Return the latest values
-	return &bbResults[len(bbResults)-1], nil
+	return &bbResult, nil
 }
 
 // Stochastic calculates the Stochastic Oscillator for an asset.
