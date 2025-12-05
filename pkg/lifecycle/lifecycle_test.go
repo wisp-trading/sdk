@@ -5,11 +5,13 @@ import (
 	"testing"
 	"time"
 
+	mockConnector "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	mockIngestors "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	mockHealth "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	mockLifecycle "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
 	mockRegistry "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 )
@@ -20,16 +22,24 @@ func TestLifecycleController_StateTransitions(t *testing.T) {
 	mockReg := mockRegistry.NewConnectorRegistry(t)
 	mockHealthStore := mockHealth.NewHealthStore(t)
 	mockOrchestrator := mockLifecycle.NewOrchestrator(t)
+	mockConn := mockConnector.NewConnector(t)
 	noopLog := logging.NewNoOpLogger()
 
+	// Create a cancellable context to stop the monitorHealth goroutine
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	// Setup expectations
-	mockMarket.EXPECT().StartDataCollection(context.Background()).Return(nil).Once()
-	mockPosition.EXPECT().Start(context.Background()).Return(nil).Once()
-	mockOrchestrator.EXPECT().Start(context.Background()).Return(nil).Once()
-	mockReg.EXPECT().GetReadyConnectors().Return([]connector.Connector{}).Maybe()
+	mockMarket.EXPECT().StartDataCollection(ctx).Return(nil).Once()
+	mockPosition.EXPECT().Start(ctx).Return(nil).Once()
+	mockOrchestrator.EXPECT().Start(ctx).Return(nil).Once()
+	mockReg.EXPECT().GetReadyConnectors().Return([]connector.Connector{mockConn}).Maybe()
+	mockHealthStore.EXPECT().GetSystemHealth().Return(&health.SystemHealthReport{
+		HasErrors: false,
+	}).Maybe()
 	mockMarket.EXPECT().StopDataCollection().Return(nil).Once()
 	mockPosition.EXPECT().Stop().Return(nil).Once()
-	mockOrchestrator.EXPECT().Stop(context.Background()).Return(nil).Once()
+	mockOrchestrator.EXPECT().Stop(ctx).Return(nil).Once()
 
 	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog)
 
@@ -44,7 +54,6 @@ func TestLifecycleController_StateTransitions(t *testing.T) {
 	}
 
 	// Start the controller
-	ctx := context.Background()
 	if err := controller.Start(ctx); err != nil {
 		t.Fatalf("Failed to start controller: %v", err)
 	}
@@ -76,26 +85,33 @@ func TestLifecycleController_WaitUntilReady(t *testing.T) {
 	mockReg := mockRegistry.NewConnectorRegistry(t)
 	mockHealthStore := mockHealth.NewHealthStore(t)
 	mockOrchestrator := mockLifecycle.NewOrchestrator(t)
+	mockConn := mockConnector.NewConnector(t)
 	noopLog := logging.NewNoOpLogger()
 
+	// Create a cancellable context to stop the monitorHealth goroutine
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	// Setup expectations
-	mockMarket.EXPECT().StartDataCollection(context.Background()).Return(nil).Once()
-	mockPosition.EXPECT().Start(context.Background()).Return(nil).Once()
-	mockOrchestrator.EXPECT().Start(context.Background()).Return(nil).Once()
-	mockReg.EXPECT().GetReadyConnectors().Return([]connector.Connector{}).Maybe()
+	mockMarket.EXPECT().StartDataCollection(ctx).Return(nil).Once()
+	mockPosition.EXPECT().Start(ctx).Return(nil).Once()
+	mockOrchestrator.EXPECT().Start(ctx).Return(nil).Once()
+	mockReg.EXPECT().GetReadyConnectors().Return([]connector.Connector{mockConn}).Maybe()
+	mockHealthStore.EXPECT().GetSystemHealth().Return(&health.SystemHealthReport{
+		HasErrors: false,
+	}).Maybe()
 
 	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog)
 
 	// Start in background
-	ctx := context.Background()
 	go func() {
 		time.Sleep(100 * time.Millisecond)
 		controller.Start(ctx)
 	}()
 
 	// Wait for ready
-	waitCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
-	defer cancel()
+	waitCtx, waitCancel := context.WithTimeout(ctx, 1*time.Second)
+	defer waitCancel()
 
 	if err := controller.WaitUntilReady(waitCtx); err != nil {
 		t.Fatalf("Failed to wait for ready: %v", err)
@@ -112,17 +128,23 @@ func TestLifecycleController_CannotStartTwice(t *testing.T) {
 	mockReg := mockRegistry.NewConnectorRegistry(t)
 	mockHealthStore := mockHealth.NewHealthStore(t)
 	mockOrchestrator := mockLifecycle.NewOrchestrator(t)
+	mockConn := mockConnector.NewConnector(t)
 	noopLog := logging.NewNoOpLogger()
 
+	// Create a cancellable context to stop the monitorHealth goroutine
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	// Setup expectations
-	mockMarket.EXPECT().StartDataCollection(context.Background()).Return(nil).Once()
-	mockPosition.EXPECT().Start(context.Background()).Return(nil).Once()
-	mockOrchestrator.EXPECT().Start(context.Background()).Return(nil).Once()
-	mockReg.EXPECT().GetReadyConnectors().Return([]connector.Connector{}).Maybe()
+	mockMarket.EXPECT().StartDataCollection(ctx).Return(nil).Once()
+	mockPosition.EXPECT().Start(ctx).Return(nil).Once()
+	mockOrchestrator.EXPECT().Start(ctx).Return(nil).Once()
+	mockReg.EXPECT().GetReadyConnectors().Return([]connector.Connector{mockConn}).Maybe()
+	mockHealthStore.EXPECT().GetSystemHealth().Return(&health.SystemHealthReport{
+		HasErrors: false,
+	}).Maybe()
 
 	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog)
-
-	ctx := context.Background()
 
 	// First start should succeed
 	if err := controller.Start(ctx); err != nil {
