@@ -65,3 +65,17 @@ func (r *rt) Boot(ctx context.Context, config runtime.BootConfig) error {
 	r.logger.Info("✅ Boot sequence complete - system ready")
 	return nil
 }
+
+// Stop executes the graceful shutdown sequence
+func (r *rt) Stop(ctx context.Context) error {
+	r.logger.Info("🛑 Starting shutdown sequence...")
+
+	// Stop SDK lifecycle
+	if err := r.controller.Stop(ctx); err != nil {
+		r.logger.Error(fmt.Sprintf("Failed to stop controller: %v", err))
+		return err
+	}
+
+	r.logger.Info("✅ Shutdown complete - system stopped")
+	return nil
+}

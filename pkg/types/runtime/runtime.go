@@ -20,4 +20,5 @@ type BootConfig struct {
 // 3. Start the SDK lifecycle
 type Runtime interface {
 	Boot(ctx context.Context, config BootConfig) error
+	Stop(ctx context.Context) error
 }
