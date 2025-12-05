@@ -3,6 +3,7 @@ package market
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
@@ -39,6 +40,23 @@ func (ds *dataStore) UpdateOrderBook(asset portfolio.Asset, exchangeName connect
 	ds.orderBooks.Store(updated)
 
 	ds.mutex.Unlock()
+
+	if len(orderBook.Bids) > 0 && len(orderBook.Asks) > 0 {
+		bestBid := orderBook.Bids[0].Price
+		bestAsk := orderBook.Asks[0].Price
+		midPrice := bestBid.Add(bestAsk).Div(numerical.NewFromInt(2))
+
+		price := connector.Price{
+			Symbol:    asset.Symbol(),
+			Price:     midPrice, // This is your main price
+			BidPrice:  bestBid,
+			AskPrice:  bestAsk,
+			Source:    exchangeName,
+			Timestamp: orderBook.Timestamp,
+		}
+
+		ds.UpdateAssetPrice(asset, exchangeName, price)
+	}
 
 	ds.UpdateLastUpdated(marketTypes.UpdateKey{
 		DataType: marketTypes.DataKeyOrderBooks,
