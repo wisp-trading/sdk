@@ -7,49 +7,65 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
-// MACD calculates the Moving Average Convergence Divergence
-func MACD(prices []numerical.Decimal, fastPeriod, slowPeriod, signalPeriod int) ([]analytics.MACDResult, error) {
-	if len(prices) < slowPeriod {
-		return nil, fmt.Errorf("insufficient data: need %d prices, got %d", slowPeriod, len(prices))
+func macdFloat64(prices []float64, fastPeriod, slowPeriod, signalPeriod int) (float64, float64, float64, error) {
+	if len(prices) < slowPeriod+signalPeriod {
+		return 0, 0, 0, fmt.Errorf("insufficient data: need %d prices, got %d", slowPeriod+signalPeriod, len(prices))
 	}
 
-	// Calculate fast and slow EMAs
-	fastEMA, err := EMA(prices, fastPeriod)
+	fastEMA, err := emaFloat64(prices, fastPeriod)
 	if err != nil {
-		return nil, fmt.Errorf("failed to calculate fast EMA: %w", err)
+		return 0, 0, 0, fmt.Errorf("failed to calculate fast EMA: %w", err)
 	}
 
-	slowEMA, err := EMA(prices, slowPeriod)
+	slowEMA, err := emaFloat64(prices, slowPeriod)
 	if err != nil {
-		return nil, fmt.Errorf("failed to calculate slow EMA: %w", err)
+		return 0, 0, 0, fmt.Errorf("failed to calculate slow EMA: %w", err)
 	}
 
-	// Calculate MACD line (difference between fast and slow EMA)
-	// Align the arrays (slowEMA is shorter)
-	startOffset := len(fastEMA) - len(slowEMA)
-	macdLine := make([]numerical.Decimal, len(slowEMA))
-	for i := 0; i < len(slowEMA); i++ {
-		macdLine[i] = fastEMA[i+startOffset].Sub(slowEMA[i])
+	macdLine := fastEMA - slowEMA
+
+	multiplier := 2.0 / float64(signalPeriod+1)
+
+	macdValues := make([]float64, len(prices)-slowPeriod+1)
+	for i := slowPeriod - 1; i < len(prices); i++ {
+		fastVal, _ := emaFloat64(prices[:i+1], fastPeriod)
+		slowVal, _ := emaFloat64(prices[:i+1], slowPeriod)
+		macdValues[i-slowPeriod+1] = fastVal - slowVal
 	}
 
-	// Calculate signal line (EMA of MACD line)
-	signalLine, err := EMA(macdLine, signalPeriod)
+	if len(macdValues) < signalPeriod {
+		return 0, 0, 0, fmt.Errorf("insufficient MACD values for signal calculation")
+	}
+
+	sum := 0.0
+	for i := 0; i < signalPeriod; i++ {
+		sum += macdValues[i]
+	}
+	signal := sum / float64(signalPeriod)
+
+	for i := signalPeriod; i < len(macdValues); i++ {
+		signal = (macdValues[i]-signal)*multiplier + signal
+	}
+
+	histogram := macdLine - signal
+
+	return macdLine, signal, histogram, nil
+}
+
+func MACD(prices []numerical.Decimal, fastPeriod, slowPeriod, signalPeriod int) (analytics.MACDResult, error) {
+	pricesFloat := make([]float64, len(prices))
+	for i, p := range prices {
+		pricesFloat[i], _ = p.Float64()
+	}
+
+	macdLine, signal, histogram, err := macdFloat64(pricesFloat, fastPeriod, slowPeriod, signalPeriod)
 	if err != nil {
-		return nil, fmt.Errorf("failed to calculate signal line: %w", err)
+		return analytics.MACDResult{}, err
 	}
 
-	// Calculate histogram (MACD - Signal)
-	result := make([]analytics.MACDResult, len(signalLine))
-	startOffset = len(macdLine) - len(signalLine)
-	for i := 0; i < len(signalLine); i++ {
-		macdValue := macdLine[i+startOffset]
-		signalValue := signalLine[i]
-		result[i] = analytics.MACDResult{
-			MACD:      macdValue,
-			Signal:    signalValue,
-			Histogram: macdValue.Sub(signalValue),
-		}
-	}
-
-	return result, nil
+	return analytics.MACDResult{
+		MACD:      numerical.NewFromFloat(macdLine),
+		Signal:    numerical.NewFromFloat(signal),
+		Histogram: numerical.NewFromFloat(histogram),
+	}, nil
 }

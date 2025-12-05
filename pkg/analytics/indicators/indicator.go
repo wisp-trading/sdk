@@ -130,17 +130,7 @@ func (s *indicators) EMA(asset portfolio.Asset, period int, opts ...analytics.In
 		return numerical.Zero(), err
 	}
 
-	emaValues, err := EMA(prices, period)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	if len(emaValues) == 0 {
-		return numerical.Zero(), fmt.Errorf("no EMA values calculated")
-	}
-
-	// Return the latest value
-	return emaValues[len(emaValues)-1], nil
+	return EMA(prices, period)
 }
 
 // RSI calculates the Relative Strength Index for an asset.
@@ -234,24 +224,18 @@ func (s *indicators) RSI(asset portfolio.Asset, period int, opts ...analytics.In
 //   - Histogram growing: Momentum strengthening
 //   - Histogram shrinking: Momentum weakening
 func (s *indicators) MACD(asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...analytics.IndicatorOptions) (*analytics.MACDResult, error) {
-	// Need enough data for slow period + signal period
 	requiredData := (slowPeriod + signalPeriod) * dataMultiplier
 	prices, err := s.fetchClosePrices(asset, requiredData, opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	macdResults, err := MACD(prices, fastPeriod, slowPeriod, signalPeriod)
+	macdResult, err := MACD(prices, fastPeriod, slowPeriod, signalPeriod)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(macdResults) == 0 {
-		return nil, fmt.Errorf("no MACD values calculated")
-	}
-
-	// Return the latest values
-	return &macdResults[len(macdResults)-1], nil
+	return &macdResult, nil
 }
 
 // BollingerBands calculates Bollinger Bands for an asset.
