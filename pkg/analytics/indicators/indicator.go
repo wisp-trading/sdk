@@ -463,17 +463,7 @@ func (s *indicators) ATR(asset portfolio.Asset, period int, opts ...analytics.In
 		closes[i] = kline.Close
 	}
 
-	atrValues, err := ATR(highs, lows, closes, period)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	if len(atrValues) == 0 {
-		return numerical.Zero(), fmt.Errorf("no ATR values calculated")
-	}
-
-	// Return the latest value
-	return atrValues[len(atrValues)-1], nil
+	return ATR(highs, lows, closes, period)
 }
 
 // fetchClosePrices is a helper that fetches klines and extracts close prices

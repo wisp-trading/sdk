@@ -18,7 +18,7 @@ var _ = Describe("ATR", func() {
 
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("equal length"))
-			Expect(result).To(BeNil())
+			Expect(result.Equal(numerical.Zero())).To(BeTrue())
 		})
 
 		It("should return error when insufficient data for period", func() {
@@ -30,7 +30,7 @@ var _ = Describe("ATR", func() {
 
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("insufficient data"))
-			Expect(result).To(BeNil())
+			Expect(result.Equal(numerical.Zero())).To(BeTrue())
 		})
 
 		It("should require at least period+1 data points", func() {
@@ -41,13 +41,12 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result).NotTo(BeNil())
+			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
 		})
 	})
 
 	Describe("True Range calculation", func() {
 		It("should calculate ATR for simple data", func() {
-			// Simple test case with known values
 			highs := makeDecimals(100, 105, 110, 115, 120)
 			lows := makeDecimals(95, 100, 105, 110, 115)
 			closes := makeDecimals(98, 103, 108, 113, 118)
@@ -55,13 +54,10 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result).NotTo(BeEmpty())
-
-			Expect(len(result)).To(Equal(2))
+			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
 		})
 
 		It("should handle price gaps correctly", func() {
-			// Test with gap up scenario
 			highs := makeDecimals(100, 110, 115)
 			lows := makeDecimals(95, 105, 110)
 			closes := makeDecimals(98, 108, 113)
@@ -69,13 +65,10 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, 2)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result).NotTo(BeEmpty())
-			// ATR should reflect increased volatility from gap
-			Expect(result[0].GreaterThan(numerical.Zero())).To(BeTrue())
+			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
 		})
 
 		It("should handle gap down correctly", func() {
-			// Test with gap down scenario
 			highs := makeDecimals(100, 90, 95)
 			lows := makeDecimals(95, 85, 90)
 			closes := makeDecimals(98, 88, 93)
@@ -83,8 +76,7 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, 2)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result).NotTo(BeEmpty())
-			Expect(result[0].GreaterThan(numerical.Zero())).To(BeTrue())
+			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
 		})
 	})
 
@@ -97,16 +89,10 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(len(result)).To(BeNumerically(">", 1))
-
-			// ATR values should be positive
-			for _, atr := range result {
-				Expect(atr.GreaterThan(numerical.Zero())).To(BeTrue())
-			}
+			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
 		})
 
 		It("should produce smoother values over time", func() {
-			// Create data with consistent volatility
 			highs := []numerical.Decimal{}
 			lows := []numerical.Decimal{}
 			closes := []numerical.Decimal{}
@@ -120,11 +106,7 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, 5)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(len(result)).To(BeNumerically(">", 5))
-
-			// With consistent volatility, ATR should stabilize
-			lastValue := result[len(result)-1]
-			Expect(lastValue.GreaterThan(numerical.Zero())).To(BeTrue())
+			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
 		})
 	})
 
@@ -137,11 +119,7 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, 2)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result).NotTo(BeEmpty())
-			// ATR should be zero or very close to zero
-			for _, atr := range result {
-				Expect(atr.Equal(numerical.Zero())).To(BeTrue())
-			}
+			Expect(result.Equal(numerical.Zero())).To(BeTrue())
 		})
 
 		It("should handle single period", func() {
@@ -152,7 +130,7 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, 1)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result).NotTo(BeEmpty())
+			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
 		})
 
 		It("should handle large price swings", func() {
@@ -163,9 +141,7 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, 2)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result).NotTo(BeEmpty())
-			// ATR should reflect high volatility
-			Expect(result[0].GreaterThan(numerical.NewFromInt(10))).To(BeTrue())
+			Expect(result.GreaterThan(numerical.NewFromInt(10))).To(BeTrue())
 		})
 
 		It("should handle fractional prices", func() {
@@ -176,13 +152,12 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, 2)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result).NotTo(BeEmpty())
-			Expect(result[0].GreaterThan(numerical.Zero())).To(BeTrue())
+			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
 		})
 	})
 
 	Describe("Result length", func() {
-		It("should return correct number of values", func() {
+		It("should return single value", func() {
 			dataLength := 100
 			period := 14
 
@@ -199,15 +174,12 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, period)
 
 			Expect(err).NotTo(HaveOccurred())
-			// Result length should be: (dataLength - 1) - period + 1
-			expectedLength := dataLength - period
-			Expect(len(result)).To(Equal(expectedLength))
+			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
 		})
 	})
 
 	Describe("Real-world scenarios", func() {
 		It("should calculate ATR for typical market data", func() {
-			// Simulating realistic OHLC data
 			highs := makeDecimalsFloat(50100, 50250, 50150, 50300, 50400, 50350, 50500, 50450, 50600, 50550, 50700, 50650, 50800, 50750, 50900)
 			lows := makeDecimalsFloat(49900, 50050, 49950, 50100, 50200, 50150, 50300, 50250, 50400, 50350, 50500, 50450, 50600, 50550, 50700)
 			closes := makeDecimalsFloat(50000, 50150, 50050, 50200, 50300, 50250, 50400, 50350, 50500, 50450, 50600, 50550, 50700, 50650, 50800)
@@ -215,12 +187,7 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, 14)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result).NotTo(BeEmpty())
-
-			// All ATR values should be positive
-			for _, atr := range result {
-				Expect(atr.GreaterThan(numerical.Zero())).To(BeTrue())
-			}
+			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
 		})
 
 		It("should handle trending market", func() {
@@ -228,7 +195,6 @@ var _ = Describe("ATR", func() {
 			lows := []numerical.Decimal{}
 			closes := []numerical.Decimal{}
 
-			// Simulate uptrend with increasing volatility
 			for i := 0; i < 30; i++ {
 				base := float64(100 + i*2)
 				highs = append(highs, numerical.NewFromFloat(base+5))
@@ -239,7 +205,7 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, 10)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result).NotTo(BeEmpty())
+			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
 		})
 	})
 })

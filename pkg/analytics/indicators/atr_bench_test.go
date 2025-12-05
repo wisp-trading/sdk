@@ -51,7 +51,6 @@ func generatePriceData(count int) ([]numerical.Decimal, []numerical.Decimal, []n
 	return highs, lows, closes
 }
 
-// Benchmarks with different periods
 func BenchmarkATR_Period5_Data50(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
