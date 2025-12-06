@@ -333,14 +333,12 @@ func (s *indicators) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opt
 		}
 	}
 
-	// Fetch klines (need high, low, close)
 	requiredData := (kPeriod + dPeriod) * dataMultiplier
 	klines := s.store.GetKlines(asset, exchange, interval, requiredData)
 	if len(klines) == 0 {
 		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
 
-	// Extract high, low, close prices
 	highs := make([]numerical.Decimal, len(klines))
 	lows := make([]numerical.Decimal, len(klines))
 	closes := make([]numerical.Decimal, len(klines))
@@ -351,17 +349,12 @@ func (s *indicators) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opt
 		closes[i] = kline.Close
 	}
 
-	stochResults, err := Stochastic(highs, lows, closes, kPeriod, dPeriod)
+	stochResult, err := Stochastic(highs, lows, closes, kPeriod, dPeriod)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(stochResults) == 0 {
-		return nil, fmt.Errorf("no Stochastic values calculated")
-	}
-
-	// Return the latest values
-	return &stochResults[len(stochResults)-1], nil
+	return &stochResult, nil
 }
 
 // ATR calculates the Average True Range for an asset.
