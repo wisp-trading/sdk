@@ -8,39 +8,37 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
-// BollingerBands calculates Bollinger Bands
-func BollingerBands(prices []numerical.Decimal, period int, stdDev float64) ([]analytics.BollingerBandsResult, error) {
+// bollingerBandsFloat64 is the internal high-performance implementation using float64
+func bollingerBandsFloat64(prices []float64, period int, stdDev float64) (analytics.BollingerBandsResult, error) {
 	if len(prices) < period {
-		return nil, fmt.Errorf("insufficient data: need %d prices, got %d", period, len(prices))
+		return analytics.BollingerBandsResult{}, fmt.Errorf("insufficient data: need %d prices, got %d", period, len(prices))
 	}
 
-	result := make([]analytics.BollingerBandsResult, 0, len(prices)-period+1)
-
-	for i := period - 1; i < len(prices); i++ {
-		// Calculate SMA (middle band)
-		sum := numerical.Zero()
-		for j := 0; j < period; j++ {
-			sum = sum.Add(prices[i-j])
-		}
-		sma := sum.Div(numerical.NewFromInt(int64(period)))
-
-		// Calculate standard deviation
-		variance := 0.0
-		for j := 0; j < period; j++ {
-			diff, _ := prices[i-j].Sub(sma).Float64()
-			variance += diff * diff
-		}
-		variance /= float64(period)
-		sd := math.Sqrt(variance)
-
-		stdDevnumerical := numerical.NewFromFloat(sd * stdDev)
-
-		result = append(result, analytics.BollingerBandsResult{
-			Upper:  sma.Add(stdDevnumerical),
-			Middle: sma,
-			Lower:  sma.Sub(stdDevnumerical),
-		})
+	sma, err := smaFloat64(prices, period)
+	if err != nil {
+		return analytics.BollingerBandsResult{}, err
 	}
 
-	return result, nil
+	variance := 0.0
+	for i := len(prices) - period; i < len(prices); i++ {
+		diff := prices[i] - sma
+		variance += diff * diff
+	}
+	variance /= float64(period)
+	sd := math.Sqrt(variance) * stdDev
+
+	return analytics.BollingerBandsResult{
+		Upper:  numerical.NewFromFloat(sma + sd),
+		Middle: numerical.NewFromFloat(sma),
+		Lower:  numerical.NewFromFloat(sma - sd),
+	}, nil
+}
+
+func BollingerBands(prices []numerical.Decimal, period int, stdDev float64) (analytics.BollingerBandsResult, error) {
+	pricesFloat := make([]float64, len(prices))
+	for i, p := range prices {
+		pricesFloat[i], _ = p.Float64()
+	}
+
+	return bollingerBandsFloat64(pricesFloat, period, stdDev)
 }

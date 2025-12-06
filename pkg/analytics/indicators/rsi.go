@@ -2,67 +2,63 @@ package indicators
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
-// RSI calculates the Relative Strength Index
-func RSI(prices []numerical.Decimal, period int) ([]numerical.Decimal, error) {
+func rsiFloat64(prices []float64, period int) (float64, error) {
 	if len(prices) < period+1 {
-		return nil, fmt.Errorf("insufficient data: need %d prices, got %d", period+1, len(prices))
+		return 0, fmt.Errorf("insufficient data: need %d prices, got %d", period+1, len(prices))
 	}
 
-	result := make([]numerical.Decimal, 0, len(prices)-period)
+	avgGain := 0.0
+	avgLoss := 0.0
 
-	// Calculate initial average gain and loss
-	var gains, losses []numerical.Decimal
-	for i := 1; i < len(prices); i++ {
-		change := prices[i].Sub(prices[i-1])
-		if change.GreaterThan(numerical.Zero()) {
-			gains = append(gains, change)
-			losses = append(losses, numerical.Zero())
+	for i := 1; i <= period; i++ {
+		change := prices[i] - prices[i-1]
+		if change > 0 {
+			avgGain += change
 		} else {
-			gains = append(gains, numerical.Zero())
-			losses = append(losses, change.Abs())
+			avgLoss += math.Abs(change)
 		}
 	}
 
-	if len(gains) < period {
-		return nil, fmt.Errorf("insufficient data after calculating changes")
-	}
+	avgGain /= float64(period)
+	avgLoss /= float64(period)
 
-	// Calculate average gain and loss for the first period
-	avgGain := numerical.Zero()
-	avgLoss := numerical.Zero()
-	for i := 0; i < period; i++ {
-		avgGain = avgGain.Add(gains[i])
-		avgLoss = avgLoss.Add(losses[i])
-	}
-	avgGain = avgGain.Div(numerical.NewFromInt(int64(period)))
-	avgLoss = avgLoss.Div(numerical.NewFromInt(int64(period)))
+	for i := period + 1; i < len(prices); i++ {
+		change := prices[i] - prices[i-1]
 
-	// Calculate first RSI
-	if avgLoss.IsZero() {
-		result = append(result, numerical.NewFromInt(100))
-	} else {
-		rs := avgGain.Div(avgLoss)
-		rsi := numerical.NewFromInt(100).Sub(numerical.NewFromInt(100).Div(numerical.NewFromInt(1).Add(rs)))
-		result = append(result, rsi)
-	}
-
-	// Calculate subsequent RSIs using smoothed averages
-	for i := period; i < len(gains); i++ {
-		avgGain = avgGain.Mul(numerical.NewFromInt(int64(period - 1))).Add(gains[i]).Div(numerical.NewFromInt(int64(period)))
-		avgLoss = avgLoss.Mul(numerical.NewFromInt(int64(period - 1))).Add(losses[i]).Div(numerical.NewFromInt(int64(period)))
-
-		if avgLoss.IsZero() {
-			result = append(result, numerical.NewFromInt(100))
+		if change > 0 {
+			avgGain = (avgGain*float64(period-1) + change) / float64(period)
+			avgLoss = (avgLoss * float64(period-1)) / float64(period)
 		} else {
-			rs := avgGain.Div(avgLoss)
-			rsi := numerical.NewFromInt(100).Sub(numerical.NewFromInt(100).Div(numerical.NewFromInt(1).Add(rs)))
-			result = append(result, rsi)
+			avgGain = (avgGain * float64(period-1)) / float64(period)
+			avgLoss = (avgLoss*float64(period-1) + math.Abs(change)) / float64(period)
 		}
 	}
 
-	return result, nil
+	if math.Abs(avgLoss) < 1e-10 {
+		return 100.0, nil
+	}
+
+	rs := avgGain / avgLoss
+	rsi := 100.0 - (100.0 / (1.0 + rs))
+
+	return rsi, nil
+}
+
+func RSI(prices []numerical.Decimal, period int) (numerical.Decimal, error) {
+	pricesFloat := make([]float64, len(prices))
+	for i, p := range prices {
+		pricesFloat[i], _ = p.Float64()
+	}
+
+	rsiFloat, err := rsiFloat64(pricesFloat, period)
+	if err != nil {
+		return numerical.Zero(), err
+	}
+
+	return numerical.NewFromFloat(rsiFloat), nil
 }

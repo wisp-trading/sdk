@@ -82,17 +82,7 @@ func (s *indicators) SMA(asset portfolio.Asset, period int, opts ...analytics.In
 		return numerical.Zero(), err
 	}
 
-	smaValues, err := SMA(prices, period)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	if len(smaValues) == 0 {
-		return numerical.Zero(), fmt.Errorf("no SMA values calculated")
-	}
-
-	// Return the latest value
-	return smaValues[len(smaValues)-1], nil
+	return SMA(prices, period)
 }
 
 // EMA calculates the Exponential Moving Average for an asset.
@@ -130,17 +120,7 @@ func (s *indicators) EMA(asset portfolio.Asset, period int, opts ...analytics.In
 		return numerical.Zero(), err
 	}
 
-	emaValues, err := EMA(prices, period)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	if len(emaValues) == 0 {
-		return numerical.Zero(), fmt.Errorf("no EMA values calculated")
-	}
-
-	// Return the latest value
-	return emaValues[len(emaValues)-1], nil
+	return EMA(prices, period)
 }
 
 // RSI calculates the Relative Strength Index for an asset.
@@ -183,17 +163,7 @@ func (s *indicators) RSI(asset portfolio.Asset, period int, opts ...analytics.In
 		return numerical.Zero(), err
 	}
 
-	rsiValues, err := RSI(prices, period)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	if len(rsiValues) == 0 {
-		return numerical.Zero(), fmt.Errorf("no RSI values calculated")
-	}
-
-	// Return the latest value
-	return rsiValues[len(rsiValues)-1], nil
+	return RSI(prices, period)
 }
 
 // MACD calculates the Moving Average Convergence Divergence indicator.
@@ -234,24 +204,18 @@ func (s *indicators) RSI(asset portfolio.Asset, period int, opts ...analytics.In
 //   - Histogram growing: Momentum strengthening
 //   - Histogram shrinking: Momentum weakening
 func (s *indicators) MACD(asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...analytics.IndicatorOptions) (*analytics.MACDResult, error) {
-	// Need enough data for slow period + signal period
 	requiredData := (slowPeriod + signalPeriod) * dataMultiplier
 	prices, err := s.fetchClosePrices(asset, requiredData, opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	macdResults, err := MACD(prices, fastPeriod, slowPeriod, signalPeriod)
+	macdResult, err := MACD(prices, fastPeriod, slowPeriod, signalPeriod)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(macdResults) == 0 {
-		return nil, fmt.Errorf("no MACD values calculated")
-	}
-
-	// Return the latest values
-	return &macdResults[len(macdResults)-1], nil
+	return &macdResult, nil
 }
 
 // BollingerBands calculates Bollinger Bands for an asset.
@@ -298,17 +262,12 @@ func (s *indicators) BollingerBands(asset portfolio.Asset, period int, stdDev fl
 		return nil, err
 	}
 
-	bbResults, err := BollingerBands(prices, period, stdDev)
+	bbResult, err := BollingerBands(prices, period, stdDev)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(bbResults) == 0 {
-		return nil, fmt.Errorf("no Bollinger Bands values calculated")
-	}
-
-	// Return the latest values
-	return &bbResults[len(bbResults)-1], nil
+	return &bbResult, nil
 }
 
 // Stochastic calculates the Stochastic Oscillator for an asset.
@@ -364,14 +323,12 @@ func (s *indicators) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opt
 		}
 	}
 
-	// Fetch klines (need high, low, close)
 	requiredData := (kPeriod + dPeriod) * dataMultiplier
 	klines := s.store.GetKlines(asset, exchange, interval, requiredData)
 	if len(klines) == 0 {
 		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
 
-	// Extract high, low, close prices
 	highs := make([]numerical.Decimal, len(klines))
 	lows := make([]numerical.Decimal, len(klines))
 	closes := make([]numerical.Decimal, len(klines))
@@ -382,17 +339,12 @@ func (s *indicators) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opt
 		closes[i] = kline.Close
 	}
 
-	stochResults, err := Stochastic(highs, lows, closes, kPeriod, dPeriod)
+	stochResult, err := Stochastic(highs, lows, closes, kPeriod, dPeriod)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(stochResults) == 0 {
-		return nil, fmt.Errorf("no Stochastic values calculated")
-	}
-
-	// Return the latest values
-	return &stochResults[len(stochResults)-1], nil
+	return &stochResult, nil
 }
 
 // ATR calculates the Average True Range for an asset.
@@ -463,17 +415,7 @@ func (s *indicators) ATR(asset portfolio.Asset, period int, opts ...analytics.In
 		closes[i] = kline.Close
 	}
 
-	atrValues, err := ATR(highs, lows, closes, period)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	if len(atrValues) == 0 {
-		return numerical.Zero(), fmt.Errorf("no ATR values calculated")
-	}
-
-	// Return the latest value
-	return atrValues[len(atrValues)-1], nil
+	return ATR(highs, lows, closes, period)
 }
 
 // fetchClosePrices is a helper that fetches klines and extracts close prices

@@ -2,94 +2,80 @@ package indicators
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
-// Stochastic calculates the Stochastic Oscillator for the given price data.
-//
-// The Stochastic Oscillator is a momentum indicator that shows the location of the close
-// relative to the high-low range over a set number of periods. The indicator ranges between
-// 0 and 100. Readings above 80 are considered overbought, while readings below 20 are
-// considered oversold.
-//
-// Parameters:
-//   - highs: slice of high prices for each period
-//   - lows: slice of low prices for each period
-//   - closes: slice of closing prices for each period
-//   - kPeriod: lookback period for calculating %K (typically 14)
-//   - dPeriod: smoothing period for calculating %D from %K (typically 3)
-//
-// Returns:
-//   - []StochasticResult: slice of stochastic values, each containing %K and %D
-//   - error: if input validation fails or insufficient data is provided
-//
-// The function calculates:
-//   - %K = (Current Close - Lowest Low) / (Highest High - Lowest Low) * 100
-//   - %D = SMA(%K, dPeriod)
-//
-// Example:
-//
-//	highs := []numerical.Decimal{...}
-//	lows := []numerical.Decimal{...}
-//	closes := []numerical.Decimal{...}
-//	results, err := Stochastic(highs, lows, closes, 14, 3)
-func Stochastic(highs, lows, closes []numerical.Decimal, kPeriod, dPeriod int) ([]analytics.StochasticResult, error) {
+func stochasticFloat64(highs, lows, closes []float64, kPeriod, dPeriod int) (float64, float64, error) {
 	if len(highs) != len(lows) || len(highs) != len(closes) {
-		return nil, fmt.Errorf("price arrays must have equal length")
+		return 0, 0, fmt.Errorf("price arrays must have equal length")
 	}
-	if len(closes) < kPeriod {
-		return nil, fmt.Errorf("insufficient data: need %d prices, got %d", kPeriod, len(closes))
+	if len(closes) < kPeriod+dPeriod-1 {
+		return 0, 0, fmt.Errorf("insufficient data: need %d prices, got %d", kPeriod+dPeriod-1, len(closes))
 	}
 
-	// Calculate %K values
-	kValues := make([]numerical.Decimal, 0, len(closes)-kPeriod+1)
+	kValues := make([]float64, 0, len(closes)-kPeriod+1)
 
 	for i := kPeriod - 1; i < len(closes); i++ {
-		// Find highest high and lowest low in the period
 		highestHigh := highs[i-kPeriod+1]
 		lowestLow := lows[i-kPeriod+1]
 
 		for j := i - kPeriod + 2; j <= i; j++ {
-			if highs[j].GreaterThan(highestHigh) {
+			if highs[j] > highestHigh {
 				highestHigh = highs[j]
 			}
-			if lows[j].LessThan(lowestLow) {
+			if lows[j] < lowestLow {
 				lowestLow = lows[j]
 			}
 		}
 
-		// Calculate %K
-		denominator := highestHigh.Sub(lowestLow)
-		var k numerical.Decimal
-		if denominator.IsZero() {
-			k = numerical.NewFromInt(50) // Default to middle if no range
+		denominator := highestHigh - lowestLow
+		var k float64
+		if math.Abs(denominator) < 1e-10 {
+			k = 50.0
 		} else {
-			k = closes[i].Sub(lowestLow).Div(denominator).Mul(numerical.NewFromInt(100))
+			k = ((closes[i] - lowestLow) / denominator) * 100.0
 		}
 		kValues = append(kValues, k)
 	}
 
-	// Calculate %D (SMA of %K)
 	if len(kValues) < dPeriod {
-		return nil, fmt.Errorf("insufficient K values for D calculation: need %d, got %d", dPeriod, len(kValues))
+		return 0, 0, fmt.Errorf("insufficient K values for D calculation: need %d, got %d", dPeriod, len(kValues))
 	}
 
-	result := make([]analytics.StochasticResult, 0, len(kValues)-dPeriod+1)
+	sum := 0.0
+	for i := len(kValues) - dPeriod; i < len(kValues); i++ {
+		sum += kValues[i]
+	}
+	d := sum / float64(dPeriod)
 
-	for i := dPeriod - 1; i < len(kValues); i++ {
-		sum := numerical.Zero()
-		for j := 0; j < dPeriod; j++ {
-			sum = sum.Add(kValues[i-j])
-		}
-		d := sum.Div(numerical.NewFromInt(int64(dPeriod)))
+	return kValues[len(kValues)-1], d, nil
+}
 
-		result = append(result, analytics.StochasticResult{
-			K: kValues[i],
-			D: d,
-		})
+func Stochastic(highs, lows, closes []numerical.Decimal, kPeriod, dPeriod int) (analytics.StochasticResult, error) {
+	if len(highs) != len(lows) || len(highs) != len(closes) {
+		return analytics.StochasticResult{}, fmt.Errorf("price arrays must have equal length")
 	}
 
-	return result, nil
+	highsFloat := make([]float64, len(highs))
+	lowsFloat := make([]float64, len(lows))
+	closesFloat := make([]float64, len(closes))
+
+	for i := range highs {
+		highsFloat[i], _ = highs[i].Float64()
+		lowsFloat[i], _ = lows[i].Float64()
+		closesFloat[i], _ = closes[i].Float64()
+	}
+
+	k, d, err := stochasticFloat64(highsFloat, lowsFloat, closesFloat, kPeriod, dPeriod)
+	if err != nil {
+		return analytics.StochasticResult{}, err
+	}
+
+	return analytics.StochasticResult{
+		K: numerical.NewFromFloat(k),
+		D: numerical.NewFromFloat(d),
+	}, nil
 }
