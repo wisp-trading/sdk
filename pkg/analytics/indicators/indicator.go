@@ -163,17 +163,7 @@ func (s *indicators) RSI(asset portfolio.Asset, period int, opts ...analytics.In
 		return numerical.Zero(), err
 	}
 
-	rsiValues, err := RSI(prices, period)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	if len(rsiValues) == 0 {
-		return numerical.Zero(), fmt.Errorf("no RSI values calculated")
-	}
-
-	// Return the latest value
-	return rsiValues[len(rsiValues)-1], nil
+	return RSI(prices, period)
 }
 
 // MACD calculates the Moving Average Convergence Divergence indicator.
