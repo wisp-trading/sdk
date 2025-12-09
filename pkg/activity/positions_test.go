@@ -1,6 +1,8 @@
 package activity_test
 
 import (
+	"context"
+
 	mockStoreActivity "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
@@ -24,6 +26,8 @@ var _ = Describe("Positions", func() {
 
 	Describe("GetStrategyExecution", func() {
 		It("should delegate to underlying store", func() {
+			ctx := context.Background()
+
 			strategyName := strategy.StrategyName("test-strategy")
 			expectedExecution := &strategy.StrategyExecution{
 				Orders: []connector.Order{{ID: "order-1"}},
@@ -32,17 +36,19 @@ var _ = Describe("Positions", func() {
 
 			mockStore.EXPECT().GetStrategyExecution(strategyName).Return(expectedExecution)
 
-			result := positions.GetStrategyExecution(strategyName)
+			result := positions.GetStrategyExecution(ctx, strategyName)
 
 			Expect(result).To(Equal(expectedExecution))
 		})
 
 		It("should return nil for unknown strategy", func() {
+			ctx := context.Background()
+
 			strategyName := strategy.StrategyName("unknown")
 
 			mockStore.EXPECT().GetStrategyExecution(strategyName).Return(nil)
 
-			result := positions.GetStrategyExecution(strategyName)
+			result := positions.GetStrategyExecution(ctx, strategyName)
 
 			Expect(result).To(BeNil())
 		})
@@ -50,6 +56,8 @@ var _ = Describe("Positions", func() {
 
 	Describe("GetAllStrategyExecutions", func() {
 		It("should return all executions from underlying store", func() {
+			ctx := context.Background()
+
 			expectedExecutions := map[strategy.StrategyName]*strategy.StrategyExecution{
 				"strategy-1": {Orders: []connector.Order{{ID: "order-1"}}},
 				"strategy-2": {Orders: []connector.Order{{ID: "order-2"}}},
@@ -57,7 +65,7 @@ var _ = Describe("Positions", func() {
 
 			mockStore.EXPECT().GetAllStrategyExecutions().Return(expectedExecutions)
 
-			result := positions.GetAllStrategyExecutions()
+			result := positions.GetAllStrategyExecutions(ctx)
 
 			Expect(result).To(HaveLen(2))
 			Expect(result["strategy-1"].Orders[0].ID).To(Equal("order-1"))
@@ -65,9 +73,11 @@ var _ = Describe("Positions", func() {
 		})
 
 		It("should return empty map when no executions exist", func() {
+			ctx := context.Background()
+
 			mockStore.EXPECT().GetAllStrategyExecutions().Return(map[strategy.StrategyName]*strategy.StrategyExecution{})
 
-			result := positions.GetAllStrategyExecutions()
+			result := positions.GetAllStrategyExecutions(ctx)
 
 			Expect(result).To(BeEmpty())
 		})
@@ -75,23 +85,27 @@ var _ = Describe("Positions", func() {
 
 	Describe("GetStrategyForOrder", func() {
 		It("should find strategy for existing order", func() {
+			ctx := context.Background()
+
 			orderID := "order-123"
 			expectedStrategy := strategy.StrategyName("test-strategy")
 
 			mockStore.EXPECT().GetStrategyForOrder(orderID).Return(expectedStrategy, true)
 
-			name, found := positions.GetStrategyForOrder(orderID)
+			name, found := positions.GetStrategyForOrder(ctx, orderID)
 
 			Expect(found).To(BeTrue())
 			Expect(name).To(Equal(expectedStrategy))
 		})
 
 		It("should return false for unknown order", func() {
+			ctx := context.Background()
+
 			orderID := "unknown-order"
 
 			mockStore.EXPECT().GetStrategyForOrder(orderID).Return(strategy.StrategyName(""), false)
 
-			_, found := positions.GetStrategyForOrder(orderID)
+			_, found := positions.GetStrategyForOrder(ctx, orderID)
 
 			Expect(found).To(BeFalse())
 		})
@@ -99,17 +113,21 @@ var _ = Describe("Positions", func() {
 
 	Describe("GetTotalOrderCount", func() {
 		It("should return count from underlying store", func() {
+			ctx := context.Background()
+
 			mockStore.EXPECT().GetTotalOrderCount().Return(int64(42))
 
-			result := positions.GetTotalOrderCount()
+			result := positions.GetTotalOrderCount(ctx)
 
 			Expect(result).To(Equal(int64(42)))
 		})
 
 		It("should return zero when no orders exist", func() {
+			ctx := context.Background()
+
 			mockStore.EXPECT().GetTotalOrderCount().Return(int64(0))
 
-			result := positions.GetTotalOrderCount()
+			result := positions.GetTotalOrderCount(ctx)
 
 			Expect(result).To(Equal(int64(0)))
 		})
@@ -117,6 +135,8 @@ var _ = Describe("Positions", func() {
 
 	Describe("GetTradesForStrategy", func() {
 		It("should return trades from underlying store", func() {
+			ctx := context.Background()
+
 			strategyName := strategy.StrategyName("test-strategy")
 			expectedTrades := []connector.Trade{
 				{ID: "trade-1", Price: numerical.NewFromFloat(100)},
@@ -125,7 +145,7 @@ var _ = Describe("Positions", func() {
 
 			mockStore.EXPECT().GetTradesForStrategy(strategyName).Return(expectedTrades)
 
-			result := positions.GetTradesForStrategy(strategyName)
+			result := positions.GetTradesForStrategy(ctx, strategyName)
 
 			Expect(result).To(HaveLen(2))
 			Expect(result[0].ID).To(Equal("trade-1"))
@@ -133,11 +153,13 @@ var _ = Describe("Positions", func() {
 		})
 
 		It("should return empty slice when no trades exist", func() {
+			ctx := context.Background()
+
 			strategyName := strategy.StrategyName("test-strategy")
 
 			mockStore.EXPECT().GetTradesForStrategy(strategyName).Return([]connector.Trade{})
 
-			result := positions.GetTradesForStrategy(strategyName)
+			result := positions.GetTradesForStrategy(ctx, strategyName)
 
 			Expect(result).To(BeEmpty())
 		})
