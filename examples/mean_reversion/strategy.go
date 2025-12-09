@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 
 	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
@@ -83,7 +84,7 @@ func NewMeanReversion(k *sdk.Kronos) strategy.Strategy {
 }
 
 // GetSignals generates trading signals based on Bollinger Bands mean reversion
-func (s *meanReversionStrategy) GetSignals() ([]*strategy.Signal, error) {
+func (s *meanReversionStrategy) GetSignals(ctx context.Context) ([]*strategy.Signal, error) {
 	// Determine asset symbol and exchange from exchanges.yml based on config
 	exchangeStr := s.config.Exchange
 	assetSymbol := "BTC" // default

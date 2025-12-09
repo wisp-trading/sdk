@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 
 	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
@@ -73,7 +74,7 @@ func NewMomentum(k *sdk.Kronos) strategy.Strategy {
 }
 
 // GetSignals generates trading signals based on RSI momentum indicators
-func (s *momentumStrategy) GetSignals() ([]*strategy.Signal, error) {
+func (s *momentumStrategy) GetSignals(ctx context.Context) ([]*strategy.Signal, error) {
 	// Determine asset symbol and exchange from exchanges.yml based on config
 	exchangeStr := s.config.Exchange
 	assetSymbol := "BTC" // default

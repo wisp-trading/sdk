@@ -1,6 +1,8 @@
 package activity
 
 import (
+	"context"
+
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
@@ -9,18 +11,18 @@ import (
 // PNL provides profit and loss calculations
 type PNL interface {
 	// Realized PNL (from executed trades)
-	GetRealizedPNL(strategy strategy.StrategyName) numerical.Decimal
-	GetRealizedPNLByAsset(asset portfolio.Asset) numerical.Decimal
-	GetTotalRealizedPNL() numerical.Decimal
+	GetRealizedPNL(ctx context.Context, strategy strategy.StrategyName) numerical.Decimal
+	GetRealizedPNLByAsset(ctx context.Context, asset portfolio.Asset) numerical.Decimal
+	GetTotalRealizedPNL(ctx context.Context) numerical.Decimal
 
 	// Unrealized PNL (requires current market prices)
-	GetUnrealizedPNL(strategy strategy.StrategyName) (numerical.Decimal, error)
-	GetTotalUnrealizedPNL() (numerical.Decimal, error)
+	GetUnrealizedPNL(ctx context.Context, strategy strategy.StrategyName) (numerical.Decimal, error)
+	GetTotalUnrealizedPNL(ctx context.Context) (numerical.Decimal, error)
 
 	// Combined
-	GetTotalPNL() (numerical.Decimal, error)
+	GetTotalPNL(ctx context.Context) (numerical.Decimal, error)
 
 	// Fee tracking
-	GetTotalFees() numerical.Decimal
-	GetFeesByStrategy(strategy strategy.StrategyName) numerical.Decimal
+	GetTotalFees(ctx context.Context) numerical.Decimal
+	GetFeesByStrategy(ctx context.Context, strategy strategy.StrategyName) numerical.Decimal
 }

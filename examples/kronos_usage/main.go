@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
@@ -24,7 +25,7 @@ func NewExampleStrategy(k kronos.Kronos) strategy.Strategy {
 }
 
 // GetSignals demonstrates all Kronos API features
-func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
+func (s *ExampleStrategy) GetSignals(ctx context.Context) ([]*strategy.Signal, error) {
 	s.k.Log().Info("🔍 Starting signal generation for Example Strategy")
 
 	// Create assets using helper
@@ -34,7 +35,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	// === INDICATOR EXAMPLES ===
 
 	// Get SMA - simple, one-line call
-	sma20, err := s.k.Indicators().SMA(btc, 20)
+	sma20, err := s.k.Indicators().SMA(ctx, btc, 20)
 	if err != nil {
 		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to calculate SMA: %v", err)
 	} else {
@@ -42,7 +43,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	// Get EMA with custom exchange
-	ema50, err := s.k.Indicators().EMA(btc, 50, analytics.IndicatorOptions{
+	ema50, err := s.k.Indicators().EMA(ctx, btc, 50, analytics.IndicatorOptions{
 		Exchange: connector.ExchangeName("binance"),
 		Interval: "4h",
 	})
@@ -53,7 +54,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	// Get RSI
-	rsi, err := s.k.Indicators().RSI(btc, 14)
+	rsi, err := s.k.Indicators().RSI(ctx, btc, 14)
 	if err != nil {
 		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to calculate RSI: %v", err)
 	} else {
@@ -61,7 +62,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	// Get MACD
-	macd, err := s.k.Indicators().MACD(btc, 12, 26, 9)
+	macd, err := s.k.Indicators().MACD(ctx, btc, 12, 26, 9)
 	if err != nil {
 		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to calculate MACD: %v", err)
 	} else {
@@ -70,7 +71,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	// Get Bollinger Bands
-	bb, err := s.k.Indicators().BollingerBands(btc, 20, 2.0)
+	bb, err := s.k.Indicators().BollingerBands(ctx, btc, 20, 2.0)
 	if err != nil {
 		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to calculate Bollinger Bands: %v", err)
 	} else {
@@ -81,7 +82,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	// === MARKET DATA EXAMPLES ===
 
 	// Get current price - simple
-	price, err := s.k.Market().Price(btc)
+	price, err := s.k.Market().Price(ctx, btc)
 	if err != nil {
 		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to get price: %v", err)
 	} else {
@@ -89,20 +90,20 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	// Get prices across all exchanges
-	prices := s.k.Market().Prices(btc)
+	prices := s.k.Market().Prices(ctx, btc)
 	for exchange, p := range prices {
 		s.k.Log().Debug("ExampleStrategy", btc.Symbol(), "Price on %s: %s", exchange, p.String())
 	}
 
 	// Get funding rates
-	fundingRates := s.k.Market().FundingRates(btc)
+	fundingRates := s.k.Market().FundingRates(ctx, btc)
 	for exchange, rate := range fundingRates {
 		s.k.Log().Debug("ExampleStrategy", btc.Symbol(), "Funding rate on %s: %s (Next: %s)",
 			exchange, rate.CurrentRate.String(), rate.NextFundingTime.String())
 	}
 
 	// Find arbitrage opportunities (minimum 10 bps spread)
-	arbOpps := s.k.Market().FindArbitrage(btc, numerical.NewFromInt(10))
+	arbOpps := s.k.Market().FindArbitrage(ctx, btc, numerical.NewFromInt(10))
 	for _, opp := range arbOpps {
 		s.k.Log().Opportunity("ExampleStrategy", btc.Symbol(),
 			"Arbitrage: Buy %s @ %s, Sell %s @ %s, Spread: %s bps",
@@ -114,7 +115,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	// === ANALYTICS EXAMPLES ===
 
 	// Calculate volatility
-	vol, err := s.k.Analytics().Volatility(btc, 24)
+	vol, err := s.k.Analytics().Volatility(ctx, btc, 24)
 	if err != nil {
 		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to calculate volatility: %v", err)
 	} else {
@@ -122,7 +123,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	// Analyze trend
-	trend, err := s.k.Analytics().Trend(btc, 50)
+	trend, err := s.k.Analytics().Trend(ctx, btc, 50)
 	if err != nil {
 		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to analyze trend: %v", err)
 	} else {
@@ -131,7 +132,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	// Analyze volume
-	volumeAnalysis, err := s.k.Analytics().VolumeAnalysis(btc, 24)
+	volumeAnalysis, err := s.k.Analytics().VolumeAnalysis(ctx, btc, 24)
 	if err != nil {
 		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to analyze volume: %v", err)
 	} else {
@@ -145,7 +146,7 @@ func (s *ExampleStrategy) GetSignals() ([]*strategy.Signal, error) {
 	}
 
 	// Get price change
-	priceChange, err := s.k.Analytics().GetPriceChange(btc, 24)
+	priceChange, err := s.k.Analytics().GetPriceChange(ctx, btc, 24)
 	if err != nil {
 		s.k.Log().Failed("ExampleStrategy", btc.Symbol(), "Failed to get price change: %v", err)
 	} else {

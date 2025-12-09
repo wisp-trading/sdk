@@ -193,8 +193,11 @@ func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
 	strategyMutex.Lock()
 	defer strategyMutex.Unlock()
 
+	// Create context for this strategy execution
+	ctx := context.Background()
+
 	startTime := o.timeProvider.Now()
-	signals, err := strat.GetSignals()
+	signals, err := strat.GetSignals(ctx)
 	duration := o.timeProvider.Since(startTime)
 
 	if err != nil {
