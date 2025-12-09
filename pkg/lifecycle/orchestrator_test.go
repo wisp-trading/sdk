@@ -76,6 +76,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			// Execute
@@ -96,6 +98,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			// Execute
@@ -119,6 +123,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -142,6 +148,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -171,6 +179,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -194,6 +204,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -227,6 +239,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -265,6 +279,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -295,6 +311,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -319,6 +337,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -357,6 +377,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -408,6 +430,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -442,6 +466,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			// Execute
