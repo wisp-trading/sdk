@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"time"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	analyticsTypes "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
@@ -27,6 +29,13 @@ func NewAnalyticsService(store market.MarketData) analyticsTypes.Analytics {
 // Volatility calculates the standard deviation of returns for an asset.
 // Returns annualized volatility as a percentage.
 func (s *analytics) Volatility(ctx context.Context, asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (numerical.Decimal, error) {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("Volatility", time.Since(start))
+		}
+	}()
+
 	options := s.parseOptions(opts...)
 
 	prices, err := s.fetchClosePrices(asset, period+1, opts...)
@@ -74,6 +83,13 @@ func (s *analytics) Volatility(ctx context.Context, asset portfolio.Asset, perio
 // Trend analyzes the price trend for an asset using linear regression.
 // Returns trend direction and strength.
 func (s *analytics) Trend(ctx context.Context, asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.TrendResult, error) {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("Trend", time.Since(start))
+		}
+	}()
+
 	prices, err := s.fetchClosePrices(asset, period, opts...)
 	if err != nil {
 		return nil, err
@@ -144,6 +160,13 @@ func (s *analytics) Trend(ctx context.Context, asset portfolio.Asset, period int
 
 // VolumeAnalysis detects volume patterns and spikes.
 func (s *analytics) VolumeAnalysis(ctx context.Context, asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.VolumeAnalysis, error) {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("VolumeAnalysis", time.Since(start))
+		}
+	}()
+
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -219,6 +242,13 @@ func (s *analytics) VolumeAnalysis(ctx context.Context, asset portfolio.Asset, p
 
 // GetPriceChange calculates price statistics over a period.
 func (s *analytics) GetPriceChange(ctx context.Context, asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.PriceChange, error) {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("GetPriceChange", time.Since(start))
+		}
+	}()
+
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval

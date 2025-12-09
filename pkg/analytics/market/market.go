@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"time"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
@@ -121,6 +123,13 @@ func (s *marketService) OrderBook(ctx context.Context, asset portfolio.Asset, op
 // FindArbitrage finds arbitrage opportunities for an asset across exchanges.
 // Returns opportunities sorted by spread (highest first).
 func (s *marketService) FindArbitrage(ctx context.Context, asset portfolio.Asset, minSpreadBps numerical.Decimal) []analytics.ArbitrageOpportunity {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("FindArbitrage", time.Since(start))
+		}
+	}()
+
 	priceMap := s.store.GetAssetPrices(asset)
 	if len(priceMap) < 2 {
 		return nil // Need at least 2 exchanges for arbitrage
