@@ -27,7 +27,9 @@ package indicators
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
@@ -78,6 +80,13 @@ func NewIndicators(store market.MarketData) analytics.Indicators {
 //   - Calculates the moving average
 //   - Returns the current value
 func (s *indicators) SMA(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("SMA", time.Since(start))
+		}
+	}()
+
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
 		return numerical.Zero(), err
@@ -116,6 +125,13 @@ func (s *indicators) SMA(ctx context.Context, asset portfolio.Asset, period int,
 //   - Applies exponential weighting
 //   - Returns the current EMA value
 func (s *indicators) EMA(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("EMA", time.Since(start))
+		}
+	}()
+
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
 		return numerical.Zero(), err
@@ -159,6 +175,13 @@ func (s *indicators) EMA(ctx context.Context, asset portfolio.Asset, period int,
 //   - Calculates gains and losses
 //   - Computes the RSI value
 func (s *indicators) RSI(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("RSI", time.Since(start))
+		}
+	}()
+
 	prices, err := s.fetchClosePrices(asset, (period+1)*dataMultiplier, opts...)
 	if err != nil {
 		return numerical.Zero(), err
@@ -205,6 +228,13 @@ func (s *indicators) RSI(ctx context.Context, asset portfolio.Asset, period int,
 //   - Histogram growing: Momentum strengthening
 //   - Histogram shrinking: Momentum weakening
 func (s *indicators) MACD(ctx context.Context, asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...analytics.IndicatorOptions) (*analytics.MACDResult, error) {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("MACD", time.Since(start))
+		}
+	}()
+
 	requiredData := (slowPeriod + signalPeriod) * dataMultiplier
 	prices, err := s.fetchClosePrices(asset, requiredData, opts...)
 	if err != nil {
@@ -258,6 +288,13 @@ func (s *indicators) MACD(ctx context.Context, asset portfolio.Asset, fastPeriod
 //   - Bands narrowing: Low volatility (potential breakout)
 //   - Bands widening: High volatility
 func (s *indicators) BollingerBands(ctx context.Context, asset portfolio.Asset, period int, stdDev float64, opts ...analytics.IndicatorOptions) (*analytics.BollingerBandsResult, error) {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("BollingerBands", time.Since(start))
+		}
+	}()
+
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
 		return nil, err
@@ -313,6 +350,13 @@ func (s *indicators) BollingerBands(ctx context.Context, asset portfolio.Asset, 
 //   - Both in oversold zone: Potential reversal up
 //   - Both in overbought zone: Potential reversal down
 func (s *indicators) Stochastic(ctx context.Context, asset portfolio.Asset, kPeriod, dPeriod int, opts ...analytics.IndicatorOptions) (*analytics.StochasticResult, error) {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("Stochastic", time.Since(start))
+		}
+	}()
+
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -387,6 +431,13 @@ func (s *indicators) Stochastic(ctx context.Context, asset portfolio.Asset, kPer
 //   - Rising ATR: Volatility increasing
 //   - Falling ATR: Volatility decreasing
 func (s *indicators) ATR(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("ATR", time.Since(start))
+		}
+	}()
+
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
