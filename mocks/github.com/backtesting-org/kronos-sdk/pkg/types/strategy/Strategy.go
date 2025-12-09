@@ -3,6 +3,8 @@
 package strategy
 
 import (
+	context "context"
+
 	strategy "github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -245,9 +247,9 @@ func (_c *Strategy_GetRiskLevel_Call) RunAndReturn(run func() strategy.RiskLevel
 	return _c
 }
 
-// GetSignals provides a mock function with no fields
-func (_m *Strategy) GetSignals() ([]*strategy.Signal, error) {
-	ret := _m.Called()
+// GetSignals provides a mock function with given fields: ctx
+func (_m *Strategy) GetSignals(ctx context.Context) ([]*strategy.Signal, error) {
+	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetSignals")
@@ -255,19 +257,19 @@ func (_m *Strategy) GetSignals() ([]*strategy.Signal, error) {
 
 	var r0 []*strategy.Signal
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]*strategy.Signal, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(context.Context) ([]*strategy.Signal, error)); ok {
+		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func() []*strategy.Signal); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context) []*strategy.Signal); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*strategy.Signal)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -281,13 +283,14 @@ type Strategy_GetSignals_Call struct {
 }
 
 // GetSignals is a helper method to define mock.On call
-func (_e *Strategy_Expecter) GetSignals() *Strategy_GetSignals_Call {
-	return &Strategy_GetSignals_Call{Call: _e.mock.On("GetSignals")}
+//   - ctx context.Context
+func (_e *Strategy_Expecter) GetSignals(ctx interface{}) *Strategy_GetSignals_Call {
+	return &Strategy_GetSignals_Call{Call: _e.mock.On("GetSignals", ctx)}
 }
 
-func (_c *Strategy_GetSignals_Call) Run(run func()) *Strategy_GetSignals_Call {
+func (_c *Strategy_GetSignals_Call) Run(run func(ctx context.Context)) *Strategy_GetSignals_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(context.Context))
 	})
 	return _c
 }
@@ -297,7 +300,7 @@ func (_c *Strategy_GetSignals_Call) Return(_a0 []*strategy.Signal, _a1 error) *S
 	return _c
 }
 
-func (_c *Strategy_GetSignals_Call) RunAndReturn(run func() ([]*strategy.Signal, error)) *Strategy_GetSignals_Call {
+func (_c *Strategy_GetSignals_Call) RunAndReturn(run func(context.Context) ([]*strategy.Signal, error)) *Strategy_GetSignals_Call {
 	_c.Call.Return(run)
 	return _c
 }

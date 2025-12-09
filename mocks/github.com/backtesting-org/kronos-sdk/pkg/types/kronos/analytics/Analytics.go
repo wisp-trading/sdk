@@ -3,7 +3,10 @@
 package analytics
 
 import (
+	context "context"
+
 	analytics "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
+
 	mock "github.com/stretchr/testify/mock"
 
 	numerical "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
@@ -24,14 +27,14 @@ func (_m *Analytics) EXPECT() *Analytics_Expecter {
 	return &Analytics_Expecter{mock: &_m.Mock}
 }
 
-// GetPriceChange provides a mock function with given fields: asset, period, opts
-func (_m *Analytics) GetPriceChange(asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions) (*analytics.PriceChange, error) {
+// GetPriceChange provides a mock function with given fields: ctx, asset, period, opts
+func (_m *Analytics) GetPriceChange(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions) (*analytics.PriceChange, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, asset, period)
+	_ca = append(_ca, ctx, asset, period)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -41,19 +44,19 @@ func (_m *Analytics) GetPriceChange(asset portfolio.Asset, period int, opts ...a
 
 	var r0 *analytics.PriceChange
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.AnalyticsOptions) (*analytics.PriceChange, error)); ok {
-		return rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) (*analytics.PriceChange, error)); ok {
+		return rf(ctx, asset, period, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.AnalyticsOptions) *analytics.PriceChange); ok {
-		r0 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) *analytics.PriceChange); ok {
+		r0 = rf(ctx, asset, period, opts...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*analytics.PriceChange)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int, ...analytics.AnalyticsOptions) error); ok {
-		r1 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) error); ok {
+		r1 = rf(ctx, asset, period, opts...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -67,23 +70,24 @@ type Analytics_GetPriceChange_Call struct {
 }
 
 // GetPriceChange is a helper method to define mock.On call
+//   - ctx context.Context
 //   - asset portfolio.Asset
 //   - period int
 //   - opts ...analytics.AnalyticsOptions
-func (_e *Analytics_Expecter) GetPriceChange(asset interface{}, period interface{}, opts ...interface{}) *Analytics_GetPriceChange_Call {
+func (_e *Analytics_Expecter) GetPriceChange(ctx interface{}, asset interface{}, period interface{}, opts ...interface{}) *Analytics_GetPriceChange_Call {
 	return &Analytics_GetPriceChange_Call{Call: _e.mock.On("GetPriceChange",
-		append([]interface{}{asset, period}, opts...)...)}
+		append([]interface{}{ctx, asset, period}, opts...)...)}
 }
 
-func (_c *Analytics_GetPriceChange_Call) Run(run func(asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions)) *Analytics_GetPriceChange_Call {
+func (_c *Analytics_GetPriceChange_Call) Run(run func(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions)) *Analytics_GetPriceChange_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]analytics.AnalyticsOptions, len(args)-2)
-		for i, a := range args[2:] {
+		variadicArgs := make([]analytics.AnalyticsOptions, len(args)-3)
+		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(analytics.AnalyticsOptions)
 			}
 		}
-		run(args[0].(portfolio.Asset), args[1].(int), variadicArgs...)
+		run(args[0].(context.Context), args[1].(portfolio.Asset), args[2].(int), variadicArgs...)
 	})
 	return _c
 }
@@ -93,19 +97,19 @@ func (_c *Analytics_GetPriceChange_Call) Return(_a0 *analytics.PriceChange, _a1 
 	return _c
 }
 
-func (_c *Analytics_GetPriceChange_Call) RunAndReturn(run func(portfolio.Asset, int, ...analytics.AnalyticsOptions) (*analytics.PriceChange, error)) *Analytics_GetPriceChange_Call {
+func (_c *Analytics_GetPriceChange_Call) RunAndReturn(run func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) (*analytics.PriceChange, error)) *Analytics_GetPriceChange_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Trend provides a mock function with given fields: asset, period, opts
-func (_m *Analytics) Trend(asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions) (*analytics.TrendResult, error) {
+// Trend provides a mock function with given fields: ctx, asset, period, opts
+func (_m *Analytics) Trend(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions) (*analytics.TrendResult, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, asset, period)
+	_ca = append(_ca, ctx, asset, period)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -115,19 +119,19 @@ func (_m *Analytics) Trend(asset portfolio.Asset, period int, opts ...analytics.
 
 	var r0 *analytics.TrendResult
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.AnalyticsOptions) (*analytics.TrendResult, error)); ok {
-		return rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) (*analytics.TrendResult, error)); ok {
+		return rf(ctx, asset, period, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.AnalyticsOptions) *analytics.TrendResult); ok {
-		r0 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) *analytics.TrendResult); ok {
+		r0 = rf(ctx, asset, period, opts...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*analytics.TrendResult)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int, ...analytics.AnalyticsOptions) error); ok {
-		r1 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) error); ok {
+		r1 = rf(ctx, asset, period, opts...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -141,23 +145,24 @@ type Analytics_Trend_Call struct {
 }
 
 // Trend is a helper method to define mock.On call
+//   - ctx context.Context
 //   - asset portfolio.Asset
 //   - period int
 //   - opts ...analytics.AnalyticsOptions
-func (_e *Analytics_Expecter) Trend(asset interface{}, period interface{}, opts ...interface{}) *Analytics_Trend_Call {
+func (_e *Analytics_Expecter) Trend(ctx interface{}, asset interface{}, period interface{}, opts ...interface{}) *Analytics_Trend_Call {
 	return &Analytics_Trend_Call{Call: _e.mock.On("Trend",
-		append([]interface{}{asset, period}, opts...)...)}
+		append([]interface{}{ctx, asset, period}, opts...)...)}
 }
 
-func (_c *Analytics_Trend_Call) Run(run func(asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions)) *Analytics_Trend_Call {
+func (_c *Analytics_Trend_Call) Run(run func(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions)) *Analytics_Trend_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]analytics.AnalyticsOptions, len(args)-2)
-		for i, a := range args[2:] {
+		variadicArgs := make([]analytics.AnalyticsOptions, len(args)-3)
+		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(analytics.AnalyticsOptions)
 			}
 		}
-		run(args[0].(portfolio.Asset), args[1].(int), variadicArgs...)
+		run(args[0].(context.Context), args[1].(portfolio.Asset), args[2].(int), variadicArgs...)
 	})
 	return _c
 }
@@ -167,19 +172,19 @@ func (_c *Analytics_Trend_Call) Return(_a0 *analytics.TrendResult, _a1 error) *A
 	return _c
 }
 
-func (_c *Analytics_Trend_Call) RunAndReturn(run func(portfolio.Asset, int, ...analytics.AnalyticsOptions) (*analytics.TrendResult, error)) *Analytics_Trend_Call {
+func (_c *Analytics_Trend_Call) RunAndReturn(run func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) (*analytics.TrendResult, error)) *Analytics_Trend_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Volatility provides a mock function with given fields: asset, period, opts
-func (_m *Analytics) Volatility(asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions) (numerical.Decimal, error) {
+// Volatility provides a mock function with given fields: ctx, asset, period, opts
+func (_m *Analytics) Volatility(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions) (numerical.Decimal, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, asset, period)
+	_ca = append(_ca, ctx, asset, period)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -189,17 +194,17 @@ func (_m *Analytics) Volatility(asset portfolio.Asset, period int, opts ...analy
 
 	var r0 numerical.Decimal
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.AnalyticsOptions) (numerical.Decimal, error)); ok {
-		return rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) (numerical.Decimal, error)); ok {
+		return rf(ctx, asset, period, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.AnalyticsOptions) numerical.Decimal); ok {
-		r0 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) numerical.Decimal); ok {
+		r0 = rf(ctx, asset, period, opts...)
 	} else {
 		r0 = ret.Get(0).(numerical.Decimal)
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int, ...analytics.AnalyticsOptions) error); ok {
-		r1 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) error); ok {
+		r1 = rf(ctx, asset, period, opts...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -213,23 +218,24 @@ type Analytics_Volatility_Call struct {
 }
 
 // Volatility is a helper method to define mock.On call
+//   - ctx context.Context
 //   - asset portfolio.Asset
 //   - period int
 //   - opts ...analytics.AnalyticsOptions
-func (_e *Analytics_Expecter) Volatility(asset interface{}, period interface{}, opts ...interface{}) *Analytics_Volatility_Call {
+func (_e *Analytics_Expecter) Volatility(ctx interface{}, asset interface{}, period interface{}, opts ...interface{}) *Analytics_Volatility_Call {
 	return &Analytics_Volatility_Call{Call: _e.mock.On("Volatility",
-		append([]interface{}{asset, period}, opts...)...)}
+		append([]interface{}{ctx, asset, period}, opts...)...)}
 }
 
-func (_c *Analytics_Volatility_Call) Run(run func(asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions)) *Analytics_Volatility_Call {
+func (_c *Analytics_Volatility_Call) Run(run func(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions)) *Analytics_Volatility_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]analytics.AnalyticsOptions, len(args)-2)
-		for i, a := range args[2:] {
+		variadicArgs := make([]analytics.AnalyticsOptions, len(args)-3)
+		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(analytics.AnalyticsOptions)
 			}
 		}
-		run(args[0].(portfolio.Asset), args[1].(int), variadicArgs...)
+		run(args[0].(context.Context), args[1].(portfolio.Asset), args[2].(int), variadicArgs...)
 	})
 	return _c
 }
@@ -239,19 +245,19 @@ func (_c *Analytics_Volatility_Call) Return(_a0 numerical.Decimal, _a1 error) *A
 	return _c
 }
 
-func (_c *Analytics_Volatility_Call) RunAndReturn(run func(portfolio.Asset, int, ...analytics.AnalyticsOptions) (numerical.Decimal, error)) *Analytics_Volatility_Call {
+func (_c *Analytics_Volatility_Call) RunAndReturn(run func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) (numerical.Decimal, error)) *Analytics_Volatility_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// VolumeAnalysis provides a mock function with given fields: asset, period, opts
-func (_m *Analytics) VolumeAnalysis(asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions) (*analytics.VolumeAnalysis, error) {
+// VolumeAnalysis provides a mock function with given fields: ctx, asset, period, opts
+func (_m *Analytics) VolumeAnalysis(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions) (*analytics.VolumeAnalysis, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, asset, period)
+	_ca = append(_ca, ctx, asset, period)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -261,19 +267,19 @@ func (_m *Analytics) VolumeAnalysis(asset portfolio.Asset, period int, opts ...a
 
 	var r0 *analytics.VolumeAnalysis
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.AnalyticsOptions) (*analytics.VolumeAnalysis, error)); ok {
-		return rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) (*analytics.VolumeAnalysis, error)); ok {
+		return rf(ctx, asset, period, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.AnalyticsOptions) *analytics.VolumeAnalysis); ok {
-		r0 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) *analytics.VolumeAnalysis); ok {
+		r0 = rf(ctx, asset, period, opts...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*analytics.VolumeAnalysis)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int, ...analytics.AnalyticsOptions) error); ok {
-		r1 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) error); ok {
+		r1 = rf(ctx, asset, period, opts...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -287,23 +293,24 @@ type Analytics_VolumeAnalysis_Call struct {
 }
 
 // VolumeAnalysis is a helper method to define mock.On call
+//   - ctx context.Context
 //   - asset portfolio.Asset
 //   - period int
 //   - opts ...analytics.AnalyticsOptions
-func (_e *Analytics_Expecter) VolumeAnalysis(asset interface{}, period interface{}, opts ...interface{}) *Analytics_VolumeAnalysis_Call {
+func (_e *Analytics_Expecter) VolumeAnalysis(ctx interface{}, asset interface{}, period interface{}, opts ...interface{}) *Analytics_VolumeAnalysis_Call {
 	return &Analytics_VolumeAnalysis_Call{Call: _e.mock.On("VolumeAnalysis",
-		append([]interface{}{asset, period}, opts...)...)}
+		append([]interface{}{ctx, asset, period}, opts...)...)}
 }
 
-func (_c *Analytics_VolumeAnalysis_Call) Run(run func(asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions)) *Analytics_VolumeAnalysis_Call {
+func (_c *Analytics_VolumeAnalysis_Call) Run(run func(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.AnalyticsOptions)) *Analytics_VolumeAnalysis_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]analytics.AnalyticsOptions, len(args)-2)
-		for i, a := range args[2:] {
+		variadicArgs := make([]analytics.AnalyticsOptions, len(args)-3)
+		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(analytics.AnalyticsOptions)
 			}
 		}
-		run(args[0].(portfolio.Asset), args[1].(int), variadicArgs...)
+		run(args[0].(context.Context), args[1].(portfolio.Asset), args[2].(int), variadicArgs...)
 	})
 	return _c
 }
@@ -313,7 +320,7 @@ func (_c *Analytics_VolumeAnalysis_Call) Return(_a0 *analytics.VolumeAnalysis, _
 	return _c
 }
 
-func (_c *Analytics_VolumeAnalysis_Call) RunAndReturn(run func(portfolio.Asset, int, ...analytics.AnalyticsOptions) (*analytics.VolumeAnalysis, error)) *Analytics_VolumeAnalysis_Call {
+func (_c *Analytics_VolumeAnalysis_Call) RunAndReturn(run func(context.Context, portfolio.Asset, int, ...analytics.AnalyticsOptions) (*analytics.VolumeAnalysis, error)) *Analytics_VolumeAnalysis_Call {
 	_c.Call.Return(run)
 	return _c
 }
