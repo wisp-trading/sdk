@@ -25,6 +25,7 @@
 package indicators
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
@@ -76,7 +77,7 @@ func NewIndicators(store market.MarketData) analytics.Indicators {
 //   - Fetches price data from the exchange
 //   - Calculates the moving average
 //   - Returns the current value
-func (s *indicators) SMA(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+func (s *indicators) SMA(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
 		return numerical.Zero(), err
@@ -114,7 +115,7 @@ func (s *indicators) SMA(asset portfolio.Asset, period int, opts ...analytics.In
 //   - Fetches historical price data
 //   - Applies exponential weighting
 //   - Returns the current EMA value
-func (s *indicators) EMA(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+func (s *indicators) EMA(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
 		return numerical.Zero(), err
@@ -157,7 +158,7 @@ func (s *indicators) EMA(asset portfolio.Asset, period int, opts ...analytics.In
 //   - Fetches price history
 //   - Calculates gains and losses
 //   - Computes the RSI value
-func (s *indicators) RSI(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+func (s *indicators) RSI(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	prices, err := s.fetchClosePrices(asset, (period+1)*dataMultiplier, opts...)
 	if err != nil {
 		return numerical.Zero(), err
@@ -203,7 +204,7 @@ func (s *indicators) RSI(asset portfolio.Asset, period int, opts ...analytics.In
 //   - MACD < Signal: Bearish momentum
 //   - Histogram growing: Momentum strengthening
 //   - Histogram shrinking: Momentum weakening
-func (s *indicators) MACD(asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...analytics.IndicatorOptions) (*analytics.MACDResult, error) {
+func (s *indicators) MACD(ctx context.Context, asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...analytics.IndicatorOptions) (*analytics.MACDResult, error) {
 	requiredData := (slowPeriod + signalPeriod) * dataMultiplier
 	prices, err := s.fetchClosePrices(asset, requiredData, opts...)
 	if err != nil {
@@ -256,7 +257,7 @@ func (s *indicators) MACD(asset portfolio.Asset, fastPeriod, slowPeriod, signalP
 //   - Price near lower band: Oversold
 //   - Bands narrowing: Low volatility (potential breakout)
 //   - Bands widening: High volatility
-func (s *indicators) BollingerBands(asset portfolio.Asset, period int, stdDev float64, opts ...analytics.IndicatorOptions) (*analytics.BollingerBandsResult, error) {
+func (s *indicators) BollingerBands(ctx context.Context, asset portfolio.Asset, period int, stdDev float64, opts ...analytics.IndicatorOptions) (*analytics.BollingerBandsResult, error) {
 	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
 	if err != nil {
 		return nil, err
@@ -311,7 +312,7 @@ func (s *indicators) BollingerBands(asset portfolio.Asset, period int, stdDev fl
 //   - %K crosses below %D: Bearish signal
 //   - Both in oversold zone: Potential reversal up
 //   - Both in overbought zone: Potential reversal down
-func (s *indicators) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opts ...analytics.IndicatorOptions) (*analytics.StochasticResult, error) {
+func (s *indicators) Stochastic(ctx context.Context, asset portfolio.Asset, kPeriod, dPeriod int, opts ...analytics.IndicatorOptions) (*analytics.StochasticResult, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -385,7 +386,7 @@ func (s *indicators) Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opt
 //   - Low ATR: Low volatility, price consolidation
 //   - Rising ATR: Volatility increasing
 //   - Falling ATR: Volatility decreasing
-func (s *indicators) ATR(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+func (s *indicators) ATR(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval

@@ -1,6 +1,8 @@
 package orderbook
 
 import (
+	"context"
+
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
@@ -32,9 +34,9 @@ func NewExtractor(market analytics.Market) *Extractor {
 
 // Extract computes orderbook features and adds them to the feature map.
 // Currently supports: spread, spread_bps, imbalance, bid/ask depth, depth ratio, weighted mid.
-func (e *Extractor) Extract(asset portfolio.Asset, featureMap map[string]float64) error {
+func (e *Extractor) Extract(ctx context.Context, asset portfolio.Asset, featureMap map[string]float64) error {
 	// Get order book
-	orderBook, err := e.market.OrderBook(asset)
+	orderBook, err := e.market.OrderBook(ctx, asset)
 	if err != nil || orderBook == nil {
 		return err
 	}

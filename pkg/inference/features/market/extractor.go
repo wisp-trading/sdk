@@ -1,6 +1,8 @@
 package market
 
 import (
+	"context"
+
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
@@ -33,16 +35,16 @@ func NewExtractor(market analytics.Market) *Extractor {
 // Extract computes market data features and adds them to the feature map.
 // Currently supports: mid_price, bid_price, ask_price, last_price,
 // mark_price, index_price, funding_rate.
-func (e *Extractor) Extract(asset portfolio.Asset, featureMap map[string]float64) error {
+func (e *Extractor) Extract(ctx context.Context, asset portfolio.Asset, featureMap map[string]float64) error {
 
 	// Get last price
-	price, err := e.market.Price(asset)
+	price, err := e.market.Price(ctx, asset)
 	if err == nil {
 		featureMap[featureLastPrice], _ = price.Float64()
 	}
 
 	// Get order book for bid/ask prices
-	orderBook, err := e.market.OrderBook(asset)
+	orderBook, err := e.market.OrderBook(ctx, asset)
 	if err == nil && orderBook != nil {
 		// Extract bid and ask prices
 		if len(orderBook.Bids) > 0 {
@@ -64,7 +66,7 @@ func (e *Extractor) Extract(asset portfolio.Asset, featureMap map[string]float64
 
 	// Get funding rate data (for perpetual futures)
 	// This provides funding_rate, mark_price, and index_price
-	fundingRates := e.market.FundingRates(asset)
+	fundingRates := e.market.FundingRates(ctx, asset)
 	if len(fundingRates) > 0 {
 		// Use first available funding rate
 		for _, rate := range fundingRates {

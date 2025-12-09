@@ -1,6 +1,7 @@
 package analytics
 
 import (
+	"context"
 	"fmt"
 	"math"
 
@@ -25,7 +26,7 @@ func NewAnalyticsService(store market.MarketData) analyticsTypes.Analytics {
 
 // Volatility calculates the standard deviation of returns for an asset.
 // Returns annualized volatility as a percentage.
-func (s *analytics) Volatility(asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (numerical.Decimal, error) {
+func (s *analytics) Volatility(ctx context.Context, asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (numerical.Decimal, error) {
 	options := s.parseOptions(opts...)
 
 	prices, err := s.fetchClosePrices(asset, period+1, opts...)
@@ -72,7 +73,7 @@ func (s *analytics) Volatility(asset portfolio.Asset, period int, opts ...analyt
 
 // Trend analyzes the price trend for an asset using linear regression.
 // Returns trend direction and strength.
-func (s *analytics) Trend(asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.TrendResult, error) {
+func (s *analytics) Trend(ctx context.Context, asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.TrendResult, error) {
 	prices, err := s.fetchClosePrices(asset, period, opts...)
 	if err != nil {
 		return nil, err
@@ -142,7 +143,7 @@ func (s *analytics) Trend(asset portfolio.Asset, period int, opts ...analyticsTy
 }
 
 // VolumeAnalysis detects volume patterns and spikes.
-func (s *analytics) VolumeAnalysis(asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.VolumeAnalysis, error) {
+func (s *analytics) VolumeAnalysis(ctx context.Context, asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.VolumeAnalysis, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -217,7 +218,7 @@ func (s *analytics) VolumeAnalysis(asset portfolio.Asset, period int, opts ...an
 }
 
 // GetPriceChange calculates price statistics over a period.
-func (s *analytics) GetPriceChange(asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.PriceChange, error) {
+func (s *analytics) GetPriceChange(ctx context.Context, asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.PriceChange, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval

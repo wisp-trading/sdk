@@ -1,6 +1,7 @@
 package analytics
 
 import (
+	"context"
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
@@ -52,9 +53,9 @@ func NewExtractor(analytics analyticsTypes.Analytics, trades activity.Trades, ti
 // Extract computes analytics features and adds them to the feature map.
 // Currently supports: volatility (5m, 1h, ratio), volume (1m, 5m, ratio, buy ratio, trade count),
 // and time-based features (hour, day of week, minute).
-func (e *Extractor) Extract(asset portfolio.Asset, featureMap map[string]float64) error {
+func (e *Extractor) Extract(ctx context.Context, asset portfolio.Asset, featureMap map[string]float64) error {
 	// Calculate 5-minute volatility
-	vol5m, err := e.analytics.Volatility(asset, 5, analyticsTypes.AnalyticsOptions{
+	vol5m, err := e.analytics.Volatility(ctx, asset, 5, analyticsTypes.AnalyticsOptions{
 		Interval: "1m", // 5 periods of 1-minute data
 	})
 	if err == nil {
@@ -62,7 +63,7 @@ func (e *Extractor) Extract(asset portfolio.Asset, featureMap map[string]float64
 	}
 
 	// Calculate 1-hour volatility
-	vol1h, err := e.analytics.Volatility(asset, 60, analyticsTypes.AnalyticsOptions{
+	vol1h, err := e.analytics.Volatility(ctx, asset, 60, analyticsTypes.AnalyticsOptions{
 		Interval: "1m", // 60 periods of 1-minute data
 	})
 	if err == nil {
@@ -78,7 +79,7 @@ func (e *Extractor) Extract(asset portfolio.Asset, featureMap map[string]float64
 	}
 
 	// Get volume analysis (20-period lookback)
-	volAnalysis, err := e.analytics.VolumeAnalysis(asset, 20, analyticsTypes.AnalyticsOptions{
+	volAnalysis, err := e.analytics.VolumeAnalysis(ctx, asset, 20, analyticsTypes.AnalyticsOptions{
 		Interval: "1m",
 	})
 	if err == nil {

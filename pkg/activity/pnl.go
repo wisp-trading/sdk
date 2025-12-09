@@ -1,6 +1,8 @@
 package activity
 
 import (
+	"context"
+
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	kronosActivity "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
@@ -139,8 +141,8 @@ func calculateFromTrades(trades []connector.Trade) (numerical.Decimal, map[strin
 }
 
 // GetRealizedPNL returns the realized PNL for a strategy (net of fees)
-func (p *pnl) GetRealizedPNL(strategyName strategy.StrategyName) numerical.Decimal {
-	trades := p.positions.GetTradesForStrategy(strategyName)
+func (p *pnl) GetRealizedPNL(ctx context.Context, strategyName strategy.StrategyName) numerical.Decimal {
+	trades := p.positions.GetTradesForStrategy(ctx, strategyName)
 	realizedPnl, _ := calculateFromTrades(trades)
 
 	// Calculate fees inline to avoid extra call
@@ -153,8 +155,8 @@ func (p *pnl) GetRealizedPNL(strategyName strategy.StrategyName) numerical.Decim
 }
 
 // GetRealizedPNLByAsset returns the realized PNL for a specific asset across all strategies
-func (p *pnl) GetRealizedPNLByAsset(asset portfolio.Asset) numerical.Decimal {
-	trades := p.trades.GetTradesByAsset(asset)
+func (p *pnl) GetRealizedPNLByAsset(ctx context.Context, asset portfolio.Asset) numerical.Decimal {
+	trades := p.trades.GetTradesByAsset(ctx, asset)
 	realizedPnl, _ := calculateFromTrades(trades)
 
 	// Subtract fees for this asset
@@ -167,8 +169,8 @@ func (p *pnl) GetRealizedPNLByAsset(asset portfolio.Asset) numerical.Decimal {
 }
 
 // GetTotalRealizedPNL returns the total realized PNL across all strategies
-func (p *pnl) GetTotalRealizedPNL() numerical.Decimal {
-	allTrades := p.trades.GetAllTrades()
+func (p *pnl) GetTotalRealizedPNL(ctx context.Context) numerical.Decimal {
+	allTrades := p.trades.GetAllTrades(ctx)
 	realizedPnl, _ := calculateFromTrades(allTrades)
 
 	// Calculate fees inline to avoid extra call
@@ -181,8 +183,8 @@ func (p *pnl) GetTotalRealizedPNL() numerical.Decimal {
 }
 
 // GetUnrealizedPNL returns the unrealized PNL for a strategy
-func (p *pnl) GetUnrealizedPNL(strategyName strategy.StrategyName) (numerical.Decimal, error) {
-	trades := p.positions.GetTradesForStrategy(strategyName)
+func (p *pnl) GetUnrealizedPNL(ctx context.Context, strategyName strategy.StrategyName) (numerical.Decimal, error) {
+	trades := p.positions.GetTradesForStrategy(ctx, strategyName)
 	_, openPositions := calculateFromTrades(trades)
 
 	unrealizedPnl := numerical.Zero()
@@ -191,7 +193,7 @@ func (p *pnl) GetUnrealizedPNL(strategyName strategy.StrategyName) (numerical.De
 			continue
 		}
 
-		currentPrice, err := p.market.Price(tracker.asset)
+		currentPrice, err := p.market.Price(ctx, tracker.asset)
 		if err != nil {
 			return numerical.Zero(), err
 		}
@@ -203,8 +205,8 @@ func (p *pnl) GetUnrealizedPNL(strategyName strategy.StrategyName) (numerical.De
 }
 
 // GetTotalUnrealizedPNL returns the total unrealized PNL across all strategies
-func (p *pnl) GetTotalUnrealizedPNL() (numerical.Decimal, error) {
-	allTrades := p.trades.GetAllTrades()
+func (p *pnl) GetTotalUnrealizedPNL(ctx context.Context) (numerical.Decimal, error) {
+	allTrades := p.trades.GetAllTrades(ctx)
 	_, openPositions := calculateFromTrades(allTrades)
 
 	unrealizedPnl := numerical.Zero()
@@ -213,7 +215,7 @@ func (p *pnl) GetTotalUnrealizedPNL() (numerical.Decimal, error) {
 			continue
 		}
 
-		currentPrice, err := p.market.Price(tracker.asset)
+		currentPrice, err := p.market.Price(ctx, tracker.asset)
 		if err != nil {
 			return numerical.Zero(), err
 		}
@@ -225,9 +227,9 @@ func (p *pnl) GetTotalUnrealizedPNL() (numerical.Decimal, error) {
 }
 
 // GetTotalPNL returns the total PNL (realized + unrealized)
-func (p *pnl) GetTotalPNL() (numerical.Decimal, error) {
+func (p *pnl) GetTotalPNL(ctx context.Context) (numerical.Decimal, error) {
 	// Fetch trades once and calculate everything from cached data
-	allTrades := p.trades.GetAllTrades()
+	allTrades := p.trades.GetAllTrades(ctx)
 	realizedPnl, openPositions := calculateFromTrades(allTrades)
 
 	// Calculate fees inline
@@ -244,7 +246,7 @@ func (p *pnl) GetTotalPNL() (numerical.Decimal, error) {
 			continue
 		}
 
-		currentPrice, err := p.market.Price(tracker.asset)
+		currentPrice, err := p.market.Price(ctx, tracker.asset)
 		if err != nil {
 			return numerical.Zero(), err
 		}
@@ -256,8 +258,8 @@ func (p *pnl) GetTotalPNL() (numerical.Decimal, error) {
 }
 
 // GetTotalFees returns the total fees paid across all trades
-func (p *pnl) GetTotalFees() numerical.Decimal {
-	allTrades := p.trades.GetAllTrades()
+func (p *pnl) GetTotalFees(ctx context.Context) numerical.Decimal {
+	allTrades := p.trades.GetAllTrades(ctx)
 	totalFees := numerical.Zero()
 	for _, trade := range allTrades {
 		totalFees = totalFees.Add(trade.Fee)
@@ -266,8 +268,8 @@ func (p *pnl) GetTotalFees() numerical.Decimal {
 }
 
 // GetFeesByStrategy returns the total fees paid for a strategy
-func (p *pnl) GetFeesByStrategy(strategyName strategy.StrategyName) numerical.Decimal {
-	trades := p.positions.GetTradesForStrategy(strategyName)
+func (p *pnl) GetFeesByStrategy(ctx context.Context, strategyName strategy.StrategyName) numerical.Decimal {
+	trades := p.positions.GetTradesForStrategy(ctx, strategyName)
 	totalFees := numerical.Zero()
 	for _, trade := range trades {
 		totalFees = totalFees.Add(trade.Fee)
