@@ -1,6 +1,8 @@
 package analytics
 
 import (
+	"context"
+
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
@@ -9,22 +11,22 @@ import (
 // Market provides market data access and analysis.
 type Market interface {
 	// Asset data retrieval
-	GetAllAssetsWithFundingRates() []portfolio.Asset
-	FundingRates(asset portfolio.Asset) map[connector.ExchangeName]connector.FundingRate
-	FundingRate(asset portfolio.Asset, exchange connector.ExchangeName) (*connector.FundingRate, error)
+	GetAllAssetsWithFundingRates(ctx context.Context) []portfolio.Asset
+	FundingRates(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]connector.FundingRate
+	FundingRate(ctx context.Context, asset portfolio.Asset, exchange connector.ExchangeName) (*connector.FundingRate, error)
 
 	// Price data
-	Price(asset portfolio.Asset, opts ...MarketOptions) (numerical.Decimal, error)
-	Prices(asset portfolio.Asset) map[connector.ExchangeName]numerical.Decimal
+	Price(ctx context.Context, asset portfolio.Asset, opts ...MarketOptions) (numerical.Decimal, error)
+	Prices(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]numerical.Decimal
 
 	// Order book
-	OrderBook(asset portfolio.Asset, opts ...MarketOptions) (*connector.OrderBook, error)
+	OrderBook(ctx context.Context, asset portfolio.Asset, opts ...MarketOptions) (*connector.OrderBook, error)
 
 	// Liquidity
-	GetTradableQuantity(asset portfolio.Asset, opts ...LiquidityOptions) numerical.Decimal
+	GetTradableQuantity(ctx context.Context, asset portfolio.Asset, opts ...LiquidityOptions) numerical.Decimal
 
 	// Arbitrage
-	FindArbitrage(asset portfolio.Asset, minSpreadBps numerical.Decimal) []ArbitrageOpportunity
+	FindArbitrage(ctx context.Context, asset portfolio.Asset, minSpreadBps numerical.Decimal) []ArbitrageOpportunity
 }
 
 // MarketOptions configures market data queries

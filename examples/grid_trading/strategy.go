@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 
 	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
@@ -94,7 +95,7 @@ func (s *gridTradingStrategy) initializeGrid(lowerBound, upperBound numerical.De
 }
 
 // GetSignals generates trading signals based on grid levels
-func (s *gridTradingStrategy) GetSignals() ([]*strategy.Signal, error) {
+func (s *gridTradingStrategy) GetSignals(ctx context.Context) ([]*strategy.Signal, error) {
 	// Determine asset symbol and exchange from exchanges.yml based on config
 	exchangeStr := s.config.Exchange
 	assetSymbol := "BTC" // default

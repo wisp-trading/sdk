@@ -1,9 +1,12 @@
 package market
 
 import (
+	"context"
 	"fmt"
 	"sort"
+	"time"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
@@ -24,13 +27,13 @@ func NewMarketService(store market.MarketData) analytics.Market {
 }
 
 // GetAllAssetsWithFundingRates returns all assets that have funding rate data.
-func (s *marketService) GetAllAssetsWithFundingRates() []portfolio.Asset {
+func (s *marketService) GetAllAssetsWithFundingRates(ctx context.Context) []portfolio.Asset {
 	return s.store.GetAllAssetsWithFundingRates()
 }
 
 // FundingRates returns funding rates for an asset across all exchanges.
 // Returns a map of exchange name to funding rate.
-func (s *marketService) FundingRates(asset portfolio.Asset) map[connector.ExchangeName]connector.FundingRate {
+func (s *marketService) FundingRates(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]connector.FundingRate {
 	fundingMap := s.store.GetFundingRatesForAsset(asset)
 	if fundingMap == nil {
 		return make(map[connector.ExchangeName]connector.FundingRate)
@@ -39,7 +42,7 @@ func (s *marketService) FundingRates(asset portfolio.Asset) map[connector.Exchan
 }
 
 // FundingRate returns the funding rate for an asset on a specific exchange.
-func (s *marketService) FundingRate(asset portfolio.Asset, exchange connector.ExchangeName) (*connector.FundingRate, error) {
+func (s *marketService) FundingRate(ctx context.Context, asset portfolio.Asset, exchange connector.ExchangeName) (*connector.FundingRate, error) {
 	rate := s.store.GetFundingRate(asset, exchange)
 	if rate == nil {
 		return nil, fmt.Errorf("no funding rate found for %s on %s", asset.Symbol(), exchange)
@@ -49,7 +52,7 @@ func (s *marketService) FundingRate(asset portfolio.Asset, exchange connector.Ex
 
 // Price returns the current price for an asset.
 // If exchange is not specified in opts, returns price from first available exchange.
-func (s *marketService) Price(asset portfolio.Asset, opts ...analytics.MarketOptions) (numerical.Decimal, error) {
+func (s *marketService) Price(ctx context.Context, asset portfolio.Asset, opts ...analytics.MarketOptions) (numerical.Decimal, error) {
 	options := s.parseOptions(opts...)
 
 	if options.Exchange != "" {
@@ -76,7 +79,7 @@ func (s *marketService) Price(asset portfolio.Asset, opts ...analytics.MarketOpt
 }
 
 // Prices returns prices for an asset across all exchanges.
-func (s *marketService) Prices(asset portfolio.Asset) map[connector.ExchangeName]numerical.Decimal {
+func (s *marketService) Prices(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]numerical.Decimal {
 	priceMap := s.store.GetAssetPrices(asset)
 	result := make(map[connector.ExchangeName]numerical.Decimal)
 
@@ -89,7 +92,7 @@ func (s *marketService) Prices(asset portfolio.Asset) map[connector.ExchangeName
 
 // OrderBook returns the order book for an asset.
 // If exchange is not specified, returns order book from first available exchange.
-func (s *marketService) OrderBook(asset portfolio.Asset, opts ...analytics.MarketOptions) (*connector.OrderBook, error) {
+func (s *marketService) OrderBook(ctx context.Context, asset portfolio.Asset, opts ...analytics.MarketOptions) (*connector.OrderBook, error) {
 	options := s.parseOptions(opts...)
 
 	if options.Exchange != "" {
@@ -119,7 +122,14 @@ func (s *marketService) OrderBook(asset portfolio.Asset, opts ...analytics.Marke
 
 // FindArbitrage finds arbitrage opportunities for an asset across exchanges.
 // Returns opportunities sorted by spread (highest first).
-func (s *marketService) FindArbitrage(asset portfolio.Asset, minSpreadBps numerical.Decimal) []analytics.ArbitrageOpportunity {
+func (s *marketService) FindArbitrage(ctx context.Context, asset portfolio.Asset, minSpreadBps numerical.Decimal) []analytics.ArbitrageOpportunity {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("FindArbitrage", time.Since(start))
+		}
+	}()
+
 	priceMap := s.store.GetAssetPrices(asset)
 	if len(priceMap) < 2 {
 		return nil // Need at least 2 exchanges for arbitrage

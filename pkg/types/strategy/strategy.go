@@ -1,6 +1,8 @@
 package strategy
 
 import (
+	"context"
+
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
@@ -26,7 +28,7 @@ const (
 )
 
 type Strategy interface {
-	GetSignals() ([]*Signal, error)
+	GetSignals(ctx context.Context) ([]*Signal, error)
 
 	GetName() StrategyName
 	GetDescription() string

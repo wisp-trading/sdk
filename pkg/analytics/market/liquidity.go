@@ -1,6 +1,10 @@
 package market
 
 import (
+	"context"
+	"time"
+
+	"github.com/backtesting-org/kronos-sdk/pkg/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
@@ -18,14 +22,21 @@ func DefaultLiquidityOptions() analytics.LiquidityOptions {
 
 // GetTradableQuantity calculates the maximum tradable quantity based on order book liquidity
 // Returns the quantity in base currency that can be safely traded
-func (s *marketService) GetTradableQuantity(asset portfolio.Asset, opts ...analytics.LiquidityOptions) numerical.Decimal {
+func (s *marketService) GetTradableQuantity(ctx context.Context, asset portfolio.Asset, opts ...analytics.LiquidityOptions) numerical.Decimal {
+	start := time.Now()
+	defer func() {
+		if profCtx := profiling.FromContext(ctx); profCtx != nil {
+			profCtx.RecordIndicator("GetTradableQuantity", time.Since(start))
+		}
+	}()
+
 	options := DefaultLiquidityOptions()
 	if len(opts) > 0 {
 		options = opts[0]
 	}
 
 	// Get order book
-	orderBook, err := s.OrderBook(asset)
+	orderBook, err := s.OrderBook(ctx, asset)
 	if err != nil || orderBook == nil {
 		return numerical.Zero()
 	}

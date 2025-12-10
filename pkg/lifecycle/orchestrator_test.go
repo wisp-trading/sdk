@@ -76,6 +76,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			// Execute
@@ -96,6 +98,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			// Execute
@@ -119,6 +123,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -142,6 +148,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -171,6 +179,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -194,6 +204,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -209,10 +221,12 @@ var _ = Describe("Orchestrator", func() {
 
 	Describe("Strategy Execution", func() {
 		It("should execute single strategy", func() {
+			ctx := context.Background()
+
 			// Setup
 			mockStrategy1 := mockStrategy.NewStrategy(GinkgoT())
 			mockStrategy1.EXPECT().GetName().Return(strategy.StrategyName("Strategy1")).Maybe()
-			mockStrategy1.EXPECT().GetSignals().Return([]*strategy.Signal{}, nil).Maybe()
+			mockStrategy1.EXPECT().GetSignals(ctx).Return([]*strategy.Signal{}, nil).Maybe()
 
 			updatesChan := make(chan struct{}, 10)
 			mockNotifier.EXPECT().Updates().Return((<-chan struct{})(updatesChan)).Maybe()
@@ -225,6 +239,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -238,14 +254,16 @@ var _ = Describe("Orchestrator", func() {
 		})
 
 		It("should execute multiple strategies concurrently", func() {
+			ctx := context.Background()
+
 			// Setup
 			mockStrategy1 := mockStrategy.NewStrategy(GinkgoT())
 			mockStrategy2 := mockStrategy.NewStrategy(GinkgoT())
 
 			mockStrategy1.EXPECT().GetName().Return(strategy.StrategyName("Strategy1")).Maybe()
-			mockStrategy1.EXPECT().GetSignals().Return([]*strategy.Signal{}, nil).Maybe()
+			mockStrategy1.EXPECT().GetSignals(ctx).Return([]*strategy.Signal{}, nil).Maybe()
 			mockStrategy2.EXPECT().GetName().Return(strategy.StrategyName("Strategy2")).Maybe()
-			mockStrategy2.EXPECT().GetSignals().Return([]*strategy.Signal{}, nil).Maybe()
+			mockStrategy2.EXPECT().GetSignals(ctx).Return([]*strategy.Signal{}, nil).Maybe()
 
 			updatesChan := make(chan struct{}, 10)
 			mockNotifier.EXPECT().Updates().Return((<-chan struct{})(updatesChan)).Maybe()
@@ -261,6 +279,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -274,10 +294,12 @@ var _ = Describe("Orchestrator", func() {
 		})
 
 		It("should handle strategy returning error", func() {
+			ctx := context.Background()
+
 			// Setup
 			mockStrategy1 := mockStrategy.NewStrategy(GinkgoT())
 			mockStrategy1.EXPECT().GetName().Return(strategy.StrategyName("Strategy1")).Maybe()
-			mockStrategy1.EXPECT().GetSignals().Return(nil, errors.New("mock error")).Maybe()
+			mockStrategy1.EXPECT().GetSignals(ctx).Return(nil, errors.New("mock error")).Maybe()
 
 			updatesChan := make(chan struct{}, 10)
 			mockNotifier.EXPECT().Updates().Return((<-chan struct{})(updatesChan)).Maybe()
@@ -289,6 +311,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -313,6 +337,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -328,12 +354,14 @@ var _ = Describe("Orchestrator", func() {
 
 	Describe("Concurrent Execution Prevention", func() {
 		It("should prevent concurrent execution of the same strategy", func() {
+			ctx := context.Background()
+
 			// Setup
 			mockSlowStrategy := mockStrategy.NewStrategy(GinkgoT())
 			mockSlowStrategy.EXPECT().GetName().Return(strategy.StrategyName("SlowStrategy")).Maybe()
 
 			// Use RunAndReturn to add delay
-			mockSlowStrategy.EXPECT().GetSignals().RunAndReturn(func() ([]*strategy.Signal, error) {
+			mockSlowStrategy.EXPECT().GetSignals(ctx).RunAndReturn(func(ctx2 context.Context) ([]*strategy.Signal, error) {
 				time.Sleep(200 * time.Millisecond)
 				return []*strategy.Signal{}, nil
 			}).Maybe()
@@ -349,6 +377,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -372,17 +402,19 @@ var _ = Describe("Orchestrator", func() {
 
 	Describe("Panic Recovery", func() {
 		It("should recover from strategy panic", func() {
+			ctx := context.Background()
+
 			// Setup
 			panicStrategy := mockStrategy.NewStrategy(GinkgoT())
 			normalStrategy := mockStrategy.NewStrategy(GinkgoT())
 
 			panicStrategy.EXPECT().GetName().Return(strategy.StrategyName("PanicStrategy")).Maybe()
-			panicStrategy.EXPECT().GetSignals().RunAndReturn(func() ([]*strategy.Signal, error) {
+			panicStrategy.EXPECT().GetSignals(ctx).RunAndReturn(func(ctx2 context.Context) ([]*strategy.Signal, error) {
 				panic("intentional panic for testing")
 			}).Maybe()
 
 			normalStrategy.EXPECT().GetName().Return(strategy.StrategyName("NormalStrategy")).Maybe()
-			normalStrategy.EXPECT().GetSignals().Return([]*strategy.Signal{}, nil).Maybe()
+			normalStrategy.EXPECT().GetSignals(ctx).Return([]*strategy.Signal{}, nil).Maybe()
 
 			updatesChan := make(chan struct{}, 10)
 			mockNotifier.EXPECT().Updates().Return((<-chan struct{})(updatesChan)).Maybe()
@@ -398,6 +430,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			err := orchestrator.Start(ctx)
@@ -432,6 +466,8 @@ var _ = Describe("Orchestrator", func() {
 				logger,
 				mockTimeProvider,
 				mockNotifier,
+				nil, // profilingStore
+				nil, // anomalyDetector
 			)
 
 			// Execute

@@ -1,6 +1,8 @@
 package technical
 
 import (
+	"context"
+
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
@@ -36,21 +38,21 @@ func NewExtractor(indicators analytics.Indicators) *Extractor {
 
 // Extract computes technical indicator features and adds them to the feature map.
 // Currently supports: RSI, MACD, Bollinger Bands, ATR, EMA, Stochastic.
-func (e *Extractor) Extract(asset portfolio.Asset, featureMap map[string]float64) error {
+func (e *Extractor) Extract(ctx context.Context, asset portfolio.Asset, featureMap map[string]float64) error {
 
 	// Extract RSI (14-period)
-	if rsi, err := e.indicators.RSI(asset, 14); err == nil {
+	if rsi, err := e.indicators.RSI(ctx, asset, 14); err == nil {
 		featureMap[featureRSI14], _ = rsi.Float64()
 	}
 
 	// Extract MACD (12, 26, 9)
-	if macd, err := e.indicators.MACD(asset, 12, 26, 9); err == nil {
+	if macd, err := e.indicators.MACD(ctx, asset, 12, 26, 9); err == nil {
 		featureMap[featureMACD], _ = macd.MACD.Float64()
 		featureMap[featureMACDSignal], _ = macd.Signal.Float64()
 	}
 
 	// Extract Bollinger Bands (20-period, 2 std dev)
-	if bb, err := e.indicators.BollingerBands(asset, 20, 2.0); err == nil {
+	if bb, err := e.indicators.BollingerBands(ctx, asset, 20, 2.0); err == nil {
 		featureMap[featureBBUpper], _ = bb.Upper.Float64()
 		featureMap[featureBBLower], _ = bb.Lower.Float64()
 
@@ -67,21 +69,21 @@ func (e *Extractor) Extract(asset portfolio.Asset, featureMap map[string]float64
 	}
 
 	// Extract ATR (14-period) - measures volatility
-	if atr, err := e.indicators.ATR(asset, 14); err == nil {
+	if atr, err := e.indicators.ATR(ctx, asset, 14); err == nil {
 		featureMap[featureATR14], _ = atr.Float64()
 	}
 
 	// Extract EMA (20-period and 50-period) - trend indicators
-	if ema20, err := e.indicators.EMA(asset, 20); err == nil {
+	if ema20, err := e.indicators.EMA(ctx, asset, 20); err == nil {
 		featureMap[featureEMA20], _ = ema20.Float64()
 	}
 
-	if ema50, err := e.indicators.EMA(asset, 50); err == nil {
+	if ema50, err := e.indicators.EMA(ctx, asset, 50); err == nil {
 		featureMap[featureEMA50], _ = ema50.Float64()
 	}
 
 	// Extract Stochastic (14, 3) - momentum oscillator
-	if stoch, err := e.indicators.Stochastic(asset, 14, 3); err == nil {
+	if stoch, err := e.indicators.Stochastic(ctx, asset, 14, 3); err == nil {
 		featureMap[featureStochasticK], _ = stoch.K.Float64()
 		featureMap[featureStochasticD], _ = stoch.D.Float64()
 	}

@@ -1,19 +1,21 @@
 package analytics
 
 import (
+	"context"
+
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
 type Indicators interface {
-	ATR(asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
-	SMA(asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
-	EMA(asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
-	RSI(asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
-	MACD(asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...IndicatorOptions) (*MACDResult, error)
-	BollingerBands(asset portfolio.Asset, period int, stdDev float64, opts ...IndicatorOptions) (*BollingerBandsResult, error)
-	Stochastic(asset portfolio.Asset, kPeriod, dPeriod int, opts ...IndicatorOptions) (*StochasticResult, error)
+	ATR(ctx context.Context, asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
+	SMA(ctx context.Context, asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
+	EMA(ctx context.Context, asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
+	RSI(ctx context.Context, asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
+	MACD(ctx context.Context, asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...IndicatorOptions) (*MACDResult, error)
+	BollingerBands(ctx context.Context, asset portfolio.Asset, period int, stdDev float64, opts ...IndicatorOptions) (*BollingerBandsResult, error)
+	Stochastic(ctx context.Context, asset portfolio.Asset, kPeriod, dPeriod int, opts ...IndicatorOptions) (*StochasticResult, error)
 }
 
 // IndicatorOptions configures indicator calculations.

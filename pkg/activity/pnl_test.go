@@ -1,6 +1,7 @@
 package activity_test
 
 import (
+	"context"
 	"time"
 
 	mockKronosActivity "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
@@ -32,6 +33,7 @@ var _ = Describe("PNL", func() {
 
 	Describe("GetFeesByStrategy", func() {
 		It("should sum fees for a strategy", func() {
+			ctx := context.Background()
 			strategyName := strategy.StrategyName("test-strategy")
 			trades := []connector.Trade{
 				{ID: "t1", Symbol: "BTC", Fee: numerical.NewFromFloat(10)},
@@ -39,19 +41,20 @@ var _ = Describe("PNL", func() {
 				{ID: "t3", Symbol: "ETH", Fee: numerical.NewFromFloat(5)},
 			}
 
-			mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+			mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
 
-			result := pnl.GetFeesByStrategy(strategyName)
+			result := pnl.GetFeesByStrategy(ctx, strategyName)
 
 			Expect(result.Equal(numerical.NewFromFloat(30))).To(BeTrue())
 		})
 
 		It("should return zero when no trades", func() {
+			ctx := context.Background()
 			strategyName := strategy.StrategyName("empty-strategy")
 
-			mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return([]connector.Trade{})
+			mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return([]connector.Trade{})
 
-			result := pnl.GetFeesByStrategy(strategyName)
+			result := pnl.GetFeesByStrategy(ctx, strategyName)
 
 			Expect(result.IsZero()).To(BeTrue())
 		})
@@ -59,15 +62,16 @@ var _ = Describe("PNL", func() {
 
 	Describe("GetTotalFees", func() {
 		It("should sum fees across all trades", func() {
+			ctx := context.Background()
 			allTrades := []connector.Trade{
 				{ID: "t1", Fee: numerical.NewFromFloat(10)},
 				{ID: "t2", Fee: numerical.NewFromFloat(20)},
 				{ID: "t3", Fee: numerical.NewFromFloat(30)},
 			}
 
-			mockTrades.EXPECT().GetAllTrades().Return(allTrades)
+			mockTrades.EXPECT().GetAllTrades(ctx).Return(allTrades)
 
-			result := pnl.GetTotalFees()
+			result := pnl.GetTotalFees(ctx)
 
 			Expect(result.Equal(numerical.NewFromFloat(60))).To(BeTrue())
 		})
@@ -76,6 +80,7 @@ var _ = Describe("PNL", func() {
 	Describe("GetRealizedPNL", func() {
 		Context("long position closed for profit", func() {
 			It("should calculate profit correctly", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 				// Buy 1 BTC at 50000, sell 1 BTC at 55000 = profit of 5000
 				trades := []connector.Trade{
@@ -99,9 +104,9 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
 
-				result := pnl.GetRealizedPNL(strategyName)
+				result := pnl.GetRealizedPNL(ctx, strategyName)
 
 				// PNL = 5000 - fees (50 + 55) = 4895
 				Expect(result.Equal(numerical.NewFromFloat(4895))).To(BeTrue())
@@ -110,6 +115,7 @@ var _ = Describe("PNL", func() {
 
 		Context("long position closed for loss", func() {
 			It("should calculate loss correctly", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 				// Buy 1 BTC at 50000, sell 1 BTC at 45000 = loss of 5000
 				trades := []connector.Trade{
@@ -131,9 +137,9 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
 
-				result := pnl.GetRealizedPNL(strategyName)
+				result := pnl.GetRealizedPNL(ctx, strategyName)
 
 				Expect(result.Equal(numerical.NewFromFloat(-5000))).To(BeTrue())
 			})
@@ -141,6 +147,7 @@ var _ = Describe("PNL", func() {
 
 		Context("short position closed for profit", func() {
 			It("should calculate profit correctly", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 				// Sell 1 BTC at 50000, buy 1 BTC at 45000 = profit of 5000
 				trades := []connector.Trade{
@@ -162,9 +169,9 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
 
-				result := pnl.GetRealizedPNL(strategyName)
+				result := pnl.GetRealizedPNL(ctx, strategyName)
 
 				Expect(result.Equal(numerical.NewFromFloat(5000))).To(BeTrue())
 			})
@@ -172,6 +179,7 @@ var _ = Describe("PNL", func() {
 
 		Context("short position closed for loss", func() {
 			It("should calculate loss correctly", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 				// Sell 1 BTC at 50000, buy 1 BTC at 55000 = loss of 5000
 				trades := []connector.Trade{
@@ -193,9 +201,9 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
 
-				result := pnl.GetRealizedPNL(strategyName)
+				result := pnl.GetRealizedPNL(ctx, strategyName)
 
 				Expect(result.Equal(numerical.NewFromFloat(-5000))).To(BeTrue())
 			})
@@ -203,6 +211,7 @@ var _ = Describe("PNL", func() {
 
 		Context("partial close", func() {
 			It("should calculate realized PNL for partial close only", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 				// Buy 2 BTC at 50000, sell 1 BTC at 55000 = profit of 5000 on closed portion
 				trades := []connector.Trade{
@@ -224,9 +233,9 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
 
-				result := pnl.GetRealizedPNL(strategyName)
+				result := pnl.GetRealizedPNL(ctx, strategyName)
 
 				// Only 1 BTC closed: (55000 - 50000) * 1 = 5000
 				Expect(result.Equal(numerical.NewFromFloat(5000))).To(BeTrue())
@@ -235,6 +244,7 @@ var _ = Describe("PNL", func() {
 
 		Context("average cost basis", func() {
 			It("should use weighted average entry price", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 				// Buy 1 BTC at 50000, buy 1 BTC at 52000, sell 2 BTC at 54000
 				// Avg entry = (50000 + 52000) / 2 = 51000
@@ -266,9 +276,9 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
 
-				result := pnl.GetRealizedPNL(strategyName)
+				result := pnl.GetRealizedPNL(ctx, strategyName)
 
 				Expect(result.Equal(numerical.NewFromFloat(6000))).To(BeTrue())
 			})
@@ -276,6 +286,7 @@ var _ = Describe("PNL", func() {
 
 		Context("position flipping long to short", func() {
 			It("should realize PNL on closed portion and track new short position", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 				// Buy 1 BTC at 50000, sell 2 BTC at 55000
 				// Closes long 1 BTC for profit of 5000, opens short 1 BTC at 55000
@@ -298,9 +309,9 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
 
-				result := pnl.GetRealizedPNL(strategyName)
+				result := pnl.GetRealizedPNL(ctx, strategyName)
 
 				// Only realized PNL from closing the long: (55000 - 50000) * 1 = 5000
 				Expect(result.Equal(numerical.NewFromFloat(5000))).To(BeTrue())
@@ -309,6 +320,7 @@ var _ = Describe("PNL", func() {
 
 		Context("position flipping short to long", func() {
 			It("should realize PNL on closed portion and track new long position", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 				// Sell 1 BTC at 50000, buy 2 BTC at 45000
 				// Closes short 1 BTC for profit of 5000, opens long 1 BTC at 45000
@@ -331,9 +343,9 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
 
-				result := pnl.GetRealizedPNL(strategyName)
+				result := pnl.GetRealizedPNL(ctx, strategyName)
 
 				// Only realized PNL from closing the short: (50000 - 45000) * 1 = 5000
 				Expect(result.Equal(numerical.NewFromFloat(5000))).To(BeTrue())
@@ -344,6 +356,7 @@ var _ = Describe("PNL", func() {
 	Describe("GetUnrealizedPNL", func() {
 		Context("open long position", func() {
 			It("should calculate unrealized profit", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 				btc := portfolio.NewAsset("BTC")
 
@@ -359,16 +372,17 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
-				mockMarket.EXPECT().Price(btc).Return(numerical.NewFromFloat(55000), nil)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
+				mockMarket.EXPECT().Price(ctx, btc).Return(numerical.NewFromFloat(55000), nil)
 
-				result, err := pnl.GetUnrealizedPNL(strategyName)
+				result, err := pnl.GetUnrealizedPNL(ctx, strategyName)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Equal(numerical.NewFromFloat(5000))).To(BeTrue())
 			})
 
 			It("should calculate unrealized loss", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 				btc := portfolio.NewAsset("BTC")
 
@@ -384,10 +398,10 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
-				mockMarket.EXPECT().Price(btc).Return(numerical.NewFromFloat(45000), nil)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
+				mockMarket.EXPECT().Price(ctx, btc).Return(numerical.NewFromFloat(45000), nil)
 
-				result, err := pnl.GetUnrealizedPNL(strategyName)
+				result, err := pnl.GetUnrealizedPNL(ctx, strategyName)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Equal(numerical.NewFromFloat(-5000))).To(BeTrue())
@@ -396,6 +410,7 @@ var _ = Describe("PNL", func() {
 
 		Context("open short position", func() {
 			It("should calculate unrealized profit", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 				btc := portfolio.NewAsset("BTC")
 
@@ -411,10 +426,10 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
-				mockMarket.EXPECT().Price(btc).Return(numerical.NewFromFloat(45000), nil)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
+				mockMarket.EXPECT().Price(ctx, btc).Return(numerical.NewFromFloat(45000), nil)
 
-				result, err := pnl.GetUnrealizedPNL(strategyName)
+				result, err := pnl.GetUnrealizedPNL(ctx, strategyName)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.Equal(numerical.NewFromFloat(5000))).To(BeTrue())
@@ -423,6 +438,7 @@ var _ = Describe("PNL", func() {
 
 		Context("closed position", func() {
 			It("should return zero unrealized PNL", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 
 				// Buy 1 BTC, then sell 1 BTC - position is flat
@@ -445,9 +461,9 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
 
-				result, err := pnl.GetUnrealizedPNL(strategyName)
+				result, err := pnl.GetUnrealizedPNL(ctx, strategyName)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(result.IsZero()).To(BeTrue())
@@ -456,6 +472,7 @@ var _ = Describe("PNL", func() {
 
 		Context("flipped position unrealized PNL", func() {
 			It("should use new entry price for flipped short position", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 				btc := portfolio.NewAsset("BTC")
 
@@ -480,10 +497,10 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
-				mockMarket.EXPECT().Price(btc).Return(numerical.NewFromFloat(60000), nil)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
+				mockMarket.EXPECT().Price(ctx, btc).Return(numerical.NewFromFloat(60000), nil)
 
-				result, err := pnl.GetUnrealizedPNL(strategyName)
+				result, err := pnl.GetUnrealizedPNL(ctx, strategyName)
 
 				Expect(err).NotTo(HaveOccurred())
 				// Short 1 BTC at 55000, current price 60000: (55000 - 60000) * 1 = -5000
@@ -491,6 +508,7 @@ var _ = Describe("PNL", func() {
 			})
 
 			It("should use new entry price for flipped long position", func() {
+				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
 				btc := portfolio.NewAsset("BTC")
 
@@ -515,10 +533,10 @@ var _ = Describe("PNL", func() {
 					},
 				}
 
-				mockPositions.EXPECT().GetTradesForStrategy(strategyName).Return(trades)
-				mockMarket.EXPECT().Price(btc).Return(numerical.NewFromFloat(50000), nil)
+				mockPositions.EXPECT().GetTradesForStrategy(ctx, strategyName).Return(trades)
+				mockMarket.EXPECT().Price(ctx, btc).Return(numerical.NewFromFloat(50000), nil)
 
-				result, err := pnl.GetUnrealizedPNL(strategyName)
+				result, err := pnl.GetUnrealizedPNL(ctx, strategyName)
 
 				Expect(err).NotTo(HaveOccurred())
 				// Long 1 BTC at 45000, current price 50000: (50000 - 45000) * 1 = 5000
@@ -529,6 +547,7 @@ var _ = Describe("PNL", func() {
 
 	Describe("GetTotalPNL", func() {
 		It("should sum realized and unrealized PNL", func() {
+			ctx := context.Background()
 			btc := portfolio.NewAsset("BTC")
 
 			// Trade 1: Closed position with 5000 profit
@@ -543,11 +562,11 @@ var _ = Describe("PNL", func() {
 
 			eth := portfolio.NewAsset("ETH")
 
-			mockTrades.EXPECT().GetAllTrades().Return(allTrades)
-			mockMarket.EXPECT().Price(btc).Return(numerical.NewFromFloat(55000), nil).Maybe()
-			mockMarket.EXPECT().Price(eth).Return(numerical.NewFromFloat(3300), nil)
+			mockTrades.EXPECT().GetAllTrades(ctx).Return(allTrades)
+			mockMarket.EXPECT().Price(ctx, btc).Return(numerical.NewFromFloat(55000), nil).Maybe()
+			mockMarket.EXPECT().Price(ctx, eth).Return(numerical.NewFromFloat(3300), nil)
 
-			result, err := pnl.GetTotalPNL()
+			result, err := pnl.GetTotalPNL(ctx)
 
 			Expect(err).NotTo(HaveOccurred())
 			// Realized: 5000, Unrealized: (3300-3000)*10 = 3000, Total: 8000

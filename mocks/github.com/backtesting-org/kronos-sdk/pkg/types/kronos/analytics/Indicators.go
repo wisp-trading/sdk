@@ -3,7 +3,10 @@
 package analytics
 
 import (
+	context "context"
+
 	analytics "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
+
 	mock "github.com/stretchr/testify/mock"
 
 	numerical "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
@@ -24,14 +27,14 @@ func (_m *Indicators) EXPECT() *Indicators_Expecter {
 	return &Indicators_Expecter{mock: &_m.Mock}
 }
 
-// ATR provides a mock function with given fields: asset, period, opts
-func (_m *Indicators) ATR(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+// ATR provides a mock function with given fields: ctx, asset, period, opts
+func (_m *Indicators) ATR(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, asset, period)
+	_ca = append(_ca, ctx, asset, period)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -41,17 +44,17 @@ func (_m *Indicators) ATR(asset portfolio.Asset, period int, opts ...analytics.I
 
 	var r0 numerical.Decimal
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)); ok {
-		return rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)); ok {
+		return rf(ctx, asset, period, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.IndicatorOptions) numerical.Decimal); ok {
-		r0 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) numerical.Decimal); ok {
+		r0 = rf(ctx, asset, period, opts...)
 	} else {
 		r0 = ret.Get(0).(numerical.Decimal)
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int, ...analytics.IndicatorOptions) error); ok {
-		r1 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) error); ok {
+		r1 = rf(ctx, asset, period, opts...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -65,23 +68,24 @@ type Indicators_ATR_Call struct {
 }
 
 // ATR is a helper method to define mock.On call
+//   - ctx context.Context
 //   - asset portfolio.Asset
 //   - period int
 //   - opts ...analytics.IndicatorOptions
-func (_e *Indicators_Expecter) ATR(asset interface{}, period interface{}, opts ...interface{}) *Indicators_ATR_Call {
+func (_e *Indicators_Expecter) ATR(ctx interface{}, asset interface{}, period interface{}, opts ...interface{}) *Indicators_ATR_Call {
 	return &Indicators_ATR_Call{Call: _e.mock.On("ATR",
-		append([]interface{}{asset, period}, opts...)...)}
+		append([]interface{}{ctx, asset, period}, opts...)...)}
 }
 
-func (_c *Indicators_ATR_Call) Run(run func(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions)) *Indicators_ATR_Call {
+func (_c *Indicators_ATR_Call) Run(run func(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions)) *Indicators_ATR_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]analytics.IndicatorOptions, len(args)-2)
-		for i, a := range args[2:] {
+		variadicArgs := make([]analytics.IndicatorOptions, len(args)-3)
+		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(analytics.IndicatorOptions)
 			}
 		}
-		run(args[0].(portfolio.Asset), args[1].(int), variadicArgs...)
+		run(args[0].(context.Context), args[1].(portfolio.Asset), args[2].(int), variadicArgs...)
 	})
 	return _c
 }
@@ -91,19 +95,19 @@ func (_c *Indicators_ATR_Call) Return(_a0 numerical.Decimal, _a1 error) *Indicat
 	return _c
 }
 
-func (_c *Indicators_ATR_Call) RunAndReturn(run func(portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)) *Indicators_ATR_Call {
+func (_c *Indicators_ATR_Call) RunAndReturn(run func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)) *Indicators_ATR_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// BollingerBands provides a mock function with given fields: asset, period, stdDev, opts
-func (_m *Indicators) BollingerBands(asset portfolio.Asset, period int, stdDev float64, opts ...analytics.IndicatorOptions) (*analytics.BollingerBandsResult, error) {
+// BollingerBands provides a mock function with given fields: ctx, asset, period, stdDev, opts
+func (_m *Indicators) BollingerBands(ctx context.Context, asset portfolio.Asset, period int, stdDev float64, opts ...analytics.IndicatorOptions) (*analytics.BollingerBandsResult, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, asset, period, stdDev)
+	_ca = append(_ca, ctx, asset, period, stdDev)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -113,19 +117,19 @@ func (_m *Indicators) BollingerBands(asset portfolio.Asset, period int, stdDev f
 
 	var r0 *analytics.BollingerBandsResult
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, float64, ...analytics.IndicatorOptions) (*analytics.BollingerBandsResult, error)); ok {
-		return rf(asset, period, stdDev, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, float64, ...analytics.IndicatorOptions) (*analytics.BollingerBandsResult, error)); ok {
+		return rf(ctx, asset, period, stdDev, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, float64, ...analytics.IndicatorOptions) *analytics.BollingerBandsResult); ok {
-		r0 = rf(asset, period, stdDev, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, float64, ...analytics.IndicatorOptions) *analytics.BollingerBandsResult); ok {
+		r0 = rf(ctx, asset, period, stdDev, opts...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*analytics.BollingerBandsResult)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int, float64, ...analytics.IndicatorOptions) error); ok {
-		r1 = rf(asset, period, stdDev, opts...)
+	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Asset, int, float64, ...analytics.IndicatorOptions) error); ok {
+		r1 = rf(ctx, asset, period, stdDev, opts...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -139,24 +143,25 @@ type Indicators_BollingerBands_Call struct {
 }
 
 // BollingerBands is a helper method to define mock.On call
+//   - ctx context.Context
 //   - asset portfolio.Asset
 //   - period int
 //   - stdDev float64
 //   - opts ...analytics.IndicatorOptions
-func (_e *Indicators_Expecter) BollingerBands(asset interface{}, period interface{}, stdDev interface{}, opts ...interface{}) *Indicators_BollingerBands_Call {
+func (_e *Indicators_Expecter) BollingerBands(ctx interface{}, asset interface{}, period interface{}, stdDev interface{}, opts ...interface{}) *Indicators_BollingerBands_Call {
 	return &Indicators_BollingerBands_Call{Call: _e.mock.On("BollingerBands",
-		append([]interface{}{asset, period, stdDev}, opts...)...)}
+		append([]interface{}{ctx, asset, period, stdDev}, opts...)...)}
 }
 
-func (_c *Indicators_BollingerBands_Call) Run(run func(asset portfolio.Asset, period int, stdDev float64, opts ...analytics.IndicatorOptions)) *Indicators_BollingerBands_Call {
+func (_c *Indicators_BollingerBands_Call) Run(run func(ctx context.Context, asset portfolio.Asset, period int, stdDev float64, opts ...analytics.IndicatorOptions)) *Indicators_BollingerBands_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]analytics.IndicatorOptions, len(args)-3)
-		for i, a := range args[3:] {
+		variadicArgs := make([]analytics.IndicatorOptions, len(args)-4)
+		for i, a := range args[4:] {
 			if a != nil {
 				variadicArgs[i] = a.(analytics.IndicatorOptions)
 			}
 		}
-		run(args[0].(portfolio.Asset), args[1].(int), args[2].(float64), variadicArgs...)
+		run(args[0].(context.Context), args[1].(portfolio.Asset), args[2].(int), args[3].(float64), variadicArgs...)
 	})
 	return _c
 }
@@ -166,19 +171,19 @@ func (_c *Indicators_BollingerBands_Call) Return(_a0 *analytics.BollingerBandsRe
 	return _c
 }
 
-func (_c *Indicators_BollingerBands_Call) RunAndReturn(run func(portfolio.Asset, int, float64, ...analytics.IndicatorOptions) (*analytics.BollingerBandsResult, error)) *Indicators_BollingerBands_Call {
+func (_c *Indicators_BollingerBands_Call) RunAndReturn(run func(context.Context, portfolio.Asset, int, float64, ...analytics.IndicatorOptions) (*analytics.BollingerBandsResult, error)) *Indicators_BollingerBands_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// EMA provides a mock function with given fields: asset, period, opts
-func (_m *Indicators) EMA(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+// EMA provides a mock function with given fields: ctx, asset, period, opts
+func (_m *Indicators) EMA(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, asset, period)
+	_ca = append(_ca, ctx, asset, period)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -188,17 +193,17 @@ func (_m *Indicators) EMA(asset portfolio.Asset, period int, opts ...analytics.I
 
 	var r0 numerical.Decimal
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)); ok {
-		return rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)); ok {
+		return rf(ctx, asset, period, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.IndicatorOptions) numerical.Decimal); ok {
-		r0 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) numerical.Decimal); ok {
+		r0 = rf(ctx, asset, period, opts...)
 	} else {
 		r0 = ret.Get(0).(numerical.Decimal)
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int, ...analytics.IndicatorOptions) error); ok {
-		r1 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) error); ok {
+		r1 = rf(ctx, asset, period, opts...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -212,23 +217,24 @@ type Indicators_EMA_Call struct {
 }
 
 // EMA is a helper method to define mock.On call
+//   - ctx context.Context
 //   - asset portfolio.Asset
 //   - period int
 //   - opts ...analytics.IndicatorOptions
-func (_e *Indicators_Expecter) EMA(asset interface{}, period interface{}, opts ...interface{}) *Indicators_EMA_Call {
+func (_e *Indicators_Expecter) EMA(ctx interface{}, asset interface{}, period interface{}, opts ...interface{}) *Indicators_EMA_Call {
 	return &Indicators_EMA_Call{Call: _e.mock.On("EMA",
-		append([]interface{}{asset, period}, opts...)...)}
+		append([]interface{}{ctx, asset, period}, opts...)...)}
 }
 
-func (_c *Indicators_EMA_Call) Run(run func(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions)) *Indicators_EMA_Call {
+func (_c *Indicators_EMA_Call) Run(run func(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions)) *Indicators_EMA_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]analytics.IndicatorOptions, len(args)-2)
-		for i, a := range args[2:] {
+		variadicArgs := make([]analytics.IndicatorOptions, len(args)-3)
+		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(analytics.IndicatorOptions)
 			}
 		}
-		run(args[0].(portfolio.Asset), args[1].(int), variadicArgs...)
+		run(args[0].(context.Context), args[1].(portfolio.Asset), args[2].(int), variadicArgs...)
 	})
 	return _c
 }
@@ -238,19 +244,19 @@ func (_c *Indicators_EMA_Call) Return(_a0 numerical.Decimal, _a1 error) *Indicat
 	return _c
 }
 
-func (_c *Indicators_EMA_Call) RunAndReturn(run func(portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)) *Indicators_EMA_Call {
+func (_c *Indicators_EMA_Call) RunAndReturn(run func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)) *Indicators_EMA_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// MACD provides a mock function with given fields: asset, fastPeriod, slowPeriod, signalPeriod, opts
-func (_m *Indicators) MACD(asset portfolio.Asset, fastPeriod int, slowPeriod int, signalPeriod int, opts ...analytics.IndicatorOptions) (*analytics.MACDResult, error) {
+// MACD provides a mock function with given fields: ctx, asset, fastPeriod, slowPeriod, signalPeriod, opts
+func (_m *Indicators) MACD(ctx context.Context, asset portfolio.Asset, fastPeriod int, slowPeriod int, signalPeriod int, opts ...analytics.IndicatorOptions) (*analytics.MACDResult, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, asset, fastPeriod, slowPeriod, signalPeriod)
+	_ca = append(_ca, ctx, asset, fastPeriod, slowPeriod, signalPeriod)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -260,19 +266,19 @@ func (_m *Indicators) MACD(asset portfolio.Asset, fastPeriod int, slowPeriod int
 
 	var r0 *analytics.MACDResult
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, int, int, ...analytics.IndicatorOptions) (*analytics.MACDResult, error)); ok {
-		return rf(asset, fastPeriod, slowPeriod, signalPeriod, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, int, int, ...analytics.IndicatorOptions) (*analytics.MACDResult, error)); ok {
+		return rf(ctx, asset, fastPeriod, slowPeriod, signalPeriod, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, int, int, ...analytics.IndicatorOptions) *analytics.MACDResult); ok {
-		r0 = rf(asset, fastPeriod, slowPeriod, signalPeriod, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, int, int, ...analytics.IndicatorOptions) *analytics.MACDResult); ok {
+		r0 = rf(ctx, asset, fastPeriod, slowPeriod, signalPeriod, opts...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*analytics.MACDResult)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int, int, int, ...analytics.IndicatorOptions) error); ok {
-		r1 = rf(asset, fastPeriod, slowPeriod, signalPeriod, opts...)
+	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Asset, int, int, int, ...analytics.IndicatorOptions) error); ok {
+		r1 = rf(ctx, asset, fastPeriod, slowPeriod, signalPeriod, opts...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -286,25 +292,26 @@ type Indicators_MACD_Call struct {
 }
 
 // MACD is a helper method to define mock.On call
+//   - ctx context.Context
 //   - asset portfolio.Asset
 //   - fastPeriod int
 //   - slowPeriod int
 //   - signalPeriod int
 //   - opts ...analytics.IndicatorOptions
-func (_e *Indicators_Expecter) MACD(asset interface{}, fastPeriod interface{}, slowPeriod interface{}, signalPeriod interface{}, opts ...interface{}) *Indicators_MACD_Call {
+func (_e *Indicators_Expecter) MACD(ctx interface{}, asset interface{}, fastPeriod interface{}, slowPeriod interface{}, signalPeriod interface{}, opts ...interface{}) *Indicators_MACD_Call {
 	return &Indicators_MACD_Call{Call: _e.mock.On("MACD",
-		append([]interface{}{asset, fastPeriod, slowPeriod, signalPeriod}, opts...)...)}
+		append([]interface{}{ctx, asset, fastPeriod, slowPeriod, signalPeriod}, opts...)...)}
 }
 
-func (_c *Indicators_MACD_Call) Run(run func(asset portfolio.Asset, fastPeriod int, slowPeriod int, signalPeriod int, opts ...analytics.IndicatorOptions)) *Indicators_MACD_Call {
+func (_c *Indicators_MACD_Call) Run(run func(ctx context.Context, asset portfolio.Asset, fastPeriod int, slowPeriod int, signalPeriod int, opts ...analytics.IndicatorOptions)) *Indicators_MACD_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]analytics.IndicatorOptions, len(args)-4)
-		for i, a := range args[4:] {
+		variadicArgs := make([]analytics.IndicatorOptions, len(args)-5)
+		for i, a := range args[5:] {
 			if a != nil {
 				variadicArgs[i] = a.(analytics.IndicatorOptions)
 			}
 		}
-		run(args[0].(portfolio.Asset), args[1].(int), args[2].(int), args[3].(int), variadicArgs...)
+		run(args[0].(context.Context), args[1].(portfolio.Asset), args[2].(int), args[3].(int), args[4].(int), variadicArgs...)
 	})
 	return _c
 }
@@ -314,19 +321,19 @@ func (_c *Indicators_MACD_Call) Return(_a0 *analytics.MACDResult, _a1 error) *In
 	return _c
 }
 
-func (_c *Indicators_MACD_Call) RunAndReturn(run func(portfolio.Asset, int, int, int, ...analytics.IndicatorOptions) (*analytics.MACDResult, error)) *Indicators_MACD_Call {
+func (_c *Indicators_MACD_Call) RunAndReturn(run func(context.Context, portfolio.Asset, int, int, int, ...analytics.IndicatorOptions) (*analytics.MACDResult, error)) *Indicators_MACD_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// RSI provides a mock function with given fields: asset, period, opts
-func (_m *Indicators) RSI(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+// RSI provides a mock function with given fields: ctx, asset, period, opts
+func (_m *Indicators) RSI(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, asset, period)
+	_ca = append(_ca, ctx, asset, period)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -336,17 +343,17 @@ func (_m *Indicators) RSI(asset portfolio.Asset, period int, opts ...analytics.I
 
 	var r0 numerical.Decimal
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)); ok {
-		return rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)); ok {
+		return rf(ctx, asset, period, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.IndicatorOptions) numerical.Decimal); ok {
-		r0 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) numerical.Decimal); ok {
+		r0 = rf(ctx, asset, period, opts...)
 	} else {
 		r0 = ret.Get(0).(numerical.Decimal)
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int, ...analytics.IndicatorOptions) error); ok {
-		r1 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) error); ok {
+		r1 = rf(ctx, asset, period, opts...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -360,23 +367,24 @@ type Indicators_RSI_Call struct {
 }
 
 // RSI is a helper method to define mock.On call
+//   - ctx context.Context
 //   - asset portfolio.Asset
 //   - period int
 //   - opts ...analytics.IndicatorOptions
-func (_e *Indicators_Expecter) RSI(asset interface{}, period interface{}, opts ...interface{}) *Indicators_RSI_Call {
+func (_e *Indicators_Expecter) RSI(ctx interface{}, asset interface{}, period interface{}, opts ...interface{}) *Indicators_RSI_Call {
 	return &Indicators_RSI_Call{Call: _e.mock.On("RSI",
-		append([]interface{}{asset, period}, opts...)...)}
+		append([]interface{}{ctx, asset, period}, opts...)...)}
 }
 
-func (_c *Indicators_RSI_Call) Run(run func(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions)) *Indicators_RSI_Call {
+func (_c *Indicators_RSI_Call) Run(run func(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions)) *Indicators_RSI_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]analytics.IndicatorOptions, len(args)-2)
-		for i, a := range args[2:] {
+		variadicArgs := make([]analytics.IndicatorOptions, len(args)-3)
+		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(analytics.IndicatorOptions)
 			}
 		}
-		run(args[0].(portfolio.Asset), args[1].(int), variadicArgs...)
+		run(args[0].(context.Context), args[1].(portfolio.Asset), args[2].(int), variadicArgs...)
 	})
 	return _c
 }
@@ -386,19 +394,19 @@ func (_c *Indicators_RSI_Call) Return(_a0 numerical.Decimal, _a1 error) *Indicat
 	return _c
 }
 
-func (_c *Indicators_RSI_Call) RunAndReturn(run func(portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)) *Indicators_RSI_Call {
+func (_c *Indicators_RSI_Call) RunAndReturn(run func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)) *Indicators_RSI_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// SMA provides a mock function with given fields: asset, period, opts
-func (_m *Indicators) SMA(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+// SMA provides a mock function with given fields: ctx, asset, period, opts
+func (_m *Indicators) SMA(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, asset, period)
+	_ca = append(_ca, ctx, asset, period)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -408,17 +416,17 @@ func (_m *Indicators) SMA(asset portfolio.Asset, period int, opts ...analytics.I
 
 	var r0 numerical.Decimal
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)); ok {
-		return rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)); ok {
+		return rf(ctx, asset, period, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, ...analytics.IndicatorOptions) numerical.Decimal); ok {
-		r0 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) numerical.Decimal); ok {
+		r0 = rf(ctx, asset, period, opts...)
 	} else {
 		r0 = ret.Get(0).(numerical.Decimal)
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int, ...analytics.IndicatorOptions) error); ok {
-		r1 = rf(asset, period, opts...)
+	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) error); ok {
+		r1 = rf(ctx, asset, period, opts...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -432,23 +440,24 @@ type Indicators_SMA_Call struct {
 }
 
 // SMA is a helper method to define mock.On call
+//   - ctx context.Context
 //   - asset portfolio.Asset
 //   - period int
 //   - opts ...analytics.IndicatorOptions
-func (_e *Indicators_Expecter) SMA(asset interface{}, period interface{}, opts ...interface{}) *Indicators_SMA_Call {
+func (_e *Indicators_Expecter) SMA(ctx interface{}, asset interface{}, period interface{}, opts ...interface{}) *Indicators_SMA_Call {
 	return &Indicators_SMA_Call{Call: _e.mock.On("SMA",
-		append([]interface{}{asset, period}, opts...)...)}
+		append([]interface{}{ctx, asset, period}, opts...)...)}
 }
 
-func (_c *Indicators_SMA_Call) Run(run func(asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions)) *Indicators_SMA_Call {
+func (_c *Indicators_SMA_Call) Run(run func(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions)) *Indicators_SMA_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]analytics.IndicatorOptions, len(args)-2)
-		for i, a := range args[2:] {
+		variadicArgs := make([]analytics.IndicatorOptions, len(args)-3)
+		for i, a := range args[3:] {
 			if a != nil {
 				variadicArgs[i] = a.(analytics.IndicatorOptions)
 			}
 		}
-		run(args[0].(portfolio.Asset), args[1].(int), variadicArgs...)
+		run(args[0].(context.Context), args[1].(portfolio.Asset), args[2].(int), variadicArgs...)
 	})
 	return _c
 }
@@ -458,19 +467,19 @@ func (_c *Indicators_SMA_Call) Return(_a0 numerical.Decimal, _a1 error) *Indicat
 	return _c
 }
 
-func (_c *Indicators_SMA_Call) RunAndReturn(run func(portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)) *Indicators_SMA_Call {
+func (_c *Indicators_SMA_Call) RunAndReturn(run func(context.Context, portfolio.Asset, int, ...analytics.IndicatorOptions) (numerical.Decimal, error)) *Indicators_SMA_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Stochastic provides a mock function with given fields: asset, kPeriod, dPeriod, opts
-func (_m *Indicators) Stochastic(asset portfolio.Asset, kPeriod int, dPeriod int, opts ...analytics.IndicatorOptions) (*analytics.StochasticResult, error) {
+// Stochastic provides a mock function with given fields: ctx, asset, kPeriod, dPeriod, opts
+func (_m *Indicators) Stochastic(ctx context.Context, asset portfolio.Asset, kPeriod int, dPeriod int, opts ...analytics.IndicatorOptions) (*analytics.StochasticResult, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, asset, kPeriod, dPeriod)
+	_ca = append(_ca, ctx, asset, kPeriod, dPeriod)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
@@ -480,19 +489,19 @@ func (_m *Indicators) Stochastic(asset portfolio.Asset, kPeriod int, dPeriod int
 
 	var r0 *analytics.StochasticResult
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, int, ...analytics.IndicatorOptions) (*analytics.StochasticResult, error)); ok {
-		return rf(asset, kPeriod, dPeriod, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, int, ...analytics.IndicatorOptions) (*analytics.StochasticResult, error)); ok {
+		return rf(ctx, asset, kPeriod, dPeriod, opts...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int, int, ...analytics.IndicatorOptions) *analytics.StochasticResult); ok {
-		r0 = rf(asset, kPeriod, dPeriod, opts...)
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, int, int, ...analytics.IndicatorOptions) *analytics.StochasticResult); ok {
+		r0 = rf(ctx, asset, kPeriod, dPeriod, opts...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*analytics.StochasticResult)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int, int, ...analytics.IndicatorOptions) error); ok {
-		r1 = rf(asset, kPeriod, dPeriod, opts...)
+	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Asset, int, int, ...analytics.IndicatorOptions) error); ok {
+		r1 = rf(ctx, asset, kPeriod, dPeriod, opts...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -506,24 +515,25 @@ type Indicators_Stochastic_Call struct {
 }
 
 // Stochastic is a helper method to define mock.On call
+//   - ctx context.Context
 //   - asset portfolio.Asset
 //   - kPeriod int
 //   - dPeriod int
 //   - opts ...analytics.IndicatorOptions
-func (_e *Indicators_Expecter) Stochastic(asset interface{}, kPeriod interface{}, dPeriod interface{}, opts ...interface{}) *Indicators_Stochastic_Call {
+func (_e *Indicators_Expecter) Stochastic(ctx interface{}, asset interface{}, kPeriod interface{}, dPeriod interface{}, opts ...interface{}) *Indicators_Stochastic_Call {
 	return &Indicators_Stochastic_Call{Call: _e.mock.On("Stochastic",
-		append([]interface{}{asset, kPeriod, dPeriod}, opts...)...)}
+		append([]interface{}{ctx, asset, kPeriod, dPeriod}, opts...)...)}
 }
 
-func (_c *Indicators_Stochastic_Call) Run(run func(asset portfolio.Asset, kPeriod int, dPeriod int, opts ...analytics.IndicatorOptions)) *Indicators_Stochastic_Call {
+func (_c *Indicators_Stochastic_Call) Run(run func(ctx context.Context, asset portfolio.Asset, kPeriod int, dPeriod int, opts ...analytics.IndicatorOptions)) *Indicators_Stochastic_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		variadicArgs := make([]analytics.IndicatorOptions, len(args)-3)
-		for i, a := range args[3:] {
+		variadicArgs := make([]analytics.IndicatorOptions, len(args)-4)
+		for i, a := range args[4:] {
 			if a != nil {
 				variadicArgs[i] = a.(analytics.IndicatorOptions)
 			}
 		}
-		run(args[0].(portfolio.Asset), args[1].(int), args[2].(int), variadicArgs...)
+		run(args[0].(context.Context), args[1].(portfolio.Asset), args[2].(int), args[3].(int), variadicArgs...)
 	})
 	return _c
 }
@@ -533,7 +543,7 @@ func (_c *Indicators_Stochastic_Call) Return(_a0 *analytics.StochasticResult, _a
 	return _c
 }
 
-func (_c *Indicators_Stochastic_Call) RunAndReturn(run func(portfolio.Asset, int, int, ...analytics.IndicatorOptions) (*analytics.StochasticResult, error)) *Indicators_Stochastic_Call {
+func (_c *Indicators_Stochastic_Call) RunAndReturn(run func(context.Context, portfolio.Asset, int, int, ...analytics.IndicatorOptions) (*analytics.StochasticResult, error)) *Indicators_Stochastic_Call {
 	_c.Call.Return(run)
 	return _c
 }

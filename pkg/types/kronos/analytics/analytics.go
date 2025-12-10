@@ -1,16 +1,18 @@
 package analytics
 
 import (
+	"context"
+
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
 type Analytics interface {
-	Volatility(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (numerical.Decimal, error)
-	Trend(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*TrendResult, error)
-	VolumeAnalysis(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*VolumeAnalysis, error)
-	GetPriceChange(asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*PriceChange, error)
+	Volatility(ctx context.Context, asset portfolio.Asset, period int, opts ...AnalyticsOptions) (numerical.Decimal, error)
+	Trend(ctx context.Context, asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*TrendResult, error)
+	VolumeAnalysis(ctx context.Context, asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*VolumeAnalysis, error)
+	GetPriceChange(ctx context.Context, asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*PriceChange, error)
 }
 
 // AnalyticsOptions configures analytics calculations
