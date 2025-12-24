@@ -52,13 +52,18 @@ func (dic *coordinator) StartDataCollection(ctx context.Context) error {
 		return nil
 	}
 
-	// Start real-time ingestion first (primary for trading)
+	// Backfill current data before starting streams
+	dic.logger.Info("Collecting initial market data snapshot...")
+	dic.batchIngestor.CollectNow()
+	dic.timeProvider.Sleep(2 * time.Second) // Give it time to collect
+
+	// Start real-time ingestion
 	if err := dic.realtimeIngestor.Start(ctx); err != nil {
 		dic.logger.Error("Failed to start real-time ingestion: %v", err)
 		// Continue with batch fallback
 	}
 
-	// Start batch ingestion as backup (every 30 seconds)
+	// Start batch ingestion as backup
 	if err := dic.batchIngestor.Start(30 * time.Second); err != nil {
 		dic.logger.Error("Failed to start batch ingestion: %v", err)
 		return err

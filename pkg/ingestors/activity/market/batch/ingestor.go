@@ -9,7 +9,8 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	health2 "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
@@ -20,7 +21,7 @@ type ingestor struct {
 	assetRegistry    registry.AssetRegistry
 	logger           logging.ApplicationLogger
 	timeProvider     temporal.TimeProvider
-	healthStore      health2.CoordinatorHealthStore
+	healthStore      health.CoordinatorHealthStore
 	notifier         ingestors.DataUpdateNotifier
 
 	// Scheduling
@@ -36,7 +37,7 @@ func NewBatchIngestor(
 	assetRegistry registry.AssetRegistry,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
-	healthStore health2.CoordinatorHealthStore,
+	healthStore health.CoordinatorHealthStore,
 	notifier ingestors.DataUpdateNotifier,
 ) ingestors.BatchIngestor {
 	return &ingestor{
@@ -110,15 +111,15 @@ func (bi *ingestor) collectOrderBooks() {
 					if err != nil {
 						bi.logger.Debug("Failed to fetch %s orderbook for %s on %s: %v",
 							instrumentType, asset.Symbol(), string(exchangeName), err)
-						// Report error to health monitoring
-						bi.healthStore.RecordDataError(exchangeName, health2.DataTypeOrderbooks, err)
+
+						bi.healthStore.RecordDataError(exchangeName, health.DataTypeOrderbooks, err)
 						continue
 					}
 
 					bi.store.UpdateOrderBook(asset, exchangeName, instrumentType, *orderBook)
 
 					// Report successful data receipt
-					bi.healthStore.RecordDataReceived(exchangeName, health2.DataTypeOrderbooks, health2.SourceBatch, 0)
+					bi.healthStore.RecordDataReceived(exchangeName, health.DataTypeOrderbooks, health.SourceBatch, 0)
 
 					if len(orderBook.Bids) == 0 || len(orderBook.Asks) == 0 {
 						bi.logger.Debug("Empty %s orderbook for %s on %s - no bids or asks",
@@ -131,6 +132,9 @@ func (bi *ingestor) collectOrderBooks() {
 						orderBook.Bids[0].Price.StringFixed(2),
 						orderBook.Asks[0].Price.StringFixed(2))
 				}
+
+				// Collect klines for multiple intervals
+				bi.collectKlines(conn, exchangeName, asset)
 			}
 		}(conn)
 	}
@@ -139,6 +143,32 @@ func (bi *ingestor) collectOrderBooks() {
 
 	// Notify that data was updated
 	bi.notifyDataUpdate()
+}
+
+func (bi *ingestor) collectKlines(conn connector.Connector, exchangeName connector.ExchangeName, asset portfolio.Asset) {
+	intervals := []string{"1m", "5m", "15m", "1h", "4h", "1d"}
+
+	for _, interval := range intervals {
+		klines, err := conn.FetchKlines(asset.Symbol(), interval, 100)
+		if err != nil {
+			bi.logger.Debug("Failed to fetch %s klines for %s on %s: %v",
+				interval, asset.Symbol(), string(exchangeName), err)
+			continue
+		}
+
+		if len(klines) == 0 {
+			bi.logger.Debug("No %s klines for %s on %s", interval, asset.Symbol(), string(exchangeName))
+			continue
+		}
+
+		// Store all klines
+		for _, kline := range klines {
+			bi.store.UpdateKline(asset, exchangeName, kline)
+		}
+
+		bi.logger.Debug("REST updated %d %s klines for %s on %s",
+			len(klines), interval, asset.Symbol(), string(exchangeName))
+	}
 }
 
 // notifyDataUpdate signals that data was updated
