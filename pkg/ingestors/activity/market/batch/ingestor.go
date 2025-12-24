@@ -10,6 +10,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
@@ -70,19 +71,19 @@ func (bi *ingestor) Start(interval time.Duration) error {
 
 func (bi *ingestor) collectLoop() {
 	// Run initial collection immediately
-	bi.collectOrderBooks()
+	bi.collectMarketData()
 
 	for {
 		select {
 		case <-bi.ticker.C():
-			bi.collectOrderBooks()
+			bi.collectMarketData()
 		case <-bi.stopChan:
 			return
 		}
 	}
 }
 
-func (bi *ingestor) collectOrderBooks() {
+func (bi *ingestor) collectMarketData() {
 	// Get required assets from strategy configs
 	requiredAssets := bi.assetRegistry.GetRequiredAssets()
 
@@ -102,6 +103,7 @@ func (bi *ingestor) collectOrderBooks() {
 			exchangeName := conn.GetConnectorInfo().Name
 
 			for _, asset := range requiredAssets {
+				// Collect orderbooks
 				supportedTypes := bi.getSupportedInstrumentTypes(conn)
 
 				for _, instrumentType := range supportedTypes {
@@ -110,14 +112,11 @@ func (bi *ingestor) collectOrderBooks() {
 					if err != nil {
 						bi.logger.Debug("Failed to fetch %s orderbook for %s on %s: %v",
 							instrumentType, asset.Symbol(), string(exchangeName), err)
-						// Report error to health monitoring
 						bi.healthStore.RecordDataError(exchangeName, health.DataTypeOrderbooks, err)
 						continue
 					}
 
 					bi.store.UpdateOrderBook(asset, exchangeName, instrumentType, *orderBook)
-
-					// Report successful data receipt
 					bi.healthStore.RecordDataReceived(exchangeName, health.DataTypeOrderbooks, health.SourceBatch, 0)
 
 					if len(orderBook.Bids) == 0 || len(orderBook.Asks) == 0 {
@@ -131,6 +130,9 @@ func (bi *ingestor) collectOrderBooks() {
 						orderBook.Bids[0].Price.StringFixed(2),
 						orderBook.Asks[0].Price.StringFixed(2))
 				}
+
+				// Collect klines for multiple intervals
+				bi.collectKlines(conn, exchangeName, asset)
 			}
 		}(conn)
 	}
@@ -139,6 +141,32 @@ func (bi *ingestor) collectOrderBooks() {
 
 	// Notify that data was updated
 	bi.notifyDataUpdate()
+}
+
+func (bi *ingestor) collectKlines(conn connector.Connector, exchangeName connector.ExchangeName, asset portfolio.Asset) {
+	intervals := []string{"1m", "5m", "15m", "1h", "4h", "1d"}
+
+	for _, interval := range intervals {
+		klines, err := conn.FetchKlines(asset.Symbol(), interval, 100)
+		if err != nil {
+			bi.logger.Debug("Failed to fetch %s klines for %s on %s: %v",
+				interval, asset.Symbol(), string(exchangeName), err)
+			continue
+		}
+
+		if len(klines) == 0 {
+			bi.logger.Debug("No %s klines for %s on %s", interval, asset.Symbol(), string(exchangeName))
+			continue
+		}
+
+		// Store all klines
+		for _, kline := range klines {
+			bi.store.UpdateKline(asset, exchangeName, kline)
+		}
+
+		bi.logger.Debug("REST updated %d %s klines for %s on %s",
+			len(klines), interval, asset.Symbol(), string(exchangeName))
+	}
 }
 
 // notifyDataUpdate signals that data was updated
@@ -164,7 +192,7 @@ func (bi *ingestor) getSupportedInstrumentTypes(conn connector.Connector) []conn
 func (bi *ingestor) CollectNow() {
 	if bi.IsActive() {
 		bi.logger.Info("Triggering immediate data collection")
-		go bi.collectOrderBooks()
+		go bi.collectMarketData()
 	} else {
 		bi.logger.Warn("Cannot collect now - batch ingestor is not active")
 	}
