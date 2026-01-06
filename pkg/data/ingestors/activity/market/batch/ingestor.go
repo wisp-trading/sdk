@@ -24,6 +24,9 @@ type ingestor struct {
 	healthStore      health.CoordinatorHealthStore
 	notifier         ingestors.DataUpdateNotifier
 
+	// Kline configuration
+	klineLimits map[string]int // Number of candles to fetch per interval
+
 	// Scheduling
 	ticker   temporal.Ticker
 	stopChan chan struct{}
@@ -49,6 +52,15 @@ func NewBatchIngestor(
 		healthStore:      healthStore,
 		notifier:         notifier,
 		stopChan:         make(chan struct{}),
+
+		klineLimits: map[string]int{
+			"1m":  500,
+			"5m":  300,
+			"15m": 200,
+			"1h":  168,
+			"4h":  180,
+			"1d":  90,
+		},
 	}
 }
 
@@ -146,27 +158,43 @@ func (bi *ingestor) collectMarketData() {
 func (bi *ingestor) collectKlines(conn connector.Connector, exchangeName connector.ExchangeName, asset portfolio.Asset) {
 	intervals := []string{"1m", "5m", "15m", "1h", "4h", "1d"}
 
+	var wg sync.WaitGroup
+
 	for _, interval := range intervals {
-		klines, err := conn.FetchKlines(asset.Symbol(), interval, 100)
-		if err != nil {
-			bi.logger.Debug("Failed to fetch %s klines for %s on %s: %v",
-				interval, asset.Symbol(), string(exchangeName), err)
-			continue
-		}
+		wg.Add(1)
 
-		if len(klines) == 0 {
-			bi.logger.Debug("No %s klines for %s on %s", interval, asset.Symbol(), string(exchangeName))
-			continue
-		}
+		go func(iv string) {
+			defer wg.Done()
 
-		// Store all klines
-		for _, kline := range klines {
-			bi.store.UpdateKline(asset, exchangeName, kline)
-		}
+			// Get configured limit for this interval, default to 100 if not configured
+			limit := bi.klineLimits[iv]
+			if limit == 0 {
+				limit = 100
+			}
 
-		bi.logger.Debug("REST updated %d %s klines for %s on %s",
-			len(klines), interval, asset.Symbol(), string(exchangeName))
+			klines, err := conn.FetchKlines(asset.Symbol(), iv, limit)
+			if err != nil {
+				bi.logger.Debug("Failed to fetch %s klines for %s on %s: %v",
+					iv, asset.Symbol(), string(exchangeName), err)
+				return
+			}
+
+			if len(klines) == 0 {
+				bi.logger.Debug("No %s klines for %s on %s", iv, asset.Symbol(), string(exchangeName))
+				return
+			}
+
+			// Store all klines
+			for _, kline := range klines {
+				bi.store.UpdateKline(asset, exchangeName, kline)
+			}
+
+			bi.logger.Debug("REST updated %d %s klines for %s on %s",
+				len(klines), iv, asset.Symbol(), string(exchangeName))
+		}(interval)
 	}
+
+	wg.Wait()
 }
 
 // notifyDataUpdate signals that data was updated

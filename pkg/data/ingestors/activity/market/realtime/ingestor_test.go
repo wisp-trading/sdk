@@ -10,7 +10,7 @@ import (
 	mockMarket "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	mockHealth "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	mockRegistry "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/ingestors/activity/market/realtime"
+	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/realtime"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	ingestorTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
