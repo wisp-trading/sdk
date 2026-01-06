@@ -5,17 +5,16 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/adapters"
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/config"
-	"github.com/backtesting-org/kronos-sdk/pkg/events"
+	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors"
+	"github.com/backtesting-org/kronos-sdk/pkg/data/stores"
 	"github.com/backtesting-org/kronos-sdk/pkg/executor"
 	"github.com/backtesting-org/kronos-sdk/pkg/inference/features"
-	"github.com/backtesting-org/kronos-sdk/pkg/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/lifecycle"
 	"github.com/backtesting-org/kronos-sdk/pkg/monitoring"
 	"github.com/backtesting-org/kronos-sdk/pkg/plugin"
 	"github.com/backtesting-org/kronos-sdk/pkg/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/runtime"
 	"github.com/backtesting-org/kronos-sdk/pkg/signal"
-	"github.com/backtesting-org/kronos-sdk/pkg/stores"
 	"go.uber.org/fx"
 )
 
@@ -24,7 +23,7 @@ var Module = fx.Options(
 	adapters.Module,
 	analytics.Module,
 	config.Module,
-	events.Module,
+	monitoring.Module,
 	features.Module,
 	ingestors.Module,
 	lifecycle.Module,
@@ -34,5 +33,4 @@ var Module = fx.Options(
 	signal.Module,
 	stores.Module,
 	executor.Module,
-	monitoring.Module,
 )
