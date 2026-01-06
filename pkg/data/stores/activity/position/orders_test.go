@@ -3,8 +3,8 @@ package position_test
 import (
 	"time"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/activity/position"
 	timeProvider "github.com/backtesting-org/kronos-sdk/pkg/runtime/time"
-	"github.com/backtesting-org/kronos-sdk/pkg/stores/activity/position"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	activityTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"

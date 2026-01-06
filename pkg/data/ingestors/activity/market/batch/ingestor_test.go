@@ -1,7 +1,6 @@
 package batch_test
 
 import (
-	"testing"
 	stdtime "time"
 
 	mockConnector "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/connector"
@@ -9,7 +8,7 @@ import (
 	mockMarket "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	mockHealth "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	mockRegistry "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/ingestors/activity/market/batch"
+	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/batch"
 	"github.com/backtesting-org/kronos-sdk/pkg/runtime/time"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	ingestorTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
@@ -20,11 +19,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/mock"
 )
-
-func TestBatch(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Batch Ingestor Suite")
-}
 
 var _ = Describe("BatchIngestor", func() {
 	var (
@@ -105,8 +99,20 @@ var _ = Describe("BatchIngestor", func() {
 				mockHealthStore.EXPECT().RecordDataReceived(connector.ExchangeName("hyperliquid"), mock.Anything, mock.Anything, mock.Anything).Times(4)
 
 				// Kline expectations for multiple intervals (2x for initial + CollectNow)
+				// Use the actual configured limits from the ingestor
+				klineLimits := map[string]int{
+					"1m":  500,
+					"5m":  300,
+					"15m": 200,
+					"1h":  168,
+					"4h":  180,
+					"1d":  90,
+				}
+
 				intervals := []string{"1m", "5m", "15m", "1h", "4h", "1d"}
 				for _, interval := range intervals {
+					limit := klineLimits[interval]
+
 					btcKlines := []connector.Kline{
 						{
 							Symbol:    "BTC",
@@ -135,8 +141,8 @@ var _ = Describe("BatchIngestor", func() {
 						},
 					}
 
-					mockedConnector.EXPECT().FetchKlines("BTC", interval, 100).Return(btcKlines, nil).Times(2)
-					mockedConnector.EXPECT().FetchKlines("ETH", interval, 100).Return(ethKlines, nil).Times(2)
+					mockedConnector.EXPECT().FetchKlines("BTC", interval, limit).Return(btcKlines, nil).Times(2)
+					mockedConnector.EXPECT().FetchKlines("ETH", interval, limit).Return(ethKlines, nil).Times(2)
 
 					for _, kline := range btcKlines {
 						mockStore.EXPECT().UpdateKline(btcAsset, connector.ExchangeName("hyperliquid"), kline).Times(2)
@@ -218,13 +224,22 @@ var _ = Describe("BatchIngestor", func() {
 				mockStore.EXPECT().UpdateOrderBook(btcAsset, connector.ExchangeName("hyperliquid"), connector.TypePerpetual, *btcOrderbook).Times(2)
 				mockHealthStore.EXPECT().RecordDataReceived(connector.ExchangeName("hyperliquid"), mock.Anything, mock.Anything, mock.Anything).Times(2)
 
-				// First interval fails (2x)
-				mockedConnector.EXPECT().FetchKlines("BTC", "1m", 100).Return(nil, nil).Times(2)
+				// First interval fails (2x) - using configured limit for 1m
+				mockedConnector.EXPECT().FetchKlines("BTC", "1m", 500).Return(nil, nil).Times(2)
 
-				// Rest succeed with empty results (2x)
+				// Rest succeed with empty results (2x) - using configured limits
+				klineLimits := map[string]int{
+					"5m":  300,
+					"15m": 200,
+					"1h":  168,
+					"4h":  180,
+					"1d":  90,
+				}
+
 				intervals := []string{"5m", "15m", "1h", "4h", "1d"}
 				for _, interval := range intervals {
-					mockedConnector.EXPECT().FetchKlines("BTC", interval, 100).Return([]connector.Kline{}, nil).Times(2)
+					limit := klineLimits[interval]
+					mockedConnector.EXPECT().FetchKlines("BTC", interval, limit).Return([]connector.Kline{}, nil).Times(2)
 				}
 
 				mockNotifier.EXPECT().Notify().Times(2)
