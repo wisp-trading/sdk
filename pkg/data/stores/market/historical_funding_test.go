@@ -3,8 +3,8 @@ package market_test
 import (
 	"time"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/market"
 	timeProvider "github.com/backtesting-org/kronos-sdk/pkg/runtime/time"
-	"github.com/backtesting-org/kronos-sdk/pkg/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
