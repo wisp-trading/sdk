@@ -7,7 +7,6 @@ import (
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/config"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/live-trading/pkg/connectors"
 )
 
 type connectorService struct {
@@ -79,7 +78,7 @@ func (c *connectorService) ValidateConnectorConfig(exchangeName connector.Exchan
 	}
 
 	// Check if the connector is available in SDK
-	if !connectors.IsAvailable(exchangeName) {
+	if !c.availableConnectors.IsAvailable(exchangeName) {
 		ve.ExchangeNotFound = true
 		return ve
 	}
@@ -118,7 +117,7 @@ func (c *connectorService) MapToSDKConfig(userConnector config.Connector) (conne
 	exchangeName := connector.ExchangeName(userConnector.Name)
 
 	// Get the config type template for this exchange from the SDK
-	configTemplate := connectors.GetConfigType(exchangeName)
+	configTemplate := c.availableConnectors.GetConfigType(exchangeName)
 	if configTemplate == nil {
 		return nil, fmt.Errorf("no config template found for exchange '%s'", exchangeName)
 	}
@@ -146,7 +145,7 @@ func (c *connectorService) MapToSDKConfig(userConnector config.Connector) (conne
 
 	// Create a new instance of the config type
 	// We need to get a pointer to a new instance, not use the template directly
-	sdkConfig := connectors.GetConfigType(exchangeName)
+	sdkConfig := c.availableConnectors.GetConfigType(exchangeName)
 	if err := json.Unmarshal(jsonData, &sdkConfig); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal into SDK config: %w", err)
 	}
@@ -173,7 +172,7 @@ func (c *connectorService) GetConnectorConfigsForStrategy(exchangeNames []string
 		exchangeName := connector.ExchangeName(stratExchangeName)
 
 		// Check if this exchange exists in SDK
-		if !connectors.IsAvailable(exchangeName) {
+		if !c.availableConnectors.IsAvailable(exchangeName) {
 			ve := &ValidationError{
 				Exchange:         stratExchangeName,
 				ExchangeNotFound: true,
@@ -242,7 +241,7 @@ func (c *connectorService) GetConnectorConfigsForStrategy(exchangeNames []string
 // This queries the SDK to get the actual struct fields, not hardcoded values
 func (c *connectorService) GetRequiredCredentialFields(exchangeName string) []string {
 	// Get the config template from SDK
-	configTemplate := connectors.GetConfigType(connector.ExchangeName(exchangeName))
+	configTemplate := c.availableConnectors.GetConfigType(connector.ExchangeName(exchangeName))
 	if configTemplate == nil {
 		return []string{}
 	}

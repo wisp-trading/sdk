@@ -5,7 +5,6 @@ import (
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/config"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/live-trading/pkg/connectors"
 )
 
 // ValidationService handles validation of settings and connectors
@@ -17,16 +16,18 @@ type ValidationService interface {
 }
 
 type validationService struct {
-	// No dependencies - validation is self-contained
+	availableConnectors config.ConnectorAvailability
 }
 
-func NewValidationService() ValidationService {
-	return &validationService{}
+func NewValidationService(availableConnectors config.ConnectorAvailability) ValidationService {
+	return &validationService{
+		availableConnectors: availableConnectors,
+	}
 }
 
 // GetAvailableConnectors returns list of connectors available in SDK
 func (v *validationService) GetAvailableConnectors() []connector.ExchangeName {
-	return connectors.ListAvailable()
+	return v.availableConnectors.ListAvailable()
 }
 
 // ValidateConnectorName checks if the connector name is available in the SDK
