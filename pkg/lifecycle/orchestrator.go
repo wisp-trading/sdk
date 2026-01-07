@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/profiling"
+	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/execution"
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
@@ -44,7 +44,7 @@ func NewOrchestrator(
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 	notifier ingestors.DataUpdateNotifier,
-	profilingStore profilingTypes.ProfilingStore,   // Optional: can be nil
+	profilingStore profilingTypes.ProfilingStore, // Optional: can be nil
 	anomalyDetector profilingTypes.AnomalyDetector, // Optional: can be nil
 ) lifecycleTypes.Orchestrator {
 	tickTimer := NewTickTimer(
