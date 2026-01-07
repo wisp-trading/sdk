@@ -2,6 +2,8 @@ package lifecycle
 
 import (
 	"context"
+
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 )
 
 // State represents the current state of the SDK
@@ -37,7 +39,7 @@ func (s State) String() string {
 // It operates at the infrastructure level, below the Kronos/KronosExecutor APIs.
 type Controller interface {
 	// Start starts the SDK and all its components
-	Start(ctx context.Context) error
+	Start(ctx context.Context, name strategy.StrategyName) error
 
 	// Stop gracefully shuts down the SDK
 	Stop(ctx context.Context) error

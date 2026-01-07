@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"sync"
-	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
+	monitoringTypes "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 )
 
 // controller implements the Controller interface for controlling SDK lifecycle
@@ -22,6 +23,8 @@ type controller struct {
 	healthStore         health.HealthStore
 	orchestrator        lifecycleTypes.Orchestrator
 	logger              logging.ApplicationLogger
+	viewRegistry        monitoringTypes.ViewRegistry
+	monitoringServer    monitoringTypes.Server
 
 	// Lifecycle state
 	state     lifecycleTypes.State
@@ -38,6 +41,7 @@ func NewController(
 	healthStore health.HealthStore,
 	orchestrator lifecycleTypes.Orchestrator,
 	logger logging.ApplicationLogger,
+	viewRegistry monitoringTypes.ViewRegistry,
 ) lifecycleTypes.Controller {
 	return &controller{
 		marketCoordinator:   marketCoordinator,
@@ -46,13 +50,14 @@ func NewController(
 		healthStore:         healthStore,
 		orchestrator:        orchestrator,
 		logger:              logger,
+		viewRegistry:        viewRegistry,
 		state:               lifecycleTypes.StateCreated,
 		readyChan:           make(chan struct{}),
 	}
 }
 
 // Start starts the SDK and all its components
-func (c *controller) Start(ctx context.Context) error {
+func (c *controller) Start(ctx context.Context, strategyName strategy.StrategyName) error {
 	c.stateMu.Lock()
 	if c.state != lifecycleTypes.StateCreated && c.state != lifecycleTypes.StateStopped {
 		currentState := c.state
@@ -106,6 +111,21 @@ func (c *controller) Start(ctx context.Context) error {
 	}
 	c.logger.Info("  ✓ Strategy orchestrator ready")
 
+	// Start monitoring server
+	c.logger.Info("Starting monitoring server...")
+	monitoringServer, err := c.initializeMonitoringServer(strategyName)
+	if err != nil {
+		c.logger.Warn("Failed to initialize monitoring server: %v (continuing without monitoring)", err)
+	} else {
+		c.monitoringServer = monitoringServer
+		go func() {
+			if err := c.monitoringServer.Start(); err != nil {
+				c.logger.Error("Monitoring server error: %v", err)
+			}
+		}()
+		c.logger.Info("Monitoring server ready on %s", c.monitoringServer.SocketPath())
+	}
+
 	// Start runtime health monitoring
 	go c.monitorHealth(ctx)
 
@@ -118,7 +138,7 @@ func (c *controller) Start(ctx context.Context) error {
 		close(c.readyChan)
 	})
 
-	c.logger.Info("✅ Kronos SDK ready - strategies can now execute")
+	c.logger.Info("Kronos ready")
 	return nil
 }
 
@@ -148,6 +168,14 @@ func (c *controller) Stop(ctx context.Context) error {
 	if c.positionCoordinator != nil {
 		if err := c.positionCoordinator.Stop(); err != nil {
 			c.logger.Error("Error stopping position coordinator: %v", err)
+		}
+	}
+
+	// Stop monitoring server
+	if c.monitoringServer != nil {
+		c.logger.Info("Stopping monitoring server...")
+		if err := c.monitoringServer.Stop(ctx); err != nil {
+			c.logger.Error("Error stopping monitoring server: %v", err)
 		}
 	}
 
@@ -195,43 +223,4 @@ func (c *controller) validateConnectorsReady() error {
 	c.logger.Info("✓ Validated %d connector(s) ready", len(readyConnectors))
 
 	return nil
-}
-
-// monitorHealth continuously monitors system health and reports aggregated errors
-func (c *controller) monitorHealth(ctx context.Context) {
-	ticker := time.NewTicker(1 * time.Second)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-ticker.C:
-			report := c.healthStore.GetSystemHealth()
-
-			fmt.Println("Starting system health monitoring...")
-
-			if report.HasErrors {
-				c.logger.Warn("⚠️  System health report:")
-
-				// Log connector errors
-				if len(report.ConnectorErrors.Errors) > 0 {
-					c.logger.Warn("  🔴 Connector errors:")
-					for connector, err := range report.ConnectorErrors.Errors {
-						c.logger.Warn("    - %s [%s]: %v", connector, err.State, err.Error)
-					}
-				}
-
-				// Log data flow errors
-				if len(report.DataFlowErrors.Errors) > 0 {
-					c.logger.Warn("  🟡 Data flow errors:")
-					for connector, dataTypeErrors := range report.DataFlowErrors.Errors {
-						for dataType, err := range dataTypeErrors {
-							c.logger.Warn("    - %s:%s [%d errors]: %v", connector, dataType, err.ErrorCount, err.Error)
-						}
-					}
-				}
-			}
-		}
-	}
 }

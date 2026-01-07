@@ -57,7 +57,7 @@ func (r *rt) Boot(ctx context.Context, config runtime.BootConfig) error {
 	r.strategyRegistry.RegisterStrategy(strat)
 
 	// Step 3: Start SDK lifecycle
-	if err := r.controller.Start(ctx); err != nil {
+	if err := r.controller.Start(ctx, strat.GetName()); err != nil {
 		r.logger.Error(fmt.Sprintf("Failed to start controller: %v", err))
 		return err
 	}
