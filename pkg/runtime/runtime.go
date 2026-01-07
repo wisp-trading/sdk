@@ -39,24 +39,38 @@ func NewRuntime(
 
 // Boot executes the complete startup sequence
 func (r *rt) Boot(ctx context.Context, config runtime.BootConfig) error {
-	r.logger.Info("🔧 Starting boot sequence...")
+	r.logger.Info("🔧 Starting boot sequence...", "mode", config.Mode)
 
-	// Step 1: Load strategy plugin
-	r.logger.Info("Step 1/3: Loading strategy plugin...")
-	strat, err := r.pluginManager.LoadStrategyPlugin(config.StrategyPath)
-	if err != nil {
-		r.logger.Error(fmt.Sprintf("Failed to load strategy plugin: %v", err))
-		return fmt.Errorf("strategy load failed: %w", err)
+	var strat strategy.Strategy
+	var err error
+
+	// Step 1: Load or register strategy based on mode
+	switch config.Mode {
+	case runtime.BootModeStandalone:
+		r.logger.Info("Step 1/3: Registering strategy")
+		if config.Strategy == nil {
+			return fmt.Errorf("no strategy provided in standalone mode")
+		}
+		strat = config.Strategy
+
+	default:
+		r.logger.Info("Step 1/3: Loading strategy plugin...")
+		strat, err = r.pluginManager.LoadStrategyPlugin(config.StrategyPath)
+		if err != nil {
+			r.logger.Error(fmt.Sprintf("Failed to load strategy plugin: %v", err))
+			return fmt.Errorf("strategy load failed: %w", err)
+		}
 	}
 
 	r.loadedStrategy = strat
 	r.logger.Info("✓ Strategy loaded: %s", strat.GetName())
 
 	// Step 2: Register strategy
-	r.logger.Info("Step 3/3: Starting SDK lifecycle...")
+	r.logger.Info("Step 2/3: Registering strategy...")
 	r.strategyRegistry.RegisterStrategy(strat)
 
 	// Step 3: Start SDK lifecycle
+	r.logger.Info("Step 3/3: Starting SDK lifecycle...")
 	if err := r.controller.Start(ctx, strat.GetName()); err != nil {
 		r.logger.Error(fmt.Sprintf("Failed to start controller: %v", err))
 		return err
