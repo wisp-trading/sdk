@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/profiling"
+	profiling2 "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
 )
 
 // anomalyDetector implements profiling.AnomalyDetector
@@ -32,7 +32,7 @@ type baseline struct {
 // warningThreshold: multiplier for warning (e.g., 1.5 = 150% of baseline)
 // criticalThreshold: multiplier for critical (e.g., 2.0 = 200% of baseline)
 // windowSize: number of samples to use for moving average baseline
-func NewAnomalyDetector(warningThreshold, criticalThreshold float64, windowSize int) profiling.AnomalyDetector {
+func NewAnomalyDetector(warningThreshold, criticalThreshold float64, windowSize int) profiling2.AnomalyDetector {
 	return &anomalyDetector{
 		baselines:         make(map[string]*baseline),
 		warningThreshold:  warningThreshold,
@@ -41,15 +41,15 @@ func NewAnomalyDetector(warningThreshold, criticalThreshold float64, windowSize 
 }
 
 // CheckExecution analyzes a single execution duration and returns an alert if anomalous
-func (d *anomalyDetector) CheckExecution(strategyName string, duration time.Duration) profiling.Alert {
+func (d *anomalyDetector) CheckExecution(strategyName string, duration time.Duration) profiling2.Alert {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 
 	bl, exists := d.baselines[strategyName]
 	if !exists || bl.sampleCount == 0 {
 		// No baseline yet
-		return profiling.Alert{
-			Severity: profiling.OK,
+		return profiling2.Alert{
+			Severity: profiling2.OK,
 			Message:  "No baseline established yet",
 		}
 	}
@@ -58,8 +58,8 @@ func (d *anomalyDetector) CheckExecution(strategyName string, duration time.Dura
 	ratio := float64(duration) / float64(baseline)
 
 	if ratio >= d.criticalThreshold {
-		return profiling.Alert{
-			Severity: profiling.Critical,
+		return profiling2.Alert{
+			Severity: profiling2.Critical,
 			Message: fmt.Sprintf("Execution time %.2fms is %.1fx baseline (%.2fms) - CRITICAL slowdown",
 				float64(duration.Microseconds())/1000.0,
 				ratio,
@@ -68,8 +68,8 @@ func (d *anomalyDetector) CheckExecution(strategyName string, duration time.Dura
 	}
 
 	if ratio >= d.warningThreshold {
-		return profiling.Alert{
-			Severity: profiling.Warning,
+		return profiling2.Alert{
+			Severity: profiling2.Warning,
 			Message: fmt.Sprintf("Execution time %.2fms is %.1fx baseline (%.2fms) - WARNING",
 				float64(duration.Microseconds())/1000.0,
 				ratio,
@@ -77,8 +77,8 @@ func (d *anomalyDetector) CheckExecution(strategyName string, duration time.Dura
 		}
 	}
 
-	return profiling.Alert{
-		Severity: profiling.OK,
+	return profiling2.Alert{
+		Severity: profiling2.OK,
 		Message:  "Execution time within normal range",
 	}
 }

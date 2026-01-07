@@ -10,7 +10,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/execution"
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	profilingTypes "github.com/backtesting-org/kronos-sdk/pkg/types/profiling"
+	profiling2 "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
@@ -22,8 +22,8 @@ type orchestrator struct {
 	logger           logging.ApplicationLogger
 	timeProvider     temporal.TimeProvider
 	notifier         ingestors.DataUpdateNotifier
-	profilingStore   profilingTypes.ProfilingStore  // Optional profiling
-	anomalyDetector  profilingTypes.AnomalyDetector // Optional anomaly detection
+	profilingStore   profiling2.ProfilingStore  // Optional profiling
+	anomalyDetector  profiling2.AnomalyDetector // Optional anomaly detection
 
 	// Execution control
 	ctx    context.Context
@@ -44,8 +44,8 @@ func NewOrchestrator(
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 	notifier ingestors.DataUpdateNotifier,
-	profilingStore profilingTypes.ProfilingStore, // Optional: can be nil
-	anomalyDetector profilingTypes.AnomalyDetector, // Optional: can be nil
+	profilingStore profiling2.ProfilingStore, // Optional: can be nil
+	anomalyDetector profiling2.AnomalyDetector, // Optional: can be nil
 ) lifecycleTypes.Orchestrator {
 	tickTimer := NewTickTimer(
 		5,                    // Execute after 5 data updates
@@ -205,7 +205,7 @@ func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
 	ctx := context.Background()
 
 	// Add profiling context if profiling is enabled
-	var profilingCtx profilingTypes.Context
+	var profilingCtx profiling2.Context
 	if o.profilingStore != nil {
 		profilingCtx = o.profilingStore.NewContext(string(strat.GetName()))
 		ctx = profiling.WithContext(ctx, profilingCtx)
@@ -223,7 +223,7 @@ func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
 		// Check for performance anomalies
 		if o.anomalyDetector != nil {
 			alert := o.anomalyDetector.CheckExecution(string(strat.GetName()), duration)
-			if alert.Severity != profilingTypes.OK {
+			if alert.Severity != profiling2.OK {
 				o.logger.Warn("Performance alert for %s: %s", strat.GetName(), alert.Message)
 			}
 			// Update baseline for future comparisons

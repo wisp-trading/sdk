@@ -4,7 +4,7 @@ package health
 
 import (
 	connector "github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	health "github.com/backtesting-org/kronos-sdk/pkg/types/health"
+	health "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
 
 	mock "github.com/stretchr/testify/mock"
 

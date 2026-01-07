@@ -8,8 +8,8 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
+	health2 "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 )
@@ -19,7 +19,7 @@ type ingestor struct {
 	exchangeRegistry registry.ConnectorRegistry
 	assetRegistry    registry.AssetRegistry
 	logger           logging.ApplicationLogger
-	healthStore      health.CoordinatorHealthStore
+	healthStore      health2.CoordinatorHealthStore
 	notifier         ingestors.DataUpdateNotifier
 
 	// WebSocket management
@@ -40,7 +40,7 @@ func NewIngestor(
 	exchangeRegistry registry.ConnectorRegistry,
 	assetRegistry registry.AssetRegistry,
 	logger logging.ApplicationLogger,
-	healthStore health.CoordinatorHealthStore,
+	healthStore health2.CoordinatorHealthStore,
 	notifier ingestors.DataUpdateNotifier,
 ) ingestors.RealtimeIngestor {
 	return &ingestor{
@@ -195,7 +195,7 @@ func (ri *ingestor) processOrderBookChannel(channelKey string, orderBookChan <-c
 		ri.notifyDataUpdate()
 
 		// Report successful data receipt to health monitoring
-		ri.healthStore.RecordDataReceived(exchangeName, health.DataTypeOrderbooks, health.SourceWebSocket, 0)
+		ri.healthStore.RecordDataReceived(exchangeName, health2.DataTypeOrderbooks, health2.SourceWebSocket, 0)
 	}
 
 	ri.logger.Info("📪 Orderbook channel %s closed for %s after %d updates", channelKey, exchangeName, updateCount)
@@ -231,7 +231,7 @@ func (ri *ingestor) processKlineChannel(channelKey string, klineChan <-chan conn
 		ri.store.UpdateKline(asset, exchangeName, klineUpdate)
 
 		ri.notifier.Notify()
-		ri.healthStore.RecordDataReceived(exchangeName, health.DataTypeKlines, health.SourceWebSocket, 0)
+		ri.healthStore.RecordDataReceived(exchangeName, health2.DataTypeKlines, health2.SourceWebSocket, 0)
 	}
 
 	ri.logger.Info("📪 Kline channel %s closed for %s", channelKey, exchangeName)
@@ -241,8 +241,8 @@ func (ri *ingestor) processErrorStream(wsConn connector.WebSocketConnector, exch
 	for err := range wsConn.ErrorChannel() {
 		ri.logger.Error("WebSocket error for %s: %v", exchangeName, err)
 		// Report error to health monitoring - affects all data types on this websocket
-		ri.healthStore.RecordDataError(exchangeName, health.DataTypeKlines, err)
-		ri.healthStore.RecordDataError(exchangeName, health.DataTypeOrderbooks, err)
+		ri.healthStore.RecordDataError(exchangeName, health2.DataTypeKlines, err)
+		ri.healthStore.RecordDataError(exchangeName, health2.DataTypeOrderbooks, err)
 	}
 }
 

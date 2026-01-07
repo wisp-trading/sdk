@@ -4,14 +4,14 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
-	profilingTypes "github.com/backtesting-org/kronos-sdk/pkg/types/profiling"
+	profiling2 "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("AnomalyDetector", func() {
 	var (
-		detector          profilingTypes.AnomalyDetector
+		detector          profiling2.AnomalyDetector
 		strategyName      string
 		warningThreshold  float64
 		criticalThreshold float64
@@ -31,7 +31,7 @@ var _ = Describe("AnomalyDetector", func() {
 			It("should return OK status", func() {
 				alert := detector.CheckExecution(strategyName, 100*time.Millisecond)
 
-				Expect(alert.Severity).To(Equal(profilingTypes.OK))
+				Expect(alert.Severity).To(Equal(profiling2.OK))
 				Expect(alert.Message).To(ContainSubstring("No baseline"))
 			})
 		})
@@ -44,7 +44,7 @@ var _ = Describe("AnomalyDetector", func() {
 				// Check execution within range (110ms is 1.1x baseline)
 				alert := detector.CheckExecution(strategyName, 110*time.Millisecond)
 
-				Expect(alert.Severity).To(Equal(profilingTypes.OK))
+				Expect(alert.Severity).To(Equal(profiling2.OK))
 				Expect(alert.Message).To(ContainSubstring("normal range"))
 			})
 		})
@@ -57,7 +57,7 @@ var _ = Describe("AnomalyDetector", func() {
 				// Check execution at 1.6x baseline (160ms) - above warning (1.5x) but below critical (2.0x)
 				alert := detector.CheckExecution(strategyName, 160*time.Millisecond)
 
-				Expect(alert.Severity).To(Equal(profilingTypes.Warning))
+				Expect(alert.Severity).To(Equal(profiling2.Warning))
 				Expect(alert.Message).To(ContainSubstring("WARNING"))
 				Expect(alert.Message).To(ContainSubstring("1.6x"))
 			})
@@ -71,7 +71,7 @@ var _ = Describe("AnomalyDetector", func() {
 				// Check execution at 2.5x baseline (250ms) - above critical (2.0x)
 				alert := detector.CheckExecution(strategyName, 250*time.Millisecond)
 
-				Expect(alert.Severity).To(Equal(profilingTypes.Critical))
+				Expect(alert.Severity).To(Equal(profiling2.Critical))
 				Expect(alert.Message).To(ContainSubstring("CRITICAL"))
 				Expect(alert.Message).To(ContainSubstring("2.5x"))
 			})
@@ -85,7 +85,7 @@ var _ = Describe("AnomalyDetector", func() {
 				// Check execution at exactly 1.5x baseline (150ms)
 				alert := detector.CheckExecution(strategyName, 150*time.Millisecond)
 
-				Expect(alert.Severity).To(Equal(profilingTypes.Warning))
+				Expect(alert.Severity).To(Equal(profiling2.Warning))
 			})
 		})
 
@@ -97,7 +97,7 @@ var _ = Describe("AnomalyDetector", func() {
 				// Check execution at exactly 2.0x baseline (200ms)
 				alert := detector.CheckExecution(strategyName, 200*time.Millisecond)
 
-				Expect(alert.Severity).To(Equal(profilingTypes.Critical))
+				Expect(alert.Severity).To(Equal(profiling2.Critical))
 			})
 		})
 	})
@@ -290,7 +290,7 @@ var _ = Describe("AnomalyDetector", func() {
 
 				// 110μs is 1.1x baseline - should be OK
 				alert := detector.CheckExecution(strategyName, 110*time.Microsecond)
-				Expect(alert.Severity).To(Equal(profilingTypes.OK))
+				Expect(alert.Severity).To(Equal(profiling2.OK))
 			})
 		})
 
@@ -303,7 +303,7 @@ var _ = Describe("AnomalyDetector", func() {
 
 				// 25 seconds is 2.5x baseline - should be critical
 				alert := detector.CheckExecution(strategyName, 25*time.Second)
-				Expect(alert.Severity).To(Equal(profilingTypes.Critical))
+				Expect(alert.Severity).To(Equal(profiling2.Critical))
 			})
 		})
 

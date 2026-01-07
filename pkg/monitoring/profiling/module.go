@@ -3,7 +3,7 @@ package profiling
 import (
 	"context"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/profiling"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 	"go.uber.org/fx"
 )

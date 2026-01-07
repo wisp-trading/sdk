@@ -5,7 +5,7 @@ package profiling
 import (
 	time "time"
 
-	profiling "github.com/backtesting-org/kronos-sdk/pkg/types/profiling"
+	profiling "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
 	mock "github.com/stretchr/testify/mock"
 )
 

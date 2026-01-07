@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/profiling"
+	profiling2 "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
@@ -21,18 +21,18 @@ type store struct {
 	timeProvider temporal.TimeProvider
 
 	// Async recording
-	recordChan chan profiling.StrategyMetrics
+	recordChan chan profiling2.StrategyMetrics
 	stopChan   chan struct{}
 	wg         sync.WaitGroup
 }
 
 // NewStore creates a new profiling store
-func NewStore(capacity int, timeProvider temporal.TimeProvider) profiling.ProfilingStore {
+func NewStore(capacity int, timeProvider temporal.TimeProvider) profiling2.ProfilingStore {
 	store := &store{
 		strategyMetrics: make(map[string]*ring.Ring),
 		capacity:        capacity,
 		timeProvider:    timeProvider,
-		recordChan:      make(chan profiling.StrategyMetrics, 100),
+		recordChan:      make(chan profiling2.StrategyMetrics, 100),
 		stopChan:        make(chan struct{}),
 	}
 
@@ -44,12 +44,12 @@ func NewStore(capacity int, timeProvider temporal.TimeProvider) profiling.Profil
 }
 
 // NewContext creates a new profiling context for a strategy execution
-func (s *store) NewContext(strategyName string) profiling.Context {
+func (s *store) NewContext(strategyName string) profiling2.Context {
 	return newExecutionContext(strategyName, s.timeProvider)
 }
 
 // RecordExecution records a completed strategy execution (async)
-func (s *store) RecordExecution(metrics profiling.StrategyMetrics) {
+func (s *store) RecordExecution(metrics profiling2.StrategyMetrics) {
 	select {
 	case s.recordChan <- metrics:
 	case <-s.stopChan:
@@ -82,7 +82,7 @@ func (s *store) recordLoop() {
 }
 
 // record actually stores the metric
-func (s *store) record(metrics profiling.StrategyMetrics) {
+func (s *store) record(metrics profiling2.StrategyMetrics) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -99,22 +99,22 @@ func (s *store) record(metrics profiling.StrategyMetrics) {
 }
 
 // GetRecentMetrics returns the N most recent metrics for a strategy
-func (s *store) GetRecentMetrics(strategyName string, limit int) []profiling.StrategyMetrics {
+func (s *store) GetRecentMetrics(strategyName string, limit int) []profiling2.StrategyMetrics {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	buffer, exists := s.strategyMetrics[strategyName]
 	if !exists {
-		return []profiling.StrategyMetrics{}
+		return []profiling2.StrategyMetrics{}
 	}
 
-	var metrics []profiling.StrategyMetrics
+	var metrics []profiling2.StrategyMetrics
 	count := 0
 
 	// Walk backwards through ring to get most recent
 	buffer.Do(func(v interface{}) {
 		if v != nil && count < limit {
-			if m, ok := v.(profiling.StrategyMetrics); ok {
+			if m, ok := v.(profiling2.StrategyMetrics); ok {
 				metrics = append(metrics, m)
 				count++
 			}
@@ -173,11 +173,11 @@ func (s *store) GetPercentile(strategyName string, percentile float64) time.Dura
 }
 
 // GetStats returns statistical analysis of strategy performance
-func (s *store) GetStats(strategyName string) profiling.StrategyStats {
+func (s *store) GetStats(strategyName string) profiling2.StrategyStats {
 	metrics := s.GetRecentMetrics(strategyName, s.capacity)
 
 	if len(metrics) == 0 {
-		return profiling.StrategyStats{
+		return profiling2.StrategyStats{
 			StrategyName: strategyName,
 		}
 	}
@@ -213,7 +213,7 @@ func (s *store) GetStats(strategyName string) profiling.StrategyStats {
 	avgDuration := totalDuration / time.Duration(len(metrics))
 	successRate := float64(successCount) / float64(len(metrics)) * 100.0
 
-	return profiling.StrategyStats{
+	return profiling2.StrategyStats{
 		StrategyName:  strategyName,
 		TotalRuns:     len(metrics),
 		SuccessCount:  successCount,

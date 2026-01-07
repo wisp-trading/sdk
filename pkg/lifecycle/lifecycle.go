@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 )
 
@@ -84,7 +84,7 @@ func (c *controller) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to start position coordinator: %w", err)
 	}
 	c.logger.Info("  ✓ Position tracking ready")
-	
+
 	// Start market data ingestion
 	c.logger.Info("  📈 Starting market data ingestion...")
 	if err := c.marketCoordinator.StartDataCollection(ctx); err != nil {
