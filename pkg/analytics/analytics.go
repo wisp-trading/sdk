@@ -6,7 +6,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/profiling"
+	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	analyticsTypes "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"

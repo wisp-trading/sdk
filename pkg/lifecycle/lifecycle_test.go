@@ -7,13 +7,15 @@ import (
 
 	mockConnector "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	mockIngestors "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
-	mockHealth "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	mockLifecycle "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
+	mockMonitoring "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/monitoring"
+	mockHealth "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
 	mockRegistry "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/health"
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 )
 
 func TestLifecycleController_StateTransitions(t *testing.T) {
@@ -22,6 +24,7 @@ func TestLifecycleController_StateTransitions(t *testing.T) {
 	mockReg := mockRegistry.NewConnectorRegistry(t)
 	mockHealthStore := mockHealth.NewHealthStore(t)
 	mockOrchestrator := mockLifecycle.NewOrchestrator(t)
+	mockViewRegistry := mockMonitoring.NewViewRegistry(t)
 	mockConn := mockConnector.NewConnector(t)
 	noopLog := logging.NewNoOpLogger()
 
@@ -41,7 +44,7 @@ func TestLifecycleController_StateTransitions(t *testing.T) {
 	mockPosition.EXPECT().Stop().Return(nil).Once()
 	mockOrchestrator.EXPECT().Stop(ctx).Return(nil).Once()
 
-	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog)
+	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog, mockViewRegistry)
 
 	// Initial state should be Created
 	if controller.State() != lifecycleTypes.StateCreated {
@@ -54,7 +57,7 @@ func TestLifecycleController_StateTransitions(t *testing.T) {
 	}
 
 	// Start the controller
-	if err := controller.Start(ctx); err != nil {
+	if err := controller.Start(ctx, strategy.StrategyName("test-strategy")); err != nil {
 		t.Fatalf("Failed to start controller: %v", err)
 	}
 
@@ -85,6 +88,7 @@ func TestLifecycleController_WaitUntilReady(t *testing.T) {
 	mockReg := mockRegistry.NewConnectorRegistry(t)
 	mockHealthStore := mockHealth.NewHealthStore(t)
 	mockOrchestrator := mockLifecycle.NewOrchestrator(t)
+	mockViewRegistry := mockMonitoring.NewViewRegistry(t)
 	mockConn := mockConnector.NewConnector(t)
 	noopLog := logging.NewNoOpLogger()
 
@@ -101,12 +105,12 @@ func TestLifecycleController_WaitUntilReady(t *testing.T) {
 		HasErrors: false,
 	}).Maybe()
 
-	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog)
+	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog, mockViewRegistry)
 
 	// Start in background
 	go func() {
 		time.Sleep(100 * time.Millisecond)
-		controller.Start(ctx)
+		controller.Start(ctx, strategy.StrategyName("test-strategy"))
 	}()
 
 	// Wait for ready
@@ -128,6 +132,7 @@ func TestLifecycleController_CannotStartTwice(t *testing.T) {
 	mockReg := mockRegistry.NewConnectorRegistry(t)
 	mockHealthStore := mockHealth.NewHealthStore(t)
 	mockOrchestrator := mockLifecycle.NewOrchestrator(t)
+	mockViewRegistry := mockMonitoring.NewViewRegistry(t)
 	mockConn := mockConnector.NewConnector(t)
 	noopLog := logging.NewNoOpLogger()
 
@@ -144,15 +149,15 @@ func TestLifecycleController_CannotStartTwice(t *testing.T) {
 		HasErrors: false,
 	}).Maybe()
 
-	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog)
+	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog, mockViewRegistry)
 
 	// First start should succeed
-	if err := controller.Start(ctx); err != nil {
+	if err := controller.Start(ctx, strategy.StrategyName("test-strategy")); err != nil {
 		t.Fatalf("First start failed: %v", err)
 	}
 
 	// Second start should fail
-	if err := controller.Start(ctx); err == nil {
+	if err := controller.Start(ctx, strategy.StrategyName("test-strategy")); err == nil {
 		t.Error("Expected error when starting controller twice, got nil")
 	}
 }

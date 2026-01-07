@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/health"
+	health2 "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
@@ -19,13 +19,13 @@ type coordinatorHealthStore struct {
 }
 
 type coordinatorConnectorHealth struct {
-	DataTypes map[health.DataType]*health.DataTypeHealth
+	DataTypes map[health2.DataType]*health2.DataTypeHealth
 }
 
 func NewCoordinatorHealthStore(
 	timeProvider temporal.TimeProvider,
 	connectorRegistry registry.ConnectorRegistry,
-) health.CoordinatorHealthStore {
+) health2.CoordinatorHealthStore {
 	store := &coordinatorHealthStore{
 		timeProvider:      timeProvider,
 		connectorRegistry: connectorRegistry,
@@ -37,14 +37,14 @@ func NewCoordinatorHealthStore(
 	for _, socketConnector := range connectors {
 		name := socketConnector.GetConnectorInfo().Name
 		store.connectors[name] = &coordinatorConnectorHealth{
-			DataTypes: make(map[health.DataType]*health.DataTypeHealth),
+			DataTypes: make(map[health2.DataType]*health2.DataTypeHealth),
 		}
 	}
 
 	return store
 }
 
-func (c *coordinatorHealthStore) RecordDataReceived(name connector.ExchangeName, dataType health.DataType, source health.DataSourceType, latency time.Duration) {
+func (c *coordinatorHealthStore) RecordDataReceived(name connector.ExchangeName, dataType health2.DataType, source health2.DataSourceType, latency time.Duration) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -54,7 +54,7 @@ func (c *coordinatorHealthStore) RecordDataReceived(name connector.ExchangeName,
 	}
 
 	if _, dtExists := conn.DataTypes[dataType]; !dtExists {
-		conn.DataTypes[dataType] = &health.DataTypeHealth{}
+		conn.DataTypes[dataType] = &health2.DataTypeHealth{}
 	}
 
 	dt := conn.DataTypes[dataType]
@@ -67,7 +67,7 @@ func (c *coordinatorHealthStore) RecordDataReceived(name connector.ExchangeName,
 	dt.LastError = nil
 }
 
-func (c *coordinatorHealthStore) RecordDataError(name connector.ExchangeName, dataType health.DataType, err error) {
+func (c *coordinatorHealthStore) RecordDataError(name connector.ExchangeName, dataType health2.DataType, err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -77,7 +77,7 @@ func (c *coordinatorHealthStore) RecordDataError(name connector.ExchangeName, da
 	}
 
 	if _, dtExists := conn.DataTypes[dataType]; !dtExists {
-		conn.DataTypes[dataType] = &health.DataTypeHealth{}
+		conn.DataTypes[dataType] = &health2.DataTypeHealth{}
 	}
 
 	dt := conn.DataTypes[dataType]
@@ -89,7 +89,7 @@ func (c *coordinatorHealthStore) RecordDataError(name connector.ExchangeName, da
 	}
 }
 
-func (c *coordinatorHealthStore) MarkDataTypeAvailable(name connector.ExchangeName, dataType health.DataType, available bool) {
+func (c *coordinatorHealthStore) MarkDataTypeAvailable(name connector.ExchangeName, dataType health2.DataType, available bool) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -99,13 +99,13 @@ func (c *coordinatorHealthStore) MarkDataTypeAvailable(name connector.ExchangeNa
 	}
 
 	if _, dtExists := conn.DataTypes[dataType]; !dtExists {
-		conn.DataTypes[dataType] = &health.DataTypeHealth{}
+		conn.DataTypes[dataType] = &health2.DataTypeHealth{}
 	}
 
 	conn.DataTypes[dataType].Available = available
 }
 
-func (c *coordinatorHealthStore) GetAvailableDataTypes(name connector.ExchangeName) []health.DataType {
+func (c *coordinatorHealthStore) GetAvailableDataTypes(name connector.ExchangeName) []health2.DataType {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -114,7 +114,7 @@ func (c *coordinatorHealthStore) GetAvailableDataTypes(name connector.ExchangeNa
 		return nil
 	}
 
-	var available []health.DataType
+	var available []health2.DataType
 	for dataType, dtHealth := range conn.DataTypes {
 		if dtHealth.Available {
 			available = append(available, dataType)
@@ -124,7 +124,7 @@ func (c *coordinatorHealthStore) GetAvailableDataTypes(name connector.ExchangeNa
 	return available
 }
 
-func (c *coordinatorHealthStore) IsDataTypeHealthy(name connector.ExchangeName, dataType health.DataType) bool {
+func (c *coordinatorHealthStore) IsDataTypeHealthy(name connector.ExchangeName, dataType health2.DataType) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -141,7 +141,7 @@ func (c *coordinatorHealthStore) IsDataTypeHealthy(name connector.ExchangeName, 
 	return dt.Available && time.Since(dt.LastReceived) < 30*time.Second
 }
 
-func (c *coordinatorHealthStore) HasReceivedData(name connector.ExchangeName, dataType health.DataType) bool {
+func (c *coordinatorHealthStore) HasReceivedData(name connector.ExchangeName, dataType health2.DataType) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -158,7 +158,7 @@ func (c *coordinatorHealthStore) HasReceivedData(name connector.ExchangeName, da
 	return !dt.LastReceived.IsZero()
 }
 
-func (c *coordinatorHealthStore) WaitForFirstData(name connector.ExchangeName, dataType health.DataType, timeout time.Duration) error {
+func (c *coordinatorHealthStore) WaitForFirstData(name connector.ExchangeName, dataType health2.DataType, timeout time.Duration) error {
 	deadline := time.Now().Add(timeout)
 
 	for time.Now().Before(deadline) {
@@ -171,7 +171,7 @@ func (c *coordinatorHealthStore) WaitForFirstData(name connector.ExchangeName, d
 	return fmt.Errorf("timeout waiting for %s data from %s", dataType, name)
 }
 
-func (c *coordinatorHealthStore) GetConnectorDataHealth(name connector.ExchangeName) map[health.DataType]*health.DataTypeHealth {
+func (c *coordinatorHealthStore) GetConnectorDataHealth(name connector.ExchangeName) map[health2.DataType]*health2.DataTypeHealth {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -181,7 +181,7 @@ func (c *coordinatorHealthStore) GetConnectorDataHealth(name connector.ExchangeN
 	}
 
 	// Return a copy
-	result := make(map[health.DataType]*health.DataTypeHealth)
+	result := make(map[health2.DataType]*health2.DataTypeHealth)
 	for k, v := range conn.DataTypes {
 		dtCopy := *v
 		result[k] = &dtCopy
@@ -191,11 +191,11 @@ func (c *coordinatorHealthStore) GetConnectorDataHealth(name connector.ExchangeN
 }
 
 // GetDegradedDataTypes returns data types that have errors (unavailable or with error count)
-func (c *coordinatorHealthStore) GetDegradedDataTypes() map[connector.ExchangeName][]health.DataType {
+func (c *coordinatorHealthStore) GetDegradedDataTypes() map[connector.ExchangeName][]health2.DataType {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	degraded := make(map[connector.ExchangeName][]health.DataType)
+	degraded := make(map[connector.ExchangeName][]health2.DataType)
 
 	for connName, connHealth := range c.connectors {
 		for dataType, dtHealth := range connHealth.DataTypes {
@@ -210,22 +210,22 @@ func (c *coordinatorHealthStore) GetDegradedDataTypes() map[connector.ExchangeNa
 }
 
 // GetErrorReport returns aggregated data flow errors
-func (c *coordinatorHealthStore) GetErrorReport() *health.DataFlowErrorReport {
+func (c *coordinatorHealthStore) GetErrorReport() *health2.DataFlowErrorReport {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	report := &health.DataFlowErrorReport{
-		Errors: make(map[string]map[string]health.DataFlowError),
+	report := &health2.DataFlowErrorReport{
+		Errors: make(map[string]map[string]health2.DataFlowError),
 	}
 
 	for connName, connHealth := range c.connectors {
 		for dataType, dtHealth := range connHealth.DataTypes {
 			if !dtHealth.Available || dtHealth.ErrorCount > 0 {
 				if _, exists := report.Errors[string(connName)]; !exists {
-					report.Errors[string(connName)] = make(map[string]health.DataFlowError)
+					report.Errors[string(connName)] = make(map[string]health2.DataFlowError)
 				}
 
-				report.Errors[string(connName)][string(dataType)] = health.DataFlowError{
+				report.Errors[string(connName)][string(dataType)] = health2.DataFlowError{
 					Error:      dtHealth.LastError,
 					ErrorTime:  dtHealth.LastReceived.Unix(),
 					ErrorCount: dtHealth.ErrorCount,

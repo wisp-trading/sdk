@@ -5,7 +5,7 @@ package profiling
 import (
 	time "time"
 
-	profiling "github.com/backtesting-org/kronos-sdk/pkg/types/profiling"
+	profiling "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -206,6 +206,54 @@ func (_c *ProfilingStore_GetStats_Call) Return(_a0 profiling.StrategyStats) *Pro
 }
 
 func (_c *ProfilingStore_GetStats_Call) RunAndReturn(run func(string) profiling.StrategyStats) *ProfilingStore_GetStats_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// NewContext provides a mock function with given fields: strategyName
+func (_m *ProfilingStore) NewContext(strategyName string) profiling.Context {
+	ret := _m.Called(strategyName)
+
+	if len(ret) == 0 {
+		panic("no return value specified for NewContext")
+	}
+
+	var r0 profiling.Context
+	if rf, ok := ret.Get(0).(func(string) profiling.Context); ok {
+		r0 = rf(strategyName)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(profiling.Context)
+		}
+	}
+
+	return r0
+}
+
+// ProfilingStore_NewContext_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NewContext'
+type ProfilingStore_NewContext_Call struct {
+	*mock.Call
+}
+
+// NewContext is a helper method to define mock.On call
+//   - strategyName string
+func (_e *ProfilingStore_Expecter) NewContext(strategyName interface{}) *ProfilingStore_NewContext_Call {
+	return &ProfilingStore_NewContext_Call{Call: _e.mock.On("NewContext", strategyName)}
+}
+
+func (_c *ProfilingStore_NewContext_Call) Run(run func(strategyName string)) *ProfilingStore_NewContext_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *ProfilingStore_NewContext_Call) Return(_a0 profiling.Context) *ProfilingStore_NewContext_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ProfilingStore_NewContext_Call) RunAndReturn(run func(string) profiling.Context) *ProfilingStore_NewContext_Call {
 	_c.Call.Return(run)
 	return _c
 }

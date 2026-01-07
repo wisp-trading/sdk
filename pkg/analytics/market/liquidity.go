@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/profiling"
+	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"

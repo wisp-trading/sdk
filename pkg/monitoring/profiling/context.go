@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/profiling"
+	profiling2 "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
@@ -13,18 +13,18 @@ import (
 type executionContext struct {
 	strategyName  string
 	startTime     time.Time
-	indicators    map[string]*profiling.IndicatorTiming
+	indicators    map[string]*profiling2.IndicatorTiming
 	signalGenTime time.Duration
 	timeProvider  temporal.TimeProvider
 	mu            sync.Mutex
 }
 
 // newExecutionContext creates a new profiling context for a strategy execution
-func newExecutionContext(strategyName string, timeProvider temporal.TimeProvider) profiling.Context {
+func newExecutionContext(strategyName string, timeProvider temporal.TimeProvider) profiling2.Context {
 	return &executionContext{
 		strategyName: strategyName,
 		startTime:    timeProvider.Now(),
-		indicators:   make(map[string]*profiling.IndicatorTiming),
+		indicators:   make(map[string]*profiling2.IndicatorTiming),
 		timeProvider: timeProvider,
 	}
 }
@@ -40,7 +40,7 @@ func (ec *executionContext) RecordIndicator(name string, duration time.Duration)
 		timing.Calls++
 	} else {
 		// Create new timing
-		ec.indicators[name] = &profiling.IndicatorTiming{
+		ec.indicators[name] = &profiling2.IndicatorTiming{
 			Name:     name,
 			Duration: duration,
 			Calls:    1,
@@ -56,12 +56,12 @@ func (ec *executionContext) RecordSignalGeneration(duration time.Duration) {
 }
 
 // Finalize creates the final metrics snapshot for recording
-func (ec *executionContext) Finalize(success bool, err error) profiling.StrategyMetrics {
+func (ec *executionContext) Finalize(success bool, err error) profiling2.StrategyMetrics {
 	ec.mu.Lock()
 	defer ec.mu.Unlock()
 
 	// Convert map to map for StrategyMetrics
-	indicatorMetrics := make(map[string]profiling.IndicatorTiming)
+	indicatorMetrics := make(map[string]profiling2.IndicatorTiming)
 	for name, timing := range ec.indicators {
 		indicatorMetrics[name] = *timing
 	}
@@ -71,7 +71,7 @@ func (ec *executionContext) Finalize(success bool, err error) profiling.Strategy
 		errMsg = err.Error()
 	}
 
-	return profiling.StrategyMetrics{
+	return profiling2.StrategyMetrics{
 		StrategyName:     ec.strategyName,
 		ExecutionTime:    ec.timeProvider.Since(ec.startTime),
 		IndicatorMetrics: indicatorMetrics,

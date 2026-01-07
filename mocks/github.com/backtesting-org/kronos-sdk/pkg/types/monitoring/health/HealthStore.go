@@ -3,7 +3,7 @@
 package health
 
 import (
-	health "github.com/backtesting-org/kronos-sdk/pkg/types/health"
+	health "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
 	mock "github.com/stretchr/testify/mock"
 )
 
