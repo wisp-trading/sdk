@@ -4,6 +4,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/adapters"
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics"
+	"github.com/backtesting-org/kronos-sdk/pkg/config"
 	"github.com/backtesting-org/kronos-sdk/pkg/events"
 	"github.com/backtesting-org/kronos-sdk/pkg/executor"
 	"github.com/backtesting-org/kronos-sdk/pkg/health"
@@ -23,6 +24,7 @@ var Module = fx.Options(
 	activity.Module,
 	adapters.Module,
 	analytics.Module,
+	config.Module,
 	events.Module,
 	features.Module,
 	health.Module,
