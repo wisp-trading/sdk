@@ -3,7 +3,7 @@ package profiling_test
 import (
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/profiling"
+	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
 	profilingTypes "github.com/backtesting-org/kronos-sdk/pkg/types/profiling"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
