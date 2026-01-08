@@ -10,5 +10,8 @@ var Module = fx.Module("monitoring",
 	health.Module,
 	profiling.Module,
 
-	fx.Provide(NewServer),
+	fx.Provide(
+		NewServer,
+		NewViewRegistry,
+	),
 )

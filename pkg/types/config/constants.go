@@ -1,6 +1,6 @@
 package config
 
 const (
-	KronosConfigurationPath = "kronos"
-	StrategiesDirectory     = "strategies"
+	KronosConfigurationFileName = "kronos"
+	StrategiesDirectory         = "strategies"
 )

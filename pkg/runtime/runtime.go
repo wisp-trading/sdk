@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/types/config"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/plugin"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/runtime"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
@@ -15,81 +18,179 @@ import (
 type rt struct {
 	pluginManager     plugin.Manager
 	connectorRegistry registry.ConnectorRegistry
+	assetRegistry     registry.AssetRegistry
 	strategyRegistry  registry.StrategyRegistry
+	configLoader      config.StartupConfigLoader
 	controller        lifecycle.Controller
 	logger            logging.ApplicationLogger
 	loadedStrategy    strategy.Strategy
+	ctx               context.Context
+	cancel            context.CancelFunc
 }
 
 func NewRuntime(
 	pluginManager plugin.Manager,
 	connectorRegistry registry.ConnectorRegistry,
+	assetRegistry registry.AssetRegistry,
 	strategyRegistry registry.StrategyRegistry,
+	configLoader config.StartupConfigLoader,
 	controller lifecycle.Controller,
 	logger logging.ApplicationLogger,
 ) runtime.Runtime {
 	return &rt{
 		pluginManager:     pluginManager,
 		connectorRegistry: connectorRegistry,
+		assetRegistry:     assetRegistry,
 		strategyRegistry:  strategyRegistry,
+		configLoader:      configLoader,
 		controller:        controller,
 		logger:            logger,
 	}
 }
 
-// Boot executes the complete startup sequence
-func (r *rt) Boot(ctx context.Context, config runtime.BootConfig) error {
-	r.logger.Info("🔧 Starting boot sequence...", "mode", config.Mode)
+// Start runs a strategy in plugin mode
+func (r *rt) Start(configPath string, kronosPath string) error {
+	r.ctx, r.cancel = context.WithCancel(context.Background())
 
-	var strat strategy.Strategy
-	var err error
-
-	// Step 1: Load or register strategy based on mode
-	switch config.Mode {
-	case runtime.BootModeStandalone:
-		r.logger.Info("Step 1/3: Registering strategy")
-		if config.Strategy == nil {
-			return fmt.Errorf("no strategy provided in standalone mode")
-		}
-		strat = config.Strategy
-
-	default:
-		r.logger.Info("Step 1/3: Loading strategy plugin...")
-		strat, err = r.pluginManager.LoadStrategyPlugin(config.StrategyPath)
-		if err != nil {
-			r.logger.Error(fmt.Sprintf("Failed to load strategy plugin: %v", err))
-			return fmt.Errorf("strategy load failed: %w", err)
-		}
+	// Load all config
+	cfg, err := r.configLoader.LoadForStrategy(configPath, kronosPath)
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	r.loadedStrategy = strat
-	r.logger.Info("✓ Strategy loaded: %s", strat.GetName())
-
-	// Step 2: Register strategy
-	r.logger.Info("Step 2/3: Registering strategy...")
-	r.strategyRegistry.RegisterStrategy(strat)
-
-	// Step 3: Start SDK lifecycle
-	r.logger.Info("Step 3/3: Starting SDK lifecycle...")
-	if err := r.controller.Start(ctx, strat.GetName()); err != nil {
-		r.logger.Error(fmt.Sprintf("Failed to start controller: %v", err))
+	// Initialize connectors
+	connectorNames, err := r.initializeConnectors(cfg.ConnectorConfigs)
+	if err != nil {
 		return err
 	}
 
-	r.logger.Info("✅ Boot sequence complete - system ready")
-	return nil
+	// Register assets
+	r.registerAssets(cfg.AssetConfigs)
+
+	// Boot in plugin mode
+	return r.boot(r.ctx, runtime.BootConfig{
+		Mode:           runtime.BootModePlugin,
+		StrategyPath:   cfg.PluginPath,
+		ConnectorNames: connectorNames,
+	})
 }
 
-// Stop executes the graceful shutdown sequence
-func (r *rt) Stop(ctx context.Context) error {
-	r.logger.Info("🛑 Starting shutdown sequence...")
+// StartStandalone runs a strategy in standalone mode (debuggable)
+func (r *rt) StartStandalone(
+	strat strategy.Strategy,
+	configPath string,
+	kronosPath string,
+) error {
+	r.ctx, r.cancel = context.WithCancel(context.Background())
 
-	// Stop SDK lifecycle
-	if err := r.controller.Stop(ctx); err != nil {
+	// Load all config
+	cfg, err := r.configLoader.LoadForStrategy(configPath, kronosPath)
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
+	}
+
+	// Initialize connectors
+	connectorNames, err := r.initializeConnectors(cfg.ConnectorConfigs)
+	if err != nil {
+		return err
+	}
+
+	// Register assets
+	r.registerAssets(cfg.AssetConfigs)
+
+	// Boot in standalone mode
+	return r.boot(r.ctx, runtime.BootConfig{
+		Mode:           runtime.BootModeStandalone,
+		Strategy:       strat,
+		ConnectorNames: connectorNames,
+	})
+}
+
+// Stop gracefully shuts down
+func (r *rt) Stop() error {
+	r.logger.Info("🛑 Stopping runtime...")
+
+	if r.cancel != nil {
+		r.cancel()
+	}
+
+	if err := r.controller.Stop(r.ctx); err != nil {
 		r.logger.Error(fmt.Sprintf("Failed to stop controller: %v", err))
 		return err
 	}
 
-	r.logger.Info("✅ Shutdown complete - system stopped")
+	r.logger.Info("✅ Runtime stopped")
+	return nil
+}
+
+// initializeConnectors initializes all connectors and returns their names
+func (r *rt) initializeConnectors(connectors map[connector.ExchangeName]connector.Config) ([]connector.ExchangeName, error) {
+	names := make([]connector.ExchangeName, 0, len(connectors))
+
+	for name, cfg := range connectors {
+		conn, exists := r.connectorRegistry.GetConnector(name)
+		if !exists {
+			r.logger.Warn(fmt.Sprintf("connector %s not registered", name))
+			continue
+		}
+
+		if err := conn.Initialize(cfg); err != nil {
+			r.logger.Error(fmt.Sprintf("connector %s init failed: %s", name, err.Error()))
+			return nil, fmt.Errorf("failed to initialize connector %s: %w", name, err)
+		}
+
+		names = append(names, name)
+		if err := r.connectorRegistry.MarkConnectorReady(name); err != nil {
+			return nil, err
+		}
+	}
+
+	r.logger.Info("Initialized connectors", "count", len(names))
+	return names, nil
+}
+
+// registerAssets registers all assets with their instruments
+func (r *rt) registerAssets(assets map[portfolio.Asset][]connector.Instrument) {
+	for asset, instruments := range assets {
+		for _, instr := range instruments {
+			r.assetRegistry.RegisterAsset(asset, instr)
+		}
+	}
+	r.logger.Info("Registered assets", "count", len(assets))
+}
+
+// boot executes the core boot sequence
+func (r *rt) boot(ctx context.Context, cfg runtime.BootConfig) error {
+	r.logger.Info("🔧 Booting...", "mode", cfg.Mode)
+
+	var strat strategy.Strategy
+	var err error
+
+	switch cfg.Mode {
+	case runtime.BootModeStandalone:
+		r.logger.Info("Using provided strategy instance")
+		if cfg.Strategy == nil {
+			return fmt.Errorf("no strategy provided in standalone mode")
+		}
+		strat = cfg.Strategy
+
+	default:
+		r.logger.Info("Loading strategy plugin...", "path", cfg.StrategyPath)
+		strat, err = r.pluginManager.LoadStrategyPlugin(cfg.StrategyPath)
+		if err != nil {
+			return fmt.Errorf("failed to load plugin: %w", err)
+		}
+	}
+
+	r.loadedStrategy = strat
+	r.logger.Info("Strategy loaded", "name", strat.GetName())
+
+	r.strategyRegistry.RegisterStrategy(strat)
+
+	if err := r.controller.Start(ctx, strat.GetName()); err != nil {
+		return fmt.Errorf("failed to start lifecycle: %w", err)
+	}
+
+	r.logger.Info("✅ Runtime started")
 	return nil
 }
