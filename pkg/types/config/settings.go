@@ -1,7 +1,8 @@
 package config
 
 type Configuration interface {
-	LoadSettings() (*Settings, error)
+	// LoadSettings loads settings from a path. If empty, uses default path.
+	LoadSettings(path string) (*Settings, error)
 	GetConnectors() ([]Connector, error)
 	GetEnabledConnectors() ([]Connector, error)
 

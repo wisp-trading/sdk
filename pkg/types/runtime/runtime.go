@@ -1,24 +1,35 @@
 package runtime
 
 import (
-	"context"
-
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 )
 
-// BootConfig holds configuration for booting the runtime
-type BootConfig struct {
-	StrategyPath string
+// BootMode defines how strategies are loaded into the runtime
+type BootMode string
 
-	// Connectors to mark as ready - must be initialized by caller before Boot
+const (
+	BootModePlugin     BootMode = "plugin"
+	BootModeStandalone BootMode = "standalone"
+)
+
+// BootConfig holds internal configuration for booting
+type BootConfig struct {
+	Mode           BootMode
+	StrategyPath   string
+	Strategy       strategy.Strategy
 	ConnectorNames []connector.ExchangeName
 }
 
-// Runtime orchestrates the complete boot sequence:
-// 1. Load strategy plugin
-// 2. Verify connectors are registered
-// 3. Start the SDK lifecycle
+// Runtime is the main entry point for running strategies
 type Runtime interface {
-	Boot(ctx context.Context, config BootConfig) error
-	Stop(ctx context.Context) error
+	// Start runs a strategy in plugin mode
+	// Loads config from configPath (strategy dir) and kronosPath (kronos.yml)
+	Start(configPath string, kronosPath string) error
+
+	// StartStandalone runs a strategy in standalone mode (debuggable)
+	StartStandalone(strategy strategy.Strategy, configPath string, kronosPath string) error
+
+	// Stop gracefully shuts down
+	Stop() error
 }

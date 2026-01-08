@@ -9,32 +9,49 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type settings struct {
+// ConfigOptions holds configuration for the settings service
+type ConfigOptions struct {
+	// SettingsPath is the path to the kronos.yml file
+	// If empty, defaults to "kronos.yml" in current directory
 	SettingsPath string
+}
+
+type settings struct {
+	settingsPath string
 	settings     *config.Settings
 }
 
-func NewConfiguration() config.Configuration {
+// NewConfiguration creates a new configuration service with the given options
+func NewConfiguration(opts ConfigOptions) config.Configuration {
+	path := opts.SettingsPath
+	if path == "" {
+		path = config.KronosConfigurationFileName + ".yml"
+	}
+
 	return &settings{
-		SettingsPath: config.KronosConfigurationPath + ".yml",
+		settingsPath: path,
 	}
 }
 
-// LoadSettings loads the Settings settings from the specified file path
-func (c *settings) LoadSettings() (*config.Settings, error) {
+// LoadSettings loads the settings from the given path, or default if empty
+func (c *settings) LoadSettings(path string) (*config.Settings, error) {
 	if c.settings != nil {
 		return c.settings, nil
 	}
 
-	if !c.fileExists(c.SettingsPath) {
-		return nil, fmt.Errorf("settings instance not found, please run 'settings init' to create one")
+	// Use provided path or fall back to default
+	loadPath := path
+	if loadPath == "" {
+		loadPath = c.settingsPath
+	}
+
+	if !c.fileExists(loadPath) {
+		return nil, fmt.Errorf("settings file not found at %s", loadPath)
 	}
 
 	v := viper.New()
-	v.SetConfigFile(c.SettingsPath)
+	v.SetConfigFile(loadPath)
 	v.SetConfigType("yaml")
-
-	// Enable environment variable substitution
 	v.AutomaticEnv()
 
 	if err := v.ReadInConfig(); err != nil {
@@ -46,8 +63,8 @@ func (c *settings) LoadSettings() (*config.Settings, error) {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
 
-	// Cache the config
 	c.settings = &settings
+	c.settingsPath = loadPath // Update path for subsequent operations
 
 	return c.settings, nil
 }
@@ -59,8 +76,7 @@ func (c *settings) GetConnectors() ([]config.Connector, error) {
 		return c.settings.Connectors, nil
 	}
 
-	// Load the full config which will also cache credentials
-	if _, err := c.LoadSettings(); err != nil {
+	if _, err := c.LoadSettings(""); err != nil {
 		return nil, err
 	}
 
@@ -70,8 +86,7 @@ func (c *settings) GetConnectors() ([]config.Connector, error) {
 // GetEnabledConnectors returns all enabled connectors
 func (c *settings) GetEnabledConnectors() ([]config.Connector, error) {
 	if c.settings == nil {
-		// Load the full config which will also cache settings
-		if _, err := c.LoadSettings(); err != nil {
+		if _, err := c.LoadSettings(""); err != nil {
 			return nil, err
 		}
 	}
@@ -95,7 +110,7 @@ func (c *settings) SaveSettings(settings *config.Settings) error {
 	}
 
 	// Write to file
-	if err := os.WriteFile(c.SettingsPath, data, 0644); err != nil {
+	if err := os.WriteFile(c.settingsPath, data, 0644); err != nil {
 		return fmt.Errorf("failed to write settings file: %w", err)
 	}
 
@@ -107,9 +122,8 @@ func (c *settings) SaveSettings(settings *config.Settings) error {
 
 // AddConnector adds a new connector to the settings
 func (c *settings) AddConnector(connector config.Connector) error {
-	// Load current settings
 	if c.settings == nil {
-		if _, err := c.LoadSettings(); err != nil {
+		if _, err := c.LoadSettings(""); err != nil {
 			return err
 		}
 	}
@@ -130,9 +144,8 @@ func (c *settings) AddConnector(connector config.Connector) error {
 
 // UpdateConnector updates an existing connector
 func (c *settings) UpdateConnector(connector config.Connector) error {
-	// Load current settings
 	if c.settings == nil {
-		if _, err := c.LoadSettings(); err != nil {
+		if _, err := c.LoadSettings(""); err != nil {
 			return err
 		}
 	}
@@ -157,9 +170,8 @@ func (c *settings) UpdateConnector(connector config.Connector) error {
 
 // RemoveConnector removes a connector by name
 func (c *settings) RemoveConnector(name string) error {
-	// Load current settings
 	if c.settings == nil {
-		if _, err := c.LoadSettings(); err != nil {
+		if _, err := c.LoadSettings(""); err != nil {
 			return err
 		}
 	}
@@ -187,9 +199,8 @@ func (c *settings) RemoveConnector(name string) error {
 
 // EnableConnector toggles the enabled state of a connector
 func (c *settings) EnableConnector(name string, enabled bool) error {
-	// Load current settings
 	if c.settings == nil {
-		if _, err := c.LoadSettings(); err != nil {
+		if _, err := c.LoadSettings(""); err != nil {
 			return err
 		}
 	}
