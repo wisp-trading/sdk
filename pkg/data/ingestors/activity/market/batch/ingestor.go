@@ -144,9 +144,6 @@ func (bi *ingestor) collectOrderBooks() {
 						orderBook.Bids[0].Price.StringFixed(2),
 						orderBook.Asks[0].Price.StringFixed(2))
 				}
-
-				// Collect klines for multiple intervals
-				bi.collectKlines(conn, exchangeName, asset)
 			}
 		}(conn)
 	}
@@ -157,7 +154,7 @@ func (bi *ingestor) collectOrderBooks() {
 	bi.notifyDataUpdate()
 }
 
-func (bi *ingestor) collectKlines(conn connector.Connector, exchangeName connector.ExchangeName, asset portfolio.Asset) {
+func (bi *ingestor) collectKlinesForAsset(conn connector.Connector, exchangeName connector.ExchangeName, asset portfolio.Asset) {
 	intervals := []string{"1m", "5m", "15m", "1h", "4h", "1d"}
 
 	var wg sync.WaitGroup
@@ -220,12 +217,32 @@ func (bi *ingestor) getSupportedInstrumentTypes(conn connector.Connector) []conn
 }
 
 func (bi *ingestor) CollectNow() {
-	if bi.IsActive() {
-		bi.logger.Info("Triggering immediate data collection")
-		go bi.collectOrderBooks()
-	} else {
-		bi.logger.Warn("Cannot collect now - batch ingestor is not active")
+	bi.collectOrderBooks()
+	bi.collectKlines()
+}
+
+func (bi *ingestor) collectKlines() {
+	requiredAssets := bi.assetRegistry.GetRequiredAssets()
+	if len(requiredAssets) == 0 {
+		bi.logger.Debug("No assets required for kline collection")
+		return
 	}
+
+	var wg sync.WaitGroup
+
+	for _, conn := range bi.exchangeRegistry.GetReadyConnectors() {
+		wg.Add(1)
+		go func(conn connector.Connector) {
+			defer wg.Done()
+			exchangeName := conn.GetConnectorInfo().Name
+
+			for _, asset := range requiredAssets {
+				bi.collectKlinesForAsset(conn, exchangeName, asset)
+			}
+		}(conn)
+	}
+
+	wg.Wait()
 }
 
 func (bi *ingestor) Stop() error {

@@ -55,7 +55,7 @@ func (dic *coordinator) StartDataCollection(ctx context.Context) error {
 	// Backfill current data before starting streams
 	dic.logger.Info("Collecting initial market data snapshot...")
 	dic.batchIngestor.CollectNow()
-	dic.timeProvider.Sleep(2 * time.Second) // Give it time to collect
+	dic.logger.Info("Initial market data snapshot complete")
 
 	// Start real-time ingestion
 	if err := dic.realtimeIngestor.Start(ctx); err != nil {
