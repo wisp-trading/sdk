@@ -6,6 +6,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
+// emaFloat64 is the internal float64 implementation for use by other indicators
 func emaFloat64(prices []float64, period int) (float64, error) {
 	if len(prices) < period {
 		return 0, fmt.Errorf("insufficient data: need %d prices, got %d", period, len(prices))
@@ -26,16 +27,12 @@ func emaFloat64(prices []float64, period int) (float64, error) {
 	return ema, nil
 }
 
-func EMA(prices []numerical.Decimal, period int) (numerical.Decimal, error) {
-	pricesFloat := make([]float64, len(prices))
-	for i, p := range prices {
-		pricesFloat[i], _ = p.Float64()
-	}
-
-	emaFloat, err := emaFloat64(pricesFloat, period)
+// EMA calculates the Exponential Moving Average for the given prices and period.
+// Input prices are float64 for performance, output is numerical.Decimal for precision.
+func EMA(prices []float64, period int) (numerical.Decimal, error) {
+	ema, err := emaFloat64(prices, period)
 	if err != nil {
 		return numerical.Zero(), err
 	}
-
-	return numerical.NewFromFloat(emaFloat), nil
+	return numerical.NewFromFloat(ema), nil
 }

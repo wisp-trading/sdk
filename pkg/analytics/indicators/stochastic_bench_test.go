@@ -4,22 +4,21 @@ import (
 	"testing"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
 var (
-	benchStochHighs50    []numerical.Decimal
-	benchStochLows50     []numerical.Decimal
-	benchStochCloses50   []numerical.Decimal
-	benchStochHighs100   []numerical.Decimal
-	benchStochLows100    []numerical.Decimal
-	benchStochCloses100  []numerical.Decimal
-	benchStochHighs500   []numerical.Decimal
-	benchStochLows500    []numerical.Decimal
-	benchStochCloses500  []numerical.Decimal
-	benchStochHighs1000  []numerical.Decimal
-	benchStochLows1000   []numerical.Decimal
-	benchStochCloses1000 []numerical.Decimal
+	benchStochHighs50    []float64
+	benchStochLows50     []float64
+	benchStochCloses50   []float64
+	benchStochHighs100   []float64
+	benchStochLows100    []float64
+	benchStochCloses100  []float64
+	benchStochHighs500   []float64
+	benchStochLows500    []float64
+	benchStochCloses500  []float64
+	benchStochHighs1000  []float64
+	benchStochLows1000   []float64
+	benchStochCloses1000 []float64
 )
 
 func init() {
@@ -29,17 +28,17 @@ func init() {
 	benchStochHighs1000, benchStochLows1000, benchStochCloses1000 = generateStochPriceData(1000)
 }
 
-func generateStochPriceData(count int) ([]numerical.Decimal, []numerical.Decimal, []numerical.Decimal) {
-	highs := make([]numerical.Decimal, count)
-	lows := make([]numerical.Decimal, count)
-	closes := make([]numerical.Decimal, count)
+func generateStochPriceData(count int) ([]float64, []float64, []float64) {
+	highs := make([]float64, count)
+	lows := make([]float64, count)
+	closes := make([]float64, count)
 
 	basePrice := 50000.0
 	for i := 0; i < count; i++ {
 		price := basePrice + float64(i)*10 + float64(i%10)*5
-		highs[i] = numerical.NewFromFloat(price + 50)
-		lows[i] = numerical.NewFromFloat(price - 50)
-		closes[i] = numerical.NewFromFloat(price + 20)
+		highs[i] = price + 50
+		lows[i] = price - 50
+		closes[i] = price + 20
 	}
 
 	return highs, lows, closes
@@ -165,14 +164,14 @@ func BenchmarkStochastic_K14_D3_Data1000_Parallel(b *testing.B) {
 
 func BenchmarkStochastic_Allocations_Small(b *testing.B) {
 	b.ReportAllocs()
-	highs := make([]numerical.Decimal, 20)
-	lows := make([]numerical.Decimal, 20)
-	closes := make([]numerical.Decimal, 20)
+	highs := make([]float64, 20)
+	lows := make([]float64, 20)
+	closes := make([]float64, 20)
 
 	for i := 0; i < 20; i++ {
-		highs[i] = numerical.NewFromInt(int64(100 + i))
-		lows[i] = numerical.NewFromInt(int64(95 + i))
-		closes[i] = numerical.NewFromInt(int64(98 + i))
+		highs[i] = float64(100 + i)
+		lows[i] = float64(95 + i)
+		closes[i] = float64(98 + i)
 	}
 
 	b.ResetTimer()
@@ -184,14 +183,14 @@ func BenchmarkStochastic_Allocations_Small(b *testing.B) {
 func BenchmarkStochastic_Allocations_Large(b *testing.B) {
 	b.ReportAllocs()
 	count := 5000
-	highs := make([]numerical.Decimal, count)
-	lows := make([]numerical.Decimal, count)
-	closes := make([]numerical.Decimal, count)
+	highs := make([]float64, count)
+	lows := make([]float64, count)
+	closes := make([]float64, count)
 
 	for i := 0; i < count; i++ {
-		highs[i] = numerical.NewFromInt(int64(100 + i))
-		lows[i] = numerical.NewFromInt(int64(95 + i))
-		closes[i] = numerical.NewFromInt(int64(98 + i))
+		highs[i] = float64(100 + i)
+		lows[i] = float64(95 + i)
+		closes[i] = float64(98 + i)
 	}
 
 	b.ResetTimer()

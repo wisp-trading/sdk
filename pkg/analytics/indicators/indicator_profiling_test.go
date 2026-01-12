@@ -102,15 +102,15 @@ var _ = Describe("Indicator Profiling", func() {
 	})
 })
 
-// Helper function to create mock klines
+// Helper function to create mock klines with float64 fields
 func makeMockKlines(count int) []connector.Kline {
 	klines := make([]connector.Kline, count)
 	for i := 0; i < count; i++ {
 		klines[i] = connector.Kline{
-			Open:  numerical.NewFromInt(int64(100 + i)),
-			High:  numerical.NewFromInt(int64(105 + i)),
-			Low:   numerical.NewFromInt(int64(95 + i)),
-			Close: numerical.NewFromInt(int64(100 + i)),
+			Open:  float64(100 + i),
+			High:  float64(105 + i),
+			Low:   float64(95 + i),
+			Close: float64(100 + i),
 		}
 	}
 	return klines

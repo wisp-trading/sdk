@@ -4,14 +4,13 @@ import (
 	"testing"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
 var (
-	benchMACDPrices50   []numerical.Decimal
-	benchMACDPrices100  []numerical.Decimal
-	benchMACDPrices500  []numerical.Decimal
-	benchMACDPrices1000 []numerical.Decimal
+	benchMACDPrices50   []float64
+	benchMACDPrices100  []float64
+	benchMACDPrices500  []float64
+	benchMACDPrices1000 []float64
 )
 
 func init() {
@@ -21,13 +20,12 @@ func init() {
 	benchMACDPrices1000 = generateMACDPriceData(1000)
 }
 
-func generateMACDPriceData(count int) []numerical.Decimal {
-	prices := make([]numerical.Decimal, count)
+func generateMACDPriceData(count int) []float64 {
+	prices := make([]float64, count)
 
 	basePrice := 50000.0
 	for i := 0; i < count; i++ {
-		price := basePrice + float64(i)*10 + float64(i%10)*5
-		prices[i] = numerical.NewFromFloat(price)
+		prices[i] = basePrice + float64(i)*10 + float64(i%10)*5
 	}
 
 	return prices
@@ -139,10 +137,10 @@ func BenchmarkMACD_12_26_9_Data1000_Parallel(b *testing.B) {
 
 func BenchmarkMACD_Allocations_Small(b *testing.B) {
 	b.ReportAllocs()
-	prices := make([]numerical.Decimal, 50)
+	prices := make([]float64, 50)
 
 	for i := 0; i < 50; i++ {
-		prices[i] = numerical.NewFromInt(int64(100 + i))
+		prices[i] = float64(100 + i)
 	}
 
 	b.ResetTimer()
@@ -154,10 +152,10 @@ func BenchmarkMACD_Allocations_Small(b *testing.B) {
 func BenchmarkMACD_Allocations_Large(b *testing.B) {
 	b.ReportAllocs()
 	count := 5000
-	prices := make([]numerical.Decimal, count)
+	prices := make([]float64, count)
 
 	for i := 0; i < count; i++ {
-		prices[i] = numerical.NewFromInt(int64(100 + i))
+		prices[i] = float64(100 + i)
 	}
 
 	b.ResetTimer()

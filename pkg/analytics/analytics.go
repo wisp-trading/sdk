@@ -50,9 +50,7 @@ func (s *analytics) Volatility(ctx context.Context, asset portfolio.Asset, perio
 	// Calculate returns
 	returns := make([]float64, len(prices)-1)
 	for i := 1; i < len(prices); i++ {
-		ret := prices[i].Sub(prices[i-1]).Div(prices[i-1])
-		retFloat, _ := ret.Float64()
-		returns[i-1] = retFloat
+		returns[i-1] = (prices[i] - prices[i-1]) / prices[i-1]
 	}
 
 	// Calculate mean return
@@ -99,17 +97,11 @@ func (s *analytics) Trend(ctx context.Context, asset portfolio.Asset, period int
 		return nil, fmt.Errorf("insufficient data for trend calculation")
 	}
 
-	// Convert prices to float64 for calculation
-	priceFloats := make([]float64, len(prices))
-	for i, p := range prices {
-		priceFloats[i], _ = p.Float64()
-	}
-
 	// Calculate linear regression
-	n := float64(len(priceFloats))
+	n := float64(len(prices))
 	var sumX, sumY, sumXY, sumX2 float64
 
-	for i, price := range priceFloats {
+	for i, price := range prices {
 		x := float64(i)
 		sumX += x
 		sumY += price
@@ -123,7 +115,7 @@ func (s *analytics) Trend(ctx context.Context, asset portfolio.Asset, period int
 	// Calculate R-squared to measure trend strength
 	meanY := sumY / n
 	var ssTotal, ssResidual float64
-	for i, price := range priceFloats {
+	for i, price := range prices {
 		x := float64(i)
 		predicted := slope*x + (sumY-slope*sumX)/n
 		ssTotal += (price - meanY) * (price - meanY)
@@ -187,54 +179,54 @@ func (s *analytics) VolumeAnalysis(ctx context.Context, asset portfolio.Asset, p
 	currentVolume := klines[len(klines)-1].Volume
 
 	// Calculate average volume over period
-	var totalVolume numerical.Decimal
+	totalVolume := 0.0
 	for i := 0; i < len(klines)-1; i++ {
-		totalVolume = totalVolume.Add(klines[i].Volume)
+		totalVolume += klines[i].Volume
 	}
-	avgVolume := totalVolume.Div(numerical.NewFromInt(int64(len(klines) - 1)))
+	avgVolume := totalVolume / float64(len(klines)-1)
 
 	// Calculate volume ratio
-	var volumeRatio numerical.Decimal
-	if avgVolume.IsZero() {
-		volumeRatio = numerical.Zero()
+	var volumeRatio float64
+	if avgVolume == 0 {
+		volumeRatio = 0
 	} else {
-		volumeRatio = currentVolume.Div(avgVolume)
+		volumeRatio = currentVolume / avgVolume
 	}
 
 	// Detect spike (current > 2x average)
-	spikeThreshold := numerical.NewFromInt(2)
-	isSpike := volumeRatio.GreaterThan(spikeThreshold)
+	isSpike := volumeRatio > 2.0
 
 	// Determine volume trend
 	// Compare first half average to second half average
 	midPoint := len(klines) / 2
-	var firstHalfVolume, secondHalfVolume numerical.Decimal
+	firstHalfVolume := 0.0
+	secondHalfVolume := 0.0
 
 	for i := 0; i < midPoint; i++ {
-		firstHalfVolume = firstHalfVolume.Add(klines[i].Volume)
+		firstHalfVolume += klines[i].Volume
 	}
 	for i := midPoint; i < len(klines); i++ {
-		secondHalfVolume = secondHalfVolume.Add(klines[i].Volume)
+		secondHalfVolume += klines[i].Volume
 	}
 
-	firstHalfAvg := firstHalfVolume.Div(numerical.NewFromInt(int64(midPoint)))
-	secondHalfAvg := secondHalfVolume.Div(numerical.NewFromInt(int64(len(klines) - midPoint)))
+	firstHalfAvg := firstHalfVolume / float64(midPoint)
+	secondHalfAvg := secondHalfVolume / float64(len(klines)-midPoint)
 
 	var volumeTrend analyticsTypes.TrendDirection
-	trendThreshold := numerical.NewFromFloat(1.2) // 20% increase/decrease
+	trendThreshold := 1.2 // 20% increase/decrease
 
-	if !firstHalfAvg.IsZero() && secondHalfAvg.Div(firstHalfAvg).GreaterThan(trendThreshold) {
+	if firstHalfAvg > 0 && secondHalfAvg/firstHalfAvg > trendThreshold {
 		volumeTrend = analyticsTypes.TrendBullish // Increasing volume
-	} else if !secondHalfAvg.IsZero() && firstHalfAvg.Div(secondHalfAvg).GreaterThan(trendThreshold) {
+	} else if secondHalfAvg > 0 && firstHalfAvg/secondHalfAvg > trendThreshold {
 		volumeTrend = analyticsTypes.TrendBearish // Decreasing volume
 	} else {
 		volumeTrend = analyticsTypes.TrendNeutral
 	}
 
 	return &analyticsTypes.VolumeAnalysis{
-		CurrentVolume: currentVolume,
-		AverageVolume: avgVolume,
-		VolumeRatio:   volumeRatio,
+		CurrentVolume: numerical.NewFromFloat(currentVolume),
+		AverageVolume: numerical.NewFromFloat(avgVolume),
+		VolumeRatio:   numerical.NewFromFloat(volumeRatio),
 		IsVolumeSpike: isSpike,
 		VolumeTrend:   volumeTrend,
 	}, nil
@@ -273,33 +265,33 @@ func (s *analytics) GetPriceChange(ctx context.Context, asset portfolio.Asset, p
 	lowPrice := klines[0].Low
 
 	for _, kline := range klines {
-		if kline.High.GreaterThan(highPrice) {
+		if kline.High > highPrice {
 			highPrice = kline.High
 		}
-		if kline.Low.LessThan(lowPrice) {
+		if kline.Low < lowPrice {
 			lowPrice = kline.Low
 		}
 	}
 
-	change := endPrice.Sub(startPrice)
-	changePercent := change.Div(startPrice).Mul(numerical.NewFromInt(100))
-	priceRange := highPrice.Sub(lowPrice)
-	priceRangePercent := priceRange.Div(startPrice).Mul(numerical.NewFromInt(100))
+	change := endPrice - startPrice
+	changePercent := (change / startPrice) * 100
+	priceRange := highPrice - lowPrice
+	priceRangePercent := (priceRange / startPrice) * 100
 
 	return &analyticsTypes.PriceChange{
-		StartPrice:        startPrice,
-		EndPrice:          endPrice,
-		Change:            change,
-		ChangePercent:     changePercent,
-		HighPrice:         highPrice,
-		LowPrice:          lowPrice,
-		PriceRange:        priceRange,
-		PriceRangePercent: priceRangePercent,
+		StartPrice:        numerical.NewFromFloat(startPrice),
+		EndPrice:          numerical.NewFromFloat(endPrice),
+		Change:            numerical.NewFromFloat(change),
+		ChangePercent:     numerical.NewFromFloat(changePercent),
+		HighPrice:         numerical.NewFromFloat(highPrice),
+		LowPrice:          numerical.NewFromFloat(lowPrice),
+		PriceRange:        numerical.NewFromFloat(priceRange),
+		PriceRangePercent: numerical.NewFromFloat(priceRangePercent),
 	}, nil
 }
 
-// fetchClosePrices is a helper that fetches klines and extracts close prices
-func (s *analytics) fetchClosePrices(asset portfolio.Asset, limit int, opts ...analyticsTypes.AnalyticsOptions) ([]numerical.Decimal, error) {
+// fetchClosePrices is a helper that fetches klines and extracts close prices as float64
+func (s *analytics) fetchClosePrices(asset portfolio.Asset, limit int, opts ...analyticsTypes.AnalyticsOptions) ([]float64, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -316,7 +308,7 @@ func (s *analytics) fetchClosePrices(asset portfolio.Asset, limit int, opts ...a
 		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
 
-	prices := make([]numerical.Decimal, len(klines))
+	prices := make([]float64, len(klines))
 	for i, kline := range klines {
 		prices[i] = kline.Close
 	}

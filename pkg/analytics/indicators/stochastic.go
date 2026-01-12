@@ -8,12 +8,14 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
-func stochasticFloat64(highs, lows, closes []float64, kPeriod, dPeriod int) (float64, float64, error) {
+// Stochastic calculates the Stochastic Oscillator for the given price data.
+// Input prices are float64 for performance, output is numerical.Decimal for precision.
+func Stochastic(highs, lows, closes []float64, kPeriod, dPeriod int) (analytics.StochasticResult, error) {
 	if len(highs) != len(lows) || len(highs) != len(closes) {
-		return 0, 0, fmt.Errorf("price arrays must have equal length")
+		return analytics.StochasticResult{}, fmt.Errorf("price arrays must have equal length")
 	}
 	if len(closes) < kPeriod+dPeriod-1 {
-		return 0, 0, fmt.Errorf("insufficient data: need %d prices, got %d", kPeriod+dPeriod-1, len(closes))
+		return analytics.StochasticResult{}, fmt.Errorf("insufficient data: need %d prices, got %d", kPeriod+dPeriod-1, len(closes))
 	}
 
 	kValues := make([]float64, 0, len(closes)-kPeriod+1)
@@ -42,7 +44,7 @@ func stochasticFloat64(highs, lows, closes []float64, kPeriod, dPeriod int) (flo
 	}
 
 	if len(kValues) < dPeriod {
-		return 0, 0, fmt.Errorf("insufficient K values for D calculation: need %d, got %d", dPeriod, len(kValues))
+		return analytics.StochasticResult{}, fmt.Errorf("insufficient K values for D calculation: need %d, got %d", dPeriod, len(kValues))
 	}
 
 	sum := 0.0
@@ -51,31 +53,8 @@ func stochasticFloat64(highs, lows, closes []float64, kPeriod, dPeriod int) (flo
 	}
 	d := sum / float64(dPeriod)
 
-	return kValues[len(kValues)-1], d, nil
-}
-
-func Stochastic(highs, lows, closes []numerical.Decimal, kPeriod, dPeriod int) (analytics.StochasticResult, error) {
-	if len(highs) != len(lows) || len(highs) != len(closes) {
-		return analytics.StochasticResult{}, fmt.Errorf("price arrays must have equal length")
-	}
-
-	highsFloat := make([]float64, len(highs))
-	lowsFloat := make([]float64, len(lows))
-	closesFloat := make([]float64, len(closes))
-
-	for i := range highs {
-		highsFloat[i], _ = highs[i].Float64()
-		lowsFloat[i], _ = lows[i].Float64()
-		closesFloat[i], _ = closes[i].Float64()
-	}
-
-	k, d, err := stochasticFloat64(highsFloat, lowsFloat, closesFloat, kPeriod, dPeriod)
-	if err != nil {
-		return analytics.StochasticResult{}, err
-	}
-
 	return analytics.StochasticResult{
-		K: numerical.NewFromFloat(k),
+		K: numerical.NewFromFloat(kValues[len(kValues)-1]),
 		D: numerical.NewFromFloat(d),
 	}, nil
 }

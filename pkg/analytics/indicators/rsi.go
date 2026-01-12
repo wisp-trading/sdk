@@ -7,9 +7,10 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
-func rsiFloat64(prices []float64, period int) (float64, error) {
+// RSI calculates the Relative Strength Index for the given prices and period.
+func RSI(prices []float64, period int) (numerical.Decimal, error) {
 	if len(prices) < period+1 {
-		return 0, fmt.Errorf("insufficient data: need %d prices, got %d", period+1, len(prices))
+		return numerical.Zero(), fmt.Errorf("insufficient data: need %d prices, got %d", period+1, len(prices))
 	}
 
 	avgGain := 0.0
@@ -40,25 +41,11 @@ func rsiFloat64(prices []float64, period int) (float64, error) {
 	}
 
 	if math.Abs(avgLoss) < 1e-10 {
-		return 100.0, nil
+		return numerical.NewFromFloat(100.0), nil
 	}
 
 	rs := avgGain / avgLoss
 	rsi := 100.0 - (100.0 / (1.0 + rs))
 
-	return rsi, nil
-}
-
-func RSI(prices []numerical.Decimal, period int) (numerical.Decimal, error) {
-	pricesFloat := make([]float64, len(prices))
-	for i, p := range prices {
-		pricesFloat[i], _ = p.Float64()
-	}
-
-	rsiFloat, err := rsiFloat64(pricesFloat, period)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	return numerical.NewFromFloat(rsiFloat), nil
+	return numerical.NewFromFloat(rsi), nil
 }

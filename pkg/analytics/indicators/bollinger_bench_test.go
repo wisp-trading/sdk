@@ -4,15 +4,14 @@ import (
 	"testing"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
 // Benchmark setup
 var (
-	benchPrices50   []numerical.Decimal
-	benchPrices100  []numerical.Decimal
-	benchPrices500  []numerical.Decimal
-	benchPrices1000 []numerical.Decimal
+	benchPrices50   []float64
+	benchPrices100  []float64
+	benchPrices500  []float64
+	benchPrices1000 []float64
 )
 
 func init() {
@@ -26,14 +25,13 @@ func init() {
 	benchPrices1000 = generateBBPriceData(1000)
 }
 
-func generateBBPriceData(count int) []numerical.Decimal {
-	prices := make([]numerical.Decimal, count)
+func generateBBPriceData(count int) []float64 {
+	prices := make([]float64, count)
 
 	basePrice := 50000.0
 	for i := 0; i < count; i++ {
 		// Simulate price movement with some volatility
-		price := basePrice + float64(i)*10 + float64(i%10)*5
-		prices[i] = numerical.NewFromFloat(price)
+		prices[i] = basePrice + float64(i)*10 + float64(i%10)*5
 	}
 
 	return prices
@@ -198,10 +196,10 @@ func BenchmarkBollingerBands_Period20_Data1000_Parallel(b *testing.B) {
 // Memory allocation benchmarks
 func BenchmarkBollingerBands_Allocations_Small(b *testing.B) {
 	b.ReportAllocs()
-	prices := make([]numerical.Decimal, 20)
+	prices := make([]float64, 20)
 
 	for i := 0; i < 20; i++ {
-		prices[i] = numerical.NewFromInt(int64(100 + i))
+		prices[i] = float64(100 + i)
 	}
 
 	b.ResetTimer()
@@ -213,10 +211,10 @@ func BenchmarkBollingerBands_Allocations_Small(b *testing.B) {
 func BenchmarkBollingerBands_Allocations_Medium(b *testing.B) {
 	b.ReportAllocs()
 	count := 200
-	prices := make([]numerical.Decimal, count)
+	prices := make([]float64, count)
 
 	for i := 0; i < count; i++ {
-		prices[i] = numerical.NewFromInt(int64(100 + i))
+		prices[i] = float64(100 + i)
 	}
 
 	b.ResetTimer()
@@ -228,10 +226,10 @@ func BenchmarkBollingerBands_Allocations_Medium(b *testing.B) {
 func BenchmarkBollingerBands_Allocations_Large(b *testing.B) {
 	b.ReportAllocs()
 	count := 5000
-	prices := make([]numerical.Decimal, count)
+	prices := make([]float64, count)
 
 	for i := 0; i < count; i++ {
-		prices[i] = numerical.NewFromInt(int64(100 + i))
+		prices[i] = float64(100 + i)
 	}
 
 	b.ResetTimer()

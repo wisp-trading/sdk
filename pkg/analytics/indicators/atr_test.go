@@ -89,24 +89,26 @@ var _ = Describe("ATR", func() {
 			result, err := indicators.ATR(highs, lows, closes, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
+			atrVal, _ := result.Float64()
+			Expect(atrVal).To(BeNumerically(">", 0.0))
 		})
 
 		It("should produce smoother values over time", func() {
-			highs := []numerical.Decimal{}
-			lows := []numerical.Decimal{}
-			closes := []numerical.Decimal{}
+			highs := make([]float64, 20)
+			lows := make([]float64, 20)
+			closes := make([]float64, 20)
 
 			for i := 0; i < 20; i++ {
-				highs = append(highs, numerical.NewFromInt(int64(100+i*5)))
-				lows = append(lows, numerical.NewFromInt(int64(95+i*5)))
-				closes = append(closes, numerical.NewFromInt(int64(98+i*5)))
+				highs[i] = float64(100 + i*5)
+				lows[i] = float64(95 + i*5)
+				closes[i] = float64(98 + i*5)
 			}
 
 			result, err := indicators.ATR(highs, lows, closes, 5)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
+			atrVal, _ := result.Float64()
+			Expect(atrVal).To(BeNumerically(">", 0.0))
 		})
 	})
 
@@ -145,14 +147,15 @@ var _ = Describe("ATR", func() {
 		})
 
 		It("should handle fractional prices", func() {
-			highs := makeDecimalsFloat(100.5, 101.75, 102.25, 103.5)
-			lows := makeDecimalsFloat(99.25, 100.5, 101.0, 102.25)
-			closes := makeDecimalsFloat(100.0, 101.25, 101.75, 103.0)
+			highs := makeDecimals(100.5, 101.75, 102.25, 103.5)
+			lows := makeDecimals(99.25, 100.5, 101.0, 102.25)
+			closes := makeDecimals(100.0, 101.25, 101.75, 103.0)
 
 			result, err := indicators.ATR(highs, lows, closes, 2)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
+			atrVal, _ := result.Float64()
+			Expect(atrVal).To(BeNumerically(">", 0.0))
 		})
 	})
 
@@ -161,51 +164,54 @@ var _ = Describe("ATR", func() {
 			dataLength := 100
 			period := 14
 
-			highs := make([]numerical.Decimal, dataLength)
-			lows := make([]numerical.Decimal, dataLength)
-			closes := make([]numerical.Decimal, dataLength)
+			highs := make([]float64, dataLength)
+			lows := make([]float64, dataLength)
+			closes := make([]float64, dataLength)
 
 			for i := 0; i < dataLength; i++ {
-				highs[i] = numerical.NewFromInt(int64(100 + i))
-				lows[i] = numerical.NewFromInt(int64(95 + i))
-				closes[i] = numerical.NewFromInt(int64(98 + i))
+				highs[i] = float64(100 + i)
+				lows[i] = float64(95 + i)
+				closes[i] = float64(98 + i)
 			}
 
 			result, err := indicators.ATR(highs, lows, closes, period)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
+			atrVal, _ := result.Float64()
+			Expect(atrVal).To(BeNumerically(">", 0.0))
 		})
 	})
 
 	Describe("Real-world scenarios", func() {
 		It("should calculate ATR for typical market data", func() {
-			highs := makeDecimalsFloat(50100, 50250, 50150, 50300, 50400, 50350, 50500, 50450, 50600, 50550, 50700, 50650, 50800, 50750, 50900)
-			lows := makeDecimalsFloat(49900, 50050, 49950, 50100, 50200, 50150, 50300, 50250, 50400, 50350, 50500, 50450, 50600, 50550, 50700)
-			closes := makeDecimalsFloat(50000, 50150, 50050, 50200, 50300, 50250, 50400, 50350, 50500, 50450, 50600, 50550, 50700, 50650, 50800)
+			highs := makeDecimals(50100, 50250, 50150, 50300, 50400, 50350, 50500, 50450, 50600, 50550, 50700, 50650, 50800, 50750, 50900)
+			lows := makeDecimals(49900, 50050, 49950, 50100, 50200, 50150, 50300, 50250, 50400, 50350, 50500, 50450, 50600, 50550, 50700)
+			closes := makeDecimals(50000, 50150, 50050, 50200, 50300, 50250, 50400, 50350, 50500, 50450, 50600, 50550, 50700, 50650, 50800)
 
 			result, err := indicators.ATR(highs, lows, closes, 14)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
+			atrVal, _ := result.Float64()
+			Expect(atrVal).To(BeNumerically(">", 0.0))
 		})
 
 		It("should handle trending market", func() {
-			highs := []numerical.Decimal{}
-			lows := []numerical.Decimal{}
-			closes := []numerical.Decimal{}
+			highs := make([]float64, 30)
+			lows := make([]float64, 30)
+			closes := make([]float64, 30)
 
 			for i := 0; i < 30; i++ {
 				base := float64(100 + i*2)
-				highs = append(highs, numerical.NewFromFloat(base+5))
-				lows = append(lows, numerical.NewFromFloat(base-5))
-				closes = append(closes, numerical.NewFromFloat(base+2))
+				highs[i] = base + 5
+				lows[i] = base - 5
+				closes[i] = base + 2
 			}
 
 			result, err := indicators.ATR(highs, lows, closes, 10)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
+			atrVal, _ := result.Float64()
+			Expect(atrVal).To(BeNumerically(">", 0.0))
 		})
 	})
 })
