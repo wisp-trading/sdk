@@ -7,20 +7,21 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
-func macdFloat64(prices []float64, fastPeriod, slowPeriod, signalPeriod int) (float64, float64, float64, error) {
+// MACD calculates the Moving Average Convergence Divergence for the given prices.
+func MACD(prices []float64, fastPeriod, slowPeriod, signalPeriod int) (analytics.MACDResult, error) {
 	if len(prices) < slowPeriod {
-		return 0, 0, 0, fmt.Errorf("insufficient data: need %d prices, got %d", slowPeriod, len(prices))
+		return analytics.MACDResult{}, fmt.Errorf("insufficient data: need %d prices, got %d", slowPeriod, len(prices))
 	}
 
-	// Step 1: Calculate fast and slow EMAs ONCE - O(n)
+	// Step 1: Calculate fast and slow EMAs
 	fastEMA, err := emaFloat64(prices, fastPeriod)
 	if err != nil {
-		return 0, 0, 0, err
+		return analytics.MACDResult{}, err
 	}
 
 	slowEMA, err := emaFloat64(prices, slowPeriod)
 	if err != nil {
-		return 0, 0, 0, err
+		return analytics.MACDResult{}, err
 	}
 
 	// Step 2: MACD line is just the difference
@@ -69,29 +70,15 @@ func macdFloat64(prices []float64, fastPeriod, slowPeriod, signalPeriod int) (fl
 	// Step 4: Signal line is EMA of MACD series
 	signalValue, err := emaFloat64(macdSeries, signalPeriod)
 	if err != nil {
-		return 0, 0, 0, err
+		return analytics.MACDResult{}, err
 	}
 
 	// Step 5: Histogram is MACD - Signal
 	histogram := macdValue - signalValue
 
-	return macdValue, signalValue, histogram, nil
-}
-
-func MACD(prices []numerical.Decimal, fastPeriod, slowPeriod, signalPeriod int) (analytics.MACDResult, error) {
-	pricesFloat := make([]float64, len(prices))
-	for i, p := range prices {
-		pricesFloat[i], _ = p.Float64()
-	}
-
-	macd, signal, histogram, err := macdFloat64(pricesFloat, fastPeriod, slowPeriod, signalPeriod)
-	if err != nil {
-		return analytics.MACDResult{}, err
-	}
-
 	return analytics.MACDResult{
-		MACD:      numerical.NewFromFloat(macd),
-		Signal:    numerical.NewFromFloat(signal),
+		MACD:      numerical.NewFromFloat(macdValue),
+		Signal:    numerical.NewFromFloat(signalValue),
 		Histogram: numerical.NewFromFloat(histogram),
 	}, nil
 }

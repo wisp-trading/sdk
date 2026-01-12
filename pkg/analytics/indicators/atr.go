@@ -7,12 +7,13 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
-func atrFloat64(highs, lows, closes []float64, period int) (float64, error) {
+// ATR calculates the Average True Range for the given price data.
+func ATR(highs, lows, closes []float64, period int) (numerical.Decimal, error) {
 	if len(highs) != len(lows) || len(highs) != len(closes) {
-		return 0, fmt.Errorf("price arrays must have equal length")
+		return numerical.Zero(), fmt.Errorf("price arrays must have equal length")
 	}
 	if len(closes) < period+1 {
-		return 0, fmt.Errorf("insufficient data: need %d prices, got %d", period+1, len(closes))
+		return numerical.Zero(), fmt.Errorf("insufficient data: need %d prices, got %d", period+1, len(closes))
 	}
 
 	sum := 0.0
@@ -50,29 +51,5 @@ func atrFloat64(highs, lows, closes []float64, period int) (float64, error) {
 		atr = (atr*float64(period-1) + tr) / float64(period)
 	}
 
-	return atr, nil
-}
-
-// ATR converts inputs to float64, calls atrFloat64, and converts results back to numerical.Decimal
-func ATR(highs, lows, closes []numerical.Decimal, period int) (numerical.Decimal, error) {
-	if len(highs) != len(lows) || len(highs) != len(closes) {
-		return numerical.Zero(), fmt.Errorf("price arrays must have equal length")
-	}
-
-	highsFloat := make([]float64, len(highs))
-	lowsFloat := make([]float64, len(lows))
-	closesFloat := make([]float64, len(closes))
-
-	for i := range highs {
-		highsFloat[i], _ = highs[i].Float64()
-		lowsFloat[i], _ = lows[i].Float64()
-		closesFloat[i], _ = closes[i].Float64()
-	}
-
-	atrFloat, err := atrFloat64(highsFloat, lowsFloat, closesFloat, period)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	return numerical.NewFromFloat(atrFloat), nil
+	return numerical.NewFromFloat(atr), nil
 }

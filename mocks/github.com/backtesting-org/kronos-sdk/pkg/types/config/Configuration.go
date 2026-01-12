@@ -227,9 +227,9 @@ func (_c *Configuration_GetEnabledConnectors_Call) RunAndReturn(run func() ([]co
 	return _c
 }
 
-// LoadSettings provides a mock function with no fields
-func (_m *Configuration) LoadSettings() (*config.Settings, error) {
-	ret := _m.Called()
+// LoadSettings provides a mock function with given fields: path
+func (_m *Configuration) LoadSettings(path string) (*config.Settings, error) {
+	ret := _m.Called(path)
 
 	if len(ret) == 0 {
 		panic("no return value specified for LoadSettings")
@@ -237,19 +237,19 @@ func (_m *Configuration) LoadSettings() (*config.Settings, error) {
 
 	var r0 *config.Settings
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*config.Settings, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(string) (*config.Settings, error)); ok {
+		return rf(path)
 	}
-	if rf, ok := ret.Get(0).(func() *config.Settings); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) *config.Settings); ok {
+		r0 = rf(path)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*config.Settings)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(path)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -263,13 +263,14 @@ type Configuration_LoadSettings_Call struct {
 }
 
 // LoadSettings is a helper method to define mock.On call
-func (_e *Configuration_Expecter) LoadSettings() *Configuration_LoadSettings_Call {
-	return &Configuration_LoadSettings_Call{Call: _e.mock.On("LoadSettings")}
+//   - path string
+func (_e *Configuration_Expecter) LoadSettings(path interface{}) *Configuration_LoadSettings_Call {
+	return &Configuration_LoadSettings_Call{Call: _e.mock.On("LoadSettings", path)}
 }
 
-func (_c *Configuration_LoadSettings_Call) Run(run func()) *Configuration_LoadSettings_Call {
+func (_c *Configuration_LoadSettings_Call) Run(run func(path string)) *Configuration_LoadSettings_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(string))
 	})
 	return _c
 }
@@ -279,7 +280,7 @@ func (_c *Configuration_LoadSettings_Call) Return(_a0 *config.Settings, _a1 erro
 	return _c
 }
 
-func (_c *Configuration_LoadSettings_Call) RunAndReturn(run func() (*config.Settings, error)) *Configuration_LoadSettings_Call {
+func (_c *Configuration_LoadSettings_Call) RunAndReturn(run func(string) (*config.Settings, error)) *Configuration_LoadSettings_Call {
 	_c.Call.Return(run)
 	return _c
 }

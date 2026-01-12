@@ -6,9 +6,10 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
-func smaFloat64(prices []float64, period int) (float64, error) {
+// SMA calculates the Simple Moving Average for the given prices and period.
+func SMA(prices []float64, period int) (numerical.Decimal, error) {
 	if len(prices) < period {
-		return 0, fmt.Errorf("insufficient data: need %d prices, got %d", period, len(prices))
+		return numerical.Zero(), fmt.Errorf("insufficient data: need %d prices, got %d", period, len(prices))
 	}
 
 	sum := 0.0
@@ -16,19 +17,5 @@ func smaFloat64(prices []float64, period int) (float64, error) {
 		sum += prices[i]
 	}
 
-	return sum / float64(period), nil
-}
-
-func SMA(prices []numerical.Decimal, period int) (numerical.Decimal, error) {
-	pricesFloat := make([]float64, len(prices))
-	for i, p := range prices {
-		pricesFloat[i], _ = p.Float64()
-	}
-
-	smaFloat, err := smaFloat64(pricesFloat, period)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	return numerical.NewFromFloat(smaFloat), nil
+	return numerical.NewFromFloat(sum / float64(period)), nil
 }

@@ -21,18 +21,18 @@ type Price struct {
 
 // Kline represents candlestick data for a trading symbol.
 type Kline struct {
-	Symbol      string            `json:"symbol"`
-	Interval    string            `json:"interval"`
-	OpenTime    time.Time         `json:"open_time"`
-	Open        numerical.Decimal `json:"open"`
-	High        numerical.Decimal `json:"high"`
-	Low         numerical.Decimal `json:"low"`
-	Close       numerical.Decimal `json:"close"`
-	Volume      numerical.Decimal `json:"volume"`
-	CloseTime   time.Time         `json:"close_time"`
-	QuoteVolume numerical.Decimal `json:"quote_volume,omitempty"`
-	TradeCount  int               `json:"trade_count,omitempty"`
-	TakerVolume numerical.Decimal `json:"taker_volume,omitempty"`
+	Symbol      string    `json:"symbol"`
+	Interval    string    `json:"interval"`
+	OpenTime    time.Time `json:"open_time"`
+	Open        float64   `json:"open"`
+	High        float64   `json:"high"`
+	Low         float64   `json:"low"`
+	Close       float64   `json:"close"`
+	Volume      float64   `json:"volume"`
+	CloseTime   time.Time `json:"close_time"`
+	QuoteVolume float64   `json:"quote_volume,omitempty"`
+	TradeCount  int       `json:"trade_count,omitempty"`
+	TakerVolume float64   `json:"taker_volume,omitempty"`
 }
 
 // OrderBook represents the order book with bids and asks.

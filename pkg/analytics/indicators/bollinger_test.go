@@ -136,7 +136,7 @@ var _ = Describe("BollingerBands", func() {
 		})
 
 		It("should handle fractional prices", func() {
-			prices := makeDecimalsFloat(100.5, 101.75, 102.25, 103.5, 104.0)
+			prices := makeDecimals(100.5, 101.75, 102.25, 103.5, 104.0)
 
 			result, err := indicators.BollingerBands(prices, 3, 2.0)
 
@@ -175,7 +175,7 @@ var _ = Describe("BollingerBands", func() {
 
 	Describe("Real-world scenarios", func() {
 		It("should calculate bands for typical market data", func() {
-			prices := makeDecimalsFloat(
+			prices := makeDecimals(
 				50100, 50250, 50150, 50300, 50400,
 				50350, 50500, 50450, 50600, 50550,
 				50700, 50650, 50800, 50750, 50900,
@@ -191,25 +191,22 @@ var _ = Describe("BollingerBands", func() {
 		})
 
 		It("should handle trending market", func() {
-			prices := []numerical.Decimal{}
-
+			prices := make([]float64, 30)
 			for i := 0; i < 30; i++ {
-				price := 100.0 + float64(i)*2
-				prices = append(prices, numerical.NewFromFloat(price))
+				prices[i] = 100.0 + float64(i)*2
 			}
 
 			result, err := indicators.BollingerBands(prices, 10, 2.0)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.Middle.GreaterThan(numerical.NewFromFloat(100.0))).To(BeTrue())
+			middleVal, _ := result.Middle.Float64()
+			Expect(middleVal).To(BeNumerically(">", 100.0))
 		})
 
 		It("should handle ranging market", func() {
-			prices := []numerical.Decimal{}
-
+			prices := make([]float64, 30)
 			for i := 0; i < 30; i++ {
-				price := 105.0 + float64(i%2)*5 - 2.5
-				prices = append(prices, numerical.NewFromFloat(price))
+				prices[i] = 105.0 + float64(i%2)*5 - 2.5
 			}
 
 			result, err := indicators.BollingerBands(prices, 10, 2.0)
@@ -222,9 +219,9 @@ var _ = Describe("BollingerBands", func() {
 
 	Describe("Standard parameters", func() {
 		It("should work with standard 20-period, 2-stddev parameters", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 50; i++ {
-				prices[i] = numerical.NewFromFloat(100.0 + float64(i%10))
+				prices[i] = 100.0 + float64(i%10)
 			}
 
 			result, err := indicators.BollingerBands(prices, 20, 2.0)

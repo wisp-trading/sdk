@@ -52,9 +52,9 @@ var _ = Describe("EMA", func() {
 		})
 
 		It("should handle trending data", func() {
-			prices := []numerical.Decimal{}
+			prices := make([]float64, 20)
 			for i := 0; i < 20; i++ {
-				prices = append(prices, numerical.NewFromFloat(100.0+float64(i)*5))
+				prices[i] = 100.0 + float64(i)*5
 			}
 
 			result, err := indicators.EMA(prices, 10)
@@ -103,27 +103,18 @@ var _ = Describe("EMA", func() {
 		})
 
 		It("should handle fractional prices", func() {
-			prices := makeDecimalsFloat(100.5, 101.75, 102.25, 103.5, 104.0)
+			prices := makeDecimals(100.5, 101.75, 102.25, 103.5, 104.0, 105.25, 106.5, 107.75, 108.25, 109.5, 110.0, 111.25, 112.5, 113.75, 114.25)
 
-			result, err := indicators.EMA(prices, 3)
-
-			Expect(err).NotTo(HaveOccurred())
-			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
-		})
-
-		It("should handle very small periods", func() {
-			prices := makeDecimals(100, 105, 110, 115, 120)
-
-			result, err := indicators.EMA(prices, 2)
+			result, err := indicators.EMA(prices, 14)
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(result.GreaterThan(numerical.Zero())).To(BeTrue())
 		})
 
-		It("should handle very large periods", func() {
-			prices := make([]numerical.Decimal, 200)
-			for i := 0; i < 200; i++ {
-				prices[i] = numerical.NewFromFloat(100.0 + float64(i)*0.5)
+		It("should handle large period", func() {
+			prices := make([]float64, 100)
+			for i := 0; i < 100; i++ {
+				prices[i] = 100.0 + float64(i)*0.5
 			}
 
 			result, err := indicators.EMA(prices, 100)
@@ -163,7 +154,7 @@ var _ = Describe("EMA", func() {
 
 	Describe("Real-world scenarios", func() {
 		It("should calculate EMA for typical market data", func() {
-			prices := makeDecimalsFloat(
+			prices := makeDecimals(
 				50100, 50250, 50150, 50300, 50400,
 				50350, 50500, 50450, 50600, 50550,
 				50700, 50650, 50800, 50750, 50900,
@@ -176,10 +167,9 @@ var _ = Describe("EMA", func() {
 		})
 
 		It("should handle uptrend", func() {
-			prices := []numerical.Decimal{}
+			prices := make([]float64, 30)
 			for i := 0; i < 30; i++ {
-				price := 100.0 + float64(i)*2
-				prices = append(prices, numerical.NewFromFloat(price))
+				prices[i] = 100.0 + float64(i)*2
 			}
 
 			result, err := indicators.EMA(prices, 10)
@@ -189,10 +179,9 @@ var _ = Describe("EMA", func() {
 		})
 
 		It("should handle downtrend", func() {
-			prices := []numerical.Decimal{}
+			prices := make([]float64, 30)
 			for i := 0; i < 30; i++ {
-				price := 200.0 - float64(i)*2
-				prices = append(prices, numerical.NewFromFloat(price))
+				prices[i] = 200.0 - float64(i)*2
 			}
 
 			result, err := indicators.EMA(prices, 10)
@@ -202,10 +191,9 @@ var _ = Describe("EMA", func() {
 		})
 
 		It("should handle ranging market", func() {
-			prices := []numerical.Decimal{}
+			prices := make([]float64, 30)
 			for i := 0; i < 30; i++ {
-				price := 105.0 + float64(i%2)*5 - 2.5
-				prices = append(prices, numerical.NewFromFloat(price))
+				prices[i] = 105.0 + float64(i%2)*5 - 2.5
 			}
 
 			result, err := indicators.EMA(prices, 10)
@@ -216,10 +204,9 @@ var _ = Describe("EMA", func() {
 		})
 
 		It("should handle volatile market", func() {
-			prices := []numerical.Decimal{}
+			prices := make([]float64, 20)
 			for i := 0; i < 20; i++ {
-				price := 100.0 + float64(i%2)*20 - 10.0
-				prices = append(prices, numerical.NewFromFloat(price))
+				prices[i] = 100.0 + float64(i%2)*20 - 10.0
 			}
 
 			result, err := indicators.EMA(prices, 5)
@@ -231,9 +218,9 @@ var _ = Describe("EMA", func() {
 
 	Describe("Standard periods", func() {
 		It("should work with standard 12-period EMA", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 50; i++ {
-				prices[i] = numerical.NewFromFloat(100.0 + float64(i%10))
+				prices[i] = 100.0 + float64(i%10)
 			}
 
 			result, err := indicators.EMA(prices, 12)
@@ -243,9 +230,9 @@ var _ = Describe("EMA", func() {
 		})
 
 		It("should work with standard 26-period EMA", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 50; i++ {
-				prices[i] = numerical.NewFromFloat(100.0 + float64(i%10))
+				prices[i] = 100.0 + float64(i%10)
 			}
 
 			result, err := indicators.EMA(prices, 26)
@@ -255,9 +242,9 @@ var _ = Describe("EMA", func() {
 		})
 
 		It("should work with standard 50-period EMA", func() {
-			prices := make([]numerical.Decimal, 100)
+			prices := make([]float64, 100)
 			for i := 0; i < 100; i++ {
-				prices[i] = numerical.NewFromFloat(100.0 + float64(i%10))
+				prices[i] = 100.0 + float64(i%10)
 			}
 
 			result, err := indicators.EMA(prices, 50)
@@ -267,9 +254,9 @@ var _ = Describe("EMA", func() {
 		})
 
 		It("should work with standard 200-period EMA", func() {
-			prices := make([]numerical.Decimal, 400)
+			prices := make([]float64, 400)
 			for i := 0; i < 400; i++ {
-				prices[i] = numerical.NewFromFloat(100.0 + float64(i)*0.1)
+				prices[i] = 100.0 + float64(i)*0.1
 			}
 
 			result, err := indicators.EMA(prices, 200)

@@ -4,14 +4,13 @@ import (
 	"testing"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
 var (
-	benchSMAPrices50   []numerical.Decimal
-	benchSMAPrices100  []numerical.Decimal
-	benchSMAPrices500  []numerical.Decimal
-	benchSMAPrices1000 []numerical.Decimal
+	benchSMAPrices50   []float64
+	benchSMAPrices100  []float64
+	benchSMAPrices500  []float64
+	benchSMAPrices1000 []float64
 )
 
 func init() {
@@ -21,13 +20,12 @@ func init() {
 	benchSMAPrices1000 = generateSMAPriceData(1000)
 }
 
-func generateSMAPriceData(count int) []numerical.Decimal {
-	prices := make([]numerical.Decimal, count)
+func generateSMAPriceData(count int) []float64 {
+	prices := make([]float64, count)
 
 	basePrice := 50000.0
 	for i := 0; i < count; i++ {
-		price := basePrice + float64(i)*10 + float64(i%10)*5
-		prices[i] = numerical.NewFromFloat(price)
+		prices[i] = basePrice + float64(i)*10 + float64(i%10)*5
 	}
 
 	return prices
@@ -167,10 +165,10 @@ func BenchmarkSMA_Period20_Data1000_Parallel(b *testing.B) {
 
 func BenchmarkSMA_Allocations_Small(b *testing.B) {
 	b.ReportAllocs()
-	prices := make([]numerical.Decimal, 20)
+	prices := make([]float64, 20)
 
 	for i := 0; i < 20; i++ {
-		prices[i] = numerical.NewFromInt(int64(100 + i))
+		prices[i] = float64(100 + i)
 	}
 
 	b.ResetTimer()
@@ -182,10 +180,10 @@ func BenchmarkSMA_Allocations_Small(b *testing.B) {
 func BenchmarkSMA_Allocations_Medium(b *testing.B) {
 	b.ReportAllocs()
 	count := 200
-	prices := make([]numerical.Decimal, count)
+	prices := make([]float64, count)
 
 	for i := 0; i < count; i++ {
-		prices[i] = numerical.NewFromInt(int64(100 + i))
+		prices[i] = float64(100 + i)
 	}
 
 	b.ResetTimer()
@@ -197,10 +195,10 @@ func BenchmarkSMA_Allocations_Medium(b *testing.B) {
 func BenchmarkSMA_Allocations_Large(b *testing.B) {
 	b.ReportAllocs()
 	count := 5000
-	prices := make([]numerical.Decimal, count)
+	prices := make([]float64, count)
 
 	for i := 0; i < count; i++ {
-		prices[i] = numerical.NewFromInt(int64(100 + i))
+		prices[i] = float64(100 + i)
 	}
 
 	b.ResetTimer()

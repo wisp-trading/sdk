@@ -20,9 +20,9 @@ var _ = Describe("MACD", func() {
 		})
 
 		It("should accept minimum required data", func() {
-			prices := make([]numerical.Decimal, 35)
+			prices := make([]float64, 35)
 			for i := 0; i < 35; i++ {
-				prices[i] = numerical.NewFromFloat(100.0 + float64(i))
+				prices[i] = 100.0 + float64(i)
 			}
 
 			result, err := indicators.MACD(prices, 12, 26, 9)
@@ -34,9 +34,9 @@ var _ = Describe("MACD", func() {
 
 	Describe("MACD calculation", func() {
 		It("should calculate MACD, Signal, and Histogram", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 50; i++ {
-				prices[i] = numerical.NewFromFloat(100.0 + float64(i))
+				prices[i] = 100.0 + float64(i)
 			}
 
 			result, err := indicators.MACD(prices, 12, 26, 9)
@@ -48,9 +48,9 @@ var _ = Describe("MACD", func() {
 		})
 
 		It("should have histogram equal to MACD minus Signal", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 50; i++ {
-				prices[i] = numerical.NewFromFloat(100.0 + float64(i)*2)
+				prices[i] = 100.0 + float64(i)*2
 			}
 
 			result, err := indicators.MACD(prices, 12, 26, 9)
@@ -65,9 +65,9 @@ var _ = Describe("MACD", func() {
 		})
 
 		It("should have positive MACD in uptrend", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 50; i++ {
-				prices[i] = numerical.NewFromFloat(100.0 + float64(i)*5)
+				prices[i] = 100.0 + float64(i)*5
 			}
 
 			result, err := indicators.MACD(prices, 12, 26, 9)
@@ -77,9 +77,9 @@ var _ = Describe("MACD", func() {
 		})
 
 		It("should have negative MACD in downtrend", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 50; i++ {
-				prices[i] = numerical.NewFromFloat(200.0 - float64(i)*5)
+				prices[i] = 200.0 - float64(i)*5
 			}
 
 			result, err := indicators.MACD(prices, 12, 26, 9)
@@ -91,9 +91,9 @@ var _ = Describe("MACD", func() {
 
 	Describe("Edge cases", func() {
 		It("should handle identical prices", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 50; i++ {
-				prices[i] = numerical.NewFromFloat(100.0)
+				prices[i] = 100.0
 			}
 
 			result, err := indicators.MACD(prices, 12, 26, 9)
@@ -105,12 +105,12 @@ var _ = Describe("MACD", func() {
 		})
 
 		It("should handle large price swings", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 50; i++ {
 				if i%2 == 0 {
-					prices[i] = numerical.NewFromFloat(100.0)
+					prices[i] = 100.0
 				} else {
-					prices[i] = numerical.NewFromFloat(200.0)
+					prices[i] = 200.0
 				}
 			}
 
@@ -121,9 +121,9 @@ var _ = Describe("MACD", func() {
 		})
 
 		It("should handle fractional prices", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 50; i++ {
-				prices[i] = numerical.NewFromFloat(100.5 + float64(i)*0.25)
+				prices[i] = 100.5 + float64(i)*0.25
 			}
 
 			result, err := indicators.MACD(prices, 12, 26, 9)
@@ -133,9 +133,9 @@ var _ = Describe("MACD", func() {
 		})
 
 		It("should handle short periods", func() {
-			prices := make([]numerical.Decimal, 20)
+			prices := make([]float64, 20)
 			for i := 0; i < 20; i++ {
-				prices[i] = numerical.NewFromFloat(100.0 + float64(i))
+				prices[i] = 100.0 + float64(i)
 			}
 
 			result, err := indicators.MACD(prices, 5, 10, 3)
@@ -147,12 +147,12 @@ var _ = Describe("MACD", func() {
 
 	Describe("Signal crossovers", func() {
 		It("should detect bullish crossover potential", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 40; i++ {
-				prices[i] = numerical.NewFromFloat(100.0)
+				prices[i] = 100.0
 			}
 			for i := 40; i < 50; i++ {
-				prices[i] = numerical.NewFromFloat(100.0 + float64(i-39)*5)
+				prices[i] = 100.0 + float64(i-39)*5
 			}
 
 			result, err := indicators.MACD(prices, 12, 26, 9)
@@ -162,12 +162,12 @@ var _ = Describe("MACD", func() {
 		})
 
 		It("should detect bearish crossover potential", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 40; i++ {
-				prices[i] = numerical.NewFromFloat(150.0)
+				prices[i] = 150.0
 			}
 			for i := 40; i < 50; i++ {
-				prices[i] = numerical.NewFromFloat(150.0 - float64(i-39)*5)
+				prices[i] = 150.0 - float64(i-39)*5
 			}
 
 			result, err := indicators.MACD(prices, 12, 26, 9)
@@ -179,7 +179,7 @@ var _ = Describe("MACD", func() {
 
 	Describe("Real-world scenarios", func() {
 		It("should calculate MACD for typical market data", func() {
-			prices := makeDecimalsFloat(
+			prices := makeDecimals(
 				50100, 50250, 50150, 50300, 50400,
 				50350, 50500, 50450, 50600, 50550,
 				50700, 50650, 50800, 50750, 50900,
@@ -197,10 +197,9 @@ var _ = Describe("MACD", func() {
 		})
 
 		It("should handle uptrend", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 50; i++ {
-				price := 100.0 + float64(i)*2
-				prices[i] = numerical.NewFromFloat(price)
+				prices[i] = 100.0 + float64(i)*2
 			}
 
 			result, err := indicators.MACD(prices, 12, 26, 9)
@@ -210,10 +209,9 @@ var _ = Describe("MACD", func() {
 		})
 
 		It("should handle downtrend", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 50; i++ {
-				price := 200.0 - float64(i)*2
-				prices[i] = numerical.NewFromFloat(price)
+				prices[i] = 200.0 - float64(i)*2
 			}
 
 			result, err := indicators.MACD(prices, 12, 26, 9)
@@ -223,10 +221,10 @@ var _ = Describe("MACD", func() {
 		})
 
 		It("should handle ranging market", func() {
-			prices := make([]numerical.Decimal, 50)
+			prices := make([]float64, 50)
 			for i := 0; i < 50; i++ {
 				price := 105.0 + float64(i%2)*5 - 2.5
-				prices[i] = numerical.NewFromFloat(price)
+				prices[i] = price
 			}
 
 			result, err := indicators.MACD(prices, 12, 26, 9)
@@ -239,9 +237,9 @@ var _ = Describe("MACD", func() {
 
 	Describe("Standard parameters", func() {
 		It("should work with standard 12,26,9 parameters", func() {
-			prices := make([]numerical.Decimal, 100)
+			prices := make([]float64, 100)
 			for i := 0; i < 100; i++ {
-				prices[i] = numerical.NewFromFloat(100.0 + float64(i%10))
+				prices[i] = 100.0 + float64(i%10)
 			}
 
 			result, err := indicators.MACD(prices, 12, 26, 9)

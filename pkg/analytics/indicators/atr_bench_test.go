@@ -4,23 +4,22 @@ import (
 	"testing"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 )
 
 // Benchmark setup
 var (
-	benchHighs50    []numerical.Decimal
-	benchLows50     []numerical.Decimal
-	benchCloses50   []numerical.Decimal
-	benchHighs100   []numerical.Decimal
-	benchLows100    []numerical.Decimal
-	benchCloses100  []numerical.Decimal
-	benchHighs500   []numerical.Decimal
-	benchLows500    []numerical.Decimal
-	benchCloses500  []numerical.Decimal
-	benchHighs1000  []numerical.Decimal
-	benchLows1000   []numerical.Decimal
-	benchCloses1000 []numerical.Decimal
+	benchHighs50    []float64
+	benchLows50     []float64
+	benchCloses50   []float64
+	benchHighs100   []float64
+	benchLows100    []float64
+	benchCloses100  []float64
+	benchHighs500   []float64
+	benchLows500    []float64
+	benchCloses500  []float64
+	benchHighs1000  []float64
+	benchLows1000   []float64
+	benchCloses1000 []float64
 )
 
 func init() {
@@ -34,18 +33,18 @@ func init() {
 	benchHighs1000, benchLows1000, benchCloses1000 = generatePriceData(1000)
 }
 
-func generatePriceData(count int) ([]numerical.Decimal, []numerical.Decimal, []numerical.Decimal) {
-	highs := make([]numerical.Decimal, count)
-	lows := make([]numerical.Decimal, count)
-	closes := make([]numerical.Decimal, count)
+func generatePriceData(count int) ([]float64, []float64, []float64) {
+	highs := make([]float64, count)
+	lows := make([]float64, count)
+	closes := make([]float64, count)
 
 	basePrice := 50000.0
 	for i := 0; i < count; i++ {
 		// Simulate price movement
 		price := basePrice + float64(i)*10 + float64(i%10)*5
-		highs[i] = numerical.NewFromFloat(price + 50)
-		lows[i] = numerical.NewFromFloat(price - 50)
-		closes[i] = numerical.NewFromFloat(price + 20)
+		highs[i] = price + 50
+		lows[i] = price - 50
+		closes[i] = price + 20
 	}
 
 	return highs, lows, closes
@@ -173,14 +172,14 @@ func BenchmarkATR_Period14_Data1000_Parallel(b *testing.B) {
 // Memory allocation benchmarks
 func BenchmarkATR_Allocations_Small(b *testing.B) {
 	b.ReportAllocs()
-	highs := make([]numerical.Decimal, 20)
-	lows := make([]numerical.Decimal, 20)
-	closes := make([]numerical.Decimal, 20)
+	highs := make([]float64, 20)
+	lows := make([]float64, 20)
+	closes := make([]float64, 20)
 
 	for i := 0; i < 20; i++ {
-		highs[i] = numerical.NewFromInt(int64(100 + i))
-		lows[i] = numerical.NewFromInt(int64(95 + i))
-		closes[i] = numerical.NewFromInt(int64(98 + i))
+		highs[i] = float64(100 + i)
+		lows[i] = float64(95 + i)
+		closes[i] = float64(98 + i)
 	}
 
 	b.ResetTimer()
@@ -192,14 +191,14 @@ func BenchmarkATR_Allocations_Small(b *testing.B) {
 func BenchmarkATR_Allocations_Large(b *testing.B) {
 	b.ReportAllocs()
 	count := 5000
-	highs := make([]numerical.Decimal, count)
-	lows := make([]numerical.Decimal, count)
-	closes := make([]numerical.Decimal, count)
+	highs := make([]float64, count)
+	lows := make([]float64, count)
+	closes := make([]float64, count)
 
 	for i := 0; i < count; i++ {
-		highs[i] = numerical.NewFromInt(int64(100 + i))
-		lows[i] = numerical.NewFromInt(int64(95 + i))
-		closes[i] = numerical.NewFromInt(int64(98 + i))
+		highs[i] = float64(100 + i)
+		lows[i] = float64(95 + i)
+		closes[i] = float64(98 + i)
 	}
 
 	b.ResetTimer()

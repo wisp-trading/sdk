@@ -374,9 +374,9 @@ func (s *indicators) Stochastic(ctx context.Context, asset portfolio.Asset, kPer
 		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
 
-	highs := make([]numerical.Decimal, len(klines))
-	lows := make([]numerical.Decimal, len(klines))
-	closes := make([]numerical.Decimal, len(klines))
+	highs := make([]float64, len(klines))
+	lows := make([]float64, len(klines))
+	closes := make([]float64, len(klines))
 
 	for i, kline := range klines {
 		highs[i] = kline.High
@@ -457,9 +457,9 @@ func (s *indicators) ATR(ctx context.Context, asset portfolio.Asset, period int,
 	}
 
 	// Extract high, low, close prices
-	highs := make([]numerical.Decimal, len(klines))
-	lows := make([]numerical.Decimal, len(klines))
-	closes := make([]numerical.Decimal, len(klines))
+	highs := make([]float64, len(klines))
+	lows := make([]float64, len(klines))
+	closes := make([]float64, len(klines))
 
 	for i, kline := range klines {
 		highs[i] = kline.High
@@ -470,8 +470,8 @@ func (s *indicators) ATR(ctx context.Context, asset portfolio.Asset, period int,
 	return ATR(highs, lows, closes, period)
 }
 
-// fetchClosePrices is a helper that fetches klines and extracts close prices
-func (s *indicators) fetchClosePrices(asset portfolio.Asset, limit int, opts ...analytics.IndicatorOptions) ([]numerical.Decimal, error) {
+// fetchClosePrices is a helper that fetches klines and extracts close prices as float64
+func (s *indicators) fetchClosePrices(asset portfolio.Asset, limit int, opts ...analytics.IndicatorOptions) ([]float64, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -488,7 +488,7 @@ func (s *indicators) fetchClosePrices(asset portfolio.Asset, limit int, opts ...
 		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
 
-	prices := make([]numerical.Decimal, len(klines))
+	prices := make([]float64, len(klines))
 	for i, kline := range klines {
 		prices[i] = kline.Close
 	}

@@ -76,13 +76,14 @@ func (e *Extractor) calculateReturn(asset portfolio.Asset, exchange connector.Ex
 
 	// Use the first kline's open price as the historical price
 	pastPrice := klines[0].Open
-	if pastPrice.IsZero() {
+	if pastPrice == 0 {
 		return
 	}
 
 	// Calculate return percentage: (current - past) / past * 100
-	returnPct := currentPrice.Sub(pastPrice).Div(pastPrice).Mul(numerical.NewFromInt(100))
-	featureMap[featureName], _ = returnPct.Float64()
+	currentPriceF, _ := currentPrice.Float64()
+	returnPct := ((currentPriceF - pastPrice) / pastPrice) * 100
+	featureMap[featureName] = returnPct
 }
 
 // calculateHighLowVWAP computes high, low, and VWAP over a time window
@@ -108,34 +109,33 @@ func (e *Extractor) calculateHighLowVWAP(asset portfolio.Asset, exchange connect
 	// Initialize with first kline
 	high := filtered[0].High
 	low := filtered[0].Low
-	vwapSum := numerical.Zero()
-	volumeSum := numerical.Zero()
+	vwapSum := 0.0
+	volumeSum := 0.0
 
 	// Calculate high, low, and VWAP components
 	for _, kline := range filtered {
 		// Track highest high
-		if kline.High.GreaterThan(high) {
+		if kline.High > high {
 			high = kline.High
 		}
 
 		// Track lowest low
-		if kline.Low.LessThan(low) {
+		if kline.Low < low {
 			low = kline.Low
 		}
 
 		// Accumulate for VWAP: sum(price * volume) / sum(volume)
 		// Use close price for VWAP calculation
-		vwapSum = vwapSum.Add(kline.Close.Mul(kline.Volume))
-		volumeSum = volumeSum.Add(kline.Volume)
+		vwapSum += kline.Close * kline.Volume
+		volumeSum += kline.Volume
 	}
 
 	// Set high and low features
-	featureMap[featureHigh1h], _ = high.Float64()
-	featureMap[featureLow1h], _ = low.Float64()
+	featureMap[featureHigh1h] = high
+	featureMap[featureLow1h] = low
 
 	// Calculate VWAP if we have volume
-	if !volumeSum.IsZero() {
-		vwap := vwapSum.Div(volumeSum)
-		featureMap[featureVWAP1h], _ = vwap.Float64()
+	if volumeSum > 0 {
+		featureMap[featureVWAP1h] = vwapSum / volumeSum
 	}
 }

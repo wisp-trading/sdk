@@ -41,8 +41,9 @@ var _ = Describe("Stochastic", func() {
 			result, err := indicators.Stochastic(highs, lows, closes, 2, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.K.GreaterThanOrEqual(numerical.Zero())).To(BeTrue())
-			Expect(result.K.LessThanOrEqual(numerical.NewFromInt(100))).To(BeTrue())
+			kVal, _ := result.K.Float64()
+			Expect(kVal).To(BeNumerically(">=", 0.0))
+			Expect(kVal).To(BeNumerically("<=", 100.0))
 		})
 	})
 
@@ -55,10 +56,12 @@ var _ = Describe("Stochastic", func() {
 			result, err := indicators.Stochastic(highs, lows, closes, 3, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.K.GreaterThanOrEqual(numerical.Zero())).To(BeTrue())
-			Expect(result.K.LessThanOrEqual(numerical.NewFromInt(100))).To(BeTrue())
-			Expect(result.D.GreaterThanOrEqual(numerical.Zero())).To(BeTrue())
-			Expect(result.D.LessThanOrEqual(numerical.NewFromInt(100))).To(BeTrue())
+			kVal, _ := result.K.Float64()
+			dVal, _ := result.D.Float64()
+			Expect(kVal).To(BeNumerically(">=", 0.0))
+			Expect(kVal).To(BeNumerically("<=", 100.0))
+			Expect(dVal).To(BeNumerically(">=", 0.0))
+			Expect(dVal).To(BeNumerically("<=", 100.0))
 		})
 
 		It("should return 100 when close equals highest high", func() {
@@ -115,20 +118,22 @@ var _ = Describe("Stochastic", func() {
 			result, err := indicators.Stochastic(highs, lows, closes, 3, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.K.GreaterThanOrEqual(numerical.Zero())).To(BeTrue())
-			Expect(result.K.LessThanOrEqual(numerical.NewFromInt(100))).To(BeTrue())
+			kVal, _ := result.K.Float64()
+			Expect(kVal).To(BeNumerically(">=", 0.0))
+			Expect(kVal).To(BeNumerically("<=", 100.0))
 		})
 
 		It("should handle fractional prices", func() {
-			highs := makeDecimalsFloat(100.5, 101.75, 102.25, 103.5)
-			lows := makeDecimalsFloat(99.25, 100.5, 101.0, 102.25)
-			closes := makeDecimalsFloat(100.0, 101.25, 101.75, 103.0)
+			highs := makeDecimals(100.5, 101.75, 102.25, 103.5)
+			lows := makeDecimals(99.25, 100.5, 101.0, 102.25)
+			closes := makeDecimals(100.0, 101.25, 101.75, 103.0)
 
 			result, err := indicators.Stochastic(highs, lows, closes, 2, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.K.GreaterThanOrEqual(numerical.Zero())).To(BeTrue())
-			Expect(result.K.LessThanOrEqual(numerical.NewFromInt(100))).To(BeTrue())
+			kVal, _ := result.K.Float64()
+			Expect(kVal).To(BeNumerically(">=", 0.0))
+			Expect(kVal).To(BeNumerically("<=", 100.0))
 		})
 
 		It("should handle single kPeriod", func() {
@@ -139,7 +144,8 @@ var _ = Describe("Stochastic", func() {
 			result, err := indicators.Stochastic(highs, lows, closes, 1, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.K.GreaterThanOrEqual(numerical.Zero())).To(BeTrue())
+			kVal, _ := result.K.Float64()
+			Expect(kVal).To(BeNumerically(">=", 0.0))
 		})
 
 		It("should handle single dPeriod", func() {
@@ -163,7 +169,8 @@ var _ = Describe("Stochastic", func() {
 			result, err := indicators.Stochastic(highs, lows, closes, 3, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.K.GreaterThan(numerical.NewFromInt(70))).To(BeTrue())
+			kVal, _ := result.K.Float64()
+			Expect(kVal).To(BeNumerically(">", 70.0))
 		})
 
 		It("should identify oversold conditions", func() {
@@ -174,71 +181,76 @@ var _ = Describe("Stochastic", func() {
 			result, err := indicators.Stochastic(highs, lows, closes, 3, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.K.LessThan(numerical.NewFromInt(30))).To(BeTrue())
+			kVal, _ := result.K.Float64()
+			Expect(kVal).To(BeNumerically("<", 30.0))
 		})
 	})
 
 	Describe("Real-world scenarios", func() {
 		It("should calculate stochastic for typical market data", func() {
-			highs := makeDecimalsFloat(50100, 50250, 50150, 50300, 50400, 50350, 50500, 50450, 50600, 50550, 50700, 50650, 50800, 50750, 50900, 50850, 51000)
-			lows := makeDecimalsFloat(49900, 50050, 49950, 50100, 50200, 50150, 50300, 50250, 50400, 50350, 50500, 50450, 50600, 50550, 50700, 50650, 50800)
-			closes := makeDecimalsFloat(50000, 50150, 50050, 50200, 50300, 50250, 50400, 50350, 50500, 50450, 50600, 50550, 50700, 50650, 50800, 50750, 50900)
+			highs := makeDecimals(50100, 50250, 50150, 50300, 50400, 50350, 50500, 50450, 50600, 50550, 50700, 50650, 50800, 50750, 50900, 50850, 51000)
+			lows := makeDecimals(49900, 50050, 49950, 50100, 50200, 50150, 50300, 50250, 50400, 50350, 50500, 50450, 50600, 50550, 50700, 50650, 50800)
+			closes := makeDecimals(50000, 50150, 50050, 50200, 50300, 50250, 50400, 50350, 50500, 50450, 50600, 50550, 50700, 50650, 50800, 50750, 50900)
 
 			result, err := indicators.Stochastic(highs, lows, closes, 14, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.K.GreaterThanOrEqual(numerical.Zero())).To(BeTrue())
-			Expect(result.K.LessThanOrEqual(numerical.NewFromInt(100))).To(BeTrue())
-			Expect(result.D.GreaterThanOrEqual(numerical.Zero())).To(BeTrue())
-			Expect(result.D.LessThanOrEqual(numerical.NewFromInt(100))).To(BeTrue())
+			kVal, _ := result.K.Float64()
+			dVal, _ := result.D.Float64()
+			Expect(kVal).To(BeNumerically(">=", 0.0))
+			Expect(kVal).To(BeNumerically("<=", 100.0))
+			Expect(dVal).To(BeNumerically(">=", 0.0))
+			Expect(dVal).To(BeNumerically("<=", 100.0))
 		})
 
 		It("should handle uptrend", func() {
-			highs := []numerical.Decimal{}
-			lows := []numerical.Decimal{}
-			closes := []numerical.Decimal{}
+			highs := []float64{}
+			lows := []float64{}
+			closes := []float64{}
 
 			for i := 0; i < 30; i++ {
 				base := 100.0 + float64(i)*2
-				highs = append(highs, numerical.NewFromFloat(base+5))
-				lows = append(lows, numerical.NewFromFloat(base-5))
-				closes = append(closes, numerical.NewFromFloat(base+3))
+				highs = append(highs, base+5)
+				lows = append(lows, base-5)
+				closes = append(closes, base+3)
 			}
 
 			result, err := indicators.Stochastic(highs, lows, closes, 14, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.K.GreaterThan(numerical.NewFromInt(50))).To(BeTrue())
+			kVal, _ := result.K.Float64()
+			Expect(kVal).To(BeNumerically(">", 50.0))
 		})
 
 		It("should handle downtrend", func() {
-			highs := []numerical.Decimal{}
-			lows := []numerical.Decimal{}
-			closes := []numerical.Decimal{}
+			highs := []float64{}
+			lows := []float64{}
+			closes := []float64{}
 
 			for i := 0; i < 30; i++ {
 				base := 200.0 - float64(i)*2
-				highs = append(highs, numerical.NewFromFloat(base+5))
-				lows = append(lows, numerical.NewFromFloat(base-5))
-				closes = append(closes, numerical.NewFromFloat(base-3))
+				highs = append(highs, base+5)
+				lows = append(lows, base-5)
+				closes = append(closes, base-3)
 			}
 
 			result, err := indicators.Stochastic(highs, lows, closes, 14, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.K.LessThan(numerical.NewFromInt(50))).To(BeTrue())
+			kVal, _ := result.K.Float64()
+			Expect(kVal).To(BeNumerically("<", 50.0))
 		})
 
 		It("should handle ranging market", func() {
-			highs := []numerical.Decimal{}
-			lows := []numerical.Decimal{}
-			closes := []numerical.Decimal{}
+			highs := []float64{}
+			lows := []float64{}
+			closes := []float64{}
 
 			for i := 0; i < 30; i++ {
 				base := 105.0 + float64(i%2)*5 - 2.5
-				highs = append(highs, numerical.NewFromFloat(base+3))
-				lows = append(lows, numerical.NewFromFloat(base-3))
-				closes = append(closes, numerical.NewFromFloat(base))
+				highs = append(highs, base+3)
+				lows = append(lows, base-3)
+				closes = append(closes, base)
 			}
 
 			result, err := indicators.Stochastic(highs, lows, closes, 14, 3)
@@ -251,24 +263,26 @@ var _ = Describe("Stochastic", func() {
 
 	Describe("Standard parameters", func() {
 		It("should work with standard 14,3 parameters", func() {
-			highs := make([]numerical.Decimal, 50)
-			lows := make([]numerical.Decimal, 50)
-			closes := make([]numerical.Decimal, 50)
+			highs := make([]float64, 50)
+			lows := make([]float64, 50)
+			closes := make([]float64, 50)
 
 			for i := 0; i < 50; i++ {
 				base := 100.0 + float64(i%10)
-				highs[i] = numerical.NewFromFloat(base + 2)
-				lows[i] = numerical.NewFromFloat(base - 2)
-				closes[i] = numerical.NewFromFloat(base)
+				highs[i] = base + 2
+				lows[i] = base - 2
+				closes[i] = base
 			}
 
 			result, err := indicators.Stochastic(highs, lows, closes, 14, 3)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(result.K.GreaterThanOrEqual(numerical.Zero())).To(BeTrue())
-			Expect(result.K.LessThanOrEqual(numerical.NewFromInt(100))).To(BeTrue())
-			Expect(result.D.GreaterThanOrEqual(numerical.Zero())).To(BeTrue())
-			Expect(result.D.LessThanOrEqual(numerical.NewFromInt(100))).To(BeTrue())
+			kVal, _ := result.K.Float64()
+			dVal, _ := result.D.Float64()
+			Expect(kVal).To(BeNumerically(">=", 0.0))
+			Expect(kVal).To(BeNumerically("<=", 100.0))
+			Expect(dVal).To(BeNumerically(">=", 0.0))
+			Expect(dVal).To(BeNumerically("<=", 100.0))
 		})
 	})
 })

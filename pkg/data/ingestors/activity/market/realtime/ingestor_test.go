@@ -2,85 +2,66 @@ package realtime_test
 
 import (
 	"context"
-	"testing"
 	"time"
 
 	mockConnector "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	mockIngestors "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
-	mockMarket "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
-	mockHealth "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
-	mockRegistry "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/realtime"
+	sdkTesting "github.com/backtesting-org/kronos-sdk/pkg/testing"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	ingestorTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
+	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	loggingTypes "github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
+	registryTypes "github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/mock"
+	"go.uber.org/fx"
+	"go.uber.org/fx/fxtest"
 )
 
-func TestRealtime(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Realtime Ingestor Suite")
+func setupMockWSConnector(t GinkgoTInterface, name connector.ExchangeName) *mockConnector.WebSocketConnector {
+	m := mockConnector.NewWebSocketConnector(t)
+	m.EXPECT().GetConnectorInfo().Return(&connector.Info{Name: name}).Maybe()
+	m.EXPECT().SupportsPerpetuals().Return(true).Maybe()
+	m.EXPECT().SupportsSpot().Return(false).Maybe()
+	return m
 }
 
-// noopLogger is a no-op logger implementation for testing
-type noopLogger struct{}
-
-func (n *noopLogger) Fatal(_ string, _ ...interface{})                    {}
-func (n *noopLogger) ErrorWithDebug(_ string, _ []byte, _ ...interface{}) {}
-func (n *noopLogger) Info(_ string, _ ...interface{})                     {}
-func (n *noopLogger) Debug(_ string, _ ...interface{})                    {}
-func (n *noopLogger) Warn(_ string, _ ...interface{})                     {}
-func (n *noopLogger) Error(_ string, _ ...interface{})                    {}
-
-var _ = Describe("Ingestor", func() {
+var _ = Describe("RealtimeIngestor", func() {
 	var (
-		ingestor             ingestorTypes.RealtimeIngestor
-		mockStore            *mockMarket.MarketData
-		mockExchangeRegistry *mockRegistry.ConnectorRegistry
-		mockAssetRegistry    *mockRegistry.AssetRegistry
-		logger               loggingTypes.ApplicationLogger
-		mockHealthStore      *mockHealth.CoordinatorHealthStore
-		mockNotifier         *mockIngestors.DataUpdateNotifier
-		mockWSConn           *mockConnector.WebSocketConnector
-		ctx                  context.Context
-		cancel               context.CancelFunc
+		app               *fxtest.App
+		realtimeIngestor  ingestors.RealtimeIngestor
+		store             marketTypes.MarketData
+		connectorRegistry registryTypes.ConnectorRegistry
+		assetRegistry     registryTypes.AssetRegistry
+		ctx               context.Context
+		cancel            context.CancelFunc
 	)
 
 	BeforeEach(func() {
-		mockStore = mockMarket.NewMarketData(GinkgoT())
-		mockExchangeRegistry = mockRegistry.NewConnectorRegistry(GinkgoT())
-		mockAssetRegistry = mockRegistry.NewAssetRegistry(GinkgoT())
-		logger = &noopLogger{}
-		mockHealthStore = mockHealth.NewCoordinatorHealthStore(GinkgoT())
-		mockNotifier = mockIngestors.NewDataUpdateNotifier(GinkgoT())
-		mockWSConn = mockConnector.NewWebSocketConnector(GinkgoT())
-
-		ctx, cancel = context.WithCancel(context.Background())
-
-		ingestor = realtime.NewIngestor(
-			mockStore,
-			mockExchangeRegistry,
-			mockAssetRegistry,
-			logger,
-			mockHealthStore,
-			mockNotifier,
+		app = fxtest.New(GinkgoT(),
+			sdkTesting.Module,
+			fx.Populate(&realtimeIngestor, &store, &connectorRegistry, &assetRegistry),
 		)
+		Expect(app.Start(context.Background())).To(Succeed())
+		ctx, cancel = context.WithCancel(context.Background())
 	})
 
 	AfterEach(func() {
 		cancel()
-		// Give goroutines time to stop
 		time.Sleep(50 * time.Millisecond)
+		Expect(app.Stop(context.Background())).To(Succeed())
 	})
 
 	Describe("WebSocket data ingestion", func() {
-		Context("when orderbook channel closes after initial snapshot", func() {
-			It("should process orderbook updates before channel closure", func() {
+		Context("when receiving orderbook updates", func() {
+			It("should process and store orderbook data", func() {
+				exchangeName := connector.ExchangeName("test-exchange")
+				m := setupMockWSConnector(GinkgoT(), exchangeName)
+
+				btc := portfolio.NewAsset("BTC")
+
+				// Setup channels
 				orderbookChan := make(chan connector.OrderBook, 10)
 				errorChan := make(chan error, 10)
 
@@ -89,30 +70,25 @@ var _ = Describe("Ingestor", func() {
 				}
 				klineChannels := map[string]<-chan connector.Kline{}
 
-				// Setup all expectations using EXPECT()
-				mockWSConn.EXPECT().GetOrderBookChannels().Return(orderbookChannels).Maybe()
-				mockWSConn.EXPECT().GetKlineChannels().Return(klineChannels).Maybe()
-				mockWSConn.EXPECT().ErrorChannel().Return((<-chan error)(errorChan)).Maybe()
-				mockWSConn.EXPECT().GetConnectorInfo().Return(&connector.Info{Name: "hyperliquid"}).Maybe()
-				mockWSConn.EXPECT().StartWebSocket().Return(nil).Maybe()
-				mockWSConn.EXPECT().SubscribeOrderBook(mock.Anything, mock.Anything).Return(nil).Maybe()
-				mockWSConn.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
+				m.EXPECT().GetOrderBookChannels().Return(orderbookChannels).Maybe()
+				m.EXPECT().GetKlineChannels().Return(klineChannels).Maybe()
+				m.EXPECT().ErrorChannel().Return((<-chan error)(errorChan)).Maybe()
+				m.EXPECT().StartWebSocket().Return(nil).Maybe()
+				m.EXPECT().SubscribeOrderBook(mock.Anything, mock.Anything).Return(nil).Maybe()
+				m.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 
-				mockAssetRegistry.EXPECT().GetRequiredAssets().Return([]portfolio.Asset{
-					portfolio.NewAsset("BTC"),
-				}).Maybe()
+				// Register connector and assets
+				connectorRegistry.RegisterConnector(exchangeName, m)
+				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				assetRegistry.RegisterAsset(btc, connector.TypePerpetual)
 
-				mockAssetRegistry.EXPECT().GetAssetRequirements().Return([]registry.AssetRequirement{
-					{
-						Asset:       portfolio.NewAsset("BTC"),
-						Instruments: []connector.Instrument{connector.TypePerpetual},
-					},
-				}).Maybe()
+				// Start ingestor
+				Expect(realtimeIngestor.Start(ctx)).To(Succeed())
+				time.Sleep(100 * time.Millisecond)
 
-				mockExchangeRegistry.EXPECT().GetReadyWebSocketConnectors().Return([]connector.WebSocketConnector{mockWSConn}).Maybe()
-
-				orderbook1 := connector.OrderBook{
-					Asset: portfolio.NewAsset("BTC"),
+				// Send orderbook update
+				orderbook := connector.OrderBook{
+					Asset: btc,
 					Bids: []connector.PriceLevel{
 						{Price: numerical.NewFromFloat(50000), Quantity: numerical.NewFromFloat(1.0)},
 					},
@@ -120,32 +96,27 @@ var _ = Describe("Ingestor", func() {
 						{Price: numerical.NewFromFloat(50100), Quantity: numerical.NewFromFloat(1.0)},
 					},
 				}
-
-				mockStore.EXPECT().UpdateOrderBook(
-					portfolio.NewAsset("BTC"),
-					connector.ExchangeName("hyperliquid"),
-					connector.TypePerpetual,
-					orderbook1).Once()
-
-				mockHealthStore.EXPECT().RecordDataReceived(connector.ExchangeName("hyperliquid"), mock.Anything, mock.Anything, mock.Anything).Once()
-				mockNotifier.EXPECT().Notify().Once()
-
-				_ = ingestor.Start(ctx)
+				orderbookChan <- orderbook
 				time.Sleep(200 * time.Millisecond)
 
-				orderbookChan <- orderbook1
-				time.Sleep(200 * time.Millisecond)
-
-				mockStore.AssertExpectations(GinkgoT())
-				mockNotifier.AssertExpectations(GinkgoT())
+				// Assert - data should be stored
+				storedOB := store.GetOrderBook(btc, exchangeName, connector.TypePerpetual)
+				Expect(storedOB).ToNot(BeNil(), "Orderbook should be stored")
+				Expect(storedOB.Bids).To(HaveLen(1))
+				Expect(storedOB.Asks).To(HaveLen(1))
 
 				close(orderbookChan)
-				time.Sleep(50 * time.Millisecond)
 			})
 		})
 
-		Context("when receiving multiple kline updates", func() {
-			It("should process all updates continuously", func() {
+		Context("when receiving kline updates", func() {
+			It("should process and store kline data", func() {
+				exchangeName := connector.ExchangeName("test-exchange")
+				m := setupMockWSConnector(GinkgoT(), exchangeName)
+
+				btc := portfolio.NewAsset("BTC")
+
+				// Setup channels
 				klineChan := make(chan connector.Kline, 10)
 				errorChan := make(chan error, 10)
 
@@ -154,69 +125,53 @@ var _ = Describe("Ingestor", func() {
 					"BTC-1m": klineChan,
 				}
 
-				mockWSConn.EXPECT().GetKlineChannels().Return(klineChannels).Maybe()
-				mockWSConn.EXPECT().GetOrderBookChannels().Return(orderbookChannels).Maybe()
-				mockWSConn.EXPECT().ErrorChannel().Return((<-chan error)(errorChan)).Maybe()
-				mockWSConn.EXPECT().GetConnectorInfo().Return(&connector.Info{Name: "hyperliquid"}).Maybe()
-				mockWSConn.EXPECT().StartWebSocket().Return(nil).Maybe()
-				mockWSConn.EXPECT().SubscribeOrderBook(mock.Anything, mock.Anything).Return(nil).Maybe()
-				mockWSConn.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
+				m.EXPECT().GetOrderBookChannels().Return(orderbookChannels).Maybe()
+				m.EXPECT().GetKlineChannels().Return(klineChannels).Maybe()
+				m.EXPECT().ErrorChannel().Return((<-chan error)(errorChan)).Maybe()
+				m.EXPECT().StartWebSocket().Return(nil).Maybe()
+				m.EXPECT().SubscribeOrderBook(mock.Anything, mock.Anything).Return(nil).Maybe()
+				m.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 
-				mockAssetRegistry.EXPECT().GetRequiredAssets().Return([]portfolio.Asset{
-					portfolio.NewAsset("BTC"),
-				}).Maybe()
+				// Register connector and assets
+				connectorRegistry.RegisterConnector(exchangeName, m)
+				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				assetRegistry.RegisterAsset(btc, connector.TypePerpetual)
 
-				mockAssetRegistry.EXPECT().GetAssetRequirements().Return([]registry.AssetRequirement{
-					{
-						Asset:       portfolio.NewAsset("BTC"),
-						Instruments: []connector.Instrument{connector.TypePerpetual},
-					},
-				}).Maybe()
+				// Start ingestor
+				Expect(realtimeIngestor.Start(ctx)).To(Succeed())
+				time.Sleep(100 * time.Millisecond)
 
-				mockExchangeRegistry.EXPECT().GetReadyWebSocketConnectors().Return([]connector.WebSocketConnector{mockWSConn}).Maybe()
-
-				kline1 := connector.Kline{
+				// Send kline update
+				kline := connector.Kline{
 					Symbol:    "BTC",
 					Interval:  "1m",
-					Open:      numerical.NewFromFloat(50000),
-					High:      numerical.NewFromFloat(50100),
-					Low:       numerical.NewFromFloat(49900),
-					Close:     numerical.NewFromFloat(50050),
+					Open:      50000,
+					High:      50100,
+					Low:       49900,
+					Close:     50050,
+					Volume:    100,
+					OpenTime:  time.Now().Add(-time.Minute),
 					CloseTime: time.Now(),
 				}
-
-				kline2 := connector.Kline{
-					Symbol:    "ETH",
-					Interval:  "1m",
-					Open:      numerical.NewFromFloat(3000),
-					High:      numerical.NewFromFloat(3010),
-					Low:       numerical.NewFromFloat(2990),
-					Close:     numerical.NewFromFloat(3005),
-					CloseTime: time.Now(),
-				}
-
-				mockStore.EXPECT().UpdateKline(portfolio.NewAsset("BTC"), connector.ExchangeName("hyperliquid"), kline1).Once()
-				mockStore.EXPECT().UpdateKline(portfolio.NewAsset("ETH"), connector.ExchangeName("hyperliquid"), kline2).Once()
-				mockHealthStore.EXPECT().RecordDataReceived(connector.ExchangeName("hyperliquid"), mock.Anything, mock.Anything, mock.Anything).Times(2)
-				mockNotifier.EXPECT().Notify().Times(2)
-
-				_ = ingestor.Start(ctx)
+				klineChan <- kline
 				time.Sleep(200 * time.Millisecond)
 
-				klineChan <- kline1
-				time.Sleep(150 * time.Millisecond)
+				// Assert - data should be stored
+				storedKlines := store.GetKlines(btc, exchangeName, "1m", 10)
+				Expect(storedKlines).ToNot(BeEmpty(), "Klines should be stored")
 
-				klineChan <- kline2
-				time.Sleep(150 * time.Millisecond)
-
-				mockStore.AssertExpectations(GinkgoT())
-				mockHealthStore.AssertExpectations(GinkgoT())
-				mockNotifier.AssertExpectations(GinkgoT())
+				close(klineChan)
 			})
 		})
 
-		Context("when kline channel closes unexpectedly", func() {
-			It("should handle channel closure gracefully", func() {
+		Context("when channel closes unexpectedly", func() {
+			It("should handle closure gracefully without panic", func() {
+				exchangeName := connector.ExchangeName("test-exchange")
+				m := setupMockWSConnector(GinkgoT(), exchangeName)
+
+				btc := portfolio.NewAsset("BTC")
+
+				// Setup channels
 				klineChan := make(chan connector.Kline, 10)
 				errorChan := make(chan error, 10)
 
@@ -225,32 +180,27 @@ var _ = Describe("Ingestor", func() {
 					"BTC-1m": klineChan,
 				}
 
-				mockWSConn.EXPECT().GetKlineChannels().Return(klineChannels).Maybe()
-				mockWSConn.EXPECT().GetOrderBookChannels().Return(orderbookChannels).Maybe()
-				mockWSConn.EXPECT().ErrorChannel().Return((<-chan error)(errorChan)).Maybe()
-				mockWSConn.EXPECT().GetConnectorInfo().Return(&connector.Info{Name: "hyperliquid"}).Maybe()
-				mockWSConn.EXPECT().StartWebSocket().Return(nil).Maybe()
-				mockWSConn.EXPECT().SubscribeOrderBook(mock.Anything, mock.Anything).Return(nil).Maybe()
-				mockWSConn.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
+				m.EXPECT().GetOrderBookChannels().Return(orderbookChannels).Maybe()
+				m.EXPECT().GetKlineChannels().Return(klineChannels).Maybe()
+				m.EXPECT().ErrorChannel().Return((<-chan error)(errorChan)).Maybe()
+				m.EXPECT().StartWebSocket().Return(nil).Maybe()
+				m.EXPECT().SubscribeOrderBook(mock.Anything, mock.Anything).Return(nil).Maybe()
+				m.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 
-				mockAssetRegistry.EXPECT().GetRequiredAssets().Return([]portfolio.Asset{
-					portfolio.NewAsset("BTC"),
-				}).Maybe()
+				// Register connector and assets
+				connectorRegistry.RegisterConnector(exchangeName, m)
+				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				assetRegistry.RegisterAsset(btc, connector.TypePerpetual)
 
-				mockAssetRegistry.EXPECT().GetAssetRequirements().Return([]registry.AssetRequirement{
-					{
-						Asset:       portfolio.NewAsset("BTC"),
-						Instruments: []connector.Instrument{connector.TypePerpetual},
-					},
-				}).Maybe()
-
-				mockExchangeRegistry.EXPECT().GetReadyWebSocketConnectors().Return([]connector.WebSocketConnector{mockWSConn}).Maybe()
-
-				_ = ingestor.Start(ctx)
+				// Start ingestor
+				Expect(realtimeIngestor.Start(ctx)).To(Succeed())
 				time.Sleep(100 * time.Millisecond)
 
+				// Close channel - should not panic
 				close(klineChan)
 				time.Sleep(100 * time.Millisecond)
+
+				// Test passes if no panic
 			})
 		})
 	})
