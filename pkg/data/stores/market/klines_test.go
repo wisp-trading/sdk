@@ -7,7 +7,6 @@ import (
 	timeProvider "github.com/backtesting-org/kronos-sdk/pkg/runtime/time"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 	. "github.com/onsi/ginkgo/v2"
@@ -39,11 +38,11 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Interval:  "1m",
 					OpenTime:  now,
 					CloseTime: now.Add(time.Minute),
-					Open:      numerical.NewFromFloat(50000),
-					High:      numerical.NewFromFloat(50100),
-					Low:       numerical.NewFromFloat(49900),
-					Close:     numerical.NewFromFloat(50050),
-					Volume:    numerical.NewFromFloat(100),
+					Open:      50000,
+					High:      50100,
+					Low:       49900,
+					Close:     50050,
+					Volume:    100,
 				}
 
 				// Update the store
@@ -53,8 +52,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 				klines := store.GetKlines(btc, "hyperliquid", "1m", 0)
 				Expect(klines).To(HaveLen(1))
 				Expect(klines[0].Symbol).To(Equal("BTC"))
-				Expect(klines[0].Open).To(Equal(numerical.NewFromFloat(50000)))
-				Expect(klines[0].Close).To(Equal(numerical.NewFromFloat(50050)))
+				Expect(klines[0].Open).To(Equal(50000.0))
+				Expect(klines[0].Close).To(Equal(50050.0))
 			})
 
 			It("should handle multiple intervals for the same asset and exchange", func() {
@@ -65,8 +64,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Interval:  "1m",
 					OpenTime:  now,
 					CloseTime: now.Add(time.Minute),
-					Open:      numerical.NewFromFloat(50000),
-					Close:     numerical.NewFromFloat(50050),
+					Open:      50000,
+					Close:     50050,
 				}
 
 				kline5m := connector.Kline{
@@ -74,8 +73,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Interval:  "5m",
 					OpenTime:  now,
 					CloseTime: now.Add(5 * time.Minute),
-					Open:      numerical.NewFromFloat(50000),
-					Close:     numerical.NewFromFloat(50200),
+					Open:      50000,
+					Close:     50200,
 				}
 
 				store.UpdateKline(btc, "hyperliquid", kline1m)
@@ -98,8 +97,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Interval:  "1m",
 					OpenTime:  now,
 					CloseTime: now.Add(time.Minute),
-					Open:      numerical.NewFromFloat(50000),
-					Close:     numerical.NewFromFloat(50050),
+					Open:      50000,
+					Close:     50050,
 				}
 
 				klineBybit := connector.Kline{
@@ -107,8 +106,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Interval:  "1m",
 					OpenTime:  now,
 					CloseTime: now.Add(time.Minute),
-					Open:      numerical.NewFromFloat(50100),
-					Close:     numerical.NewFromFloat(50150),
+					Open:      50100,
+					Close:     50150,
 				}
 
 				store.UpdateKline(btc, "hyperliquid", klineHyper)
@@ -119,8 +118,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 
 				Expect(klinesHyper).To(HaveLen(1))
 				Expect(klinesBybit).To(HaveLen(1))
-				Expect(klinesHyper[0].Open).To(Equal(numerical.NewFromFloat(50000)))
-				Expect(klinesBybit[0].Open).To(Equal(numerical.NewFromFloat(50100)))
+				Expect(klinesHyper[0].Open).To(Equal(float64(50000)))
+				Expect(klinesBybit[0].Open).To(Equal(float64(50100)))
 			})
 
 			It("should handle multiple assets", func() {
@@ -131,8 +130,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Interval:  "1m",
 					OpenTime:  now,
 					CloseTime: now.Add(time.Minute),
-					Open:      numerical.NewFromFloat(50000),
-					Close:     numerical.NewFromFloat(50050),
+					Open:      50000,
+					Close:     50050,
 				}
 
 				klineETH := connector.Kline{
@@ -140,8 +139,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Interval:  "1m",
 					OpenTime:  now,
 					CloseTime: now.Add(time.Minute),
-					Open:      numerical.NewFromFloat(3000),
-					Close:     numerical.NewFromFloat(3010),
+					Open:      3000,
+					Close:     3010,
 				}
 
 				store.UpdateKline(btc, "hyperliquid", klineBTC)
@@ -167,10 +166,10 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Interval:  "1m",
 					OpenTime:  now,
 					CloseTime: now.Add(time.Minute),
-					Open:      numerical.NewFromFloat(50000),
-					Close:     numerical.NewFromFloat(50050),
-					High:      numerical.NewFromFloat(50100),
-					Low:       numerical.NewFromFloat(49900),
+					Open:      50000,
+					Close:     50050,
+					High:      50100,
+					Low:       49900,
 				}
 
 				// Updated kline with same open time
@@ -179,10 +178,10 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Interval:  "1m",
 					OpenTime:  now, // Same open time
 					CloseTime: now.Add(time.Minute),
-					Open:      numerical.NewFromFloat(50000),
-					Close:     numerical.NewFromFloat(50150), // Different close
-					High:      numerical.NewFromFloat(50200), // Different high
-					Low:       numerical.NewFromFloat(49800), // Different low
+					Open:      50000,
+					Close:     50150, // Different close
+					High:      50200, // Different high
+					Low:       49800, // Different low
 				}
 
 				store.UpdateKline(btc, "hyperliquid", kline1)
@@ -191,9 +190,9 @@ var _ = Describe("Market Data Store - Klines", func() {
 				klines := store.GetKlines(btc, "hyperliquid", "1m", 0)
 
 				Expect(klines).To(HaveLen(1), "Should only have one kline after update")
-				Expect(klines[0].Close).To(Equal(numerical.NewFromFloat(50150)), "Close should be updated")
-				Expect(klines[0].High).To(Equal(numerical.NewFromFloat(50200)), "High should be updated")
-				Expect(klines[0].Low).To(Equal(numerical.NewFromFloat(49800)), "Low should be updated")
+				Expect(klines[0].Close).To(Equal(50150.0), "Close should be updated")
+				Expect(klines[0].High).To(Equal(50200.0), "High should be updated")
+				Expect(klines[0].Low).To(Equal(49800.0), "Low should be updated")
 			})
 		})
 
@@ -208,8 +207,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 						Interval:  "1m",
 						OpenTime:  now.Add(time.Duration(i) * time.Minute),
 						CloseTime: now.Add(time.Duration(i+1) * time.Minute),
-						Open:      numerical.NewFromFloat(50000 + float64(i*10)),
-						Close:     numerical.NewFromFloat(50010 + float64(i*10)),
+						Open:      50000 + float64(i*10),
+						Close:     50010 + float64(i*10),
 					}
 					store.UpdateKline(btc, "hyperliquid", kline)
 				}
@@ -219,7 +218,7 @@ var _ = Describe("Market Data Store - Klines", func() {
 
 				// Verify they're in order by checking open prices
 				for i := 0; i < 5; i++ {
-					expectedOpen := numerical.NewFromFloat(50000 + float64(i*10))
+					expectedOpen := 50000.0 + float64(i*10)
 					Expect(klines[i].Open).To(Equal(expectedOpen))
 				}
 			})
@@ -239,8 +238,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 							Interval:  "1m",
 							OpenTime:  now.Add(time.Duration(idx) * time.Minute),
 							CloseTime: now.Add(time.Duration(idx+1) * time.Minute),
-							Open:      numerical.NewFromFloat(50000 + float64(idx*10)),
-							Close:     numerical.NewFromFloat(50010 + float64(idx*10)),
+							Open:      50000 + float64(idx*10),
+							Close:     50010 + float64(idx*10),
 						}
 						store.UpdateKline(btc, "hyperliquid", kline)
 						done <- true
@@ -270,8 +269,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 						Interval:  "1m",
 						OpenTime:  now.Add(time.Duration(i) * time.Minute),
 						CloseTime: now.Add(time.Duration(i+1) * time.Minute),
-						Open:      numerical.NewFromFloat(50000 + float64(i)),
-						Close:     numerical.NewFromFloat(50001 + float64(i)),
+						Open:      50000 + float64(i),
+						Close:     50001 + float64(i),
 					}
 					store.UpdateKline(btc, "hyperliquid", kline)
 				}
@@ -281,8 +280,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 				Expect(klines).To(HaveLen(5))
 
 				// Should be the last 5 (indices 5-9)
-				Expect(klines[0].Open).To(Equal(numerical.NewFromFloat(50005)))
-				Expect(klines[4].Open).To(Equal(numerical.NewFromFloat(50009)))
+				Expect(klines[0].Open).To(Equal(50005.0))
+				Expect(klines[4].Open).To(Equal(50009.0))
 			})
 
 			It("should return all klines when limit is 0", func() {
@@ -294,8 +293,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 						Interval:  "1m",
 						OpenTime:  now.Add(time.Duration(i) * time.Minute),
 						CloseTime: now.Add(time.Duration(i+1) * time.Minute),
-						Open:      numerical.NewFromFloat(50000 + float64(i)),
-						Close:     numerical.NewFromFloat(50001 + float64(i)),
+						Open:      50000 + float64(i),
+						Close:     50001 + float64(i),
 					}
 					store.UpdateKline(btc, "hyperliquid", kline)
 				}
@@ -318,8 +317,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Interval:  "1m",
 					OpenTime:  now,
 					CloseTime: now.Add(time.Minute),
-					Open:      numerical.NewFromFloat(50000),
-					Close:     numerical.NewFromFloat(50050),
+					Open:      50000,
+					Close:     50050,
 				}
 				store.UpdateKline(btc, "hyperliquid", kline)
 
@@ -334,8 +333,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Interval:  "1m",
 					OpenTime:  now,
 					CloseTime: now.Add(time.Minute),
-					Open:      numerical.NewFromFloat(50000),
-					Close:     numerical.NewFromFloat(50050),
+					Open:      50000,
+					Close:     50050,
 				}
 				store.UpdateKline(btc, "hyperliquid", kline)
 
@@ -358,8 +357,8 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Interval:  "1m",
 					OpenTime:  now.Add(time.Duration(i) * time.Minute),
 					CloseTime: now.Add(time.Duration(i+1) * time.Minute),
-					Open:      numerical.NewFromFloat(50000 + float64(i)),
-					Close:     numerical.NewFromFloat(50001 + float64(i)),
+					Open:      50000 + float64(i),
+					Close:     50001 + float64(i),
 				}
 				store.UpdateKline(btc, "hyperliquid", kline)
 			}
@@ -370,7 +369,7 @@ var _ = Describe("Market Data Store - Klines", func() {
 			klines := store.GetKlinesSince(btc, "hyperliquid", "1m", since)
 
 			Expect(klines).To(HaveLen(5), "Should return klines from minute 5-9")
-			Expect(klines[0].Open).To(Equal(numerical.NewFromFloat(50005)))
+			Expect(klines[0].Open).To(Equal(50005.0))
 		})
 
 		It("should include klines at exactly the specified time", func() {
