@@ -54,4 +54,5 @@ type Connector interface {
 
 	Initialize(config Config) error
 	IsInitialized() bool
+	NewConfig() Config
 }
