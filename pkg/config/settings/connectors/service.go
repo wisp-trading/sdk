@@ -7,62 +7,47 @@ import (
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/config"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 )
 
 type connectorService struct {
-	config              config.Configuration
-	availableConnectors config.ConnectorAvailability
+	config            config.Configuration
+	connectorRegistry registry.ConnectorRegistry
 }
 
 func NewConnectorService(
 	config config.Configuration,
-	availableConnectors config.ConnectorAvailability,
+	connectorRegistry registry.ConnectorRegistry,
 ) config.ConnectorService {
 	return &connectorService{
-		config:              config,
-		availableConnectors: availableConnectors,
+		config:            config,
+		connectorRegistry: connectorRegistry,
 	}
 }
 
-func (c *connectorService) FetchAvailableConnectors() []connector.ExchangeName {
-	return c.availableConnectors.ListAvailable()
-}
-
-// GetAvailableConnectorNames returns connector names as strings for easier use in UI
-func (c *connectorService) GetAvailableConnectorNames() []string {
-	exchanges := c.FetchAvailableConnectors()
-	names := make([]string, len(exchanges))
-	for i, ex := range exchanges {
-		names[i] = string(ex)
-	}
-	return names
-}
-
-// GetMatchingConnectors returns user-configured connectors that are also available in the SDK
+// GetMatchingConnectors returns user-configured connectors that match registered connectors
 func (c *connectorService) GetMatchingConnectors() (map[connector.ExchangeName]config.Connector, error) {
-	// Get available connectors from SDK
-	availableConnectors := c.FetchAvailableConnectors()
+	// Get registered connectors from registry
+	registeredConnectors := c.connectorRegistry.GetAvailableConnectors()
 
 	// Create a lookup map for quick checking
-	availableMap := make(map[string]bool)
-	for _, exchangeName := range availableConnectors {
-		availableMap[string(exchangeName)] = true
+	registeredMap := make(map[connector.ExchangeName]bool)
+	for _, conn := range registeredConnectors {
+		registeredMap[conn.GetConnectorInfo().Name] = true
 	}
 
 	// Get user's configured connectors from the settings service
 	userConnectors, err := c.config.GetConnectors()
 	if err != nil {
-		fmt.Println("Error fetching user connectors:", err)
 		return nil, err
 	}
 
 	// Filter to only return matching connectors as a map
 	matchingConnectors := make(map[connector.ExchangeName]config.Connector)
 	for _, conn := range userConnectors {
-		fmt.Println("Checking connector:", conn.Name)
-		fmt.Println("Available connectors:", availableMap)
-		if availableMap[conn.Name] {
-			matchingConnectors[connector.ExchangeName(conn.Name)] = conn
+		exchangeName := connector.ExchangeName(conn.Name)
+		if registeredMap[exchangeName] {
+			matchingConnectors[exchangeName] = conn
 		}
 	}
 
@@ -77,8 +62,9 @@ func (c *connectorService) ValidateConnectorConfig(exchangeName connector.Exchan
 		InvalidFields: make(map[string]string),
 	}
 
-	// Check if the connector is available in SDK
-	if !c.availableConnectors.IsAvailable(exchangeName) {
+	// Check if the connector is registered
+	_, exists := c.connectorRegistry.GetConnector(exchangeName)
+	if !exists {
 		ve.ExchangeNotFound = true
 		return ve
 	}
@@ -112,14 +98,19 @@ func (c *connectorService) ValidateConnectorConfig(exchangeName connector.Exchan
 }
 
 // MapToSDKConfig maps a user connector configuration to the appropriate SDK config type
-// This uses the SDK's config templates and generically maps the user's credentials
 func (c *connectorService) MapToSDKConfig(userConnector config.Connector) (connector.Config, error) {
 	exchangeName := connector.ExchangeName(userConnector.Name)
 
-	// Get the config type template for this exchange from the SDK
-	configTemplate := c.availableConnectors.GetConfigType(exchangeName)
-	if configTemplate == nil {
-		return nil, fmt.Errorf("no config template found for exchange '%s'", exchangeName)
+	// Get the connector from registry
+	conn, exists := c.connectorRegistry.GetConnector(exchangeName)
+	if !exists {
+		return nil, fmt.Errorf("connector '%s' not registered", exchangeName)
+	}
+
+	// Get config from the connector's info
+	cfg := conn.NewConfig()
+	if cfg == nil {
+		return nil, fmt.Errorf("no config found for exchange '%s'", exchangeName)
 	}
 
 	// Create a map to hold all the user's configuration data
@@ -137,24 +128,19 @@ func (c *connectorService) MapToSDKConfig(userConnector config.Connector) (conne
 	}
 
 	// Marshal to JSON and unmarshal into the SDK config type
-	// This lets the SDK's config struct handle the mapping and field names
 	jsonData, err := json.Marshal(configData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal config data: %w", err)
 	}
 
-	// Create a new instance of the config type
-	// We need to get a pointer to a new instance, not use the template directly
-	sdkConfig := c.availableConnectors.GetConfigType(exchangeName)
-	if err := json.Unmarshal(jsonData, &sdkConfig); err != nil {
+	if err := json.Unmarshal(jsonData, &cfg); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal into SDK config: %w", err)
 	}
 
-	return sdkConfig, nil
+	return cfg, nil
 }
 
 // GetConnectorConfigsForStrategy returns validated and mapped SDK configs for the given exchange names
-// Returns a StrategyValidationError if there are problems so callers can inspect specific issues
 func (c *connectorService) GetConnectorConfigsForStrategy(exchangeNames []string) (map[connector.ExchangeName]connector.Config, error) {
 	// Get all matching connectors
 	allConnectors, err := c.GetMatchingConnectors()
@@ -171,8 +157,9 @@ func (c *connectorService) GetConnectorConfigsForStrategy(exchangeNames []string
 	for _, stratExchangeName := range exchangeNames {
 		exchangeName := connector.ExchangeName(stratExchangeName)
 
-		// Check if this exchange exists in SDK
-		if !c.availableConnectors.IsAvailable(exchangeName) {
+		// Check if this exchange is registered
+		_, exists := c.connectorRegistry.GetConnector(exchangeName)
+		if !exists {
 			ve := &ValidationError{
 				Exchange:         stratExchangeName,
 				ExchangeNotFound: true,
@@ -204,7 +191,6 @@ func (c *connectorService) GetConnectorConfigsForStrategy(exchangeNames []string
 
 		// Validate and map to SDK config
 		if err := c.ValidateConnectorConfig(exchangeName, userConn); err != nil {
-			// Store the validation error details
 			var valErr *ValidationError
 			if errors.As(err, &valErr) {
 				validationResults[stratExchangeName] = valErr
@@ -238,17 +224,18 @@ func (c *connectorService) GetConnectorConfigsForStrategy(exchangeNames []string
 }
 
 // GetRequiredCredentialFields returns the credential field names required by an exchange
-// This queries the SDK to get the actual struct fields, not hardcoded values
 func (c *connectorService) GetRequiredCredentialFields(exchangeName string) []string {
-	// Get the config template from SDK
-	configTemplate := c.availableConnectors.GetConfigType(connector.ExchangeName(exchangeName))
-	if configTemplate == nil {
+	conn, exists := c.connectorRegistry.GetConnector(connector.ExchangeName(exchangeName))
+	if !exists {
 		return []string{}
 	}
 
-	// Use reflection to get struct field names
-	// The SDK config structs have json tags that define the credential field names
-	configBytes, err := json.Marshal(configTemplate)
+	cfg := conn.NewConfig()
+	if cfg == nil {
+		return []string{}
+	}
+
+	configBytes, err := json.Marshal(cfg)
 	if err != nil {
 		return []string{}
 	}
@@ -258,10 +245,8 @@ func (c *connectorService) GetRequiredCredentialFields(exchangeName string) []st
 		return []string{}
 	}
 
-	// Extract field names (these are the credential keys we need)
 	fields := make([]string, 0, len(fieldMap))
 	for key := range fieldMap {
-		// Filter out non-credential fields like "network", "use_testnet"
 		if key != "network" && key != "use_testnet" {
 			fields = append(fields, key)
 		}

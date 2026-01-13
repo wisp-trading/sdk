@@ -5,6 +5,7 @@ import (
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/config"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 )
 
 // ValidationService handles validation of settings and connectors
@@ -12,35 +13,25 @@ type ValidationService interface {
 	ValidateConnectorName(name string) error
 	ValidateUniqueNames(connectors []config.Connector) error
 	ValidateSettings(config *config.Settings) error
-	GetAvailableConnectors() []connector.ExchangeName
 }
 
 type validationService struct {
-	availableConnectors config.ConnectorAvailability
+	connectorRegistry registry.ConnectorRegistry
 }
 
-func NewValidationService(availableConnectors config.ConnectorAvailability) ValidationService {
+func NewValidationService(connectorRegistry registry.ConnectorRegistry) ValidationService {
 	return &validationService{
-		availableConnectors: availableConnectors,
+		connectorRegistry: connectorRegistry,
 	}
 }
 
-// GetAvailableConnectors returns list of connectors available in SDK
-func (v *validationService) GetAvailableConnectors() []connector.ExchangeName {
-	return v.availableConnectors.ListAvailable()
-}
-
-// ValidateConnectorName checks if the connector name is available in the SDK
+// ValidateConnectorName checks if the connector name is registered
 func (v *validationService) ValidateConnectorName(name string) error {
-	available := v.GetAvailableConnectors()
-
-	for _, exchangeName := range available {
-		if string(exchangeName) == name {
-			return nil
-		}
+	_, exists := v.connectorRegistry.GetConnector(connector.ExchangeName(name))
+	if !exists {
+		return fmt.Errorf("connector '%s' is not registered", name)
 	}
-
-	return fmt.Errorf("connector '%s' is not available in the SDK", name)
+	return nil
 }
 
 // ValidateUniqueNames ensures no duplicate connector names exist
@@ -58,7 +49,7 @@ func (v *validationService) ValidateUniqueNames(connectorList []config.Connector
 }
 
 // ValidateSettings performs full validation on a Settings object
-// Note: This only validates structure and availability, not credentials
+// Note: This only validates structure, not credentials
 // Credential validation happens when actually connecting to the exchange
 func (v *validationService) ValidateSettings(config *config.Settings) error {
 	// Validate unique names
@@ -68,7 +59,7 @@ func (v *validationService) ValidateSettings(config *config.Settings) error {
 
 	// Validate each connector
 	for _, conn := range config.Connectors {
-		// Validate name is available
+		// Validate name is registered
 		if err := v.ValidateConnectorName(conn.Name); err != nil {
 			return err
 		}
