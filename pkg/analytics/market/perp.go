@@ -7,7 +7,6 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
 	perpTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
@@ -26,12 +25,7 @@ func newPerpMarketService(store perpTypes.MarketStore) *perpMarketService {
 	}
 }
 
-// Perp returns the perp market service for perp-specific operations
-func (s *marketService) Perp() analytics.PerpMarket {
-	return s.perp
-}
-
-// FundingRate returns the funding rate for an asset on a specific perp exchange
+// ========== Perp-specific methods (not inherited from base) ==========
 func (s *perpMarketService) FundingRate(ctx context.Context, asset portfolio.Asset, exchange connector.ExchangeName) (*perp.FundingRate, error) {
 	rate := s.store.GetFundingRate(asset, exchange)
 	if rate == nil {

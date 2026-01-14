@@ -35,6 +35,16 @@ func NewMarketService(registry marketTypes.MarketRegistry) analytics.Market {
 	}
 }
 
+// Spot returns the spot market service for spot-specific operations
+func (s *marketService) Spot() analytics.SpotMarket {
+	return s.spot
+}
+
+// Perp returns the perp market service for perp-specific operations
+func (s *marketService) Perp() analytics.PerpMarket {
+	return s.perp
+}
+
 // Price returns the current price for an asset from any exchange (spot or perp).
 // If exchange is specified, returns price from that exchange.
 // Otherwise returns first available price.
