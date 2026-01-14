@@ -5,45 +5,20 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
-func NewStore(timeProvider temporal.TimeProvider) marketTypes.MarketData {
+func NewStore(timeProvider temporal.TimeProvider, extensions ...marketTypes.StoreExtension) marketTypes.MarketStore {
 	ds := &dataStore{
 		timeProvider: timeProvider,
+		extensions:   extensions,
 	}
-	ds.fundingRates.Store(make(assetFundingRates))
-	ds.historicalFundingRates.Store(make(assetHistoricalFunding))
 	ds.orderBooks.Store(make(assetOrderBooks))
 	ds.prices.Store(make(assetPrices))
 	ds.klines.Store(make(assetKlines))
 	ds.lastUpdated.Store(make(marketTypes.LastUpdatedMap))
+	
 	return ds
 }
 
-func (ds *dataStore) Clear() {
-	ds.mutex.Lock()
-	defer ds.mutex.Unlock()
-
-	ds.fundingRates.Store(make(assetFundingRates))
-	ds.historicalFundingRates.Store(make(assetHistoricalFunding))
-	ds.orderBooks.Store(make(assetOrderBooks))
-	ds.prices.Store(make(assetPrices))
-	ds.klines.Store(make(assetKlines))
-	ds.lastUpdated.Store(make(marketTypes.LastUpdatedMap))
-}
-
 // Helper methods to get typed data from atomic.Value
-func (ds *dataStore) getFundingRates() assetFundingRates {
-	if v := ds.fundingRates.Load(); v != nil {
-		return v.(assetFundingRates)
-	}
-	return make(assetFundingRates)
-}
-
-func (ds *dataStore) getHistoricalFunding() assetHistoricalFunding {
-	if v := ds.historicalFundingRates.Load(); v != nil {
-		return v.(assetHistoricalFunding)
-	}
-	return make(assetHistoricalFunding)
-}
 
 func (ds *dataStore) getOrderBooks() assetOrderBooks {
 	if v := ds.orderBooks.Load(); v != nil {
@@ -73,4 +48,4 @@ func (ds *dataStore) getLastUpdated() marketTypes.LastUpdatedMap {
 	return make(marketTypes.LastUpdatedMap)
 }
 
-var _ marketTypes.MarketData = (*dataStore)(nil)
+var _ marketTypes.MarketStore = (*dataStore)(nil)

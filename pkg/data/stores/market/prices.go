@@ -37,7 +37,7 @@ func (ds *dataStore) UpdateAssetPrice(asset portfolio.Asset, exchangeName connec
 	})
 }
 
-func (ds *dataStore) UpdateAssetPrices(asset portfolio.Asset, prices map[connector.ExchangeName]connector.Price) {
+func (ds *dataStore) UpdateAssetPrices(asset portfolio.Asset, prices marketTypes.PriceMap) {
 	ds.mutex.Lock()
 
 	current := ds.getPrices()

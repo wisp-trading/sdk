@@ -3,7 +3,7 @@ package batch
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/base"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/batch"
 	perpStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
@@ -36,10 +36,10 @@ func NewFactory(
 }
 
 // CreateIngestors creates one batch ingestor per registered perp connector
-func (f *Factory) CreateIngestors() []ingestors.BatchIngestor {
+func (f *Factory) CreateIngestors() []batch.BatchIngestor {
 	perpConnectors := f.connectorRegistry.GetReadyPerpConnectors()
 
-	ingestors := make([]ingestors.BatchIngestor, 0, len(perpConnectors))
+	ingestors := make([]batch.BatchIngestor, 0, len(perpConnectors))
 
 	for _, conn := range perpConnectors {
 		info := conn.GetConnectorInfo()

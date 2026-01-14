@@ -4,7 +4,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/common"
 	perpConn "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/batch"
 	perpStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
@@ -16,7 +16,7 @@ type FundingRateExtension struct {
 	logger logging.ApplicationLogger
 }
 
-func NewFundingRateExtension(store perpStore.MarketStore, logger logging.ApplicationLogger) ingestors.CollectionExtension {
+func NewFundingRateExtension(store perpStore.MarketStore, logger logging.ApplicationLogger) batch.CollectionExtension {
 	return &FundingRateExtension{
 		store:  store,
 		logger: logger,
@@ -46,4 +46,4 @@ func (f *FundingRateExtension) Collect(conn common.BaseConnector, exchangeName c
 	}
 }
 
-var _ ingestors.CollectionExtension = (*FundingRateExtension)(nil)
+var _ batch.CollectionExtension = (*FundingRateExtension)(nil)

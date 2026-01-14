@@ -4,7 +4,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/base"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/batch"
 	spotStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/spot"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
@@ -37,10 +37,10 @@ func NewFactory(
 }
 
 // CreateIngestors creates one batch ingestor per registered spot connector
-func (f *Factory) CreateIngestors() []ingestors.BatchIngestor {
+func (f *Factory) CreateIngestors() []batch.BatchIngestor {
 	spotConnectors := f.connectorRegistry.GetReadySpotConnectors()
 
-	ingestors := make([]ingestors.BatchIngestor, 0, len(spotConnectors))
+	ingestors := make([]batch.BatchIngestor, 0, len(spotConnectors))
 
 	for _, conn := range spotConnectors {
 		info := conn.GetConnectorInfo()

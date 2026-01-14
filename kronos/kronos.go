@@ -14,21 +14,21 @@ import (
 // Kronos is the base context object for strategy GetSignals methods.
 // It provides read-only access to market data, indicators, and analytics.
 type kronos struct {
-	store            market.MarketData
-	tradingLogger    logging.TradingLogger
-	universeProvider UniverseProvider
-	indicators       analytics.Indicators
-	analytics        analytics.Analytics
-	market           analytics.Market
-	signal           strategy.SignalFactory
+	store             market.MarketStore
+	tradingLogger     logging.TradingLogger
+	universeProvider  UniverseProvider
+	indicators        analytics.Indicators
+	analytics         analytics.Analytics
+	market            analytics.Market
+	signal            strategy.SignalFactory
 	featureAggregator features.FeatureAggregator
-	activity         activity.Activity
+	activity          activity.Activity
 }
 
 // NewKronos creates a new Kronos context with injected services.
 // This is injected via fx DI into strategies.
 func NewKronos(
-	store market.MarketData,
+	store market.MarketStore,
 	tradingLogger logging.TradingLogger,
 	universeProvider UniverseProvider,
 	indicators analytics.Indicators,
@@ -39,15 +39,15 @@ func NewKronos(
 	activityService activity.Activity,
 ) kronosTypes.Kronos {
 	return &kronos{
-		store:            store,
-		tradingLogger:    tradingLogger,
-		universeProvider: universeProvider,
-		indicators:       indicators,
-		market:           marketService,
-		analytics:        analyticsService,
-		signal:           signal,
+		store:             store,
+		tradingLogger:     tradingLogger,
+		universeProvider:  universeProvider,
+		indicators:        indicators,
+		market:            marketService,
+		analytics:         analyticsService,
+		signal:            signal,
 		featureAggregator: featureAggregator,
-		activity:         activityService,
+		activity:          activityService,
 	}
 }
 
@@ -75,7 +75,7 @@ func (k *kronos) Log() logging.TradingLogger {
 
 // Store returns the underlying store for advanced use cases.
 // Most users should use the service methods instead.
-func (k *kronos) Store() market.MarketData {
+func (k *kronos) Store() market.MarketStore {
 	return k.store
 }
 

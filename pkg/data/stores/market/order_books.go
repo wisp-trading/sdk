@@ -7,7 +7,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
-func (ds *dataStore) UpdateOrderBook(asset portfolio.Asset, exchangeName connector.ExchangeName, orderBookType connector.Instrument, orderBook connector.OrderBook) {
+func (ds *dataStore) UpdateOrderBook(asset portfolio.Asset, exchangeName connector.ExchangeName, orderBook connector.OrderBook) {
 	ds.mutex.Lock()
 
 	current := ds.getOrderBooks()
@@ -24,17 +24,7 @@ func (ds *dataStore) UpdateOrderBook(asset portfolio.Asset, exchangeName connect
 	for k, v := range updated[asset] {
 		assetBooks[k] = v
 	}
-
-	if assetBooks[exchangeName] == nil {
-		assetBooks[exchangeName] = make(map[connector.Instrument]*connector.OrderBook)
-	}
-
-	exchangeBooks := make(map[connector.Instrument]*connector.OrderBook, len(assetBooks[exchangeName]))
-	for k, v := range assetBooks[exchangeName] {
-		exchangeBooks[k] = v
-	}
-	exchangeBooks[orderBookType] = &orderBook
-	assetBooks[exchangeName] = exchangeBooks
+	assetBooks[exchangeName] = &orderBook
 	updated[asset] = assetBooks
 
 	ds.orderBooks.Store(updated)
@@ -48,7 +38,7 @@ func (ds *dataStore) UpdateOrderBook(asset portfolio.Asset, exchangeName connect
 
 		price := connector.Price{
 			Symbol:    asset.Symbol(),
-			Price:     midPrice, // This is your main price
+			Price:     midPrice,
 			BidPrice:  bestBid,
 			AskPrice:  bestAsk,
 			Source:    exchangeName,
@@ -73,13 +63,11 @@ func (ds *dataStore) GetOrderBooks(asset portfolio.Asset) marketTypes.OrderBookM
 	return make(marketTypes.OrderBookMap)
 }
 
-func (ds *dataStore) GetOrderBook(asset portfolio.Asset, exchangeName connector.ExchangeName, orderBookType connector.Instrument) *connector.OrderBook {
+func (ds *dataStore) GetOrderBook(asset portfolio.Asset, exchangeName connector.ExchangeName) *connector.OrderBook {
 	current := ds.getOrderBooks()
 	if books, ok := current[asset]; ok {
-		if exchangeBooks, ok := books[exchangeName]; ok {
-			if book, ok := exchangeBooks[orderBookType]; ok {
-				return book
-			}
+		if book, ok := books[exchangeName]; ok {
+			return book
 		}
 	}
 	return nil

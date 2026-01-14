@@ -16,11 +16,11 @@ import (
 
 // marketService is the concrete implementation of analytics.Market.
 type marketService struct {
-	store market.MarketData
+	store market.MarketStore
 }
 
 // NewMarketService creates a new market service.
-func NewMarketService(store market.MarketData) analytics.Market {
+func NewMarketService(store market.MarketStore) analytics.Market {
 	return &marketService{
 		store: store,
 	}
@@ -28,26 +28,32 @@ func NewMarketService(store market.MarketData) analytics.Market {
 
 // GetAllAssetsWithFundingRates returns all assets that have funding rate data.
 func (s *marketService) GetAllAssetsWithFundingRates(ctx context.Context) []portfolio.Asset {
-	return s.store.GetAllAssetsWithFundingRates()
+	return nil
+
+	//return s.store.GetAllAssetsWithFundingRates()
 }
 
 // FundingRates returns funding rates for an asset across all exchanges.
 // Returns a map of exchange name to funding rate.
 func (s *marketService) FundingRates(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]connector.FundingRate {
-	fundingMap := s.store.GetFundingRatesForAsset(asset)
-	if fundingMap == nil {
-		return make(map[connector.ExchangeName]connector.FundingRate)
-	}
-	return fundingMap
+	return nil
+
+	//fundingMap := s.store.GetFundingRatesForAsset(asset)
+	//if fundingMap == nil {
+	//	return make(map[connector.ExchangeName]connector.FundingRate)
+	//}
+	//return fundingMap
 }
 
 // FundingRate returns the funding rate for an asset on a specific exchange.
 func (s *marketService) FundingRate(ctx context.Context, asset portfolio.Asset, exchange connector.ExchangeName) (*connector.FundingRate, error) {
-	rate := s.store.GetFundingRate(asset, exchange)
-	if rate == nil {
-		return nil, fmt.Errorf("no funding rate found for %s on %s", asset.Symbol(), exchange)
-	}
-	return rate, nil
+
+	return nil, nil
+	//rate := s.store.GetFundingRate(asset, exchange)
+	//if rate == nil {
+	//	return nil, fmt.Errorf("no funding rate found for %s on %s", asset.Symbol(), exchange)
+	//}
+	//return rate, nil
 }
 
 // Price returns the current price for an asset.
@@ -93,31 +99,31 @@ func (s *marketService) Prices(ctx context.Context, asset portfolio.Asset) map[c
 // OrderBook returns the order book for an asset.
 // If exchange is not specified, returns order book from first available exchange.
 func (s *marketService) OrderBook(ctx context.Context, asset portfolio.Asset, opts ...analytics.MarketOptions) (*connector.OrderBook, error) {
-	options := s.parseOptions(opts...)
+	//options := s.parseOptions(opts...)
+	//
+	//if options.Exchange != "" {
+	//	// Get order book from specific exchange
+	//	ob := s.store.GetOrderBook(asset, options.Exchange, options.InstrumentType)
+	//	if ob == nil {
+	//		return nil, fmt.Errorf("no order book found for %s on %s", asset.Symbol(), options.Exchange)
+	//	}
+	//	return ob, nil
+	//}
+	//
+	//// Get order book from first available exchange
+	//orderBooks := s.store.GetOrderBooks(asset)
+	//if len(orderBooks) == 0 {
+	//	return nil, fmt.Errorf("no order book data available for %s", asset.Symbol())
+	//}
+	//
+	//// Return first available order book for the specified instrument type
+	//for _, instrumentMap := range orderBooks {
+	//	if ob, exists := instrumentMap[options.InstrumentType]; exists && ob != nil {
+	//		return ob, nil
+	//	}
+	//}
 
-	if options.Exchange != "" {
-		// Get order book from specific exchange
-		ob := s.store.GetOrderBook(asset, options.Exchange, options.InstrumentType)
-		if ob == nil {
-			return nil, fmt.Errorf("no order book found for %s on %s", asset.Symbol(), options.Exchange)
-		}
-		return ob, nil
-	}
-
-	// Get order book from first available exchange
-	orderBooks := s.store.GetOrderBooks(asset)
-	if len(orderBooks) == 0 {
-		return nil, fmt.Errorf("no order book data available for %s", asset.Symbol())
-	}
-
-	// Return first available order book for the specified instrument type
-	for _, instrumentMap := range orderBooks {
-		if ob, exists := instrumentMap[options.InstrumentType]; exists && ob != nil {
-			return ob, nil
-		}
-	}
-
-	return nil, fmt.Errorf("no order book found for %s with instrument type %s", asset.Symbol(), options.InstrumentType)
+	return nil, nil
 }
 
 // FindArbitrage finds arbitrage opportunities for an asset across exchanges.

@@ -45,11 +45,11 @@ const (
 // IndicatorService provides user-friendly methods for technical indicators.
 // All methods handle data fetching internally - users never manually extract klines.
 type indicators struct {
-	store market.MarketData
+	store market.MarketStore
 }
 
 // NewIndicators creates a new IndicatorService
-func NewIndicators(store market.MarketData) analytics.Indicators {
+func NewIndicators(store market.MarketStore) analytics.Indicators {
 	return &indicators{
 		store: store,
 	}

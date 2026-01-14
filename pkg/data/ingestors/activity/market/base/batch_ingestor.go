@@ -8,7 +8,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/common"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
-	commonStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/common"
+	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
@@ -37,7 +37,7 @@ type BatchIngestor struct {
 	mu       sync.RWMutex
 
 	// Extension point for market-specific logic
-	extensions []ingestors.CollectionExtension
+	extensions []batch.CollectionExtension
 }
 
 func NewBatchIngestor(
@@ -48,8 +48,8 @@ func NewBatchIngestor(
 	store commonStore.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
-	extensions ...ingestors.CollectionExtension,
-) ingestors.BatchIngestor {
+	extensions ...batch.CollectionExtension,
+) batch.BatchIngestor {
 	// Type assert to get market data capabilities
 	marketData, _ := conn.(common.MarketDataReader)
 	orderExecutor, _ := conn.(common.OrderExecutor)
@@ -188,9 +188,9 @@ func (bi *BatchIngestor) collectPrices(assets []portfolio.Asset) {
 				return
 			}
 
-			bi.store.UpdateAssetPrice(a, bi.exchangeName, *price)
-			bi.store.UpdateLastUpdated(commonStore.UpdateKey{
-				DataType: commonStore.DataKeyAssetPrice,
+			bi.baseStore.UpdateAssetPrice(a, bi.exchangeName, *price)
+			bi.baseStore.UpdateLastUpdated(marketTypes.UpdateKey{
+				DataType: marketTypes.DataKeyAssetPrice,
 				Asset:    a,
 				Exchange: bi.exchangeName,
 			})
@@ -274,4 +274,4 @@ func (bi *BatchIngestor) GetMarketType() connector.MarketType {
 	return bi.marketType
 }
 
-var _ ingestors.BatchIngestor = (*BatchIngestor)(nil)
+var _ batch.BatchIngestor = (*BatchIngestor)(nil)

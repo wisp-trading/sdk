@@ -1,4 +1,4 @@
-package common
+package market
 
 import (
 	"time"
@@ -6,6 +6,11 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
+
+// StoreExtension allows market-specific data storage (funding rates, etc.)
+type StoreExtension interface {
+	GetName() string
+}
 
 // MarketStore contains shared market data storage methods
 type MarketStore interface {
@@ -29,9 +34,6 @@ type MarketStore interface {
 	// Metadata
 	GetLastUpdated() LastUpdatedMap
 	UpdateLastUpdated(key UpdateKey)
-
-	// Clear all data
-	Clear()
 }
 
 // DataKey represents types of market data (matches old store naming)

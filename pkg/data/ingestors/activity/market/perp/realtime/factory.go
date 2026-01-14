@@ -3,7 +3,7 @@ package realtime
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/base"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/realtime"
 	perpStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
@@ -32,10 +32,10 @@ func NewFactory(
 }
 
 // CreateIngestors creates one realtime ingestor per registered perp WebSocket connector
-func (f *Factory) CreateIngestors() []ingestors.RealtimeIngestor {
+func (f *Factory) CreateIngestors() []realtime.RealtimeIngestor {
 	perpWSConnectors := f.connectorRegistry.GetReadyPerpWebSocketConnectors()
 
-	realtimeIngestors := make([]ingestors.RealtimeIngestor, 0, len(perpWSConnectors))
+	realtimeIngestors := make([]realtime.RealtimeIngestor, 0, len(perpWSConnectors))
 
 	for _, wsConn := range perpWSConnectors {
 		info := wsConn.GetConnectorInfo()

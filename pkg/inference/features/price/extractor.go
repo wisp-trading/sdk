@@ -23,12 +23,12 @@ const (
 // Extractor computes price-based features (returns, highs, lows, VWAP).
 // It uses historical kline (candle) data to calculate metrics over different time windows.
 type Extractor struct {
-	marketData   market.MarketData
+	marketData   market.MarketStore
 	timeProvider temporal.TimeProvider
 }
 
 // NewExtractor creates a new price feature extractor.
-func NewExtractor(marketData market.MarketData, timeProvider temporal.TimeProvider) *Extractor {
+func NewExtractor(marketData market.MarketStore, timeProvider temporal.TimeProvider) *Extractor {
 	return &Extractor{
 		marketData:   marketData,
 		timeProvider: timeProvider,

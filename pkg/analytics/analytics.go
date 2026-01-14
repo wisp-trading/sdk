@@ -8,7 +8,7 @@ import (
 
 	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	commonStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	analyticsTypes "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
@@ -16,11 +16,11 @@ import (
 
 // analytics provides user-friendly methods for market analytics.
 type analytics struct {
-	store market.MarketData
+	store commonStore.MarketStore
 }
 
 // NewAnalyticsService creates a new analytics
-func NewAnalyticsService(store market.MarketData) analyticsTypes.Analytics {
+func NewAnalyticsService(store commonStore.MarketStore) analyticsTypes.Analytics {
 	return &analytics{
 		store: store,
 	}

@@ -1,4 +1,4 @@
-package market_test
+package extensions_test
 
 import (
 	"time"
@@ -16,7 +16,7 @@ import (
 
 var _ = Describe("Market Data Store - Funding Rates", func() {
 	var (
-		store    marketTypes.MarketData
+		store    marketTypes.MarketStore
 		btc      portfolio.Asset
 		eth      portfolio.Asset
 		provider temporal.TimeProvider

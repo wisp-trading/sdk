@@ -38,7 +38,7 @@ type Kronos interface {
 
 	// Store returns the underlying market data store for advanced use cases.
 	// Most users should use the Indicators, Analytics, and Market services instead.
-	Store() market.MarketData
+	Store() market.MarketStore
 
 	// Activity returns read-only access to positions, trades, and PNL data.
 	// Provides methods to query strategy executions, orders, and trade history.

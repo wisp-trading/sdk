@@ -10,21 +10,20 @@ import (
 )
 
 // Data types for atomic storage
-type assetFundingRates map[portfolio.Asset]marketTypes.FundingRateMap
-type assetHistoricalFunding map[portfolio.Asset]marketTypes.HistoricalFundingMap
 type assetOrderBooks map[portfolio.Asset]marketTypes.OrderBookMap
 type assetPrices map[portfolio.Asset]marketTypes.PriceMap
 type assetKlines map[portfolio.Asset]marketTypes.KlineMap
 
 type dataStore struct {
-	timeProvider           temporal.TimeProvider
-	fundingRates           atomic.Value // assetFundingRates
-	historicalFundingRates atomic.Value // assetHistoricalFunding
-	orderBooks             atomic.Value // assetOrderBooks
-	prices                 atomic.Value // assetPrices
-	klines                 atomic.Value // assetKlines
-	lastUpdated            atomic.Value // marketTypes.LastUpdatedMap
+	timeProvider temporal.TimeProvider
+	orderBooks   atomic.Value // assetOrderBooks
+	prices       atomic.Value // assetPrices
+	klines       atomic.Value // assetKlines
+	lastUpdated  atomic.Value // marketTypes.LastUpdatedMap
 
 	mutex                sync.RWMutex
 	orchestratorNotifier func()
+
+	// Extensions for market-specific data (funding rates, etc.)
+	extensions []marketTypes.StoreExtension
 }
