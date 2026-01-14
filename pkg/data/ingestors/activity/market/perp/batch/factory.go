@@ -25,7 +25,7 @@ func NewFactory(
 	store perpStore.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
-) *Factory {
+) batch.BatchIngestorFactory {
 	return &Factory{
 		connectorRegistry: connectorRegistry,
 		assetRegistry:     assetRegistry,

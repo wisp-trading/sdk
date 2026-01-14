@@ -6,6 +6,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	perpConn "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/realtime"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	perpStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
@@ -81,14 +82,14 @@ func (f *FundingRateExtension) handleFundingRateUpdate(exchangeName connector.Ex
 	f.store.UpdateFundingRate(asset, exchangeName, update)
 
 	// Update last updated timestamp
-	f.store.UpdateLastUpdated(marketTypes.UpdateKey{
+	f.store.UpdateLastUpdated(market.UpdateKey{
 		DataType: "funding_rates", // Use string literal for perp-specific data type
 		Asset:    asset,
 		Exchange: exchangeName,
 	})
 
 	f.logger.Debug("WebSocket updated funding rate for %s on %s = %s",
-		asset.Symbol(), exchangeName, update.Rate.String())
+		asset.Symbol(), exchangeName, update.CurrentRate.String())
 }
 
 func (f *FundingRateExtension) Unsubscribe(wsConn interface{}, exchangeName connector.ExchangeName) error {

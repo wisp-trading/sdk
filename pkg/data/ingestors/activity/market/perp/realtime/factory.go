@@ -22,7 +22,7 @@ func NewFactory(
 	assetRegistry registry.AssetRegistry,
 	store perpStore.MarketStore,
 	logger logging.ApplicationLogger,
-) *Factory {
+) realtime.RealtimeIngestorFactory {
 	return &Factory{
 		connectorRegistry: connectorRegistry,
 		assetRegistry:     assetRegistry,
