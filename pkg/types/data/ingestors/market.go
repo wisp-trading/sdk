@@ -7,7 +7,8 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 )
 
-// MarketDataCoordinator manages hybrid data ingestion (realtime + batch)
+// MarketDataCoordinator manages data ingestion across all market types
+// Orchestrates multiple RealtimeIngestors and BatchIngestors
 type MarketDataCoordinator interface {
 	IsRunning() bool
 	StartDataCollection(ctx context.Context) error
@@ -17,18 +18,20 @@ type MarketDataCoordinator interface {
 	RestartRealtime(ctx context.Context) error
 }
 
-// RealtimeIngestor handles real-time market data ingestion via WebSocket
+// RealtimeIngestor handles WebSocket data ingestion for a specific market type
 type RealtimeIngestor interface {
 	Start(ctx context.Context) error
-	GetActiveConnections() map[connector.ExchangeName]connector.WebSocketConnector
 	Stop() error
 	IsActive() bool
+	GetMarketType() connector.MarketType
+	GetActiveConnections() map[connector.ExchangeName]interface{} // Returns type-specific connectors
 }
 
-// BatchIngestor handles periodic batch market data collection via REST
+// BatchIngestor handles REST API data collection for a specific market type
 type BatchIngestor interface {
 	Start(interval time.Duration) error
 	Stop() error
 	IsActive() bool
 	CollectNow()
+	GetMarketType() connector.MarketType
 }
