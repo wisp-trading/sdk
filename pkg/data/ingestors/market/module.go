@@ -13,7 +13,10 @@ var Module = fx.Module("market_ingestor",
 		perp.Module,
 
 		fx.Provide(
-			NewCoordinator,
+			fx.Annotate(
+				NewCoordinator,
+				fx.ParamTags(`group:"batch_factories"`, `group:"realtime_factories"`),
+			),
 			newDataUpdateNotifier,
 		),
 	),
