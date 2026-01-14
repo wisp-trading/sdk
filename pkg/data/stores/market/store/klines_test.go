@@ -15,22 +15,22 @@ import (
 
 var _ = Describe("Market Data Store - Klines", func() {
 	var (
-		store    marketTypes.MarketStore
-		btc      portfolio.Asset
-		eth      portfolio.Asset
-		provider temporal.TimeProvider
+		marketStore marketTypes.MarketStore
+		btc         portfolio.Asset
+		eth         portfolio.Asset
+		provider    temporal.TimeProvider
 	)
 
 	BeforeEach(func() {
 		provider = timeProvider.NewTimeProvider()
-		store = store.NewStore(provider)
+		marketStore = store.NewStore(provider)
 		btc = portfolio.NewAsset("BTC")
 		eth = portfolio.NewAsset("ETH")
 	})
 
 	Describe("UpdateKline", func() {
 		Context("when adding a new kline", func() {
-			It("should store the kline correctly", func() {
+			It("should marketStore the kline correctly", func() {
 				// Create a kline
 				now := time.Now().Truncate(time.Minute)
 				kline := connector.Kline{
@@ -45,11 +45,11 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Volume:    100,
 				}
 
-				// Update the store
-				store.UpdateKline(btc, "hyperliquid", kline)
+				// Update the marketStore
+				marketStore.UpdateKline(btc, "hyperliquid", kline)
 
 				// Retrieve and verify
-				klines := store.GetKlines(btc, "hyperliquid", "1m", 0)
+				klines := marketStore.GetKlines(btc, "hyperliquid", "1m", 0)
 				Expect(klines).To(HaveLen(1))
 				Expect(klines[0].Symbol).To(Equal("BTC"))
 				Expect(klines[0].Open).To(Equal(50000.0))
@@ -77,11 +77,11 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Close:     50200,
 				}
 
-				store.UpdateKline(btc, "hyperliquid", kline1m)
-				store.UpdateKline(btc, "hyperliquid", kline5m)
+				marketStore.UpdateKline(btc, "hyperliquid", kline1m)
+				marketStore.UpdateKline(btc, "hyperliquid", kline5m)
 
-				klines1m := store.GetKlines(btc, "hyperliquid", "1m", 0)
-				klines5m := store.GetKlines(btc, "hyperliquid", "5m", 0)
+				klines1m := marketStore.GetKlines(btc, "hyperliquid", "1m", 0)
+				klines5m := marketStore.GetKlines(btc, "hyperliquid", "5m", 0)
 
 				Expect(klines1m).To(HaveLen(1))
 				Expect(klines5m).To(HaveLen(1))
@@ -110,11 +110,11 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Close:     50150,
 				}
 
-				store.UpdateKline(btc, "hyperliquid", klineHyper)
-				store.UpdateKline(btc, "bybit", klineBybit)
+				marketStore.UpdateKline(btc, "hyperliquid", klineHyper)
+				marketStore.UpdateKline(btc, "bybit", klineBybit)
 
-				klinesHyper := store.GetKlines(btc, "hyperliquid", "1m", 0)
-				klinesBybit := store.GetKlines(btc, "bybit", "1m", 0)
+				klinesHyper := marketStore.GetKlines(btc, "hyperliquid", "1m", 0)
+				klinesBybit := marketStore.GetKlines(btc, "bybit", "1m", 0)
 
 				Expect(klinesHyper).To(HaveLen(1))
 				Expect(klinesBybit).To(HaveLen(1))
@@ -143,11 +143,11 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Close:     3010,
 				}
 
-				store.UpdateKline(btc, "hyperliquid", klineBTC)
-				store.UpdateKline(eth, "hyperliquid", klineETH)
+				marketStore.UpdateKline(btc, "hyperliquid", klineBTC)
+				marketStore.UpdateKline(eth, "hyperliquid", klineETH)
 
-				klinesBTC := store.GetKlines(btc, "hyperliquid", "1m", 0)
-				klinesETH := store.GetKlines(eth, "hyperliquid", "1m", 0)
+				klinesBTC := marketStore.GetKlines(btc, "hyperliquid", "1m", 0)
+				klinesETH := marketStore.GetKlines(eth, "hyperliquid", "1m", 0)
 
 				Expect(klinesBTC).To(HaveLen(1))
 				Expect(klinesETH).To(HaveLen(1))
@@ -184,10 +184,10 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Low:       49800, // Different low
 				}
 
-				store.UpdateKline(btc, "hyperliquid", kline1)
-				store.UpdateKline(btc, "hyperliquid", kline2)
+				marketStore.UpdateKline(btc, "hyperliquid", kline1)
+				marketStore.UpdateKline(btc, "hyperliquid", kline2)
 
-				klines := store.GetKlines(btc, "hyperliquid", "1m", 0)
+				klines := marketStore.GetKlines(btc, "hyperliquid", "1m", 0)
 
 				Expect(klines).To(HaveLen(1), "Should only have one kline after update")
 				Expect(klines[0].Close).To(Equal(50150.0), "Close should be updated")
@@ -197,7 +197,7 @@ var _ = Describe("Market Data Store - Klines", func() {
 		})
 
 		Context("when adding multiple sequential klines", func() {
-			It("should store them in order", func() {
+			It("should marketStore them in order", func() {
 				now := time.Now().Truncate(time.Minute)
 
 				// Add 5 sequential klines
@@ -210,10 +210,10 @@ var _ = Describe("Market Data Store - Klines", func() {
 						Open:      50000 + float64(i*10),
 						Close:     50010 + float64(i*10),
 					}
-					store.UpdateKline(btc, "hyperliquid", kline)
+					marketStore.UpdateKline(btc, "hyperliquid", kline)
 				}
 
-				klines := store.GetKlines(btc, "hyperliquid", "1m", 0)
+				klines := marketStore.GetKlines(btc, "hyperliquid", "1m", 0)
 				Expect(klines).To(HaveLen(5))
 
 				// Verify they're in order by checking open prices
@@ -241,7 +241,7 @@ var _ = Describe("Market Data Store - Klines", func() {
 							Open:      50000 + float64(idx*10),
 							Close:     50010 + float64(idx*10),
 						}
-						store.UpdateKline(btc, "hyperliquid", kline)
+						marketStore.UpdateKline(btc, "hyperliquid", kline)
 						done <- true
 					}(i)
 				}
@@ -251,7 +251,7 @@ var _ = Describe("Market Data Store - Klines", func() {
 					<-done
 				}
 
-				klines := store.GetKlines(btc, "hyperliquid", "1m", 0)
+				klines := marketStore.GetKlines(btc, "hyperliquid", "1m", 0)
 				Expect(klines).To(HaveLen(10), "All klines should be stored")
 			})
 		})
@@ -272,11 +272,11 @@ var _ = Describe("Market Data Store - Klines", func() {
 						Open:      50000 + float64(i),
 						Close:     50001 + float64(i),
 					}
-					store.UpdateKline(btc, "hyperliquid", kline)
+					marketStore.UpdateKline(btc, "hyperliquid", kline)
 				}
 
 				// Get last 5
-				klines := store.GetKlines(btc, "hyperliquid", "1m", 5)
+				klines := marketStore.GetKlines(btc, "hyperliquid", "1m", 5)
 				Expect(klines).To(HaveLen(5))
 
 				// Should be the last 5 (indices 5-9)
@@ -296,17 +296,17 @@ var _ = Describe("Market Data Store - Klines", func() {
 						Open:      50000 + float64(i),
 						Close:     50001 + float64(i),
 					}
-					store.UpdateKline(btc, "hyperliquid", kline)
+					marketStore.UpdateKline(btc, "hyperliquid", kline)
 				}
 
-				klines := store.GetKlines(btc, "hyperliquid", "1m", 0)
+				klines := marketStore.GetKlines(btc, "hyperliquid", "1m", 0)
 				Expect(klines).To(HaveLen(10))
 			})
 		})
 
 		Context("when no klines exist", func() {
 			It("should return empty slice for non-existent asset", func() {
-				klines := store.GetKlines(btc, "hyperliquid", "1m", 0)
+				klines := marketStore.GetKlines(btc, "hyperliquid", "1m", 0)
 				Expect(klines).To(BeEmpty())
 			})
 
@@ -320,9 +320,9 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Open:      50000,
 					Close:     50050,
 				}
-				store.UpdateKline(btc, "hyperliquid", kline)
+				marketStore.UpdateKline(btc, "hyperliquid", kline)
 
-				klines := store.GetKlines(btc, "bybit", "1m", 0)
+				klines := marketStore.GetKlines(btc, "bybit", "1m", 0)
 				Expect(klines).To(BeEmpty())
 			})
 
@@ -336,9 +336,9 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Open:      50000,
 					Close:     50050,
 				}
-				store.UpdateKline(btc, "hyperliquid", kline)
+				marketStore.UpdateKline(btc, "hyperliquid", kline)
 
-				klines := store.GetKlines(btc, "hyperliquid", "5m", 0)
+				klines := marketStore.GetKlines(btc, "hyperliquid", "5m", 0)
 				Expect(klines).To(BeEmpty())
 			})
 		})
@@ -360,13 +360,13 @@ var _ = Describe("Market Data Store - Klines", func() {
 					Open:      50000 + float64(i),
 					Close:     50001 + float64(i),
 				}
-				store.UpdateKline(btc, "hyperliquid", kline)
+				marketStore.UpdateKline(btc, "hyperliquid", kline)
 			}
 		})
 
 		It("should return klines after the specified time", func() {
 			since := now.Add(5 * time.Minute)
-			klines := store.GetKlinesSince(btc, "hyperliquid", "1m", since)
+			klines := marketStore.GetKlinesSince(btc, "hyperliquid", "1m", since)
 
 			Expect(klines).To(HaveLen(5), "Should return klines from minute 5-9")
 			Expect(klines[0].Open).To(Equal(50005.0))
@@ -374,28 +374,28 @@ var _ = Describe("Market Data Store - Klines", func() {
 
 		It("should include klines at exactly the specified time", func() {
 			since := now.Add(5 * time.Minute)
-			klines := store.GetKlinesSince(btc, "hyperliquid", "1m", since)
+			klines := marketStore.GetKlinesSince(btc, "hyperliquid", "1m", since)
 
 			Expect(klines[0].OpenTime).To(Equal(since))
 		})
 
 		It("should return empty slice when since is after all klines", func() {
 			since := now.Add(20 * time.Minute)
-			klines := store.GetKlinesSince(btc, "hyperliquid", "1m", since)
+			klines := marketStore.GetKlinesSince(btc, "hyperliquid", "1m", since)
 
 			Expect(klines).To(BeEmpty())
 		})
 
 		It("should return all klines when since is before all klines", func() {
 			since := now.Add(-1 * time.Minute)
-			klines := store.GetKlinesSince(btc, "hyperliquid", "1m", since)
+			klines := marketStore.GetKlinesSince(btc, "hyperliquid", "1m", since)
 
 			Expect(klines).To(HaveLen(10))
 		})
 
 		Context("when no klines exist", func() {
 			It("should return empty slice", func() {
-				klines := store.GetKlinesSince(eth, "hyperliquid", "1m", now)
+				klines := marketStore.GetKlinesSince(eth, "hyperliquid", "1m", now)
 				Expect(klines).To(BeEmpty())
 			})
 		})

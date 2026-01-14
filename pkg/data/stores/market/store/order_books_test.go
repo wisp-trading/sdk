@@ -16,22 +16,22 @@ import (
 
 var _ = Describe("Market Data Store - OrderBooks", func() {
 	var (
-		store    marketTypes.MarketStore
-		btc      portfolio.Asset
-		eth      portfolio.Asset
-		provider temporal.TimeProvider
+		marketStore marketTypes.MarketStore
+		btc         portfolio.Asset
+		eth         portfolio.Asset
+		provider    temporal.TimeProvider
 	)
 
 	BeforeEach(func() {
 		provider = timeProvider.NewTimeProvider()
-		store = store.NewStore(provider)
+		marketStore = store.NewStore(provider)
 		btc = portfolio.NewAsset("BTC")
 		eth = portfolio.NewAsset("ETH")
 	})
 
 	Describe("UpdateOrderBook", func() {
 		Context("when adding a new orderbook", func() {
-			It("should store the orderbook correctly", func() {
+			It("should marketStore the orderbook correctly", func() {
 				// Create an orderbook
 				now := time.Now()
 				orderBook := connector.OrderBook{
@@ -49,11 +49,11 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 					},
 				}
 
-				// Update the store
-				store.UpdateOrderBook(btc, "hyperliquid", orderBook)
+				// Update the marketStore
+				marketStore.UpdateOrderBook(btc, "hyperliquid", orderBook)
 
 				// Retrieve and verify
-				retrieved := store.GetOrderBook(btc, "hyperliquid")
+				retrieved := marketStore.GetOrderBook(btc, "hyperliquid")
 				Expect(retrieved).NotTo(BeNil())
 				Expect(retrieved.Asset).To(Equal(btc))
 				Expect(retrieved.Bids).To(HaveLen(3))
@@ -89,11 +89,11 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 
 				// Note: In the new architecture, spot and perp connectors would be registered separately
 				// For this test, we'll use different exchange names to simulate separate connectors
-				store.UpdateOrderBook(btc, "hyperliquid-perp", orderBookPerp)
-				store.UpdateOrderBook(btc, "hyperliquid-spot", orderBookSpot)
+				marketStore.UpdateOrderBook(btc, "hyperliquid-perp", orderBookPerp)
+				marketStore.UpdateOrderBook(btc, "hyperliquid-spot", orderBookSpot)
 
-				perpBook := store.GetOrderBook(btc, "hyperliquid-perp")
-				spotBook := store.GetOrderBook(btc, "hyperliquid-spot")
+				perpBook := marketStore.GetOrderBook(btc, "hyperliquid-perp")
+				spotBook := marketStore.GetOrderBook(btc, "hyperliquid-spot")
 
 				Expect(perpBook).NotTo(BeNil())
 				Expect(spotBook).NotTo(BeNil())
@@ -126,11 +126,11 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 					},
 				}
 
-				store.UpdateOrderBook(btc, "hyperliquid", orderBookHyper)
-				store.UpdateOrderBook(btc, "bybit", orderBookBybit)
+				marketStore.UpdateOrderBook(btc, "hyperliquid", orderBookHyper)
+				marketStore.UpdateOrderBook(btc, "bybit", orderBookBybit)
 
-				hyperBook := store.GetOrderBook(btc, "hyperliquid")
-				bybitBook := store.GetOrderBook(btc, "bybit")
+				hyperBook := marketStore.GetOrderBook(btc, "hyperliquid")
+				bybitBook := marketStore.GetOrderBook(btc, "bybit")
 
 				Expect(hyperBook).NotTo(BeNil())
 				Expect(bybitBook).NotTo(BeNil())
@@ -163,11 +163,11 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 					},
 				}
 
-				store.UpdateOrderBook(btc, "hyperliquid", orderBookBTC)
-				store.UpdateOrderBook(eth, "hyperliquid", orderBookETH)
+				marketStore.UpdateOrderBook(btc, "hyperliquid", orderBookBTC)
+				marketStore.UpdateOrderBook(eth, "hyperliquid", orderBookETH)
 
-				btcBook := store.GetOrderBook(btc, "hyperliquid")
-				ethBook := store.GetOrderBook(eth, "hyperliquid")
+				btcBook := marketStore.GetOrderBook(btc, "hyperliquid")
+				ethBook := marketStore.GetOrderBook(eth, "hyperliquid")
 
 				Expect(btcBook).NotTo(BeNil())
 				Expect(ethBook).NotTo(BeNil())
@@ -210,10 +210,10 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 					},
 				}
 
-				store.UpdateOrderBook(btc, "hyperliquid", orderBook1)
-				store.UpdateOrderBook(btc, "hyperliquid", orderBook2)
+				marketStore.UpdateOrderBook(btc, "hyperliquid", orderBook1)
+				marketStore.UpdateOrderBook(btc, "hyperliquid", orderBook2)
 
-				retrieved := store.GetOrderBook(btc, "hyperliquid")
+				retrieved := marketStore.GetOrderBook(btc, "hyperliquid")
 
 				Expect(retrieved).NotTo(BeNil())
 				Expect(retrieved.Bids).To(HaveLen(3), "Should have updated bid levels")
@@ -235,9 +235,9 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 					Asks:      []connector.PriceLevel{},
 				}
 
-				store.UpdateOrderBook(btc, "hyperliquid", orderBook)
+				marketStore.UpdateOrderBook(btc, "hyperliquid", orderBook)
 
-				retrieved := store.GetOrderBook(btc, "hyperliquid")
+				retrieved := marketStore.GetOrderBook(btc, "hyperliquid")
 				Expect(retrieved).NotTo(BeNil())
 				Expect(retrieved.Bids).To(HaveLen(0))
 				Expect(retrieved.Asks).To(HaveLen(0))
@@ -263,7 +263,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 								{Price: numerical.NewFromFloat(50100 + float64(idx*10)), Quantity: numerical.NewFromFloat(1.0)},
 							},
 						}
-						store.UpdateOrderBook(btc, connector.ExchangeName("exchange"+string(rune(idx))), orderBook)
+						marketStore.UpdateOrderBook(btc, connector.ExchangeName("exchange"+string(rune(idx))), orderBook)
 						done <- true
 					}(i)
 				}
@@ -274,7 +274,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				}
 
 				// Verify we can retrieve orderbooks for all exchanges
-				books := store.GetOrderBooks(btc)
+				books := marketStore.GetOrderBooks(btc)
 				Expect(books).To(HaveLen(10))
 			})
 		})
@@ -299,10 +299,10 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 					Asks:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50110), Quantity: numerical.NewFromFloat(1.5)}},
 				}
 
-				store.UpdateOrderBook(btc, "hyperliquid", orderBook1)
-				store.UpdateOrderBook(btc, "bybit", orderBook2)
+				marketStore.UpdateOrderBook(btc, "hyperliquid", orderBook1)
+				marketStore.UpdateOrderBook(btc, "bybit", orderBook2)
 
-				books := store.GetOrderBooks(btc)
+				books := marketStore.GetOrderBooks(btc)
 				Expect(books).To(HaveLen(2))
 				Expect(books["hyperliquid"]).NotTo(BeNil())
 				Expect(books["bybit"]).NotTo(BeNil())
@@ -311,7 +311,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 
 		Context("when no orderbooks exist for an asset", func() {
 			It("should return an empty map", func() {
-				books := store.GetOrderBooks(btc)
+				books := marketStore.GetOrderBooks(btc)
 				Expect(books).To(HaveLen(0))
 			})
 		})
@@ -329,9 +329,9 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 					Asks:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50010), Quantity: numerical.NewFromFloat(1.0)}},
 				}
 
-				store.UpdateOrderBook(btc, "hyperliquid", orderBook)
+				marketStore.UpdateOrderBook(btc, "hyperliquid", orderBook)
 
-				retrieved := store.GetOrderBook(btc, "hyperliquid")
+				retrieved := marketStore.GetOrderBook(btc, "hyperliquid")
 				Expect(retrieved).NotTo(BeNil())
 				Expect(retrieved.Asset).To(Equal(btc))
 			})
@@ -339,7 +339,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 
 		Context("when orderbook does not exist", func() {
 			It("should return nil for non-existent asset", func() {
-				retrieved := store.GetOrderBook(btc, "hyperliquid")
+				retrieved := marketStore.GetOrderBook(btc, "hyperliquid")
 				Expect(retrieved).To(BeNil())
 			})
 
@@ -352,9 +352,9 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 					Asks:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50010), Quantity: numerical.NewFromFloat(1.0)}},
 				}
 
-				store.UpdateOrderBook(btc, "hyperliquid", orderBook)
+				marketStore.UpdateOrderBook(btc, "hyperliquid", orderBook)
 
-				retrieved := store.GetOrderBook(btc, "bybit")
+				retrieved := marketStore.GetOrderBook(btc, "bybit")
 				Expect(retrieved).To(BeNil())
 			})
 		})
@@ -379,10 +379,10 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 					Asks:      []connector.PriceLevel{{Price: numerical.NewFromFloat(3010), Quantity: numerical.NewFromFloat(4.0)}},
 				}
 
-				store.UpdateOrderBook(btc, "hyperliquid", orderBookBTC)
-				store.UpdateOrderBook(eth, "hyperliquid", orderBookETH)
+				marketStore.UpdateOrderBook(btc, "hyperliquid", orderBookBTC)
+				marketStore.UpdateOrderBook(eth, "hyperliquid", orderBookETH)
 
-				assets := store.GetAllAssetsWithOrderBooks()
+				assets := marketStore.GetAllAssetsWithOrderBooks()
 				Expect(assets).To(HaveLen(2))
 				Expect(assets).To(ContainElement(btc))
 				Expect(assets).To(ContainElement(eth))
@@ -391,7 +391,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 
 		Context("when no orderbooks exist", func() {
 			It("should return an empty slice", func() {
-				assets := store.GetAllAssetsWithOrderBooks()
+				assets := marketStore.GetAllAssetsWithOrderBooks()
 				Expect(assets).To(HaveLen(0))
 			})
 		})
@@ -417,7 +417,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 							{Price: numerical.NewFromFloat(50100 + float64(idx)), Quantity: numerical.NewFromFloat(float64(idx))},
 						},
 					}
-					store.UpdateOrderBook(btc, "hyperliquid", orderBook)
+					marketStore.UpdateOrderBook(btc, "hyperliquid", orderBook)
 					done <- true
 				}(i)
 			}
@@ -426,9 +426,9 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 			for i := 0; i < iterations; i++ {
 				go func() {
 					defer GinkgoRecover()
-					_ = store.GetOrderBook(btc, "hyperliquid")
-					_ = store.GetOrderBooks(btc)
-					_ = store.GetAllAssetsWithOrderBooks()
+					_ = marketStore.GetOrderBook(btc, "hyperliquid")
+					_ = marketStore.GetOrderBooks(btc)
+					_ = marketStore.GetAllAssetsWithOrderBooks()
 					done <- true
 				}()
 			}
@@ -439,7 +439,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 			}
 
 			// Verify final state is valid
-			retrieved := store.GetOrderBook(btc, "hyperliquid")
+			retrieved := marketStore.GetOrderBook(btc, "hyperliquid")
 			Expect(retrieved).NotTo(BeNil())
 			Expect(retrieved.Asset).To(Equal(btc))
 		})
