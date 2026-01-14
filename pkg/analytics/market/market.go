@@ -94,7 +94,7 @@ func (s *marketService) Prices(ctx context.Context, asset portfolio.Asset) map[c
 // GetKlines returns historical kline data for an asset on the specified exchange.
 // Automatically searches all registered market stores to find which one has this exchange.
 // The user doesn't need to know whether the exchange is spot, perp, futures, etc.
-func (s *marketService) GetKlines(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int) []connector.Kline {
+func (s *marketService) Klines(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int) []connector.Kline {
 	// Iterate all registered stores to find which one has data for this exchange
 	for _, store := range s.registry.GetAll() {
 		klines := store.GetKlines(asset, exchange, interval, limit)
@@ -105,6 +105,40 @@ func (s *marketService) GetKlines(asset portfolio.Asset, exchange connector.Exch
 
 	// No data found in any store
 	return nil
+}
+
+// GetOrderBook returns the order book for an asset on the specified exchange.
+// Automatically searches all registered market stores to find which one has this exchange.
+// If no exchange is specified, returns the first available orderbook.
+func (s *marketService) OrderBook(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (*connector.OrderBook, error) {
+	var targetExchange connector.ExchangeName
+	if len(exchange) > 0 {
+		targetExchange = exchange[0]
+	}
+
+	// Iterate all registered stores to find which one has data for this exchange/asset
+	for _, store := range s.registry.GetAll() {
+		if targetExchange != "" {
+			// Looking for specific exchange
+			ob := store.GetOrderBook(asset, targetExchange)
+			if ob != nil {
+				return ob, nil
+			}
+		} else {
+			// Get first available orderbook
+			orderBooks := store.GetOrderBooks(asset)
+			for _, ob := range orderBooks {
+				if ob != nil {
+					return ob, nil
+				}
+			}
+		}
+	}
+
+	if targetExchange != "" {
+		return nil, fmt.Errorf("no order book found for %s on %s", asset.Symbol(), targetExchange)
+	}
+	return nil, fmt.Errorf("no order book data available for %s", asset.Symbol())
 }
 
 // FindArbitrage finds arbitrage opportunities for an asset across exchanges.

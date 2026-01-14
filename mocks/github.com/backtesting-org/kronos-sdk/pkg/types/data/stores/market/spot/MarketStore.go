@@ -416,6 +416,51 @@ func (_c *MarketStore_GetOrderBooks_Call) RunAndReturn(run func(portfolio.Asset)
 	return _c
 }
 
+// MarketType provides a mock function with no fields
+func (_m *MarketStore) MarketType() market.MarketType {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarketType")
+	}
+
+	var r0 market.MarketType
+	if rf, ok := ret.Get(0).(func() market.MarketType); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(market.MarketType)
+	}
+
+	return r0
+}
+
+// MarketStore_MarketType_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MarketType'
+type MarketStore_MarketType_Call struct {
+	*mock.Call
+}
+
+// MarketType is a helper method to define mock.On call
+func (_e *MarketStore_Expecter) MarketType() *MarketStore_MarketType_Call {
+	return &MarketStore_MarketType_Call{Call: _e.mock.On("MarketType")}
+}
+
+func (_c *MarketStore_MarketType_Call) Run(run func()) *MarketStore_MarketType_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MarketStore_MarketType_Call) Return(_a0 market.MarketType) *MarketStore_MarketType_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MarketStore_MarketType_Call) RunAndReturn(run func() market.MarketType) *MarketStore_MarketType_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateAssetPrice provides a mock function with given fields: asset, exchange, price
 func (_m *MarketStore) UpdateAssetPrice(asset portfolio.Asset, exchange connector.ExchangeName, price connector.Price) {
 	_m.Called(asset, exchange, price)

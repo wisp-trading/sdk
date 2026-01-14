@@ -257,7 +257,7 @@ var _ = Describe("Market Data Store - Klines", func() {
 		})
 	})
 
-	Describe("GetKlines", func() {
+	Describe("Klines", func() {
 		Context("with limit parameter", func() {
 			It("should return the last N klines when limit is set", func() {
 				now := time.Now().Truncate(time.Minute)

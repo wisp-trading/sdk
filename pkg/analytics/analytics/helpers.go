@@ -22,7 +22,7 @@ func (s *analytics) fetchKlines(ctx context.Context, asset portfolio.Asset, limi
 		}
 	}
 
-	klines := s.market.GetKlines(asset, exchange, interval, limit)
+	klines := s.market.Klines(asset, exchange, interval, limit)
 
 	if len(klines) == 0 {
 		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)

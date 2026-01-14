@@ -26,10 +26,15 @@ type Market interface {
 	// Prices returns prices for an asset across all spot and perp exchanges.
 	Prices(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]numerical.Decimal
 
-	// GetKlines returns historical kline data for an asset on the specified exchange.
+	// Klines returns historical kline data for an asset on the specified exchange.
 	// Automatically searches all registered market stores (spot, perp, etc.) to find the exchange.
 	// The user doesn't need to know which market type the exchange belongs to.
-	GetKlines(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int) []connector.Kline
+	Klines(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int) []connector.Kline
+
+	// OrderBook returns the order book for an asset on the specified exchange.
+	// Automatically searches all registered market stores to find which one has this exchange.
+	// The user doesn't need to know which market type the exchange belongs to.
+	OrderBook(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (*connector.OrderBook, error)
 
 	// FindArbitrage finds arbitrage opportunities across all exchanges (spot and perp).
 	FindArbitrage(ctx context.Context, asset portfolio.Asset, minSpreadBps numerical.Decimal) []ArbitrageOpportunity

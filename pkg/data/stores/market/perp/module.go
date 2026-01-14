@@ -6,9 +6,6 @@ import (
 
 var Module = fx.Options(
 	fx.Provide(
-		fx.Annotate(
-			NewStore,
-			fx.ResultTags(`name:"perp_market_store"`),
-		),
+		NewStore,
 	),
 )

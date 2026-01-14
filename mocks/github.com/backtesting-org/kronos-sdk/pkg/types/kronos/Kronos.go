@@ -12,8 +12,6 @@ import (
 
 	logging "github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 
-	market "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
-
 	mock "github.com/stretchr/testify/mock"
 
 	portfolio "github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
@@ -406,53 +404,6 @@ func (_c *Kronos_Signal_Call) Return(_a0 strategy.SignalBuilder) *Kronos_Signal_
 }
 
 func (_c *Kronos_Signal_Call) RunAndReturn(run func(strategy.StrategyName) strategy.SignalBuilder) *Kronos_Signal_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Store provides a mock function with no fields
-func (_m *Kronos) Store() market.MarketStore {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for Store")
-	}
-
-	var r0 market.MarketStore
-	if rf, ok := ret.Get(0).(func() market.MarketStore); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(market.MarketStore)
-		}
-	}
-
-	return r0
-}
-
-// Kronos_Store_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Store'
-type Kronos_Store_Call struct {
-	*mock.Call
-}
-
-// Store is a helper method to define mock.On call
-func (_e *Kronos_Expecter) Store() *Kronos_Store_Call {
-	return &Kronos_Store_Call{Call: _e.mock.On("Store")}
-}
-
-func (_c *Kronos_Store_Call) Run(run func()) *Kronos_Store_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *Kronos_Store_Call) Return(_a0 market.MarketStore) *Kronos_Store_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Kronos_Store_Call) RunAndReturn(run func() market.MarketStore) *Kronos_Store_Call {
 	_c.Call.Return(run)
 	return _c
 }

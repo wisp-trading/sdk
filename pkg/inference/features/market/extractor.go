@@ -64,11 +64,11 @@ func (e *Extractor) Extract(ctx context.Context, asset portfolio.Asset, featureM
 		}
 	}
 
-	// Get funding rate data (for perpetual futures)
+	// Get funding rate data (for perpetual futures only)
 	// This provides funding_rate, mark_price, and index_price
-	fundingRates := e.market.FundingRates(ctx, asset)
+	fundingRates := e.market.Perp().FundingRates(ctx, asset)
 	if len(fundingRates) > 0 {
-		// Use first available funding rate
+		// Use first available funding rate from any perp exchange
 		for _, rate := range fundingRates {
 			featureMap[featureFundingRate], _ = rate.CurrentRate.Float64()
 			featureMap[featureMarkPrice], _ = rate.MarkPrice.Float64()

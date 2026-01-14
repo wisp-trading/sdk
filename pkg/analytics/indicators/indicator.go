@@ -31,7 +31,6 @@ import (
 
 	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
@@ -45,13 +44,13 @@ const (
 // IndicatorService provides user-friendly methods for technical indicators.
 // All methods handle data fetching internally - users never manually extract klines.
 type indicators struct {
-	store market.MarketStore
+	market analytics.Market
 }
 
 // NewIndicators creates a new IndicatorService
-func NewIndicators(store market.MarketStore) analytics.Indicators {
+func NewIndicators(market analytics.Market) analytics.Indicators {
 	return &indicators{
-		store: store,
+		market: market,
 	}
 }
 
@@ -369,7 +368,7 @@ func (s *indicators) Stochastic(ctx context.Context, asset portfolio.Asset, kPer
 	}
 
 	requiredData := (kPeriod + dPeriod) * dataMultiplier
-	klines := s.store.GetKlines(asset, exchange, interval, requiredData)
+	klines := s.market.Klines(asset, exchange, interval, requiredData)
 	if len(klines) == 0 {
 		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
@@ -451,7 +450,7 @@ func (s *indicators) ATR(ctx context.Context, asset portfolio.Asset, period int,
 
 	// Fetch klines (need high, low, close)
 	requiredData := period * dataMultiplier
-	klines := s.store.GetKlines(asset, exchange, interval, requiredData)
+	klines := s.market.Klines(asset, exchange, interval, requiredData)
 	if len(klines) == 0 {
 		return numerical.Zero(), fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
@@ -483,7 +482,7 @@ func (s *indicators) fetchClosePrices(asset portfolio.Asset, limit int, opts ...
 		}
 	}
 
-	klines := s.store.GetKlines(asset, exchange, interval, limit)
+	klines := s.market.Klines(asset, exchange, interval, limit)
 	if len(klines) == 0 {
 		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
 	}
@@ -498,7 +497,7 @@ func (s *indicators) fetchClosePrices(asset portfolio.Asset, limit int, opts ...
 
 // getDefaultExchange returns the first available exchange for an asset
 func (s *indicators) getDefaultExchange(asset portfolio.Asset) connector.ExchangeName {
-	priceMap := s.store.GetAssetPrices(asset)
+	priceMap := s.market.Prices(context.Background(), asset)
 	for exchange := range priceMap {
 		return exchange
 	}

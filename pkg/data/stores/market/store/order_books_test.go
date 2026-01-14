@@ -317,7 +317,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 		})
 	})
 
-	Describe("GetOrderBook", func() {
+	Describe("OrderBook", func() {
 		Context("when orderbook exists", func() {
 			It("should return the correct orderbook", func() {
 				now := time.Now()
