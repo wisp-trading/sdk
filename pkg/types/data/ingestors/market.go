@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/common"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
 // MarketDataCoordinator manages data ingestion across all market types
@@ -34,4 +36,9 @@ type BatchIngestor interface {
 	IsActive() bool
 	CollectNow()
 	GetMarketType() connector.MarketType
+}
+
+// CollectionExtension allows market-specific data collection (funding rates, interest rates, etc.)
+type CollectionExtension interface {
+	Collect(conn common.BaseConnector, exchangeName connector.ExchangeName, assets []portfolio.Asset)
 }
