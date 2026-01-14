@@ -411,19 +411,19 @@ func (_c *Kronos_Signal_Call) RunAndReturn(run func(strategy.StrategyName) strat
 }
 
 // Store provides a mock function with no fields
-func (_m *Kronos) Store() market.MarketData {
+func (_m *Kronos) Store() market.MarketStore {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Store")
 	}
 
-	var r0 market.MarketData
-	if rf, ok := ret.Get(0).(func() market.MarketData); ok {
+	var r0 market.MarketStore
+	if rf, ok := ret.Get(0).(func() market.MarketStore); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(market.MarketData)
+			r0 = ret.Get(0).(market.MarketStore)
 		}
 	}
 
@@ -447,12 +447,12 @@ func (_c *Kronos_Store_Call) Run(run func()) *Kronos_Store_Call {
 	return _c
 }
 
-func (_c *Kronos_Store_Call) Return(_a0 market.MarketData) *Kronos_Store_Call {
+func (_c *Kronos_Store_Call) Return(_a0 market.MarketStore) *Kronos_Store_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *Kronos_Store_Call) RunAndReturn(run func() market.MarketData) *Kronos_Store_Call {
+func (_c *Kronos_Store_Call) RunAndReturn(run func() market.MarketStore) *Kronos_Store_Call {
 	_c.Call.Return(run)
 	return _c
 }
