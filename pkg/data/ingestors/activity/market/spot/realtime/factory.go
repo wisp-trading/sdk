@@ -1,7 +1,7 @@
 package realtime
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/base"
+	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/realtime"
 	spotStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/spot"
@@ -22,7 +22,7 @@ func NewFactory(
 	assetRegistry registry.AssetRegistry,
 	store spotStore.MarketStore,
 	logger logging.ApplicationLogger,
-) *Factory {
+) realtime.RealtimeIngestorFactory {
 	return &Factory{
 		connectorRegistry: connectorRegistry,
 		assetRegistry:     assetRegistry,
@@ -41,7 +41,7 @@ func (f *Factory) CreateIngestors() []realtime.RealtimeIngestor {
 		info := wsConn.GetConnectorInfo()
 		exchangeName := info.Name
 
-		ingestor := base.NewRealtimeIngestor(
+		ingestor := ingestors.NewRealtimeIngestor(
 			wsConn,
 			exchangeName,
 			connector.MarketTypeSpot,

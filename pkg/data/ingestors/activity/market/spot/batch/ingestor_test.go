@@ -1,69 +1,63 @@
 package batch_test
 
 import (
+	"context"
 	"time"
 
-	mockPerpConnector "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
-	perpBatch "github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/perp/batch"
-	perpStore "github.com/backtesting-org/kronos-sdk/pkg/data/stores/market/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/batch"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
-	registryTypes "github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-
-	"github.com/backtesting-org/kronos-sdk/pkg/registry"
-	timeProvider "github.com/backtesting-org/kronos-sdk/pkg/runtime/time"
+	mockSpotConnector "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/connector/spot"
+	spotBatch "github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/spot/batch"
+	sdkTesting "github.com/backtesting-org/kronos-sdk/pkg/testing"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	perpConn "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
+	spotTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/spot"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
+	registryTypes "github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/mock"
+	"go.uber.org/fx"
+	"go.uber.org/fx/fxtest"
 )
 
-func setupMockPerpConnector(t GinkgoTInterface, name connector.ExchangeName) *mockPerpConnector.Connector {
-	m := mockPerpConnector.NewConnector(t)
+func setupMockSpotConnector(t GinkgoTInterface, name connector.ExchangeName) *mockSpotConnector.Connector {
+	m := mockSpotConnector.NewConnector(t)
 	m.EXPECT().GetConnectorInfo().Return(&connector.Info{
 		Name: name,
 	}).Maybe()
 	return m
 }
 
-var _ = Describe("Perp BatchIngestor", func() {
+var _ = Describe("Spot BatchIngestor", func() {
 	var (
-		store             perp.MarketStore
+		app               *fxtest.App
+		store             spotTypes.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
 		assetRegistry     registryTypes.AssetRegistry
-		logger            logging.ApplicationLogger
-		timeProviderInst  temporal.TimeProvider
-		factory           batch.BatchIngestorFactory
+		factory           spotBatch.Factory
 	)
 
 	BeforeEach(func() {
-		// Create real instances
-		logger = logging.NewNoOpLogger()
-		timeProviderInst = timeProvider.NewTimeProvider()
-		store = perpStore.NewStore(timeProviderInst)
-		connectorRegistry = registry.NewConnectorRegistry()
-		assetRegistry = registry.NewAssetRegistry()
-
-		// Create factory
-		factory = perpBatch.NewFactory(
-			connectorRegistry,
-			assetRegistry,
-			store,
-			timeProviderInst,
-			logger,
+		app = fxtest.New(GinkgoT(),
+			sdkTesting.Module,
+			fx.Populate(
+				&store,
+				&connectorRegistry,
+				&assetRegistry,
+				fx.Annotate(&factory, fx.ParamTags(`name:"spot_batch_factory"`)),
+			),
 		)
+		Expect(app.Start(context.Background())).To(Succeed())
+	})
+
+	AfterEach(func() {
+		Expect(app.Stop(context.Background())).To(Succeed())
 	})
 
 	Describe("CollectNow", func() {
-		Context("when fetching perp market data", func() {
-			It("should collect orderbooks, klines, and funding rates for all assets", func() {
-				exchangeName := connector.ExchangeName("test-perp-exchange")
-				m := setupMockPerpConnector(GinkgoT(), exchangeName)
+		Context("when fetching spot market data", func() {
+			It("should collect orderbooks, klines, and prices for all assets", func() {
+				exchangeName := connector.ExchangeName("test-spot-exchange")
+				m := setupMockSpotConnector(GinkgoT(), exchangeName)
 
 				btc := portfolio.NewAsset("BTC")
 				eth := portfolio.NewAsset("ETH")
@@ -138,39 +132,11 @@ var _ = Describe("Perp BatchIngestor", func() {
 					}, nil).Maybe()
 				}
 
-				// Setup funding rate expectations (perp-specific)
-				btcFundingRate := perpConn.FundingRate{
-					Asset:           btc,
-					CurrentRate:     numerical.NewFromFloat(0.0001),
-					NextFundingTime: now.Add(8 * time.Hour),
-					MarkPrice:       numerical.NewFromFloat(50050),
-					IndexPrice:      numerical.NewFromFloat(50045),
-					Timestamp:       now,
-				}
-				ethFundingRate := perpConn.FundingRate{
-					Asset:           eth,
-					CurrentRate:     numerical.NewFromFloat(0.00005),
-					NextFundingTime: now.Add(8 * time.Hour),
-					MarkPrice:       numerical.NewFromFloat(3005),
-					IndexPrice:      numerical.NewFromFloat(3004),
-					Timestamp:       now,
-				}
-
-				m.EXPECT().FetchFundingRate(btc).Return(&btcFundingRate, nil).Maybe()
-				m.EXPECT().FetchFundingRate(eth).Return(&ethFundingRate, nil).Maybe()
-
-				// Setup FetchCurrentFundingRates expectation (for batch collection extension)
-				allFundingRates := map[portfolio.Asset]perpConn.FundingRate{
-					btc: btcFundingRate,
-					eth: ethFundingRate,
-				}
-				m.EXPECT().FetchCurrentFundingRates().Return(allFundingRates, nil).Maybe()
-
 				// Register connector and assets
-				connectorRegistry.RegisterPerpConnector(exchangeName, m)
+				connectorRegistry.RegisterSpotConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterAsset(btc, connector.TypePerpetual)
-				assetRegistry.RegisterAsset(eth, connector.TypePerpetual)
+				assetRegistry.RegisterAsset(btc, connector.TypeSpot)
+				assetRegistry.RegisterAsset(eth, connector.TypeSpot)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -201,15 +167,6 @@ var _ = Describe("Perp BatchIngestor", func() {
 				ethKlines := store.GetKlines(eth, exchangeName, "5m", 10)
 				Expect(ethKlines).ToNot(BeEmpty(), "ETH klines should be stored")
 
-				// Assert - verify funding rates are stored (perp-specific)
-				btcFunding := store.GetFundingRate(btc, exchangeName)
-				Expect(btcFunding).ToNot(BeNil(), "BTC funding rate should be stored")
-				Expect(btcFunding.CurrentRate.InexactFloat64()).To(Equal(0.0001))
-
-				ethFunding := store.GetFundingRate(eth, exchangeName)
-				Expect(ethFunding).ToNot(BeNil(), "ETH funding rate should be stored")
-				Expect(ethFunding.CurrentRate.InexactFloat64()).To(Equal(0.00005))
-
 				// Assert - verify prices are stored
 				storedBtcPrice := store.GetAssetPrice(btc, exchangeName)
 				Expect(storedBtcPrice).ToNot(BeNil(), "BTC price should be stored")
@@ -219,10 +176,10 @@ var _ = Describe("Perp BatchIngestor", func() {
 
 		Context("when no assets are required", func() {
 			It("should skip collection without errors", func() {
-				exchangeName := connector.ExchangeName("test-perp-exchange")
-				m := setupMockPerpConnector(GinkgoT(), exchangeName)
+				exchangeName := connector.ExchangeName("test-spot-exchange")
+				m := setupMockSpotConnector(GinkgoT(), exchangeName)
 
-				connectorRegistry.RegisterPerpConnector(exchangeName, m)
+				connectorRegistry.RegisterSpotConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
 
 				// Create ingestors without registering any assets
@@ -242,10 +199,10 @@ var _ = Describe("Perp BatchIngestor", func() {
 
 	Describe("Start and Stop", func() {
 		It("should start and stop correctly", func() {
-			exchangeName := connector.ExchangeName("test-perp-exchange")
-			m := setupMockPerpConnector(GinkgoT(), exchangeName)
+			exchangeName := connector.ExchangeName("test-spot-exchange")
+			m := setupMockSpotConnector(GinkgoT(), exchangeName)
 
-			connectorRegistry.RegisterPerpConnector(exchangeName, m)
+			connectorRegistry.RegisterSpotConnector(exchangeName, m)
 			Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
 
 			// Create ingestor

@@ -1,7 +1,7 @@
 package batch
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/base"
+	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/batch"
 	perpStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
@@ -39,7 +39,7 @@ func NewFactory(
 func (f *Factory) CreateIngestors() []batch.BatchIngestor {
 	perpConnectors := f.connectorRegistry.GetReadyPerpConnectors()
 
-	ingestors := make([]batch.BatchIngestor, 0, len(perpConnectors))
+	ingestorList := make([]batch.BatchIngestor, 0, len(perpConnectors))
 
 	for _, conn := range perpConnectors {
 		info := conn.GetConnectorInfo()
@@ -49,7 +49,7 @@ func (f *Factory) CreateIngestors() []batch.BatchIngestor {
 		fundingExt := NewFundingRateExtension(f.store, f.logger)
 
 		// Base ingestor + perp extensions
-		ingestor := base.NewBatchIngestor(
+		ingestor := ingestors.NewBatchIngestor(
 			conn,
 			exchangeName,
 			connector.MarketTypePerp,
@@ -60,10 +60,10 @@ func (f *Factory) CreateIngestors() []batch.BatchIngestor {
 			fundingExt, // Add funding rate collection
 		)
 
-		ingestors = append(ingestors, ingestor)
+		ingestorList = append(ingestorList, ingestor)
 
 		f.logger.Info("Created perp batch ingestor for %s", exchangeName)
 	}
 
-	return ingestors
+	return ingestorList
 }

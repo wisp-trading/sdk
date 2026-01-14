@@ -1,7 +1,7 @@
 package batch
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/base"
+	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/batch"
 	spotStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/spot"
@@ -39,13 +39,13 @@ func NewFactory(
 func (f *Factory) CreateIngestors() []batch.BatchIngestor {
 	spotConnectors := f.connectorRegistry.GetReadySpotConnectors()
 
-	ingestors := make([]batch.BatchIngestor, 0, len(spotConnectors))
+	ingestorList := make([]batch.BatchIngestor, 0, len(spotConnectors))
 
 	for _, conn := range spotConnectors {
 		info := conn.GetConnectorInfo()
 		exchangeName := info.Name
 
-		ingestor := base.NewBatchIngestor(
+		ingestor := ingestors.NewBatchIngestor(
 			conn,
 			exchangeName,
 			connector.MarketTypeSpot,
@@ -55,10 +55,10 @@ func (f *Factory) CreateIngestors() []batch.BatchIngestor {
 			f.logger,
 		)
 
-		ingestors = append(ingestors, ingestor)
+		ingestorList = append(ingestorList, ingestor)
 
 		f.logger.Info("Created spot batch ingestor for %s", exchangeName)
 	}
 
-	return ingestors
+	return ingestorList
 }

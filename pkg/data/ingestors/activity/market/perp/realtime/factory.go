@@ -1,7 +1,7 @@
 package realtime
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/base"
+	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/realtime"
 	perpStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
@@ -44,7 +44,7 @@ func (f *Factory) CreateIngestors() []realtime.RealtimeIngestor {
 		fundingExt := NewFundingRateExtension(f.store, f.logger)
 
 		// Base ingestor + perp extensions
-		ingestor := base.NewRealtimeIngestor(
+		ingestor := ingestors.NewRealtimeIngestor(
 			wsConn, // Perp WebSocket connector
 			exchangeName,
 			connector.MarketTypePerp,
