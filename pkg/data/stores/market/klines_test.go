@@ -15,7 +15,7 @@ import (
 
 var _ = Describe("Market Data Store - Klines", func() {
 	var (
-		store    marketTypes.MarketData
+		store    marketTypes.MarketStore
 		btc      portfolio.Asset
 		eth      portfolio.Asset
 		provider temporal.TimeProvider

@@ -6,8 +6,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
-// NewStore creates a new spot market store (no extensions needed)
+// NewStore creates a new spot market store
 func NewStore(timeProvider temporal.TimeProvider) spotTypes.MarketStore {
-	// Spot just uses base store with no extensions
 	return market.NewStore(timeProvider)
 }
