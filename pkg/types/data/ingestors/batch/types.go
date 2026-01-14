@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/common"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
@@ -24,5 +23,5 @@ type BatchIngestor interface {
 
 // CollectionExtension allows market-specific data collection (funding rates, interest rates, etc.)
 type CollectionExtension interface {
-	Collect(conn common.BaseConnector, exchangeName connector.ExchangeName, assets []portfolio.Asset)
+	Collect(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Asset)
 }

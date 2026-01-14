@@ -8,6 +8,8 @@ import (
 
 	numerical "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 
+	perp "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
+
 	portfolio "github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
@@ -198,23 +200,23 @@ func (_c *Connector_FetchContracts_Call) RunAndReturn(run func() ([]connector.Co
 }
 
 // FetchCurrentFundingRates provides a mock function with no fields
-func (_m *Connector) FetchCurrentFundingRates() (map[portfolio.Asset]connector.FundingRate, error) {
+func (_m *Connector) FetchCurrentFundingRates() (map[portfolio.Asset]perp.FundingRate, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchCurrentFundingRates")
 	}
 
-	var r0 map[portfolio.Asset]connector.FundingRate
+	var r0 map[portfolio.Asset]perp.FundingRate
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (map[portfolio.Asset]connector.FundingRate, error)); ok {
+	if rf, ok := ret.Get(0).(func() (map[portfolio.Asset]perp.FundingRate, error)); ok {
 		return rf()
 	}
-	if rf, ok := ret.Get(0).(func() map[portfolio.Asset]connector.FundingRate); ok {
+	if rf, ok := ret.Get(0).(func() map[portfolio.Asset]perp.FundingRate); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[portfolio.Asset]connector.FundingRate)
+			r0 = ret.Get(0).(map[portfolio.Asset]perp.FundingRate)
 		}
 	}
 
@@ -244,34 +246,34 @@ func (_c *Connector_FetchCurrentFundingRates_Call) Run(run func()) *Connector_Fe
 	return _c
 }
 
-func (_c *Connector_FetchCurrentFundingRates_Call) Return(_a0 map[portfolio.Asset]connector.FundingRate, _a1 error) *Connector_FetchCurrentFundingRates_Call {
+func (_c *Connector_FetchCurrentFundingRates_Call) Return(_a0 map[portfolio.Asset]perp.FundingRate, _a1 error) *Connector_FetchCurrentFundingRates_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Connector_FetchCurrentFundingRates_Call) RunAndReturn(run func() (map[portfolio.Asset]connector.FundingRate, error)) *Connector_FetchCurrentFundingRates_Call {
+func (_c *Connector_FetchCurrentFundingRates_Call) RunAndReturn(run func() (map[portfolio.Asset]perp.FundingRate, error)) *Connector_FetchCurrentFundingRates_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // FetchFundingRate provides a mock function with given fields: asset
-func (_m *Connector) FetchFundingRate(asset portfolio.Asset) (*connector.FundingRate, error) {
+func (_m *Connector) FetchFundingRate(asset portfolio.Asset) (*perp.FundingRate, error) {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchFundingRate")
 	}
 
-	var r0 *connector.FundingRate
+	var r0 *perp.FundingRate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) (*connector.FundingRate, error)); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Asset) (*perp.FundingRate, error)); ok {
 		return rf(asset)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) *connector.FundingRate); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Asset) *perp.FundingRate); ok {
 		r0 = rf(asset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*connector.FundingRate)
+			r0 = ret.Get(0).(*perp.FundingRate)
 		}
 	}
 
@@ -302,34 +304,34 @@ func (_c *Connector_FetchFundingRate_Call) Run(run func(asset portfolio.Asset)) 
 	return _c
 }
 
-func (_c *Connector_FetchFundingRate_Call) Return(_a0 *connector.FundingRate, _a1 error) *Connector_FetchFundingRate_Call {
+func (_c *Connector_FetchFundingRate_Call) Return(_a0 *perp.FundingRate, _a1 error) *Connector_FetchFundingRate_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Connector_FetchFundingRate_Call) RunAndReturn(run func(portfolio.Asset) (*connector.FundingRate, error)) *Connector_FetchFundingRate_Call {
+func (_c *Connector_FetchFundingRate_Call) RunAndReturn(run func(portfolio.Asset) (*perp.FundingRate, error)) *Connector_FetchFundingRate_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // FetchHistoricalFundingRates provides a mock function with given fields: asset, startTime, endTime
-func (_m *Connector) FetchHistoricalFundingRates(asset portfolio.Asset, startTime int64, endTime int64) ([]connector.HistoricalFundingRate, error) {
+func (_m *Connector) FetchHistoricalFundingRates(asset portfolio.Asset, startTime int64, endTime int64) ([]perp.HistoricalFundingRate, error) {
 	ret := _m.Called(asset, startTime, endTime)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchHistoricalFundingRates")
 	}
 
-	var r0 []connector.HistoricalFundingRate
+	var r0 []perp.HistoricalFundingRate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int64, int64) ([]connector.HistoricalFundingRate, error)); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Asset, int64, int64) ([]perp.HistoricalFundingRate, error)); ok {
 		return rf(asset, startTime, endTime)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int64, int64) []connector.HistoricalFundingRate); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Asset, int64, int64) []perp.HistoricalFundingRate); ok {
 		r0 = rf(asset, startTime, endTime)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]connector.HistoricalFundingRate)
+			r0 = ret.Get(0).([]perp.HistoricalFundingRate)
 		}
 	}
 
@@ -362,12 +364,12 @@ func (_c *Connector_FetchHistoricalFundingRates_Call) Run(run func(asset portfol
 	return _c
 }
 
-func (_c *Connector_FetchHistoricalFundingRates_Call) Return(_a0 []connector.HistoricalFundingRate, _a1 error) *Connector_FetchHistoricalFundingRates_Call {
+func (_c *Connector_FetchHistoricalFundingRates_Call) Return(_a0 []perp.HistoricalFundingRate, _a1 error) *Connector_FetchHistoricalFundingRates_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Connector_FetchHistoricalFundingRates_Call) RunAndReturn(run func(portfolio.Asset, int64, int64) ([]connector.HistoricalFundingRate, error)) *Connector_FetchHistoricalFundingRates_Call {
+func (_c *Connector_FetchHistoricalFundingRates_Call) RunAndReturn(run func(portfolio.Asset, int64, int64) ([]perp.HistoricalFundingRate, error)) *Connector_FetchHistoricalFundingRates_Call {
 	_c.Call.Return(run)
 	return _c
 }

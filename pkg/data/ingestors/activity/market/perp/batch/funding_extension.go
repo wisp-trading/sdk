@@ -2,7 +2,6 @@ package batch
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/common"
 	perpConn "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/batch"
 	perpStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
@@ -23,7 +22,7 @@ func NewFundingRateExtension(store perpStore.MarketStore, logger logging.Applica
 	}
 }
 
-func (f *FundingRateExtension) Collect(conn common.BaseConnector, exchangeName connector.ExchangeName, assets []portfolio.Asset) {
+func (f *FundingRateExtension) Collect(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Asset) {
 	pc, ok := conn.(perpConn.Connector)
 	if !ok {
 		f.logger.Debug("Connector %s does not support perp operations", exchangeName)

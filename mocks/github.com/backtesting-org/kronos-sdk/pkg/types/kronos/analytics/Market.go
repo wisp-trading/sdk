@@ -12,6 +12,8 @@ import (
 
 	numerical "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 
+	perp "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
+
 	portfolio "github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
@@ -79,23 +81,23 @@ func (_c *Market_FindArbitrage_Call) RunAndReturn(run func(context.Context, port
 }
 
 // FundingRate provides a mock function with given fields: ctx, asset, exchange
-func (_m *Market) FundingRate(ctx context.Context, asset portfolio.Asset, exchange connector.ExchangeName) (*connector.FundingRate, error) {
+func (_m *Market) FundingRate(ctx context.Context, asset portfolio.Asset, exchange connector.ExchangeName) (*perp.FundingRate, error) {
 	ret := _m.Called(ctx, asset, exchange)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FundingRate")
 	}
 
-	var r0 *connector.FundingRate
+	var r0 *perp.FundingRate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, connector.ExchangeName) (*connector.FundingRate, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, connector.ExchangeName) (*perp.FundingRate, error)); ok {
 		return rf(ctx, asset, exchange)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, connector.ExchangeName) *connector.FundingRate); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, connector.ExchangeName) *perp.FundingRate); ok {
 		r0 = rf(ctx, asset, exchange)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*connector.FundingRate)
+			r0 = ret.Get(0).(*perp.FundingRate)
 		}
 	}
 
@@ -128,30 +130,30 @@ func (_c *Market_FundingRate_Call) Run(run func(ctx context.Context, asset portf
 	return _c
 }
 
-func (_c *Market_FundingRate_Call) Return(_a0 *connector.FundingRate, _a1 error) *Market_FundingRate_Call {
+func (_c *Market_FundingRate_Call) Return(_a0 *perp.FundingRate, _a1 error) *Market_FundingRate_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Market_FundingRate_Call) RunAndReturn(run func(context.Context, portfolio.Asset, connector.ExchangeName) (*connector.FundingRate, error)) *Market_FundingRate_Call {
+func (_c *Market_FundingRate_Call) RunAndReturn(run func(context.Context, portfolio.Asset, connector.ExchangeName) (*perp.FundingRate, error)) *Market_FundingRate_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // FundingRates provides a mock function with given fields: ctx, asset
-func (_m *Market) FundingRates(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]connector.FundingRate {
+func (_m *Market) FundingRates(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]perp.FundingRate {
 	ret := _m.Called(ctx, asset)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FundingRates")
 	}
 
-	var r0 map[connector.ExchangeName]connector.FundingRate
-	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset) map[connector.ExchangeName]connector.FundingRate); ok {
+	var r0 map[connector.ExchangeName]perp.FundingRate
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset) map[connector.ExchangeName]perp.FundingRate); ok {
 		r0 = rf(ctx, asset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[connector.ExchangeName]connector.FundingRate)
+			r0 = ret.Get(0).(map[connector.ExchangeName]perp.FundingRate)
 		}
 	}
 
@@ -177,12 +179,12 @@ func (_c *Market_FundingRates_Call) Run(run func(ctx context.Context, asset port
 	return _c
 }
 
-func (_c *Market_FundingRates_Call) Return(_a0 map[connector.ExchangeName]connector.FundingRate) *Market_FundingRates_Call {
+func (_c *Market_FundingRates_Call) Return(_a0 map[connector.ExchangeName]perp.FundingRate) *Market_FundingRates_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *Market_FundingRates_Call) RunAndReturn(run func(context.Context, portfolio.Asset) map[connector.ExchangeName]connector.FundingRate) *Market_FundingRates_Call {
+func (_c *Market_FundingRates_Call) RunAndReturn(run func(context.Context, portfolio.Asset) map[connector.ExchangeName]perp.FundingRate) *Market_FundingRates_Call {
 	_c.Call.Return(run)
 	return _c
 }

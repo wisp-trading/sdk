@@ -1,7 +1,6 @@
 package batch
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/activity/market/base"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/batch"
@@ -26,7 +25,7 @@ func NewFactory(
 	store spotStore.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
-) market.BatchIngestorFactory {
+) batch.BatchIngestorFactory {
 	return &Factory{
 		connectorRegistry: connectorRegistry,
 		assetRegistry:     assetRegistry,

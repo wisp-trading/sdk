@@ -4,6 +4,8 @@ package perp
 
 import (
 	connector "github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	connectorperp "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
+
 	market "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 
 	mock "github.com/stretchr/testify/mock"
@@ -220,19 +222,19 @@ func (_c *MarketStore_GetAssetPrices_Call) RunAndReturn(run func(portfolio.Asset
 }
 
 // GetFundingRate provides a mock function with given fields: asset, exchange
-func (_m *MarketStore) GetFundingRate(asset portfolio.Asset, exchange connector.ExchangeName) *connector.FundingRate {
+func (_m *MarketStore) GetFundingRate(asset portfolio.Asset, exchange connector.ExchangeName) *connectorperp.FundingRate {
 	ret := _m.Called(asset, exchange)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetFundingRate")
 	}
 
-	var r0 *connector.FundingRate
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName) *connector.FundingRate); ok {
+	var r0 *connectorperp.FundingRate
+	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName) *connectorperp.FundingRate); ok {
 		r0 = rf(asset, exchange)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*connector.FundingRate)
+			r0 = ret.Get(0).(*connectorperp.FundingRate)
 		}
 	}
 
@@ -258,12 +260,12 @@ func (_c *MarketStore_GetFundingRate_Call) Run(run func(asset portfolio.Asset, e
 	return _c
 }
 
-func (_c *MarketStore_GetFundingRate_Call) Return(_a0 *connector.FundingRate) *MarketStore_GetFundingRate_Call {
+func (_c *MarketStore_GetFundingRate_Call) Return(_a0 *connectorperp.FundingRate) *MarketStore_GetFundingRate_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MarketStore_GetFundingRate_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName) *connector.FundingRate) *MarketStore_GetFundingRate_Call {
+func (_c *MarketStore_GetFundingRate_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName) *connectorperp.FundingRate) *MarketStore_GetFundingRate_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -317,19 +319,19 @@ func (_c *MarketStore_GetFundingRatesForAsset_Call) RunAndReturn(run func(portfo
 }
 
 // GetHistoricalFundingRates provides a mock function with given fields: asset, exchange
-func (_m *MarketStore) GetHistoricalFundingRates(asset portfolio.Asset, exchange connector.ExchangeName) []connector.HistoricalFundingRate {
+func (_m *MarketStore) GetHistoricalFundingRates(asset portfolio.Asset, exchange connector.ExchangeName) []connectorperp.HistoricalFundingRate {
 	ret := _m.Called(asset, exchange)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetHistoricalFundingRates")
 	}
 
-	var r0 []connector.HistoricalFundingRate
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName) []connector.HistoricalFundingRate); ok {
+	var r0 []connectorperp.HistoricalFundingRate
+	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName) []connectorperp.HistoricalFundingRate); ok {
 		r0 = rf(asset, exchange)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]connector.HistoricalFundingRate)
+			r0 = ret.Get(0).([]connectorperp.HistoricalFundingRate)
 		}
 	}
 
@@ -355,12 +357,12 @@ func (_c *MarketStore_GetHistoricalFundingRates_Call) Run(run func(asset portfol
 	return _c
 }
 
-func (_c *MarketStore_GetHistoricalFundingRates_Call) Return(_a0 []connector.HistoricalFundingRate) *MarketStore_GetHistoricalFundingRates_Call {
+func (_c *MarketStore_GetHistoricalFundingRates_Call) Return(_a0 []connectorperp.HistoricalFundingRate) *MarketStore_GetHistoricalFundingRates_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MarketStore_GetHistoricalFundingRates_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName) []connector.HistoricalFundingRate) *MarketStore_GetHistoricalFundingRates_Call {
+func (_c *MarketStore_GetHistoricalFundingRates_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName) []connectorperp.HistoricalFundingRate) *MarketStore_GetHistoricalFundingRates_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -729,7 +731,7 @@ func (_c *MarketStore_UpdateAssetPrices_Call) RunAndReturn(run func(portfolio.As
 }
 
 // UpdateFundingRate provides a mock function with given fields: asset, exchange, rate
-func (_m *MarketStore) UpdateFundingRate(asset portfolio.Asset, exchange connector.ExchangeName, rate connector.FundingRate) {
+func (_m *MarketStore) UpdateFundingRate(asset portfolio.Asset, exchange connector.ExchangeName, rate connectorperp.FundingRate) {
 	_m.Called(asset, exchange, rate)
 }
 
@@ -741,14 +743,14 @@ type MarketStore_UpdateFundingRate_Call struct {
 // UpdateFundingRate is a helper method to define mock.On call
 //   - asset portfolio.Asset
 //   - exchange connector.ExchangeName
-//   - rate connector.FundingRate
+//   - rate connectorperp.FundingRate
 func (_e *MarketStore_Expecter) UpdateFundingRate(asset interface{}, exchange interface{}, rate interface{}) *MarketStore_UpdateFundingRate_Call {
 	return &MarketStore_UpdateFundingRate_Call{Call: _e.mock.On("UpdateFundingRate", asset, exchange, rate)}
 }
 
-func (_c *MarketStore_UpdateFundingRate_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, rate connector.FundingRate)) *MarketStore_UpdateFundingRate_Call {
+func (_c *MarketStore_UpdateFundingRate_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, rate connectorperp.FundingRate)) *MarketStore_UpdateFundingRate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(connector.FundingRate))
+		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(connectorperp.FundingRate))
 	})
 	return _c
 }
@@ -758,13 +760,13 @@ func (_c *MarketStore_UpdateFundingRate_Call) Return() *MarketStore_UpdateFundin
 	return _c
 }
 
-func (_c *MarketStore_UpdateFundingRate_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, connector.FundingRate)) *MarketStore_UpdateFundingRate_Call {
+func (_c *MarketStore_UpdateFundingRate_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, connectorperp.FundingRate)) *MarketStore_UpdateFundingRate_Call {
 	_c.Run(run)
 	return _c
 }
 
 // UpdateFundingRates provides a mock function with given fields: exchange, rates
-func (_m *MarketStore) UpdateFundingRates(exchange connector.ExchangeName, rates map[portfolio.Asset]connector.FundingRate) {
+func (_m *MarketStore) UpdateFundingRates(exchange connector.ExchangeName, rates map[portfolio.Asset]connectorperp.FundingRate) {
 	_m.Called(exchange, rates)
 }
 
@@ -775,14 +777,14 @@ type MarketStore_UpdateFundingRates_Call struct {
 
 // UpdateFundingRates is a helper method to define mock.On call
 //   - exchange connector.ExchangeName
-//   - rates map[portfolio.Asset]connector.FundingRate
+//   - rates map[portfolio.Asset]connectorperp.FundingRate
 func (_e *MarketStore_Expecter) UpdateFundingRates(exchange interface{}, rates interface{}) *MarketStore_UpdateFundingRates_Call {
 	return &MarketStore_UpdateFundingRates_Call{Call: _e.mock.On("UpdateFundingRates", exchange, rates)}
 }
 
-func (_c *MarketStore_UpdateFundingRates_Call) Run(run func(exchange connector.ExchangeName, rates map[portfolio.Asset]connector.FundingRate)) *MarketStore_UpdateFundingRates_Call {
+func (_c *MarketStore_UpdateFundingRates_Call) Run(run func(exchange connector.ExchangeName, rates map[portfolio.Asset]connectorperp.FundingRate)) *MarketStore_UpdateFundingRates_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(connector.ExchangeName), args[1].(map[portfolio.Asset]connector.FundingRate))
+		run(args[0].(connector.ExchangeName), args[1].(map[portfolio.Asset]connectorperp.FundingRate))
 	})
 	return _c
 }
@@ -792,13 +794,13 @@ func (_c *MarketStore_UpdateFundingRates_Call) Return() *MarketStore_UpdateFundi
 	return _c
 }
 
-func (_c *MarketStore_UpdateFundingRates_Call) RunAndReturn(run func(connector.ExchangeName, map[portfolio.Asset]connector.FundingRate)) *MarketStore_UpdateFundingRates_Call {
+func (_c *MarketStore_UpdateFundingRates_Call) RunAndReturn(run func(connector.ExchangeName, map[portfolio.Asset]connectorperp.FundingRate)) *MarketStore_UpdateFundingRates_Call {
 	_c.Run(run)
 	return _c
 }
 
 // UpdateHistoricalFundingRates provides a mock function with given fields: asset, exchange, rates
-func (_m *MarketStore) UpdateHistoricalFundingRates(asset portfolio.Asset, exchange connector.ExchangeName, rates []connector.HistoricalFundingRate) {
+func (_m *MarketStore) UpdateHistoricalFundingRates(asset portfolio.Asset, exchange connector.ExchangeName, rates []connectorperp.HistoricalFundingRate) {
 	_m.Called(asset, exchange, rates)
 }
 
@@ -810,14 +812,14 @@ type MarketStore_UpdateHistoricalFundingRates_Call struct {
 // UpdateHistoricalFundingRates is a helper method to define mock.On call
 //   - asset portfolio.Asset
 //   - exchange connector.ExchangeName
-//   - rates []connector.HistoricalFundingRate
+//   - rates []connectorperp.HistoricalFundingRate
 func (_e *MarketStore_Expecter) UpdateHistoricalFundingRates(asset interface{}, exchange interface{}, rates interface{}) *MarketStore_UpdateHistoricalFundingRates_Call {
 	return &MarketStore_UpdateHistoricalFundingRates_Call{Call: _e.mock.On("UpdateHistoricalFundingRates", asset, exchange, rates)}
 }
 
-func (_c *MarketStore_UpdateHistoricalFundingRates_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, rates []connector.HistoricalFundingRate)) *MarketStore_UpdateHistoricalFundingRates_Call {
+func (_c *MarketStore_UpdateHistoricalFundingRates_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, rates []connectorperp.HistoricalFundingRate)) *MarketStore_UpdateHistoricalFundingRates_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].([]connector.HistoricalFundingRate))
+		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].([]connectorperp.HistoricalFundingRate))
 	})
 	return _c
 }
@@ -827,7 +829,7 @@ func (_c *MarketStore_UpdateHistoricalFundingRates_Call) Return() *MarketStore_U
 	return _c
 }
 
-func (_c *MarketStore_UpdateHistoricalFundingRates_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, []connector.HistoricalFundingRate)) *MarketStore_UpdateHistoricalFundingRates_Call {
+func (_c *MarketStore_UpdateHistoricalFundingRates_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, []connectorperp.HistoricalFundingRate)) *MarketStore_UpdateHistoricalFundingRates_Call {
 	_c.Run(run)
 	return _c
 }

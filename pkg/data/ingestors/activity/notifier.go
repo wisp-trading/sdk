@@ -1,4 +1,4 @@
-package market
+package activity
 
 import "github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
@@ -35,7 +36,7 @@ func (s *marketService) GetAllAssetsWithFundingRates(ctx context.Context) []port
 
 // FundingRates returns funding rates for an asset across all exchanges.
 // Returns a map of exchange name to funding rate.
-func (s *marketService) FundingRates(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]connector.FundingRate {
+func (s *marketService) FundingRates(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]perp.FundingRate {
 	return nil
 
 	//fundingMap := s.store.GetFundingRatesForAsset(asset)
@@ -46,7 +47,7 @@ func (s *marketService) FundingRates(ctx context.Context, asset portfolio.Asset)
 }
 
 // FundingRate returns the funding rate for an asset on a specific exchange.
-func (s *marketService) FundingRate(ctx context.Context, asset portfolio.Asset, exchange connector.ExchangeName) (*connector.FundingRate, error) {
+func (s *marketService) FundingRate(ctx context.Context, asset portfolio.Asset, exchange connector.ExchangeName) (*perp.FundingRate, error) {
 
 	return nil, nil
 	//rate := s.store.GetFundingRate(asset, exchange)

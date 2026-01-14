@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
@@ -12,8 +13,8 @@ import (
 type Market interface {
 	// Asset data retrieval
 	GetAllAssetsWithFundingRates(ctx context.Context) []portfolio.Asset
-	FundingRates(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]connector.FundingRate
-	FundingRate(ctx context.Context, asset portfolio.Asset, exchange connector.ExchangeName) (*connector.FundingRate, error)
+	FundingRates(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]perp.FundingRate
+	FundingRate(ctx context.Context, asset portfolio.Asset, exchange connector.ExchangeName) (*perp.FundingRate, error)
 
 	// Price data
 	Price(ctx context.Context, asset portfolio.Asset, opts ...MarketOptions) (numerical.Decimal, error)

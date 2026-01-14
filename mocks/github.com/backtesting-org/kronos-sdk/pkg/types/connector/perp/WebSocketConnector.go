@@ -8,6 +8,8 @@ import (
 
 	numerical "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 
+	perp "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
+
 	portfolio "github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
@@ -292,23 +294,23 @@ func (_c *WebSocketConnector_FetchContracts_Call) RunAndReturn(run func() ([]con
 }
 
 // FetchCurrentFundingRates provides a mock function with no fields
-func (_m *WebSocketConnector) FetchCurrentFundingRates() (map[portfolio.Asset]connector.FundingRate, error) {
+func (_m *WebSocketConnector) FetchCurrentFundingRates() (map[portfolio.Asset]perp.FundingRate, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchCurrentFundingRates")
 	}
 
-	var r0 map[portfolio.Asset]connector.FundingRate
+	var r0 map[portfolio.Asset]perp.FundingRate
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (map[portfolio.Asset]connector.FundingRate, error)); ok {
+	if rf, ok := ret.Get(0).(func() (map[portfolio.Asset]perp.FundingRate, error)); ok {
 		return rf()
 	}
-	if rf, ok := ret.Get(0).(func() map[portfolio.Asset]connector.FundingRate); ok {
+	if rf, ok := ret.Get(0).(func() map[portfolio.Asset]perp.FundingRate); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[portfolio.Asset]connector.FundingRate)
+			r0 = ret.Get(0).(map[portfolio.Asset]perp.FundingRate)
 		}
 	}
 
@@ -338,34 +340,34 @@ func (_c *WebSocketConnector_FetchCurrentFundingRates_Call) Run(run func()) *Web
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchCurrentFundingRates_Call) Return(_a0 map[portfolio.Asset]connector.FundingRate, _a1 error) *WebSocketConnector_FetchCurrentFundingRates_Call {
+func (_c *WebSocketConnector_FetchCurrentFundingRates_Call) Return(_a0 map[portfolio.Asset]perp.FundingRate, _a1 error) *WebSocketConnector_FetchCurrentFundingRates_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchCurrentFundingRates_Call) RunAndReturn(run func() (map[portfolio.Asset]connector.FundingRate, error)) *WebSocketConnector_FetchCurrentFundingRates_Call {
+func (_c *WebSocketConnector_FetchCurrentFundingRates_Call) RunAndReturn(run func() (map[portfolio.Asset]perp.FundingRate, error)) *WebSocketConnector_FetchCurrentFundingRates_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // FetchFundingRate provides a mock function with given fields: asset
-func (_m *WebSocketConnector) FetchFundingRate(asset portfolio.Asset) (*connector.FundingRate, error) {
+func (_m *WebSocketConnector) FetchFundingRate(asset portfolio.Asset) (*perp.FundingRate, error) {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchFundingRate")
 	}
 
-	var r0 *connector.FundingRate
+	var r0 *perp.FundingRate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) (*connector.FundingRate, error)); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Asset) (*perp.FundingRate, error)); ok {
 		return rf(asset)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) *connector.FundingRate); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Asset) *perp.FundingRate); ok {
 		r0 = rf(asset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*connector.FundingRate)
+			r0 = ret.Get(0).(*perp.FundingRate)
 		}
 	}
 
@@ -396,34 +398,34 @@ func (_c *WebSocketConnector_FetchFundingRate_Call) Run(run func(asset portfolio
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchFundingRate_Call) Return(_a0 *connector.FundingRate, _a1 error) *WebSocketConnector_FetchFundingRate_Call {
+func (_c *WebSocketConnector_FetchFundingRate_Call) Return(_a0 *perp.FundingRate, _a1 error) *WebSocketConnector_FetchFundingRate_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchFundingRate_Call) RunAndReturn(run func(portfolio.Asset) (*connector.FundingRate, error)) *WebSocketConnector_FetchFundingRate_Call {
+func (_c *WebSocketConnector_FetchFundingRate_Call) RunAndReturn(run func(portfolio.Asset) (*perp.FundingRate, error)) *WebSocketConnector_FetchFundingRate_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // FetchHistoricalFundingRates provides a mock function with given fields: asset, startTime, endTime
-func (_m *WebSocketConnector) FetchHistoricalFundingRates(asset portfolio.Asset, startTime int64, endTime int64) ([]connector.HistoricalFundingRate, error) {
+func (_m *WebSocketConnector) FetchHistoricalFundingRates(asset portfolio.Asset, startTime int64, endTime int64) ([]perp.HistoricalFundingRate, error) {
 	ret := _m.Called(asset, startTime, endTime)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchHistoricalFundingRates")
 	}
 
-	var r0 []connector.HistoricalFundingRate
+	var r0 []perp.HistoricalFundingRate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int64, int64) ([]connector.HistoricalFundingRate, error)); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Asset, int64, int64) ([]perp.HistoricalFundingRate, error)); ok {
 		return rf(asset, startTime, endTime)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int64, int64) []connector.HistoricalFundingRate); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Asset, int64, int64) []perp.HistoricalFundingRate); ok {
 		r0 = rf(asset, startTime, endTime)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]connector.HistoricalFundingRate)
+			r0 = ret.Get(0).([]perp.HistoricalFundingRate)
 		}
 	}
 
@@ -456,12 +458,12 @@ func (_c *WebSocketConnector_FetchHistoricalFundingRates_Call) Run(run func(asse
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchHistoricalFundingRates_Call) Return(_a0 []connector.HistoricalFundingRate, _a1 error) *WebSocketConnector_FetchHistoricalFundingRates_Call {
+func (_c *WebSocketConnector_FetchHistoricalFundingRates_Call) Return(_a0 []perp.HistoricalFundingRate, _a1 error) *WebSocketConnector_FetchHistoricalFundingRates_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchHistoricalFundingRates_Call) RunAndReturn(run func(portfolio.Asset, int64, int64) ([]connector.HistoricalFundingRate, error)) *WebSocketConnector_FetchHistoricalFundingRates_Call {
+func (_c *WebSocketConnector_FetchHistoricalFundingRates_Call) RunAndReturn(run func(portfolio.Asset, int64, int64) ([]perp.HistoricalFundingRate, error)) *WebSocketConnector_FetchHistoricalFundingRates_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -761,19 +763,19 @@ func (_c *WebSocketConnector_FetchRiskFundBalance_Call) RunAndReturn(run func(st
 }
 
 // FundingRateUpdates provides a mock function with no fields
-func (_m *WebSocketConnector) FundingRateUpdates() <-chan connector.FundingRate {
+func (_m *WebSocketConnector) FundingRateUpdates() <-chan perp.FundingRate {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for FundingRateUpdates")
 	}
 
-	var r0 <-chan connector.FundingRate
-	if rf, ok := ret.Get(0).(func() <-chan connector.FundingRate); ok {
+	var r0 <-chan perp.FundingRate
+	if rf, ok := ret.Get(0).(func() <-chan perp.FundingRate); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan connector.FundingRate)
+			r0 = ret.Get(0).(<-chan perp.FundingRate)
 		}
 	}
 
@@ -797,12 +799,12 @@ func (_c *WebSocketConnector_FundingRateUpdates_Call) Run(run func()) *WebSocket
 	return _c
 }
 
-func (_c *WebSocketConnector_FundingRateUpdates_Call) Return(_a0 <-chan connector.FundingRate) *WebSocketConnector_FundingRateUpdates_Call {
+func (_c *WebSocketConnector_FundingRateUpdates_Call) Return(_a0 <-chan perp.FundingRate) *WebSocketConnector_FundingRateUpdates_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *WebSocketConnector_FundingRateUpdates_Call) RunAndReturn(run func() <-chan connector.FundingRate) *WebSocketConnector_FundingRateUpdates_Call {
+func (_c *WebSocketConnector_FundingRateUpdates_Call) RunAndReturn(run func() <-chan perp.FundingRate) *WebSocketConnector_FundingRateUpdates_Call {
 	_c.Call.Return(run)
 	return _c
 }

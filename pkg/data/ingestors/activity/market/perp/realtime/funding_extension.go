@@ -6,7 +6,6 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	perpConn "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/realtime"
-	commonStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	perpStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
@@ -74,7 +73,7 @@ func (f *FundingRateExtension) ProcessChannels(wsConn interface{}, exchangeName 
 		}
 	}
 }
-func (f *FundingRateExtension) handleFundingRateUpdate(exchangeName connector.ExchangeName, update connector.FundingRate) {
+func (f *FundingRateExtension) handleFundingRateUpdate(exchangeName connector.ExchangeName, update perpConn.FundingRate) {
 	// Get asset from the funding rate update
 	asset := update.Asset
 

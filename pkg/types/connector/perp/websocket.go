@@ -2,14 +2,13 @@ package perp
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/common"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
 // WebSocketConnector extends Connector with real-time capabilities for perpetual markets
 type WebSocketConnector interface {
 	Connector
-	common.WebSocketCapable
+	connector.WebSocketCapable
 
 	// Subscription management
 	SubscribeOrderBook(asset portfolio.Asset) error
@@ -31,6 +30,6 @@ type WebSocketConnector interface {
 	GetKlineChannels() map[string]<-chan connector.Kline
 	TradeUpdates() <-chan connector.Trade
 	PositionUpdates() <-chan connector.Position
-	FundingRateUpdates() <-chan connector.FundingRate
+	FundingRateUpdates() <-chan FundingRate
 	AccountBalanceUpdates() <-chan connector.AccountBalance
 }

@@ -6,8 +6,7 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/common"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/batch"
 	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
@@ -17,13 +16,13 @@ import (
 
 // BatchIngestor is a generic base implementation for REST batch data collection
 type BatchIngestor struct {
-	conn          common.BaseConnector
-	marketData    common.MarketDataReader
-	orderExecutor common.OrderExecutor
+	conn          connector.Connector
+	marketData    connector.MarketDataReader
+	orderExecutor connector.OrderExecutor
 	exchangeName  connector.ExchangeName
 	marketType    connector.MarketType
 	assetRegistry registry.AssetRegistry
-	store         commonStore.MarketStore
+	store         marketTypes.MarketStore
 	logger        logging.ApplicationLogger
 	timeProvider  temporal.TimeProvider
 
@@ -41,18 +40,18 @@ type BatchIngestor struct {
 }
 
 func NewBatchIngestor(
-	conn common.BaseConnector,
+	conn connector.Connector,
 	exchangeName connector.ExchangeName,
 	marketType connector.MarketType,
 	assetRegistry registry.AssetRegistry,
-	store commonStore.MarketStore,
+	store marketTypes.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
 	extensions ...batch.CollectionExtension,
 ) batch.BatchIngestor {
 	// Type assert to get market data capabilities
-	marketData, _ := conn.(common.MarketDataReader)
-	orderExecutor, _ := conn.(common.OrderExecutor)
+	marketData, _ := conn.(connector.MarketDataReader)
+	orderExecutor, _ := conn.(connector.OrderExecutor)
 
 	return &BatchIngestor{
 		conn:          conn,
@@ -154,8 +153,8 @@ func (bi *BatchIngestor) collectOrderBooks(assets []portfolio.Asset) {
 			}
 
 			bi.store.UpdateOrderBook(a, bi.exchangeName, *orderBook)
-			bi.store.UpdateLastUpdated(commonStore.UpdateKey{
-				DataType: commonStore.DataKeyOrderBooks,
+			bi.store.UpdateLastUpdated(marketTypes.UpdateKey{
+				DataType: marketTypes.DataKeyOrderBooks,
 				Asset:    a,
 				Exchange: bi.exchangeName,
 			})
@@ -188,8 +187,8 @@ func (bi *BatchIngestor) collectPrices(assets []portfolio.Asset) {
 				return
 			}
 
-			bi.baseStore.UpdateAssetPrice(a, bi.exchangeName, *price)
-			bi.baseStore.UpdateLastUpdated(marketTypes.UpdateKey{
+			bi.store.UpdateAssetPrice(a, bi.exchangeName, *price)
+			bi.store.UpdateLastUpdated(marketTypes.UpdateKey{
 				DataType: marketTypes.DataKeyAssetPrice,
 				Asset:    a,
 				Exchange: bi.exchangeName,

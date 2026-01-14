@@ -7,9 +7,9 @@ import (
 
 // FundingRateProvider handles funding rate data (perps only)
 type FundingRateProvider interface {
-	FetchCurrentFundingRates() (map[portfolio.Asset]connector.FundingRate, error)
-	FetchFundingRate(asset portfolio.Asset) (*connector.FundingRate, error)
-	FetchHistoricalFundingRates(asset portfolio.Asset, startTime, endTime int64) ([]connector.HistoricalFundingRate, error)
+	FetchCurrentFundingRates() (map[portfolio.Asset]FundingRate, error)
+	FetchFundingRate(asset portfolio.Asset) (*FundingRate, error)
+	FetchHistoricalFundingRates(asset portfolio.Asset, startTime, endTime int64) ([]HistoricalFundingRate, error)
 }
 
 // PositionManager handles leveraged positions (perps only)

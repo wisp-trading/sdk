@@ -4,8 +4,6 @@ package batch
 
 import (
 	connector "github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	common "github.com/backtesting-org/kronos-sdk/pkg/types/connector/common"
-
 	mock "github.com/stretchr/testify/mock"
 
 	portfolio "github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
@@ -25,7 +23,7 @@ func (_m *CollectionExtension) EXPECT() *CollectionExtension_Expecter {
 }
 
 // Collect provides a mock function with given fields: conn, exchangeName, assets
-func (_m *CollectionExtension) Collect(conn common.BaseConnector, exchangeName connector.ExchangeName, assets []portfolio.Asset) {
+func (_m *CollectionExtension) Collect(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Asset) {
 	_m.Called(conn, exchangeName, assets)
 }
 
@@ -35,16 +33,16 @@ type CollectionExtension_Collect_Call struct {
 }
 
 // Collect is a helper method to define mock.On call
-//   - conn common.BaseConnector
+//   - conn connector.Connector
 //   - exchangeName connector.ExchangeName
 //   - assets []portfolio.Asset
 func (_e *CollectionExtension_Expecter) Collect(conn interface{}, exchangeName interface{}, assets interface{}) *CollectionExtension_Collect_Call {
 	return &CollectionExtension_Collect_Call{Call: _e.mock.On("Collect", conn, exchangeName, assets)}
 }
 
-func (_c *CollectionExtension_Collect_Call) Run(run func(conn common.BaseConnector, exchangeName connector.ExchangeName, assets []portfolio.Asset)) *CollectionExtension_Collect_Call {
+func (_c *CollectionExtension_Collect_Call) Run(run func(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Asset)) *CollectionExtension_Collect_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(common.BaseConnector), args[1].(connector.ExchangeName), args[2].([]portfolio.Asset))
+		run(args[0].(connector.Connector), args[1].(connector.ExchangeName), args[2].([]portfolio.Asset))
 	})
 	return _c
 }
@@ -54,7 +52,7 @@ func (_c *CollectionExtension_Collect_Call) Return() *CollectionExtension_Collec
 	return _c
 }
 
-func (_c *CollectionExtension_Collect_Call) RunAndReturn(run func(common.BaseConnector, connector.ExchangeName, []portfolio.Asset)) *CollectionExtension_Collect_Call {
+func (_c *CollectionExtension_Collect_Call) RunAndReturn(run func(connector.Connector, connector.ExchangeName, []portfolio.Asset)) *CollectionExtension_Collect_Call {
 	_c.Run(run)
 	return _c
 }

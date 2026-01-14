@@ -3,10 +3,10 @@ package extensions_test
 import (
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/market"
+	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/market/perp"
 	timeProvider "github.com/backtesting-org/kronos-sdk/pkg/runtime/time"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	perp2 "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
+	perpTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
@@ -16,7 +16,7 @@ import (
 
 var _ = Describe("Market Data Store - Funding Rates", func() {
 	var (
-		store    marketTypes.MarketStore
+		store    perpTypes.MarketStore
 		btc      portfolio.Asset
 		eth      portfolio.Asset
 		provider temporal.TimeProvider
@@ -24,7 +24,7 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 
 	BeforeEach(func() {
 		provider = timeProvider.NewTimeProvider()
-		store = market.NewStore(provider)
+		store = perp.NewStore(provider)
 		btc = portfolio.NewAsset("BTC")
 		eth = portfolio.NewAsset("ETH")
 	})
@@ -33,7 +33,7 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 		Context("when adding a new funding rate", func() {
 			It("should store the funding rate correctly", func() {
 				now := time.Now()
-				fundingRate := connector.FundingRate{
+				fundingRate := perp2.FundingRate{
 					CurrentRate:     numerical.NewFromFloat(0.0001),
 					NextFundingTime: now.Add(8 * time.Hour),
 					Timestamp:       now,
@@ -54,14 +54,14 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 			It("should handle multiple exchanges for the same asset", func() {
 				now := time.Now()
 
-				hyperRate := connector.FundingRate{
+				hyperRate := perp2.FundingRate{
 					CurrentRate:     numerical.NewFromFloat(0.0001),
 					NextFundingTime: now.Add(8 * time.Hour),
 					Timestamp:       now,
 					MarkPrice:       numerical.NewFromFloat(50000),
 				}
 
-				bybitRate := connector.FundingRate{
+				bybitRate := perp2.FundingRate{
 					CurrentRate:     numerical.NewFromFloat(0.00015),
 					NextFundingTime: now.Add(4 * time.Hour),
 					Timestamp:       now,
@@ -83,13 +83,13 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 			It("should handle multiple assets for the same exchange", func() {
 				now := time.Now()
 
-				btcRate := connector.FundingRate{
+				btcRate := perp2.FundingRate{
 					CurrentRate: numerical.NewFromFloat(0.0001),
 					Timestamp:   now,
 					MarkPrice:   numerical.NewFromFloat(50000),
 				}
 
-				ethRate := connector.FundingRate{
+				ethRate := perp2.FundingRate{
 					CurrentRate: numerical.NewFromFloat(0.0002),
 					Timestamp:   now,
 					MarkPrice:   numerical.NewFromFloat(3000),
@@ -110,7 +110,7 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 			It("should update existing funding rate", func() {
 				now := time.Now()
 
-				initialRate := connector.FundingRate{
+				initialRate := perp2.FundingRate{
 					CurrentRate: numerical.NewFromFloat(0.0001),
 					Timestamp:   now,
 					MarkPrice:   numerical.NewFromFloat(50000),
@@ -118,7 +118,7 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 
 				store.UpdateFundingRate(btc, "hyperliquid", initialRate)
 
-				updatedRate := connector.FundingRate{
+				updatedRate := perp2.FundingRate{
 					CurrentRate: numerical.NewFromFloat(0.0003),
 					Timestamp:   now.Add(time.Hour),
 					MarkPrice:   numerical.NewFromFloat(51000),
@@ -139,7 +139,7 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 			It("should store multiple funding rates at once", func() {
 				now := time.Now()
 
-				rates := map[portfolio.Asset]connector.FundingRate{
+				rates := map[portfolio.Asset]perp2.FundingRate{
 					btc: {
 						CurrentRate: numerical.NewFromFloat(0.0001),
 						Timestamp:   now,
@@ -170,11 +170,11 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 			It("should return funding rates from all exchanges", func() {
 				now := time.Now()
 
-				store.UpdateFundingRate(btc, "hyperliquid", connector.FundingRate{
+				store.UpdateFundingRate(btc, "hyperliquid", perp2.FundingRate{
 					CurrentRate: numerical.NewFromFloat(0.0001),
 					Timestamp:   now,
 				})
-				store.UpdateFundingRate(btc, "bybit", connector.FundingRate{
+				store.UpdateFundingRate(btc, "bybit", perp2.FundingRate{
 					CurrentRate: numerical.NewFromFloat(0.00015),
 					Timestamp:   now,
 				})
@@ -203,7 +203,7 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 			})
 
 			It("should return nil for unknown exchange", func() {
-				store.UpdateFundingRate(btc, "hyperliquid", connector.FundingRate{
+				store.UpdateFundingRate(btc, "hyperliquid", perp2.FundingRate{
 					CurrentRate: numerical.NewFromFloat(0.0001),
 				})
 
@@ -216,10 +216,10 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 	Describe("GetAllAssetsWithFundingRates", func() {
 		Context("when retrieving all assets with funding rates", func() {
 			It("should return all assets that have funding rates", func() {
-				store.UpdateFundingRate(btc, "hyperliquid", connector.FundingRate{
+				store.UpdateFundingRate(btc, "hyperliquid", perp2.FundingRate{
 					CurrentRate: numerical.NewFromFloat(0.0001),
 				})
-				store.UpdateFundingRate(eth, "hyperliquid", connector.FundingRate{
+				store.UpdateFundingRate(eth, "hyperliquid", perp2.FundingRate{
 					CurrentRate: numerical.NewFromFloat(0.0002),
 				})
 

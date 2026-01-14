@@ -6,9 +6,8 @@ import (
 	"sync"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/common"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/realtime"
-	commonStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
@@ -17,13 +16,12 @@ import (
 // RealtimeIngestor is a generic base implementation for WebSocket data collection
 type RealtimeIngestor struct {
 	conn          interface{}
-	wsCapable     common.WebSocketCapable
+	wsCapable     connector.WebSocketCapable
 	wsSubscriber  realtime.WebSocketSubscriber
 	exchangeName  connector.ExchangeName
 	marketType    connector.MarketType
 	assetRegistry registry.AssetRegistry
-	store         interface{}
-	baseStore     commonStore.MarketStore
+	store         market.MarketStore
 	logger        logging.ApplicationLogger
 
 	// State
@@ -46,7 +44,7 @@ func NewRealtimeIngestor(
 	extensions ...realtime.WebSocketExtension,
 ) realtime.RealtimeIngestor {
 	// Cast to WebSocketCapable for lifecycle management
-	wsCapable, ok := conn.(common.WebSocketCapable)
+	wsCapable, ok := conn.(connector.WebSocketCapable)
 	if !ok {
 		logger.Error("Connector does not implement WebSocketCapable interface")
 		return nil
@@ -59,10 +57,10 @@ func NewRealtimeIngestor(
 		return nil
 	}
 
-	// Cast store to BaseMarketStore for writing data
-	baseStore, ok := store.(commonStore.MarketStore)
+	// Cast store to MarketStore for writing data
+	marketStore, ok := store.(market.MarketStore)
 	if !ok {
-		logger.Error("Store does not implement BaseMarketStore interface")
+		logger.Error("Store does not implement MarketStore interface")
 		return nil
 	}
 
@@ -73,8 +71,7 @@ func NewRealtimeIngestor(
 		exchangeName:  exchangeName,
 		marketType:    marketType,
 		assetRegistry: assetRegistry,
-		store:         store,
-		baseStore:     baseStore,
+		store:         marketStore,
 		logger:        logger,
 		extensions:    extensions,
 	}
@@ -177,9 +174,9 @@ func (ri *RealtimeIngestor) processOrderBookChannel(channelKey string, orderBook
 			}
 
 			// Write to store
-			ri.baseStore.UpdateOrderBook(update.Asset, ri.exchangeName, update)
-			ri.baseStore.UpdateLastUpdated(marketTypes.UpdateKey{
-				DataType: marketTypes.DataKeyOrderBooks,
+			ri.store.UpdateOrderBook(update.Asset, ri.exchangeName, update)
+			ri.store.UpdateLastUpdated(market.UpdateKey{
+				DataType: market.DataKeyOrderBooks,
 				Asset:    update.Asset,
 				Exchange: ri.exchangeName,
 			})
@@ -232,7 +229,7 @@ func (ri *RealtimeIngestor) processKlineChannel(channelKey string, klineChan <-c
 			asset := portfolio.NewAsset(kline.Symbol)
 
 			// Write to store
-			ri.baseStore.UpdateKline(asset, ri.exchangeName, kline)
+			ri.store.UpdateKline(asset, ri.exchangeName, kline)
 
 			ri.logger.Debug("WebSocket updated %s kline for %s on %s",
 				kline.Interval, asset.Symbol(), ri.exchangeName)

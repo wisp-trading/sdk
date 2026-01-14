@@ -2,8 +2,10 @@ package perp
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/market"
-	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/market/extensions"
+	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/market/perp/extensions"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
+	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	perpTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
@@ -11,7 +13,7 @@ import (
 
 // perpStore wraps the base store and adds perp-specific methods
 type perpStore struct {
-	market.MarketStore
+	marketTypes.MarketStore
 	fundingExt *extensions.FundingRateExtension
 }
 
@@ -32,14 +34,14 @@ func NewStore(timeProvider temporal.TimeProvider) perpTypes.MarketStore {
 func (ps *perpStore) UpdateFundingRate(
 	asset portfolio.Asset,
 	exchange connector.ExchangeName,
-	rate connector.FundingRate,
+	rate perp.FundingRate,
 ) {
 	ps.fundingExt.UpdateFundingRate(asset, exchange, rate)
 }
 
 func (ps *perpStore) UpdateFundingRates(
 	exchange connector.ExchangeName,
-	rates map[portfolio.Asset]connector.FundingRate,
+	rates map[portfolio.Asset]perp.FundingRate,
 ) {
 	ps.fundingExt.UpdateFundingRates(exchange, rates)
 }
@@ -47,7 +49,7 @@ func (ps *perpStore) UpdateFundingRates(
 func (ps *perpStore) GetFundingRate(
 	asset portfolio.Asset,
 	exchange connector.ExchangeName,
-) *connector.FundingRate {
+) *perp.FundingRate {
 	return ps.fundingExt.GetFundingRate(asset, exchange)
 }
 
@@ -64,7 +66,7 @@ func (ps *perpStore) GetAllAssetsWithFundingRates() []portfolio.Asset {
 func (ps *perpStore) UpdateHistoricalFundingRates(
 	asset portfolio.Asset,
 	exchange connector.ExchangeName,
-	rates []connector.HistoricalFundingRate,
+	rates []perp.HistoricalFundingRate,
 ) {
 	ps.fundingExt.UpdateHistoricalFundingRates(asset, exchange, rates)
 }
@@ -72,7 +74,7 @@ func (ps *perpStore) UpdateHistoricalFundingRates(
 func (ps *perpStore) GetHistoricalFundingRates(
 	asset portfolio.Asset,
 	exchange connector.ExchangeName,
-) []connector.HistoricalFundingRate {
+) []perp.HistoricalFundingRate {
 	return ps.fundingExt.GetHistoricalFundingRates(asset, exchange)
 }
 

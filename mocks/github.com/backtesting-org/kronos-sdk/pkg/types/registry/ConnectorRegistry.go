@@ -4,8 +4,6 @@ package registry
 
 import (
 	connector "github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	common "github.com/backtesting-org/kronos-sdk/pkg/types/connector/common"
-
 	mock "github.com/stretchr/testify/mock"
 
 	perp "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
@@ -27,19 +25,19 @@ func (_m *ConnectorRegistry) EXPECT() *ConnectorRegistry_Expecter {
 }
 
 // GetAllBaseConnectors provides a mock function with no fields
-func (_m *ConnectorRegistry) GetAllBaseConnectors() []common.BaseConnector {
+func (_m *ConnectorRegistry) GetAllBaseConnectors() []connector.Connector {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAllBaseConnectors")
 	}
 
-	var r0 []common.BaseConnector
-	if rf, ok := ret.Get(0).(func() []common.BaseConnector); ok {
+	var r0 []connector.Connector
+	if rf, ok := ret.Get(0).(func() []connector.Connector); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]common.BaseConnector)
+			r0 = ret.Get(0).([]connector.Connector)
 		}
 	}
 
@@ -63,30 +61,30 @@ func (_c *ConnectorRegistry_GetAllBaseConnectors_Call) Run(run func()) *Connecto
 	return _c
 }
 
-func (_c *ConnectorRegistry_GetAllBaseConnectors_Call) Return(_a0 []common.BaseConnector) *ConnectorRegistry_GetAllBaseConnectors_Call {
+func (_c *ConnectorRegistry_GetAllBaseConnectors_Call) Return(_a0 []connector.Connector) *ConnectorRegistry_GetAllBaseConnectors_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *ConnectorRegistry_GetAllBaseConnectors_Call) RunAndReturn(run func() []common.BaseConnector) *ConnectorRegistry_GetAllBaseConnectors_Call {
+func (_c *ConnectorRegistry_GetAllBaseConnectors_Call) RunAndReturn(run func() []connector.Connector) *ConnectorRegistry_GetAllBaseConnectors_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetAllReadyConnectors provides a mock function with no fields
-func (_m *ConnectorRegistry) GetAllReadyConnectors() []common.BaseConnector {
+func (_m *ConnectorRegistry) GetAllReadyConnectors() []connector.Connector {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAllReadyConnectors")
 	}
 
-	var r0 []common.BaseConnector
-	if rf, ok := ret.Get(0).(func() []common.BaseConnector); ok {
+	var r0 []connector.Connector
+	if rf, ok := ret.Get(0).(func() []connector.Connector); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]common.BaseConnector)
+			r0 = ret.Get(0).([]connector.Connector)
 		}
 	}
 
@@ -110,34 +108,34 @@ func (_c *ConnectorRegistry_GetAllReadyConnectors_Call) Run(run func()) *Connect
 	return _c
 }
 
-func (_c *ConnectorRegistry_GetAllReadyConnectors_Call) Return(_a0 []common.BaseConnector) *ConnectorRegistry_GetAllReadyConnectors_Call {
+func (_c *ConnectorRegistry_GetAllReadyConnectors_Call) Return(_a0 []connector.Connector) *ConnectorRegistry_GetAllReadyConnectors_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *ConnectorRegistry_GetAllReadyConnectors_Call) RunAndReturn(run func() []common.BaseConnector) *ConnectorRegistry_GetAllReadyConnectors_Call {
+func (_c *ConnectorRegistry_GetAllReadyConnectors_Call) RunAndReturn(run func() []connector.Connector) *ConnectorRegistry_GetAllReadyConnectors_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetBaseConnector provides a mock function with given fields: name
-func (_m *ConnectorRegistry) GetBaseConnector(name connector.ExchangeName) (common.BaseConnector, bool) {
+// GetConnector provides a mock function with given fields: name
+func (_m *ConnectorRegistry) GetConnector(name connector.ExchangeName) (connector.Connector, bool) {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetBaseConnector")
+		panic("no return value specified for GetConnector")
 	}
 
-	var r0 common.BaseConnector
+	var r0 connector.Connector
 	var r1 bool
-	if rf, ok := ret.Get(0).(func(connector.ExchangeName) (common.BaseConnector, bool)); ok {
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) (connector.Connector, bool)); ok {
 		return rf(name)
 	}
-	if rf, ok := ret.Get(0).(func(connector.ExchangeName) common.BaseConnector); ok {
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) connector.Connector); ok {
 		r0 = rf(name)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(common.BaseConnector)
+			r0 = ret.Get(0).(connector.Connector)
 		}
 	}
 
@@ -150,30 +148,30 @@ func (_m *ConnectorRegistry) GetBaseConnector(name connector.ExchangeName) (comm
 	return r0, r1
 }
 
-// ConnectorRegistry_GetBaseConnector_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBaseConnector'
-type ConnectorRegistry_GetBaseConnector_Call struct {
+// ConnectorRegistry_GetConnector_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetConnector'
+type ConnectorRegistry_GetConnector_Call struct {
 	*mock.Call
 }
 
-// GetBaseConnector is a helper method to define mock.On call
+// GetConnector is a helper method to define mock.On call
 //   - name connector.ExchangeName
-func (_e *ConnectorRegistry_Expecter) GetBaseConnector(name interface{}) *ConnectorRegistry_GetBaseConnector_Call {
-	return &ConnectorRegistry_GetBaseConnector_Call{Call: _e.mock.On("GetBaseConnector", name)}
+func (_e *ConnectorRegistry_Expecter) GetConnector(name interface{}) *ConnectorRegistry_GetConnector_Call {
+	return &ConnectorRegistry_GetConnector_Call{Call: _e.mock.On("GetConnector", name)}
 }
 
-func (_c *ConnectorRegistry_GetBaseConnector_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_GetBaseConnector_Call {
+func (_c *ConnectorRegistry_GetConnector_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_GetConnector_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(connector.ExchangeName))
 	})
 	return _c
 }
 
-func (_c *ConnectorRegistry_GetBaseConnector_Call) Return(_a0 common.BaseConnector, _a1 bool) *ConnectorRegistry_GetBaseConnector_Call {
+func (_c *ConnectorRegistry_GetConnector_Call) Return(_a0 connector.Connector, _a1 bool) *ConnectorRegistry_GetConnector_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ConnectorRegistry_GetBaseConnector_Call) RunAndReturn(run func(connector.ExchangeName) (common.BaseConnector, bool)) *ConnectorRegistry_GetBaseConnector_Call {
+func (_c *ConnectorRegistry_GetConnector_Call) RunAndReturn(run func(connector.ExchangeName) (connector.Connector, bool)) *ConnectorRegistry_GetConnector_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -2,14 +2,13 @@ package spot
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/common"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
 // WebSocketConnector extends Connector with real-time capabilities for spot markets
 type WebSocketConnector interface {
 	Connector
-	common.WebSocketCapable
+	connector.WebSocketCapable
 
 	// Subscription management
 	SubscribeOrderBook(asset portfolio.Asset) error

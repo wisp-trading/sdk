@@ -4,14 +4,16 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/market/base"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
+	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
 // Type aliases for funding rate storage
-type assetFundingRates map[portfolio.Asset]map[connector.ExchangeName]connector.FundingRate
-type assetHistoricalFunding map[portfolio.Asset]map[connector.ExchangeName][]connector.HistoricalFundingRate
+type assetFundingRates map[portfolio.Asset]map[connector.ExchangeName]perp.FundingRate
+type assetHistoricalFunding map[portfolio.Asset]map[connector.ExchangeName][]perp.HistoricalFundingRate
 
 // FundingRateExtension stores perp-specific funding rate data
 type FundingRateExtension struct {
@@ -55,7 +57,7 @@ func (f *FundingRateExtension) getHistoricalFundingRates() assetHistoricalFundin
 func (f *FundingRateExtension) UpdateFundingRate(
 	asset portfolio.Asset,
 	exchange connector.ExchangeName,
-	rate connector.FundingRate,
+	rate perp.FundingRate,
 ) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -70,7 +72,7 @@ func (f *FundingRateExtension) UpdateFundingRate(
 
 	// Update specific entry
 	if updated[asset] == nil {
-		updated[asset] = make(map[connector.ExchangeName]connector.FundingRate)
+		updated[asset] = make(map[connector.ExchangeName]perp.FundingRate)
 	}
 	updated[asset][exchange] = rate
 
@@ -80,7 +82,7 @@ func (f *FundingRateExtension) UpdateFundingRate(
 // UpdateFundingRates updates multiple funding rates for a specific exchange
 func (f *FundingRateExtension) UpdateFundingRates(
 	exchange connector.ExchangeName,
-	rates map[portfolio.Asset]connector.FundingRate,
+	rates map[portfolio.Asset]perp.FundingRate,
 ) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -96,7 +98,7 @@ func (f *FundingRateExtension) UpdateFundingRates(
 	// Update entries for this exchange
 	for asset, rate := range rates {
 		if updated[asset] == nil {
-			updated[asset] = make(map[connector.ExchangeName]connector.FundingRate)
+			updated[asset] = make(map[connector.ExchangeName]perp.FundingRate)
 		}
 		updated[asset][exchange] = rate
 	}
@@ -108,7 +110,7 @@ func (f *FundingRateExtension) UpdateFundingRates(
 func (f *FundingRateExtension) GetFundingRate(
 	asset portfolio.Asset,
 	exchange connector.ExchangeName,
-) *connector.FundingRate {
+) *perp.FundingRate {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 
@@ -124,20 +126,20 @@ func (f *FundingRateExtension) GetFundingRate(
 // GetFundingRatesForAsset retrieves all funding rates for a specific asset
 func (f *FundingRateExtension) GetFundingRatesForAsset(
 	asset portfolio.Asset,
-) map[connector.ExchangeName]connector.FundingRate {
+) map[connector.ExchangeName]perp.FundingRate {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 
 	rates := f.getFundingRates()
 	if exchanges, ok := rates[asset]; ok {
 		// Return a copy
-		result := make(map[connector.ExchangeName]connector.FundingRate, len(exchanges))
+		result := make(map[connector.ExchangeName]perp.FundingRate, len(exchanges))
 		for k, v := range exchanges {
 			result[k] = v
 		}
 		return result
 	}
-	return make(map[connector.ExchangeName]connector.FundingRate)
+	return make(map[connector.ExchangeName]perp.FundingRate)
 }
 
 // GetAllAssetsWithFundingRates returns all assets that have funding rates
@@ -157,7 +159,7 @@ func (f *FundingRateExtension) GetAllAssetsWithFundingRates() []portfolio.Asset 
 func (f *FundingRateExtension) UpdateHistoricalFundingRates(
 	asset portfolio.Asset,
 	exchange connector.ExchangeName,
-	rates []connector.HistoricalFundingRate,
+	rates []perp.HistoricalFundingRate,
 ) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -172,7 +174,7 @@ func (f *FundingRateExtension) UpdateHistoricalFundingRates(
 
 	// Update specific entry
 	if updated[asset] == nil {
-		updated[asset] = make(map[connector.ExchangeName][]connector.HistoricalFundingRate)
+		updated[asset] = make(map[connector.ExchangeName][]perp.HistoricalFundingRate)
 	}
 	updated[asset][exchange] = rates
 
@@ -183,7 +185,7 @@ func (f *FundingRateExtension) UpdateHistoricalFundingRates(
 func (f *FundingRateExtension) GetHistoricalFundingRates(
 	asset portfolio.Asset,
 	exchange connector.ExchangeName,
-) []connector.HistoricalFundingRate {
+) []perp.HistoricalFundingRate {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 
@@ -193,26 +195,26 @@ func (f *FundingRateExtension) GetHistoricalFundingRates(
 			return rateList
 		}
 	}
-	return []connector.HistoricalFundingRate{}
+	return []perp.HistoricalFundingRate{}
 }
 
 // GetHistoricalFundingRatesForAsset retrieves all historical funding rates for an asset
 func (f *FundingRateExtension) GetHistoricalFundingRatesForAsset(
 	asset portfolio.Asset,
-) map[connector.ExchangeName][]connector.HistoricalFundingRate {
+) map[connector.ExchangeName][]perp.HistoricalFundingRate {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 
 	rates := f.getHistoricalFundingRates()
 	if exchanges, ok := rates[asset]; ok {
 		// Return a copy
-		result := make(map[connector.ExchangeName][]connector.HistoricalFundingRate, len(exchanges))
+		result := make(map[connector.ExchangeName][]perp.HistoricalFundingRate, len(exchanges))
 		for k, v := range exchanges {
 			result[k] = v
 		}
 		return result
 	}
-	return make(map[connector.ExchangeName][]connector.HistoricalFundingRate)
+	return make(map[connector.ExchangeName][]perp.HistoricalFundingRate)
 }
 
 // Clear resets all funding rate data
@@ -224,4 +226,4 @@ func (f *FundingRateExtension) Clear() {
 	f.historicalFundingRates.Store(make(assetHistoricalFunding))
 }
 
-var _ base.StoreExtension = (*FundingRateExtension)(nil)
+var _ marketTypes.StoreExtension = (*FundingRateExtension)(nil)
