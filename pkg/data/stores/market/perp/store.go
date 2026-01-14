@@ -1,8 +1,8 @@
 package perp
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/market/perp/extensions"
+	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/market/store"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
 	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
@@ -21,7 +21,7 @@ type perpStore struct {
 func NewStore(timeProvider temporal.TimeProvider) perpTypes.MarketStore {
 	fundingExt := extensions.NewFundingRateExtension()
 
-	baseStore := market.NewStore(timeProvider, fundingExt)
+	baseStore := store.NewStore(timeProvider, fundingExt)
 
 	return &perpStore{
 		MarketStore: baseStore,
