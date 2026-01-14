@@ -16,6 +16,5 @@ type Connector interface {
 	ContractProvider
 
 	// Perp-specific
-	FetchAvailableAssets() ([]portfolio.Asset, error)
 	GetPerpSymbol(symbol portfolio.Asset) string
 }

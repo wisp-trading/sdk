@@ -33,7 +33,7 @@ func NewUniverseProvider(assetRegistry registry.AssetRegistry, connectorRegistry
 func (up *universeProvider) Universe() kronosTypes.Universe {
 	up.mu.Do(func() {
 		// Get ready exchanges
-		readyConnectors := up.connectorRegistry.GetReadyConnectors()
+		readyConnectors := up.connectorRegistry.GetAllReadyConnectors()
 		exchanges := make([]connector.Exchange, 0, len(readyConnectors))
 		for _, conn := range readyConnectors {
 			info := conn.GetConnectorInfo()
