@@ -14,6 +14,8 @@ type StoreExtension interface {
 
 // MarketStore contains shared market data storage methods
 type MarketStore interface {
+	MarketType() MarketType
+
 	// Order books
 	UpdateOrderBook(asset portfolio.Asset, exchange connector.ExchangeName, orderBook connector.OrderBook)
 	GetOrderBook(asset portfolio.Asset, exchange connector.ExchangeName) *connector.OrderBook

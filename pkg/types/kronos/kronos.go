@@ -3,7 +3,6 @@ package kronos
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/inference/features"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
@@ -29,16 +28,14 @@ type Kronos interface {
 	Analytics() analytics.Analytics
 
 	// Market returns the market data service for accessing live and historical prices.
-	// Provides methods to query market data across registered exchanges.
+	// Provides safe, read-only access to spot and perp market data across exchanges.
+	// Example: price, _ := k.Market().Price(ctx, btc, analytics.MarketOptions{Exchange: "binance"})
+	// Example: fundingRate, _ := k.Market().FundingRate(ctx, btc, "hyperliquid")
 	Market() analytics.Market
 
 	// Log returns the trading logger for strategy-specific logging.
 	// Use for recording trading decisions and strategy events.
 	Log() logging.TradingLogger
-
-	// Store returns the underlying market data store for advanced use cases.
-	// Most users should use the Indicators, Analytics, and Market services instead.
-	Store() market.MarketStore
 
 	// Activity returns read-only access to positions, trades, and PNL data.
 	// Provides methods to query strategy executions, orders, and trade history.

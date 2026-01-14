@@ -8,127 +8,98 @@ import (
 
 	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	perpTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
 // marketService is the concrete implementation of analytics.Market.
+// It provides read-only access to market data via the registry.
 type marketService struct {
-	store market.MarketStore
+	registry marketTypes.MarketRegistry
+	spot     *spotMarketService
+	perp     *perpMarketService
 }
 
-// NewMarketService creates a new market service.
-func NewMarketService(store market.MarketStore) analytics.Market {
+// NewMarketService creates a new market service using the market registry.
+func NewMarketService(registry marketTypes.MarketRegistry) analytics.Market {
+	spotStore := registry.Get(marketTypes.MarketTypeSpot)
+	perpStore := registry.Get(marketTypes.MarketTypePerp)
+
 	return &marketService{
-		store: store,
+		registry: registry,
+		spot:     newSpotMarketService(spotStore),
+		perp:     newPerpMarketService(perpStore.(perpTypes.MarketStore)),
 	}
 }
 
-// GetAllAssetsWithFundingRates returns all assets that have funding rate data.
-func (s *marketService) GetAllAssetsWithFundingRates(ctx context.Context) []portfolio.Asset {
-	return nil
+// Price returns the current price for an asset from any exchange (spot or perp).
+// If exchange is specified, returns price from that exchange.
+// Otherwise returns first available price.
+func (s *marketService) Price(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (numerical.Decimal, error) {
+	var targetExchange connector.ExchangeName
+	if len(exchange) > 0 {
+		targetExchange = exchange[0]
+	}
 
-	//return s.store.GetAllAssetsWithFundingRates()
-}
+	// Iterate all registered market stores
+	for _, store := range s.registry.GetAll() {
+		prices := store.GetAssetPrices(asset)
 
-// FundingRates returns funding rates for an asset across all exchanges.
-// Returns a map of exchange name to funding rate.
-func (s *marketService) FundingRates(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]perp.FundingRate {
-	return nil
-
-	//fundingMap := s.store.GetFundingRatesForAsset(asset)
-	//if fundingMap == nil {
-	//	return make(map[connector.ExchangeName]connector.FundingRate)
-	//}
-	//return fundingMap
-}
-
-// FundingRate returns the funding rate for an asset on a specific exchange.
-func (s *marketService) FundingRate(ctx context.Context, asset portfolio.Asset, exchange connector.ExchangeName) (*perp.FundingRate, error) {
-
-	return nil, nil
-	//rate := s.store.GetFundingRate(asset, exchange)
-	//if rate == nil {
-	//	return nil, fmt.Errorf("no funding rate found for %s on %s", asset.Symbol(), exchange)
-	//}
-	//return rate, nil
-}
-
-// Price returns the current price for an asset.
-// If exchange is not specified in opts, returns price from first available exchange.
-func (s *marketService) Price(ctx context.Context, asset portfolio.Asset, opts ...analytics.MarketOptions) (numerical.Decimal, error) {
-	options := s.parseOptions(opts...)
-
-	if options.Exchange != "" {
-		// Get price from specific exchange
-		price := s.store.GetAssetPrice(asset, options.Exchange)
-		if price == nil {
-			return numerical.Zero(), fmt.Errorf("no price found for %s on %s", asset.Symbol(), options.Exchange)
+		if targetExchange != "" {
+			if price, exists := prices[targetExchange]; exists {
+				return price.Price, nil
+			}
+		} else if len(prices) > 0 {
+			// Return first available price
+			for _, price := range prices {
+				return price.Price, nil
+			}
 		}
-		return price.Price, nil
 	}
 
-	// Get price from any available exchange
-	priceMap := s.store.GetAssetPrices(asset)
-	if len(priceMap) == 0 {
-		return numerical.Zero(), fmt.Errorf("no price data available for %s", asset.Symbol())
+	if targetExchange != "" {
+		return numerical.Zero(), fmt.Errorf("no price found for %s on %s", asset.Symbol(), targetExchange)
 	}
-
-	// Return first available price
-	for _, price := range priceMap {
-		return price.Price, nil
-	}
-
-	return numerical.Zero(), fmt.Errorf("no price found for %s", asset.Symbol())
+	return numerical.Zero(), fmt.Errorf("no price data available for %s", asset.Symbol())
 }
 
-// Prices returns prices for an asset across all exchanges.
+// Prices returns prices for an asset across all exchanges (both spot and perp).
 func (s *marketService) Prices(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]numerical.Decimal {
-	priceMap := s.store.GetAssetPrices(asset)
 	result := make(map[connector.ExchangeName]numerical.Decimal)
 
-	for exchange, price := range priceMap {
-		result[exchange] = price.Price
+	// Iterate all registered market stores
+	for _, store := range s.registry.GetAll() {
+		prices := store.GetAssetPrices(asset)
+		for exchange, price := range prices {
+			result[exchange] = price.Price
+		}
 	}
 
 	return result
 }
 
-// OrderBook returns the order book for an asset.
-// If exchange is not specified, returns order book from first available exchange.
-func (s *marketService) OrderBook(ctx context.Context, asset portfolio.Asset, opts ...analytics.MarketOptions) (*connector.OrderBook, error) {
-	//options := s.parseOptions(opts...)
-	//
-	//if options.Exchange != "" {
-	//	// Get order book from specific exchange
-	//	ob := s.store.GetOrderBook(asset, options.Exchange, options.InstrumentType)
-	//	if ob == nil {
-	//		return nil, fmt.Errorf("no order book found for %s on %s", asset.Symbol(), options.Exchange)
-	//	}
-	//	return ob, nil
-	//}
-	//
-	//// Get order book from first available exchange
-	//orderBooks := s.store.GetOrderBooks(asset)
-	//if len(orderBooks) == 0 {
-	//	return nil, fmt.Errorf("no order book data available for %s", asset.Symbol())
-	//}
-	//
-	//// Return first available order book for the specified instrument type
-	//for _, instrumentMap := range orderBooks {
-	//	if ob, exists := instrumentMap[options.InstrumentType]; exists && ob != nil {
-	//		return ob, nil
-	//	}
-	//}
+// GetKlines returns historical kline data for an asset on the specified exchange.
+// Automatically searches all registered market stores to find which one has this exchange.
+// The user doesn't need to know whether the exchange is spot, perp, futures, etc.
+func (s *marketService) GetKlines(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int) []connector.Kline {
+	// Iterate all registered stores to find which one has data for this exchange
+	for _, store := range s.registry.GetAll() {
+		klines := store.GetKlines(asset, exchange, interval, limit)
+		if len(klines) > 0 {
+			return klines
+		}
+	}
 
-	return nil, nil
+	// No data found in any store
+	return nil
 }
 
 // FindArbitrage finds arbitrage opportunities for an asset across exchanges.
 // Returns opportunities sorted by spread (highest first).
+// Searches all registered market types for arbitrage opportunities.
 func (s *marketService) FindArbitrage(ctx context.Context, asset portfolio.Asset, minSpreadBps numerical.Decimal) []analytics.ArbitrageOpportunity {
 	start := time.Now()
 	defer func() {
@@ -137,12 +108,21 @@ func (s *marketService) FindArbitrage(ctx context.Context, asset portfolio.Asset
 		}
 	}()
 
-	priceMap := s.store.GetAssetPrices(asset)
+	// Combine prices from all registered stores
+	priceMap := make(map[connector.ExchangeName]connector.Price)
+
+	for _, store := range s.registry.GetAll() {
+		prices := store.GetAssetPrices(asset)
+		for exchange, price := range prices {
+			priceMap[exchange] = price
+		}
+	}
+
 	if len(priceMap) < 2 {
 		return nil // Need at least 2 exchanges for arbitrage
 	}
 
-	// Convert map to sorted slice for consistent comparison
+	// ...existing code for arbitrage calculation...
 	type exchangePrice struct {
 		exchange connector.ExchangeName
 		price    numerical.Decimal
@@ -156,14 +136,12 @@ func (s *marketService) FindArbitrage(ctx context.Context, asset portfolio.Asset
 		})
 	}
 
-	// Sort by price
 	sort.Slice(prices, func(i, j int) bool {
 		return prices[i].price.LessThan(prices[j].price)
 	})
 
 	var opportunities []analytics.ArbitrageOpportunity
 
-	// Compare lowest price exchanges with highest price exchanges
 	for i := 0; i < len(prices); i++ {
 		for j := i + 1; j < len(prices); j++ {
 			buyPrice := prices[i].price
@@ -173,12 +151,10 @@ func (s *marketService) FindArbitrage(ctx context.Context, asset portfolio.Asset
 				continue
 			}
 
-			// Calculate spread
 			spread := sellPrice.Sub(buyPrice)
 			spreadPercent := spread.Div(buyPrice).Mul(numerical.NewFromInt(100))
 			spreadBps := spreadPercent.Mul(numerical.NewFromInt(100))
 
-			// Only include if spread exceeds minimum
 			if spreadBps.GreaterThanOrEqual(minSpreadBps) {
 				opportunities = append(opportunities, analytics.ArbitrageOpportunity{
 					Asset:         asset,
@@ -193,24 +169,9 @@ func (s *marketService) FindArbitrage(ctx context.Context, asset portfolio.Asset
 		}
 	}
 
-	// Sort by spread descending (best opportunities first)
 	sort.Slice(opportunities, func(i, j int) bool {
 		return opportunities[i].SpreadBps.GreaterThan(opportunities[j].SpreadBps)
 	})
 
 	return opportunities
-}
-
-// parseOptions extracts options with defaults
-func (s *marketService) parseOptions(opts ...analytics.MarketOptions) analytics.MarketOptions {
-	if len(opts) > 0 {
-		options := opts[0]
-		if options.InstrumentType == "" {
-			options.InstrumentType = connector.TypePerpetual
-		}
-		return options
-	}
-	return analytics.MarketOptions{
-		InstrumentType: connector.TypePerpetual,
-	}
 }

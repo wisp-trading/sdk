@@ -83,3 +83,8 @@ func (ps *perpStore) GetHistoricalFundingRatesForAsset(
 ) perpTypes.HistoricalFundingMap {
 	return ps.fundingExt.GetHistoricalFundingRatesForAsset(asset)
 }
+
+// MarketType returns the spot market type
+func (s *perpStore) MarketType() marketTypes.MarketType {
+	return marketTypes.MarketTypePerp
+}

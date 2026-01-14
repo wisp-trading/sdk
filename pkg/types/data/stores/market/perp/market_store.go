@@ -25,7 +25,7 @@ type MarketStore interface {
 	GetHistoricalFundingRatesForAsset(asset portfolio.Asset) HistoricalFundingMap
 }
 
-// Perp-specific data keys (extend base.DataKey)
+// Perp-specific data keys
 const (
 	DataKeyFundingRates      market.DataKey = "funding_rates"
 	DataKeyHistoricalFunding market.DataKey = "historical_funding"

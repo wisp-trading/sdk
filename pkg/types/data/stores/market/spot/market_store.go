@@ -5,6 +5,7 @@ import (
 )
 
 // MarketStore handles spot market data storage
+// Extends base MarketStore and implements BaseMarketStore for registry compatibility
 type MarketStore interface {
 	market.MarketStore
 }

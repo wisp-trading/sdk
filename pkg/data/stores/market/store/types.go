@@ -27,3 +27,7 @@ type dataStore struct {
 	// Extensions for market-specific data (funding rates, etc.)
 	extensions []marketTypes.StoreExtension
 }
+
+func (ds *dataStore) MarketType() marketTypes.MarketType {
+	return marketTypes.MarketTypeUnknown
+}
