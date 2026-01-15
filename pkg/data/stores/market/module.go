@@ -15,7 +15,10 @@ var Module = fx.Options(
 	fx.Provide(
 		NewMarketRegistry,
 	),
-	fx.Invoke(registerStores),
+	fx.Invoke(fx.Annotate(
+		registerStores,
+		fx.ParamTags(``, `name:"spot_market_store"`, `name:"perp_market_store"`),
+	)),
 )
 
 // registerStores registers all market stores with the registry

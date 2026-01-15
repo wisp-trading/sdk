@@ -11,12 +11,12 @@ var Module = fx.Module("perp_ingestor",
 		fx.Annotate(
 			batch.NewFactory,
 			fx.ParamTags(``, ``, `name:"perp_market_store"`),
-			fx.ResultTags(`name:"perp_batch_factory"`),
+			fx.ResultTags(`group:"batch_factories"`),
 		),
 		fx.Annotate(
 			realtime.NewFactory,
 			fx.ParamTags(``, ``, `name:"perp_market_store"`),
-			fx.ResultTags(`name:"perp_realtime_factory"`),
+			fx.ResultTags(`group:"realtime_factories"`),
 		),
 	),
 )
