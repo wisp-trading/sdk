@@ -8,6 +8,7 @@ import (
 	spotBatch "github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/market/spot/batch"
 	sdkTesting "github.com/backtesting-org/kronos-sdk/pkg/testing"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/batch"
 	spotTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/spot"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
@@ -35,7 +36,7 @@ var _ = Describe("Spot BatchIngestor", func() {
 		store             spotTypes.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
 		assetRegistry     registryTypes.AssetRegistry
-		factory           *spotBatch.Factory
+		factory           batch.BatchIngestorFactory
 		timeProvider      temporal.TimeProvider
 		logger            logging.ApplicationLogger
 	)
