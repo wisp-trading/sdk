@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
@@ -91,13 +92,18 @@ func (pc *coordinator) backfillTrades() error {
 	totalBackfilled := 0
 
 	// Get all available connectors from registry
-	connectors := pc.connectorRegistry.GetReadyWebSocketConnectors()
+	connectors := pc.connectorRegistry.GetAllReadyConnectors()
 	if len(connectors) == 0 {
 		pc.logger.Warn("⚠️  No connectors available for trade backfill")
 		return nil
 	}
 
 	for _, conn := range connectors {
+		accountReader, ok := conn.(connector.AccountReader)
+		if !ok {
+			pc.logger.Warn("⚠️  Connector %s does not support AccountReader interface, skipping trade backfill", conn.GetConnectorInfo().Name)
+			continue
+		}
 		exchangeName := conn.GetConnectorInfo().Name
 		pc.logger.Info("📥 Backfilling trades from %s...", exchangeName)
 
@@ -111,7 +117,7 @@ func (pc *coordinator) backfillTrades() error {
 		}
 
 		for _, symbol := range symbols {
-			trades, err := conn.GetTradingHistory(symbol.Symbol(), pc.tradeBackfillLimit)
+			trades, err := accountReader.GetTradingHistory(symbol.Symbol(), pc.tradeBackfillLimit)
 			if err != nil {
 				pc.logger.Warn("⚠️  Failed to fetch trades for %s on %s: %v", symbol.Symbol(), exchangeName, err)
 				continue

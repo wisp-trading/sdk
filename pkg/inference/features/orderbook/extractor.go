@@ -35,7 +35,7 @@ func NewExtractor(market analytics.Market) *Extractor {
 // Extract computes orderbook features and adds them to the feature map.
 // Currently supports: spread, spread_bps, imbalance, bid/ask depth, depth ratio, weighted mid.
 func (e *Extractor) Extract(ctx context.Context, asset portfolio.Asset, featureMap map[string]float64) error {
-	// Get order book
+	// Get order book - Market service automatically searches all registered stores (spot, perp, etc.)
 	orderBook, err := e.market.OrderBook(ctx, asset)
 	if err != nil || orderBook == nil {
 		return err

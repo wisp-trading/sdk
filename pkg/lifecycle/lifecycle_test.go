@@ -1,163 +1,186 @@
-package lifecycle
+package lifecycle_test
 
 import (
 	"context"
-	"testing"
 	"time"
 
-	mockConnector "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	mockIngestors "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
-	mockLifecycle "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
-	mockMonitoring "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/monitoring"
-	mockHealth "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
-	mockRegistry "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/registry"
+	mockSpotConnector "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/connector/spot"
+	sdkTesting "github.com/backtesting-org/kronos-sdk/pkg/testing"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	registryTypes "github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	"go.uber.org/fx"
+	"go.uber.org/fx/fxtest"
 )
 
-func TestLifecycleController_StateTransitions(t *testing.T) {
-	mockMarket := mockIngestors.NewMarketDataCoordinator(t)
-	mockPosition := mockIngestors.NewPositionCoordinator(t)
-	mockReg := mockRegistry.NewConnectorRegistry(t)
-	mockHealthStore := mockHealth.NewHealthStore(t)
-	mockOrchestrator := mockLifecycle.NewOrchestrator(t)
-	mockViewRegistry := mockMonitoring.NewViewRegistry(t)
-	mockConn := mockConnector.NewConnector(t)
-	noopLog := logging.NewNoOpLogger()
-
-	// Create a cancellable context to stop the monitorHealth goroutine
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Setup expectations
-	mockMarket.EXPECT().StartDataCollection(ctx).Return(nil).Once()
-	mockPosition.EXPECT().Start(ctx).Return(nil).Once()
-	mockOrchestrator.EXPECT().Start(ctx).Return(nil).Once()
-	mockReg.EXPECT().GetReadyConnectors().Return([]connector.Connector{mockConn}).Maybe()
-	mockHealthStore.EXPECT().GetSystemHealth().Return(&health.SystemHealthReport{
-		HasErrors: false,
-	}).Maybe()
-	mockMarket.EXPECT().StopDataCollection().Return(nil).Once()
-	mockPosition.EXPECT().Stop().Return(nil).Once()
-	mockOrchestrator.EXPECT().Stop(ctx).Return(nil).Once()
-
-	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog, mockViewRegistry)
-
-	// Initial state should be Created
-	if controller.State() != lifecycleTypes.StateCreated {
-		t.Errorf("Expected initial state to be Created, got %v", controller.State())
-	}
-
-	// Should not be ready initially
-	if controller.IsReady() {
-		t.Error("Controller should not be ready initially")
-	}
-
-	// Start the controller
-	if err := controller.Start(ctx, strategy.StrategyName("test-strategy")); err != nil {
-		t.Fatalf("Failed to start controller: %v", err)
-	}
-
-	// State should now be Ready
-	if controller.State() != lifecycleTypes.StateReady {
-		t.Errorf("Expected state to be Ready after start, got %v", controller.State())
-	}
-
-	// Should be ready now
-	if !controller.IsReady() {
-		t.Error("Controller should be ready after starting")
-	}
-
-	// Stop the controller
-	if err := controller.Stop(ctx); err != nil {
-		t.Fatalf("Failed to stop controller: %v", err)
-	}
-
-	// State should now be Stopped
-	if controller.State() != lifecycleTypes.StateStopped {
-		t.Errorf("Expected state to be Stopped after stop, got %v", controller.State())
-	}
-}
-
-func TestLifecycleController_WaitUntilReady(t *testing.T) {
-	mockMarket := mockIngestors.NewMarketDataCoordinator(t)
-	mockPosition := mockIngestors.NewPositionCoordinator(t)
-	mockReg := mockRegistry.NewConnectorRegistry(t)
-	mockHealthStore := mockHealth.NewHealthStore(t)
-	mockOrchestrator := mockLifecycle.NewOrchestrator(t)
-	mockViewRegistry := mockMonitoring.NewViewRegistry(t)
-	mockConn := mockConnector.NewConnector(t)
-	noopLog := logging.NewNoOpLogger()
-
-	// Create a cancellable context to stop the monitorHealth goroutine
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Setup expectations
-	mockMarket.EXPECT().StartDataCollection(ctx).Return(nil).Once()
-	mockPosition.EXPECT().Start(ctx).Return(nil).Once()
-	mockOrchestrator.EXPECT().Start(ctx).Return(nil).Once()
-	mockReg.EXPECT().GetReadyConnectors().Return([]connector.Connector{mockConn}).Maybe()
-	mockHealthStore.EXPECT().GetSystemHealth().Return(&health.SystemHealthReport{
-		HasErrors: false,
+func setupMockSpotConnector(t GinkgoTInterface, name connector.ExchangeName) *mockSpotConnector.Connector {
+	m := mockSpotConnector.NewConnector(t)
+	m.EXPECT().GetConnectorInfo().Return(&connector.Info{
+		Name: name,
 	}).Maybe()
 
-	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog, mockViewRegistry)
+	// Add expectations for batch ingestor calls (they will be called when data collection starts)
+	m.EXPECT().FetchOrderBook(mock.Anything, mock.Anything).Return(&connector.OrderBook{}, nil).Maybe()
+	m.EXPECT().FetchKlines(mock.Anything, mock.Anything, mock.Anything).Return([]connector.Kline{}, nil).Maybe()
+	m.EXPECT().FetchPrice(mock.Anything).Return(&connector.Price{}, nil).Maybe()
 
-	// Start in background
-	go func() {
-		time.Sleep(100 * time.Millisecond)
-		controller.Start(ctx, strategy.StrategyName("test-strategy"))
-	}()
-
-	// Wait for ready
-	waitCtx, waitCancel := context.WithTimeout(ctx, 1*time.Second)
-	defer waitCancel()
-
-	if err := controller.WaitUntilReady(waitCtx); err != nil {
-		t.Fatalf("Failed to wait for ready: %v", err)
-	}
-
-	if !controller.IsReady() {
-		t.Error("Controller should be ready after WaitUntilReady returns")
-	}
+	return m
 }
 
-func TestLifecycleController_CannotStartTwice(t *testing.T) {
-	mockMarket := mockIngestors.NewMarketDataCoordinator(t)
-	mockPosition := mockIngestors.NewPositionCoordinator(t)
-	mockReg := mockRegistry.NewConnectorRegistry(t)
-	mockHealthStore := mockHealth.NewHealthStore(t)
-	mockOrchestrator := mockLifecycle.NewOrchestrator(t)
-	mockViewRegistry := mockMonitoring.NewViewRegistry(t)
-	mockConn := mockConnector.NewConnector(t)
-	noopLog := logging.NewNoOpLogger()
+var _ = Describe("LifecycleController", func() {
+	var (
+		app               *fxtest.App
+		controller        lifecycleTypes.Controller
+		connectorRegistry registryTypes.ConnectorRegistry
+		assetRegistry     registryTypes.AssetRegistry
+		ctx               context.Context
+		cancel            context.CancelFunc
+	)
 
-	// Create a cancellable context to stop the monitorHealth goroutine
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	BeforeEach(func() {
+		app = fxtest.New(GinkgoT(),
+			sdkTesting.Module,
+			fx.Populate(&controller, &connectorRegistry, &assetRegistry),
+			fx.NopLogger,
+		)
+		Expect(app.Start(context.Background())).To(Succeed())
+		ctx, cancel = context.WithCancel(context.Background())
+	})
 
-	// Setup expectations
-	mockMarket.EXPECT().StartDataCollection(ctx).Return(nil).Once()
-	mockPosition.EXPECT().Start(ctx).Return(nil).Once()
-	mockOrchestrator.EXPECT().Start(ctx).Return(nil).Once()
-	mockReg.EXPECT().GetReadyConnectors().Return([]connector.Connector{mockConn}).Maybe()
-	mockHealthStore.EXPECT().GetSystemHealth().Return(&health.SystemHealthReport{
-		HasErrors: false,
-	}).Maybe()
+	AfterEach(func() {
+		if controller != nil && controller.IsReady() {
+			_ = controller.Stop(ctx)
+		}
+		cancel()
+		Expect(app.Stop(context.Background())).To(Succeed())
+	})
 
-	controller := NewController(mockMarket, mockPosition, mockReg, mockHealthStore, mockOrchestrator, noopLog, mockViewRegistry)
+	Describe("State Transitions", func() {
+		Context("when starting the controller", func() {
+			It("should transition from Created to Ready", func() {
+				// Initial state
+				Expect(controller.State()).To(Equal(lifecycleTypes.StateCreated))
+				Expect(controller.IsReady()).To(BeFalse())
 
-	// First start should succeed
-	if err := controller.Start(ctx, strategy.StrategyName("test-strategy")); err != nil {
-		t.Fatalf("First start failed: %v", err)
-	}
+				// Register a connector so validation passes
+				exchangeName := connector.ExchangeName("test-exchange")
+				m := setupMockSpotConnector(GinkgoT(), exchangeName)
+				connectorRegistry.RegisterSpotConnector(exchangeName, m)
+				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				assetRegistry.RegisterAsset(portfolio.NewAsset("BTC"), connector.TypeSpot)
 
-	// Second start should fail
-	if err := controller.Start(ctx, strategy.StrategyName("test-strategy")); err == nil {
-		t.Error("Expected error when starting controller twice, got nil")
-	}
-}
+				// Start
+				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))
+				Expect(err).ToNot(HaveOccurred())
+
+				// Should be ready
+				Expect(controller.State()).To(Equal(lifecycleTypes.StateReady))
+				Expect(controller.IsReady()).To(BeTrue())
+			})
+
+			It("should fail if no connectors are registered", func() {
+				// Try to start without any connectors
+				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("no connectors marked as ready"))
+			})
+		})
+
+		Context("when stopping the controller", func() {
+			BeforeEach(func() {
+				// Register connector and start
+				exchangeName := connector.ExchangeName("test-exchange")
+				m := setupMockSpotConnector(GinkgoT(), exchangeName)
+				connectorRegistry.RegisterSpotConnector(exchangeName, m)
+				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				assetRegistry.RegisterAsset(portfolio.NewAsset("BTC"), connector.TypeSpot)
+
+				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("should transition from Ready to Stopped", func() {
+				// Verify started
+				Expect(controller.State()).To(Equal(lifecycleTypes.StateReady))
+
+				// Stop
+				err := controller.Stop(ctx)
+				Expect(err).ToNot(HaveOccurred())
+
+				// Should be stopped
+				Expect(controller.State()).To(Equal(lifecycleTypes.StateStopped))
+				Expect(controller.IsReady()).To(BeFalse())
+			})
+
+			It("should be idempotent", func() {
+				// Stop once
+				err := controller.Stop(ctx)
+				Expect(err).ToNot(HaveOccurred())
+
+				// Stop again - should not error
+				err = controller.Stop(ctx)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+	})
+
+	Describe("WaitUntilReady", func() {
+		It("should block until controller is ready", func() {
+			// Register connector
+			exchangeName := connector.ExchangeName("test-exchange")
+			m := setupMockSpotConnector(GinkgoT(), exchangeName)
+			connectorRegistry.RegisterSpotConnector(exchangeName, m)
+			Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+			assetRegistry.RegisterAsset(portfolio.NewAsset("BTC"), connector.TypeSpot)
+
+			// Start in background
+			go func() {
+				time.Sleep(100 * time.Millisecond)
+				_ = controller.Start(ctx, strategy.StrategyName("test-strategy"))
+			}()
+
+			// Wait for ready with timeout
+			waitCtx, waitCancel := context.WithTimeout(ctx, 1*time.Second)
+			defer waitCancel()
+
+			err := controller.WaitUntilReady(waitCtx)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(controller.IsReady()).To(BeTrue())
+		})
+
+		It("should timeout if controller never becomes ready", func() {
+			// Don't start the controller
+			waitCtx, waitCancel := context.WithTimeout(ctx, 100*time.Millisecond)
+			defer waitCancel()
+
+			err := controller.WaitUntilReady(waitCtx)
+			Expect(err).To(Equal(context.DeadlineExceeded))
+		})
+	})
+
+	Describe("Start Validation", func() {
+		Context("when trying to start multiple times", func() {
+			It("should reject second start attempt", func() {
+				// Register connector and start
+				exchangeName := connector.ExchangeName("test-exchange")
+				m := setupMockSpotConnector(GinkgoT(), exchangeName)
+				connectorRegistry.RegisterSpotConnector(exchangeName, m)
+				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				assetRegistry.RegisterAsset(portfolio.NewAsset("BTC"), connector.TypeSpot)
+
+				// First start
+				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))
+				Expect(err).ToNot(HaveOccurred())
+
+				// Second start should fail
+				err = controller.Start(ctx, strategy.StrategyName("test-strategy"))
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("cannot start"))
+			})
+		})
+	})
+})

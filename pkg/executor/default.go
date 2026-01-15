@@ -130,8 +130,15 @@ func (e *executor) executeTradeAction(signal *strategy.Signal, action strategy.T
 		action.Exchange,
 	)
 
+	executor, ok := exchange.(connector.OrderExecutor)
+
+	if !ok {
+		e.logger.Error("Exchange %s does not support order execution", action.Exchange)
+		return "", fmt.Errorf("exchange %s does not support order execution", action.Exchange)
+	}
+
 	// Place order on exchange
-	orderResponse, err := e.placeOrder(exchange, action)
+	orderResponse, err := e.placeOrder(executor, action)
 	if err != nil {
 		return "", fmt.Errorf("failed to place order: %w", err)
 	}
@@ -157,7 +164,7 @@ func (e *executor) executeTradeAction(signal *strategy.Signal, action strategy.T
 }
 
 // placeOrder places an order on the exchange
-func (e *executor) placeOrder(exchange connector.Connector, action strategy.TradeAction) (*connector.OrderResponse, error) {
+func (e *executor) placeOrder(exchange connector.OrderExecutor, action strategy.TradeAction) (*connector.OrderResponse, error) {
 	switch action.Action {
 	case strategy.ActionBuy, strategy.ActionCover:
 		return exchange.PlaceLimitOrder(action.Asset.Symbol(), connector.OrderSideBuy, action.Quantity, action.Price)

@@ -1,10 +1,10 @@
 package testing
 
 import (
-	packages "github.com/backtesting-org/kronos-sdk/pkg"
+	"github.com/backtesting-org/kronos-sdk/kronos"
 	"go.uber.org/fx"
 )
 
 var Module = fx.Options(
-	packages.Module,
+	kronos.Module,
 )

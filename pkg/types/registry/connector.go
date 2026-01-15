@@ -2,19 +2,33 @@ package registry
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/spot"
 )
 
 type ConnectorRegistry interface {
-	// Registration phase - connectors are registered but not necessarily initialized
-	GetConnector(name connector.ExchangeName) (connector.Connector, bool)
-	RegisterConnector(name connector.ExchangeName, conn connector.Connector)
-	RegisterAllConnectors(connectors []connector.Connector)
-	GetAvailableConnectors() []connector.Connector
-	GetWebSocketConnectors() []connector.WebSocketConnector
+	// Spot connector operations
+	GetSpotConnector(name connector.ExchangeName) (spot.Connector, bool)
+	RegisterSpotConnector(name connector.ExchangeName, conn spot.Connector)
+	GetSpotConnectors() []spot.Connector
+	GetReadySpotConnectors() []spot.Connector
+	GetSpotWebSocketConnectors() []spot.WebSocketConnector
+	GetReadySpotWebSocketConnectors() []spot.WebSocketConnector
 
-	// Ready phase - connectors have been initialized and are live
+	// Perpetual connector operations
+	GetPerpConnector(name connector.ExchangeName) (perp.Connector, bool)
+	RegisterPerpConnector(name connector.ExchangeName, conn perp.Connector)
+	GetPerpConnectors() []perp.Connector
+	GetReadyPerpConnectors() []perp.Connector
+	GetPerpWebSocketConnectors() []perp.WebSocketConnector
+	GetReadyPerpWebSocketConnectors() []perp.WebSocketConnector
+
+	// Generic access (returns base interface)
+	GetConnector(name connector.ExchangeName) (connector.Connector, bool)
+	GetAllBaseConnectors() []connector.Connector
+	GetAllReadyConnectors() []connector.Connector
+
+	// Ready state management (works for all connector types)
 	MarkConnectorReady(name connector.ExchangeName) error
 	IsConnectorReady(name connector.ExchangeName) bool
-	GetReadyConnectors() []connector.Connector
-	GetReadyWebSocketConnectors() []connector.WebSocketConnector
 }

@@ -3,7 +3,6 @@ package lifecycle_test
 import (
 	"context"
 	"errors"
-	"testing"
 	"time"
 
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
@@ -20,11 +19,6 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/stretchr/testify/mock"
 )
-
-func TestOrchestrator(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Orchestrator Suite")
-}
 
 var _ = Describe("Orchestrator", func() {
 	var (

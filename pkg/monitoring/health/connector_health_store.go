@@ -36,7 +36,7 @@ func NewConnectorHealthStore(
 		stopChan:          make(chan struct{}),
 	}
 
-	connectors := connectorRegistry.GetReadyWebSocketConnectors()
+	connectors := connectorRegistry.GetAllReadyConnectors()
 
 	for _, socketConnector := range connectors {
 		name := socketConnector.GetConnectorInfo().Name
@@ -47,15 +47,20 @@ func NewConnectorHealthStore(
 
 	// Start listening to error channels from all connectors
 	for _, socketConnector := range connectors {
-		go errorStore.listenToConnectorErrors(socketConnector)
+		name := socketConnector.GetConnectorInfo().Name
+		socketConnector, ok := socketConnector.(connector.WebSocketCapable)
+		if !ok {
+			continue
+		}
+
+		go errorStore.listenToConnectorErrors(name, socketConnector)
 	}
 
 	return errorStore
 }
 
 // listenToConnectorErrors reads from a connector's error channel and records errors
-func (c *connectorHealthStore) listenToConnectorErrors(socketConnector connector.WebSocketConnector) {
-	name := socketConnector.GetConnectorInfo().Name
+func (c *connectorHealthStore) listenToConnectorErrors(name connector.ExchangeName, socketConnector connector.WebSocketCapable) {
 	errChan := socketConnector.ErrorChannel()
 
 	for {

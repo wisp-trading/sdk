@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/spot"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 )
 
@@ -27,6 +29,184 @@ func NewConnectorRegistry() registry.ConnectorRegistry {
 	}
 }
 
+// ===== Spot Connector Methods =====
+
+func (cr *connectorRegistry) GetSpotConnector(name connector.ExchangeName) (spot.Connector, bool) {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	state, exists := cr.connectors[name]
+	if !exists {
+		return nil, false
+	}
+
+	if spotConn, ok := state.connector.(spot.Connector); ok {
+		return spotConn, true
+	}
+
+	return nil, false
+}
+
+func (cr *connectorRegistry) RegisterSpotConnector(name connector.ExchangeName, conn spot.Connector) {
+	cr.mu.Lock()
+	defer cr.mu.Unlock()
+
+	cr.connectors[name] = &connectorState{
+		connector: conn,
+		ready:     false,
+	}
+}
+
+func (cr *connectorRegistry) GetSpotConnectors() []spot.Connector {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	var spotConnectors []spot.Connector
+	for _, state := range cr.connectors {
+		if spotConn, ok := state.connector.(spot.Connector); ok {
+			spotConnectors = append(spotConnectors, spotConn)
+		}
+	}
+
+	return spotConnectors
+}
+
+func (cr *connectorRegistry) GetReadySpotConnectors() []spot.Connector {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	var spotConnectors []spot.Connector
+	for _, state := range cr.connectors {
+		if state.ready {
+			if spotConn, ok := state.connector.(spot.Connector); ok {
+				spotConnectors = append(spotConnectors, spotConn)
+			}
+		}
+	}
+
+	return spotConnectors
+}
+
+func (cr *connectorRegistry) GetSpotWebSocketConnectors() []spot.WebSocketConnector {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	var wsConnectors []spot.WebSocketConnector
+	for _, state := range cr.connectors {
+		if wsConn, ok := state.connector.(spot.WebSocketConnector); ok {
+			wsConnectors = append(wsConnectors, wsConn)
+		}
+	}
+
+	return wsConnectors
+}
+
+func (cr *connectorRegistry) GetReadySpotWebSocketConnectors() []spot.WebSocketConnector {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	var wsConnectors []spot.WebSocketConnector
+	for _, state := range cr.connectors {
+		if state.ready {
+			if wsConn, ok := state.connector.(spot.WebSocketConnector); ok {
+				wsConnectors = append(wsConnectors, wsConn)
+			}
+		}
+	}
+
+	return wsConnectors
+}
+
+// ===== Perpetual Connector Methods =====
+
+func (cr *connectorRegistry) GetPerpConnector(name connector.ExchangeName) (perp.Connector, bool) {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	state, exists := cr.connectors[name]
+	if !exists {
+		return nil, false
+	}
+
+	if perpConn, ok := state.connector.(perp.Connector); ok {
+		return perpConn, true
+	}
+
+	return nil, false
+}
+
+func (cr *connectorRegistry) RegisterPerpConnector(name connector.ExchangeName, conn perp.Connector) {
+	cr.mu.Lock()
+	defer cr.mu.Unlock()
+
+	cr.connectors[name] = &connectorState{
+		connector: conn,
+		ready:     false,
+	}
+}
+
+func (cr *connectorRegistry) GetPerpConnectors() []perp.Connector {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	var perpConnectors []perp.Connector
+	for _, state := range cr.connectors {
+		if perpConn, ok := state.connector.(perp.Connector); ok {
+			perpConnectors = append(perpConnectors, perpConn)
+		}
+	}
+
+	return perpConnectors
+}
+
+func (cr *connectorRegistry) GetReadyPerpConnectors() []perp.Connector {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	var perpConnectors []perp.Connector
+	for _, state := range cr.connectors {
+		if state.ready {
+			if perpConn, ok := state.connector.(perp.Connector); ok {
+				perpConnectors = append(perpConnectors, perpConn)
+			}
+		}
+	}
+
+	return perpConnectors
+}
+
+func (cr *connectorRegistry) GetPerpWebSocketConnectors() []perp.WebSocketConnector {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	var wsConnectors []perp.WebSocketConnector
+	for _, state := range cr.connectors {
+		if wsConn, ok := state.connector.(perp.WebSocketConnector); ok {
+			wsConnectors = append(wsConnectors, wsConn)
+		}
+	}
+
+	return wsConnectors
+}
+
+func (cr *connectorRegistry) GetReadyPerpWebSocketConnectors() []perp.WebSocketConnector {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	var wsConnectors []perp.WebSocketConnector
+	for _, state := range cr.connectors {
+		if state.ready {
+			if wsConn, ok := state.connector.(perp.WebSocketConnector); ok {
+				wsConnectors = append(wsConnectors, wsConn)
+			}
+		}
+	}
+
+	return wsConnectors
+}
+
+// ===== Generic Base Connector Methods =====
+
 func (cr *connectorRegistry) GetConnector(name connector.ExchangeName) (connector.Connector, bool) {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
@@ -35,59 +215,56 @@ func (cr *connectorRegistry) GetConnector(name connector.ExchangeName) (connecto
 	if !exists {
 		return nil, false
 	}
-	return state.connector, true
-}
 
-func (cr *connectorRegistry) RegisterConnector(name connector.ExchangeName, conn connector.Connector) {
-	cr.mu.Lock()
-	defer cr.mu.Unlock()
-
-	cr.connectors[name] = &connectorState{
-		connector: conn,
-		ready:     false, // Not ready until explicitly marked
+	// Try spot first
+	if spotConn, ok := state.connector.(spot.Connector); ok {
+		return spotConn, true
 	}
-}
 
-func (cr *connectorRegistry) RegisterAllConnectors(connectors []connector.Connector) {
-	cr.mu.Lock()
-	defer cr.mu.Unlock()
-
-	for _, conn := range connectors {
-		name := conn.GetConnectorInfo().Name
-		cr.connectors[name] = &connectorState{
-			connector: conn,
-			ready:     false,
-		}
+	// Try perp
+	if perpConn, ok := state.connector.(perp.Connector); ok {
+		return perpConn, true
 	}
+
+	return nil, false
 }
 
-func (cr *connectorRegistry) GetAvailableConnectors() []connector.Connector {
+func (cr *connectorRegistry) GetAllBaseConnectors() []connector.Connector {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 
-	connectors := make([]connector.Connector, 0, len(cr.connectors))
+	var baseConnectors []connector.Connector
 	for _, state := range cr.connectors {
-		connectors = append(connectors, state.connector)
-	}
-
-	return connectors
-}
-
-func (cr *connectorRegistry) GetWebSocketConnectors() []connector.WebSocketConnector {
-	cr.mu.RLock()
-	defer cr.mu.RUnlock()
-
-	var wsConnectors []connector.WebSocketConnector
-	for _, state := range cr.connectors {
-		if wsConn, ok := state.connector.(connector.WebSocketConnector); ok {
-			wsConnectors = append(wsConnectors, wsConn)
+		if spotConn, ok := state.connector.(spot.Connector); ok {
+			baseConnectors = append(baseConnectors, spotConn)
+		} else if perpConn, ok := state.connector.(perp.Connector); ok {
+			baseConnectors = append(baseConnectors, perpConn)
 		}
 	}
 
-	return wsConnectors
+	return baseConnectors
 }
 
-// MarkConnectorReady marks a connector as ready for use
+func (cr *connectorRegistry) GetAllReadyConnectors() []connector.Connector {
+	var readyConnectors []connector.Connector
+
+	// Convert perp connectors to Connector
+	perpConnectors := cr.GetReadyPerpConnectors()
+	for _, conn := range perpConnectors {
+		readyConnectors = append(readyConnectors, conn)
+	}
+
+	// Convert spot connectors to Connector
+	spotConnectors := cr.GetReadySpotConnectors()
+	for _, conn := range spotConnectors {
+		readyConnectors = append(readyConnectors, conn)
+	}
+
+	return readyConnectors
+}
+
+// ===== Ready State Management =====
+
 func (cr *connectorRegistry) MarkConnectorReady(name connector.ExchangeName) error {
 	cr.mu.Lock()
 	defer cr.mu.Unlock()
@@ -102,43 +279,10 @@ func (cr *connectorRegistry) MarkConnectorReady(name connector.ExchangeName) err
 	return nil
 }
 
-// IsConnectorReady returns true if the connector is marked as ready
 func (cr *connectorRegistry) IsConnectorReady(name connector.ExchangeName) bool {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 
 	state, exists := cr.connectors[name]
 	return exists && state.ready
-}
-
-// GetReadyConnectors returns all connectors that are marked as ready (initialized)
-func (cr *connectorRegistry) GetReadyConnectors() []connector.Connector {
-	cr.mu.RLock()
-	defer cr.mu.RUnlock()
-
-	connectors := make([]connector.Connector, 0)
-	for _, state := range cr.connectors {
-		if state.ready {
-			connectors = append(connectors, state.connector)
-		}
-	}
-
-	return connectors
-}
-
-// GetReadyWebSocketConnectors returns ready connectors that support WebSocket
-func (cr *connectorRegistry) GetReadyWebSocketConnectors() []connector.WebSocketConnector {
-	cr.mu.RLock()
-	defer cr.mu.RUnlock()
-
-	var wsConnectors []connector.WebSocketConnector
-	for _, state := range cr.connectors {
-		if state.ready {
-			if wsConn, ok := state.connector.(connector.WebSocketConnector); ok {
-				wsConnectors = append(wsConnectors, wsConn)
-			}
-		}
-	}
-
-	return wsConnectors
 }

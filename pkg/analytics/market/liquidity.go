@@ -8,7 +8,6 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 )
 
 // DefaultLiquidityOptions returns sensible defaults
@@ -20,9 +19,10 @@ func DefaultLiquidityOptions() analytics.LiquidityOptions {
 	}
 }
 
-// GetTradableQuantity calculates the maximum tradable quantity based on order book liquidity
+// getTradableQuantity calculates the maximum tradable quantity based on order book liquidity
 // Returns the quantity in base currency that can be safely traded
-func (s *marketService) GetTradableQuantity(ctx context.Context, asset portfolio.Asset, opts ...analytics.LiquidityOptions) numerical.Decimal {
+// This is a shared helper used by both spot and perp market services
+func getTradableQuantity(ctx context.Context, orderBook *connector.OrderBook, opts analytics.LiquidityOptions) numerical.Decimal {
 	start := time.Now()
 	defer func() {
 		if profCtx := profiling.FromContext(ctx); profCtx != nil {
@@ -30,25 +30,18 @@ func (s *marketService) GetTradableQuantity(ctx context.Context, asset portfolio
 		}
 	}()
 
-	options := DefaultLiquidityOptions()
-	if len(opts) > 0 {
-		options = opts[0]
-	}
-
-	// Get order book
-	orderBook, err := s.OrderBook(ctx, asset)
-	if err != nil || orderBook == nil {
+	if orderBook == nil {
 		return numerical.Zero()
 	}
 
 	// Check if we have sufficient depth
-	if len(orderBook.Bids) < options.MinLiquidityLevels || len(orderBook.Asks) < options.MinLiquidityLevels {
+	if len(orderBook.Bids) < opts.MinLiquidityLevels || len(orderBook.Asks) < opts.MinLiquidityLevels {
 		return numerical.Zero()
 	}
 
 	// Calculate available liquidity on both sides
-	bidLiquidity := calculateSideLiquidity(orderBook.Bids, options.MinLiquidityLevels)
-	askLiquidity := calculateSideLiquidity(orderBook.Asks, options.MinLiquidityLevels)
+	bidLiquidity := calculateSideLiquidity(orderBook.Bids, opts.MinLiquidityLevels)
+	askLiquidity := calculateSideLiquidity(orderBook.Asks, opts.MinLiquidityLevels)
 
 	// Use the smaller of the two (bottleneck)
 	availableLiquidity := bidLiquidity
@@ -57,13 +50,13 @@ func (s *marketService) GetTradableQuantity(ctx context.Context, asset portfolio
 	}
 
 	// Apply liquidity depth percentage (only use a fraction of available liquidity)
-	usableLiquidity := availableLiquidity.Mul(options.LiquidityDepthPct)
+	usableLiquidity := availableLiquidity.Mul(opts.LiquidityDepthPct)
 
 	// Get mid price for USD conversion
 	midPrice := orderBook.Bids[0].Price.Add(orderBook.Asks[0].Price).Div(numerical.NewFromInt(2))
 
 	// Calculate max quantity in base currency based on USD limit
-	maxQuantityUSD := options.MaxOrderSizeUSD.Div(midPrice)
+	maxQuantityUSD := opts.MaxOrderSizeUSD.Div(midPrice)
 
 	// Return the smaller of usable liquidity or max order size
 	if usableLiquidity.LessThan(maxQuantityUSD) {

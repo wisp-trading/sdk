@@ -2,7 +2,6 @@ package kronos
 
 import (
 	"github.com/backtesting-org/kronos-sdk/pkg/inference/features"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
 	kronosTypes "github.com/backtesting-org/kronos-sdk/pkg/types/kronos"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
@@ -14,21 +13,19 @@ import (
 // Kronos is the base context object for strategy GetSignals methods.
 // It provides read-only access to market data, indicators, and analytics.
 type kronos struct {
-	store            market.MarketData
-	tradingLogger    logging.TradingLogger
-	universeProvider UniverseProvider
-	indicators       analytics.Indicators
-	analytics        analytics.Analytics
-	market           analytics.Market
-	signal           strategy.SignalFactory
+	tradingLogger     logging.TradingLogger
+	universeProvider  UniverseProvider
+	indicators        analytics.Indicators
+	analytics         analytics.Analytics
+	market            analytics.Market
+	signal            strategy.SignalFactory
 	featureAggregator features.FeatureAggregator
-	activity         activity.Activity
+	activity          activity.Activity
 }
 
 // NewKronos creates a new Kronos context with injected services.
 // This is injected via fx DI into strategies.
 func NewKronos(
-	store market.MarketData,
 	tradingLogger logging.TradingLogger,
 	universeProvider UniverseProvider,
 	indicators analytics.Indicators,
@@ -39,15 +36,14 @@ func NewKronos(
 	activityService activity.Activity,
 ) kronosTypes.Kronos {
 	return &kronos{
-		store:            store,
-		tradingLogger:    tradingLogger,
-		universeProvider: universeProvider,
-		indicators:       indicators,
-		market:           marketService,
-		analytics:        analyticsService,
-		signal:           signal,
+		tradingLogger:     tradingLogger,
+		universeProvider:  universeProvider,
+		indicators:        indicators,
+		market:            marketService,
+		analytics:         analyticsService,
+		signal:            signal,
 		featureAggregator: featureAggregator,
-		activity:         activityService,
+		activity:          activityService,
 	}
 }
 
@@ -71,12 +67,6 @@ func (k *kronos) Activity() activity.Activity {
 // Usage: k.Log().Opportunity("MyStrategy", "BTC", "Found signal")
 func (k *kronos) Log() logging.TradingLogger {
 	return k.tradingLogger
-}
-
-// Store returns the underlying store for advanced use cases.
-// Most users should use the service methods instead.
-func (k *kronos) Store() market.MarketData {
-	return k.store
 }
 
 // Asset creates a new portfolio.Asset from a symbol string.

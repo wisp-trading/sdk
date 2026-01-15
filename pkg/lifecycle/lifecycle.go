@@ -215,7 +215,7 @@ func (c *controller) IsReady() bool {
 // Applications must initialize and mark connectors ready BEFORE calling Start().
 // This method does not wait - it only verifies the precondition.
 func (c *controller) validateConnectorsReady() error {
-	readyConnectors := c.connectorRegistry.GetReadyConnectors()
+	readyConnectors := c.connectorRegistry.GetAllReadyConnectors()
 	if len(readyConnectors) == 0 {
 		return fmt.Errorf("no connectors marked as ready - initialize and mark connectors ready before calling Start()")
 	}
