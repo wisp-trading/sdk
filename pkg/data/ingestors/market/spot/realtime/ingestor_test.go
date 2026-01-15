@@ -5,11 +5,13 @@ import (
 	"time"
 
 	mockSpotConnector "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/connector/spot"
+	spotRealtime "github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/market/spot/realtime"
 	sdkTesting "github.com/backtesting-org/kronos-sdk/pkg/testing"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/realtime"
 	spotTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/spot"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	registryTypes "github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	. "github.com/onsi/ginkgo/v2"
@@ -34,6 +36,7 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 		connectorRegistry registryTypes.ConnectorRegistry
 		assetRegistry     registryTypes.AssetRegistry
 		factory           realtime.RealtimeIngestorFactory
+		logger            logging.ApplicationLogger
 		ctx               context.Context
 		cancel            context.CancelFunc
 	)
@@ -45,11 +48,15 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 				fx.Annotate(&store, fx.ParamTags(`name:"spot_market_store"`)),
 				&connectorRegistry,
 				&assetRegistry,
-				fx.Annotate(&factory, fx.ParamTags(`name:"spot_realtime_factory"`)),
+				&logger,
 			),
 			fx.NopLogger,
 		)
 		Expect(app.Start(context.Background())).To(Succeed())
+
+		// Create factory manually since it's now in a group, not available by name
+		factory = spotRealtime.NewFactory(connectorRegistry, assetRegistry, store, logger)
+
 		ctx, cancel = context.WithCancel(context.Background())
 	})
 

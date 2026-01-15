@@ -10,8 +10,10 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	spotTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/spot"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	registryTypes "github.com/backtesting-org/kronos-sdk/pkg/types/registry"
+	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/mock"
@@ -33,7 +35,9 @@ var _ = Describe("Spot BatchIngestor", func() {
 		store             spotTypes.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
 		assetRegistry     registryTypes.AssetRegistry
-		factory           spotBatch.Factory
+		factory           *spotBatch.Factory
+		timeProvider      temporal.TimeProvider
+		logger            logging.ApplicationLogger
 	)
 
 	BeforeEach(func() {
@@ -43,11 +47,14 @@ var _ = Describe("Spot BatchIngestor", func() {
 				fx.Annotate(&store, fx.ParamTags(`name:"spot_market_store"`)),
 				&connectorRegistry,
 				&assetRegistry,
-				fx.Annotate(&factory, fx.ParamTags(`name:"spot_batch_factory"`)),
+				&timeProvider,
+				&logger,
 			),
 			fx.NopLogger,
 		)
 		Expect(app.Start(context.Background())).To(Succeed())
+
+		factory = spotBatch.NewFactory(connectorRegistry, assetRegistry, store, timeProvider, logger)
 	})
 
 	AfterEach(func() {

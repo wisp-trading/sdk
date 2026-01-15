@@ -22,6 +22,12 @@ func setupMockSpotConnector(t GinkgoTInterface, name connector.ExchangeName) *mo
 	m.EXPECT().GetConnectorInfo().Return(&connector.Info{
 		Name: name,
 	}).Maybe()
+
+	// Add expectations for batch ingestor calls (they will be called when data collection starts)
+	m.EXPECT().FetchOrderBook(mock.Anything, mock.Anything).Return(&connector.OrderBook{}, nil).Maybe()
+	m.EXPECT().FetchKlines(mock.Anything, mock.Anything, mock.Anything).Return([]connector.Kline{}, nil).Maybe()
+	m.EXPECT().FetchPrice(mock.Anything).Return(&connector.Price{}, nil).Maybe()
+
 	return m
 }
 
