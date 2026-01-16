@@ -16,9 +16,10 @@ type Configuration interface {
 
 // Settings represents the main settings structure
 type Settings struct {
-	Version    string         `mapstructure:"version"`
-	Backtest   BacktestConfig `mapstructure:"backtest"`
-	Connectors []Connector    `mapstructure:"connectors"`
+	Version    string          `mapstructure:"version"`
+	Execution  ExecutionConfig `mapstructure:"execution"`
+	Backtest   BacktestConfig  `mapstructure:"backtest"`
+	Connectors []Connector     `mapstructure:"connectors"`
 }
 
 type Connector struct {
@@ -46,8 +47,32 @@ type TimeframeConfig struct {
 	End   string `mapstructure:"end"`
 }
 
-// ExecutionConfig defines execution parameters
+// ExecutionConfig defines strategy execution parameters
 type ExecutionConfig struct {
+	// Interval defines a fixed execution interval (e.g., "5m", "1h")
+	// If set, strategies run on this schedule rather than data-driven
+	Interval string `mapstructure:"interval"`
+
+	// DataDriven configures data-driven execution mode
+	DataDriven DataDrivenConfig `mapstructure:"data_driven"`
+}
+
+// DataDrivenConfig defines data-driven execution parameters
+type DataDrivenConfig struct {
+	// Enabled enables data-driven execution (react to market data updates)
+	Enabled bool `mapstructure:"enabled"`
+
+	// UpdatesThreshold is the number of data updates before triggering execution
+	// Default: 5
+	UpdatesThreshold int `mapstructure:"updates_threshold"`
+
+	// FallbackInterval is how often to execute if no data updates received
+	// Default: "5s"
+	FallbackInterval string `mapstructure:"fallback_interval"`
+
+	// MinInterval is the minimum time between executions
+	// Default: "100ms"
+	MinInterval string `mapstructure:"min_interval"`
 }
 
 // OutputConfig defines output settings

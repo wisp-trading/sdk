@@ -3,7 +3,6 @@ package lifecycle
 import (
 	"context"
 	"sync"
-	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
@@ -37,6 +36,18 @@ type orchestrator struct {
 	mutexMapLock    sync.RWMutex
 }
 
+// OrchestratorParams holds the dependencies for creating an orchestrator
+type OrchestratorParams struct {
+	Executor         execution.Executor
+	StrategyRegistry registry.StrategyRegistry
+	Logger           logging.ApplicationLogger
+	TimeProvider     temporal.TimeProvider
+	Notifier         ingestors.DataUpdateNotifier
+	ProfilingStore   profileTypes.ProfilingStore  // Optional: can be nil
+	AnomalyDetector  profileTypes.AnomalyDetector // Optional: can be nil
+	TickTimerConfig  *TickTimerConfig             // Optional: uses defaults if nil
+}
+
 // NewOrchestrator creates a new strategy orchestrator
 func NewOrchestrator(
 	executor execution.Executor,
@@ -44,26 +55,43 @@ func NewOrchestrator(
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 	notifier ingestors.DataUpdateNotifier,
-	profilingStore profileTypes.ProfilingStore, // Optional: can be nil
+	profilingStore profileTypes.ProfilingStore,   // Optional: can be nil
 	anomalyDetector profileTypes.AnomalyDetector, // Optional: can be nil
 ) lifecycleTypes.Orchestrator {
-	tickTimer := NewTickTimer(
-		5,                    // Execute after 5 data updates
-		5*time.Second,        // Fallback every 5 seconds
-		100*time.Millisecond, // Minimum 100ms between executions
-		timeProvider,
-	)
+	return NewOrchestratorWithConfig(OrchestratorParams{
+		Executor:         executor,
+		StrategyRegistry: strategyRegistry,
+		Logger:           logger,
+		TimeProvider:     timeProvider,
+		Notifier:         notifier,
+		ProfilingStore:   profilingStore,
+		AnomalyDetector:  anomalyDetector,
+		TickTimerConfig:  nil, // Use defaults
+	})
+}
+
+// NewOrchestratorWithConfig creates a new strategy orchestrator with custom configuration
+func NewOrchestratorWithConfig(params OrchestratorParams) lifecycleTypes.Orchestrator {
+	// Use provided config or defaults
+	var tickTimerConfig TickTimerConfig
+	if params.TickTimerConfig != nil {
+		tickTimerConfig = *params.TickTimerConfig
+	} else {
+		tickTimerConfig = DefaultTickTimerConfig()
+	}
+
+	tickTimer := NewTickTimerWithConfig(tickTimerConfig, params.TimeProvider)
 
 	orch := &orchestrator{
-		executor:         executor,
-		strategyRegistry: strategyRegistry,
-		logger:           logger,
-		timeProvider:     timeProvider,
+		executor:         params.Executor,
+		strategyRegistry: params.StrategyRegistry,
+		logger:           params.Logger,
+		timeProvider:     params.TimeProvider,
 		tickTimer:        tickTimer,
 		strategyMutexes:  make(map[strategy.StrategyName]*sync.Mutex),
-		notifier:         notifier,
-		profilingStore:   profilingStore,
-		anomalyDetector:  anomalyDetector,
+		notifier:         params.Notifier,
+		profilingStore:   params.ProfilingStore,
+		anomalyDetector:  params.AnomalyDetector,
 	}
 
 	return orch
@@ -213,7 +241,7 @@ func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
 			strat.GetName(),
 		)
 	}
-
+	
 	startTime := o.timeProvider.Now()
 	signals, err := strat.GetSignals(ctx)
 	duration := o.timeProvider.Since(startTime)
