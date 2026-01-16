@@ -3,67 +3,88 @@ package activity_test
 import (
 	"context"
 
-	mockStoreActivity "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
-	"github.com/backtesting-org/kronos-sdk/pkg/activity"
+	sdkTesting "github.com/backtesting-org/kronos-sdk/pkg/testing"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	storeActivity "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
 	kronosActivity "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"go.uber.org/fx"
+	"go.uber.org/fx/fxtest"
 )
 
 var _ = Describe("Positions", func() {
 	var (
-		mockStore *mockStoreActivity.Positions
+		app       *fxtest.App
 		positions kronosActivity.Positions
+		store     storeActivity.Positions
 	)
 
 	BeforeEach(func() {
-		mockStore = mockStoreActivity.NewPositions(GinkgoT())
-		positions = activity.NewPositions(mockStore)
+		app = fxtest.New(GinkgoT(),
+			sdkTesting.Module,
+			fx.Populate(
+				&positions,
+				&store,
+			),
+			fx.NopLogger,
+		)
+
+		app.RequireStart()
+	})
+
+	AfterEach(func() {
+		app.RequireStop()
 	})
 
 	Describe("GetStrategyExecution", func() {
-		It("should delegate to underlying store", func() {
-			ctx := context.Background()
-
+		It("should return execution for strategy in context", func() {
 			strategyName := strategy.StrategyName("test-strategy")
+			ctx := strategy.NewStrategyContext(context.Background(), strategyName)
+
+			// Populate store with test data
 			expectedExecution := &strategy.StrategyExecution{
 				Orders: []connector.Order{{ID: "order-1"}},
 				Trades: []connector.Trade{{ID: "trade-1"}},
 			}
+			store.StoreStrategyExecution(strategyName, expectedExecution)
 
-			mockStore.EXPECT().GetStrategyExecution(strategyName).Return(expectedExecution)
-
-			result := positions.GetStrategyExecution(ctx, strategyName)
+			result := positions.GetStrategyExecution(ctx)
 
 			Expect(result).To(Equal(expectedExecution))
 		})
 
+		It("should return nil when no strategy in context", func() {
+			ctx := strategy.NewStrategyContext(context.Background(), "")
+
+			result := positions.GetStrategyExecution(ctx)
+
+			Expect(result).To(BeNil())
+		})
+
 		It("should return nil for unknown strategy", func() {
-			ctx := context.Background()
-
 			strategyName := strategy.StrategyName("unknown")
+			ctx := strategy.NewStrategyContext(context.Background(), strategyName)
 
-			mockStore.EXPECT().GetStrategyExecution(strategyName).Return(nil)
-
-			result := positions.GetStrategyExecution(ctx, strategyName)
+			result := positions.GetStrategyExecution(ctx)
 
 			Expect(result).To(BeNil())
 		})
 	})
 
 	Describe("GetAllStrategyExecutions", func() {
-		It("should return all executions from underlying store", func() {
-			ctx := context.Background()
+		It("should return all executions from store", func() {
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
-			expectedExecutions := map[strategy.StrategyName]*strategy.StrategyExecution{
-				"strategy-1": {Orders: []connector.Order{{ID: "order-1"}}},
-				"strategy-2": {Orders: []connector.Order{{ID: "order-2"}}},
-			}
-
-			mockStore.EXPECT().GetAllStrategyExecutions().Return(expectedExecutions)
+			// Populate store with multiple strategies
+			store.StoreStrategyExecution("strategy-1", &strategy.StrategyExecution{
+				Orders: []connector.Order{{ID: "order-1"}},
+			})
+			store.StoreStrategyExecution("strategy-2", &strategy.StrategyExecution{
+				Orders: []connector.Order{{ID: "order-2"}},
+			})
 
 			result := positions.GetAllStrategyExecutions(ctx)
 
@@ -73,9 +94,7 @@ var _ = Describe("Positions", func() {
 		})
 
 		It("should return empty map when no executions exist", func() {
-			ctx := context.Background()
-
-			mockStore.EXPECT().GetAllStrategyExecutions().Return(map[strategy.StrategyName]*strategy.StrategyExecution{})
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
 			result := positions.GetAllStrategyExecutions(ctx)
 
@@ -85,47 +104,43 @@ var _ = Describe("Positions", func() {
 
 	Describe("GetStrategyForOrder", func() {
 		It("should find strategy for existing order", func() {
-			ctx := context.Background()
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
-			orderID := "order-123"
-			expectedStrategy := strategy.StrategyName("test-strategy")
+			strategyName := strategy.StrategyName("test-strategy")
+			order := connector.Order{ID: "order-123"}
+			store.AddOrderToStrategy(strategyName, order)
 
-			mockStore.EXPECT().GetStrategyForOrder(orderID).Return(expectedStrategy, true)
-
-			name, found := positions.GetStrategyForOrder(ctx, orderID)
+			name, found := positions.GetStrategyForOrder(ctx, "order-123")
 
 			Expect(found).To(BeTrue())
-			Expect(name).To(Equal(expectedStrategy))
+			Expect(name).To(Equal(strategyName))
 		})
 
 		It("should return false for unknown order", func() {
-			ctx := context.Background()
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
-			orderID := "unknown-order"
-
-			mockStore.EXPECT().GetStrategyForOrder(orderID).Return(strategy.StrategyName(""), false)
-
-			_, found := positions.GetStrategyForOrder(ctx, orderID)
+			_, found := positions.GetStrategyForOrder(ctx, "unknown-order")
 
 			Expect(found).To(BeFalse())
 		})
 	})
 
 	Describe("GetTotalOrderCount", func() {
-		It("should return count from underlying store", func() {
-			ctx := context.Background()
+		It("should return count from store", func() {
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
-			mockStore.EXPECT().GetTotalOrderCount().Return(int64(42))
+			// Add orders to multiple strategies
+			store.AddOrderToStrategy("strategy-1", connector.Order{ID: "order-1"})
+			store.AddOrderToStrategy("strategy-1", connector.Order{ID: "order-2"})
+			store.AddOrderToStrategy("strategy-2", connector.Order{ID: "order-3"})
 
 			result := positions.GetTotalOrderCount(ctx)
 
-			Expect(result).To(Equal(int64(42)))
+			Expect(result).To(Equal(int64(3)))
 		})
 
 		It("should return zero when no orders exist", func() {
-			ctx := context.Background()
-
-			mockStore.EXPECT().GetTotalOrderCount().Return(int64(0))
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
 			result := positions.GetTotalOrderCount(ctx)
 
@@ -134,32 +149,46 @@ var _ = Describe("Positions", func() {
 	})
 
 	Describe("GetTradesForStrategy", func() {
-		It("should return trades from underlying store", func() {
-			ctx := context.Background()
-
+		It("should return trades for strategy in context", func() {
 			strategyName := strategy.StrategyName("test-strategy")
-			expectedTrades := []connector.Trade{
-				{ID: "trade-1", Price: numerical.NewFromFloat(100)},
-				{ID: "trade-2", Price: numerical.NewFromFloat(200)},
-			}
+			ctx := strategy.NewStrategyContext(context.Background(), strategyName)
 
-			mockStore.EXPECT().GetTradesForStrategy(strategyName).Return(expectedTrades)
+			// Add trades to store
+			store.AddTradeToStrategy(strategyName, connector.Trade{
+				ID:    "trade-1",
+				Price: numerical.NewFromFloat(100),
+			})
+			store.AddTradeToStrategy(strategyName, connector.Trade{
+				ID:    "trade-2",
+				Price: numerical.NewFromFloat(200),
+			})
 
-			result := positions.GetTradesForStrategy(ctx, strategyName)
+			result := positions.GetTradesForStrategy(ctx)
 
 			Expect(result).To(HaveLen(2))
 			Expect(result[0].ID).To(Equal("trade-1"))
 			Expect(result[1].ID).To(Equal("trade-2"))
 		})
 
-		It("should return empty slice when no trades exist", func() {
-			ctx := context.Background()
+		It("should return nil when no strategy in context", func() {
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
+			result := positions.GetTradesForStrategy(ctx)
+
+			Expect(len(result)).To(BeZero())
+		})
+
+		It("should return empty slice when no trades exist for strategy", func() {
 			strategyName := strategy.StrategyName("test-strategy")
+			ctx := strategy.NewStrategyContext(context.Background(), strategyName)
 
-			mockStore.EXPECT().GetTradesForStrategy(strategyName).Return([]connector.Trade{})
+			// Ensure strategy exists but with no trades
+			store.StoreStrategyExecution(strategyName, &strategy.StrategyExecution{
+				Orders: []connector.Order{},
+				Trades: []connector.Trade{},
+			})
 
-			result := positions.GetTradesForStrategy(ctx, strategyName)
+			result := positions.GetTradesForStrategy(ctx)
 
 			Expect(result).To(BeEmpty())
 		})

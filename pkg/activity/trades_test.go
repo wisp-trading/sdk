@@ -4,37 +4,49 @@ import (
 	"context"
 	"time"
 
-	mockStoreActivity "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
-	"github.com/backtesting-org/kronos-sdk/pkg/activity"
+	sdkTesting "github.com/backtesting-org/kronos-sdk/pkg/testing"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	storeActivity "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
 	kronosActivity "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"go.uber.org/fx"
+	"go.uber.org/fx/fxtest"
 )
 
 var _ = Describe("Trades", func() {
 	var (
-		mockStore *mockStoreActivity.Trades
-		trades    kronosActivity.Trades
+		app    *fxtest.App
+		trades kronosActivity.Trades
+		store  storeActivity.Trades
 	)
 
 	BeforeEach(func() {
-		mockStore = mockStoreActivity.NewTrades(GinkgoT())
-		trades = activity.NewTrades(mockStore)
+		app = fxtest.New(GinkgoT(),
+			sdkTesting.Module,
+			fx.Populate(
+				&trades,
+				&store,
+			),
+			fx.NopLogger,
+		)
+
+		app.RequireStart()
+	})
+
+	AfterEach(func() {
+		app.RequireStop()
 	})
 
 	Describe("GetAllTrades", func() {
 		It("should return all trades from underlying store", func() {
 			ctx := context.Background()
 
-			expectedTrades := []connector.Trade{
-				{ID: "trade-1", Symbol: "BTC", Price: numerical.NewFromFloat(50000)},
-				{ID: "trade-2", Symbol: "ETH", Price: numerical.NewFromFloat(3000)},
-			}
-
-			mockStore.EXPECT().GetAllTrades().Return(expectedTrades)
+			// Add trades to store
+			store.AddTrade(connector.Trade{ID: "trade-1", Symbol: "BTC", Price: numerical.NewFromFloat(50000)})
+			store.AddTrade(connector.Trade{ID: "trade-2", Symbol: "ETH", Price: numerical.NewFromFloat(3000)})
 
 			result := trades.GetAllTrades(ctx)
 
@@ -45,8 +57,6 @@ var _ = Describe("Trades", func() {
 
 		It("should return empty slice when no trades exist", func() {
 			ctx := context.Background()
-
-			mockStore.EXPECT().GetAllTrades().Return([]connector.Trade{})
 
 			result := trades.GetAllTrades(ctx)
 
@@ -59,12 +69,11 @@ var _ = Describe("Trades", func() {
 			ctx := context.Background()
 
 			exchange := connector.ExchangeName("binance")
-			expectedTrades := []connector.Trade{
-				{ID: "trade-1", Exchange: exchange, Symbol: "BTC"},
-				{ID: "trade-2", Exchange: exchange, Symbol: "ETH"},
-			}
 
-			mockStore.EXPECT().GetTradesByExchange(exchange).Return(expectedTrades)
+			// Add trades to store
+			store.AddTrade(connector.Trade{ID: "trade-1", Exchange: exchange, Symbol: "BTC"})
+			store.AddTrade(connector.Trade{ID: "trade-2", Exchange: exchange, Symbol: "ETH"})
+			store.AddTrade(connector.Trade{ID: "trade-3", Exchange: "coinbase", Symbol: "BTC"})
 
 			result := trades.GetTradesByExchange(ctx, exchange)
 
@@ -78,8 +87,6 @@ var _ = Describe("Trades", func() {
 
 			exchange := connector.ExchangeName("unknown-exchange")
 
-			mockStore.EXPECT().GetTradesByExchange(exchange).Return([]connector.Trade{})
-
 			result := trades.GetTradesByExchange(ctx, exchange)
 
 			Expect(result).To(BeEmpty())
@@ -91,12 +98,11 @@ var _ = Describe("Trades", func() {
 			ctx := context.Background()
 
 			asset := portfolio.NewAsset("BTC")
-			expectedTrades := []connector.Trade{
-				{ID: "trade-1", Symbol: "BTC", Price: numerical.NewFromFloat(50000)},
-				{ID: "trade-2", Symbol: "BTC", Price: numerical.NewFromFloat(51000)},
-			}
 
-			mockStore.EXPECT().GetTradesByAsset(asset).Return(expectedTrades)
+			// Add trades to store
+			store.AddTrade(connector.Trade{ID: "trade-1", Symbol: "BTC", Price: numerical.NewFromFloat(50000)})
+			store.AddTrade(connector.Trade{ID: "trade-2", Symbol: "BTC", Price: numerical.NewFromFloat(51000)})
+			store.AddTrade(connector.Trade{ID: "trade-3", Symbol: "ETH", Price: numerical.NewFromFloat(3000)})
 
 			result := trades.GetTradesByAsset(ctx, asset)
 
@@ -110,8 +116,6 @@ var _ = Describe("Trades", func() {
 
 			asset := portfolio.NewAsset("UNKNOWN")
 
-			mockStore.EXPECT().GetTradesByAsset(asset).Return([]connector.Trade{})
-
 			result := trades.GetTradesByAsset(ctx, asset)
 
 			Expect(result).To(BeEmpty())
@@ -123,12 +127,12 @@ var _ = Describe("Trades", func() {
 			ctx := context.Background()
 
 			since := time.Now().Add(-1 * time.Hour)
-			expectedTrades := []connector.Trade{
-				{ID: "trade-1", Timestamp: time.Now()},
-				{ID: "trade-2", Timestamp: time.Now().Add(-30 * time.Minute)},
-			}
+			now := time.Now()
 
-			mockStore.EXPECT().GetTradesSince(since).Return(expectedTrades)
+			// Add trades to store with different timestamps
+			store.AddTrade(connector.Trade{ID: "trade-1", Timestamp: now})
+			store.AddTrade(connector.Trade{ID: "trade-2", Timestamp: now.Add(-30 * time.Minute)})
+			store.AddTrade(connector.Trade{ID: "trade-3", Timestamp: now.Add(-2 * time.Hour)}) // Before 'since'
 
 			result := trades.GetTradesSince(ctx, since)
 
@@ -139,8 +143,6 @@ var _ = Describe("Trades", func() {
 			ctx := context.Background()
 
 			since := time.Now()
-
-			mockStore.EXPECT().GetTradesSince(since).Return([]connector.Trade{})
 
 			result := trades.GetTradesSince(ctx, since)
 
@@ -153,12 +155,12 @@ var _ = Describe("Trades", func() {
 			ctx := context.Background()
 
 			tradeID := "trade-123"
-			expectedTrade := &connector.Trade{
+
+			// Add trade to store
+			store.AddTrade(connector.Trade{
 				ID:    tradeID,
 				Price: numerical.NewFromFloat(50000),
-			}
-
-			mockStore.EXPECT().GetTradeByID(tradeID).Return(expectedTrade)
+			})
 
 			result := trades.GetTradeByID(ctx, tradeID)
 
@@ -168,8 +170,6 @@ var _ = Describe("Trades", func() {
 
 		It("should return nil for unknown ID", func() {
 			ctx := context.Background()
-
-			mockStore.EXPECT().GetTradeByID("unknown").Return(nil)
 
 			result := trades.GetTradeByID(ctx, "unknown")
 
@@ -181,17 +181,18 @@ var _ = Describe("Trades", func() {
 		It("should return count from underlying store", func() {
 			ctx := context.Background()
 
-			mockStore.EXPECT().GetTradeCount().Return(100)
+			// Add trades to store
+			store.AddTrade(connector.Trade{ID: "trade-1"})
+			store.AddTrade(connector.Trade{ID: "trade-2"})
+			store.AddTrade(connector.Trade{ID: "trade-3"})
 
 			result := trades.GetTradeCount(ctx)
 
-			Expect(result).To(Equal(100))
+			Expect(result).To(Equal(3))
 		})
 
 		It("should return zero when no trades exist", func() {
 			ctx := context.Background()
-
-			mockStore.EXPECT().GetTradeCount().Return(0)
 
 			result := trades.GetTradeCount(ctx)
 
@@ -204,22 +205,33 @@ var _ = Describe("Trades", func() {
 			ctx := context.Background()
 
 			asset := portfolio.NewAsset("BTC")
-			expectedVolume := numerical.NewFromFloat(10.5)
 
-			mockStore.EXPECT().GetTotalVolume(asset).Return(expectedVolume)
+			// Add trades with quantities
+			store.AddTrade(connector.Trade{
+				Symbol:   "BTC",
+				Quantity: numerical.NewFromFloat(5.5),
+				ID:       "trade-1",
+			})
+			store.AddTrade(connector.Trade{
+				Symbol:   "BTC",
+				Quantity: numerical.NewFromFloat(3.0),
+				ID:       "trade-2",
+			})
+			store.AddTrade(connector.Trade{
+				Symbol:   "BTC",
+				Quantity: numerical.NewFromFloat(2.0),
+				ID:       "trade-3",
+			})
 
 			result := trades.GetTotalVolume(ctx, asset)
 
-			Expect(result.Equal(expectedVolume)).To(BeTrue())
+			Expect(result.Equal(numerical.NewFromFloat(10.5))).To(BeTrue())
 		})
 
 		It("should return zero volume when no trades for asset", func() {
 			ctx := context.Background()
 
 			asset := portfolio.NewAsset("UNKNOWN")
-			zeroVolume := numerical.Zero()
-
-			mockStore.EXPECT().GetTotalVolume(asset).Return(zeroVolume)
 
 			result := trades.GetTotalVolume(ctx, asset)
 

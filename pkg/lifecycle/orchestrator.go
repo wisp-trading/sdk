@@ -10,7 +10,7 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/execution"
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	profiling2 "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
+	profileTypes "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
@@ -22,8 +22,8 @@ type orchestrator struct {
 	logger           logging.ApplicationLogger
 	timeProvider     temporal.TimeProvider
 	notifier         ingestors.DataUpdateNotifier
-	profilingStore   profiling2.ProfilingStore  // Optional profiling
-	anomalyDetector  profiling2.AnomalyDetector // Optional anomaly detection
+	profilingStore   profileTypes.ProfilingStore  // Optional profiling
+	anomalyDetector  profileTypes.AnomalyDetector // Optional anomaly detection
 
 	// Execution control
 	ctx    context.Context
@@ -44,8 +44,8 @@ func NewOrchestrator(
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 	notifier ingestors.DataUpdateNotifier,
-	profilingStore profiling2.ProfilingStore, // Optional: can be nil
-	anomalyDetector profiling2.AnomalyDetector, // Optional: can be nil
+	profilingStore profileTypes.ProfilingStore, // Optional: can be nil
+	anomalyDetector profileTypes.AnomalyDetector, // Optional: can be nil
 ) lifecycleTypes.Orchestrator {
 	tickTimer := NewTickTimer(
 		5,                    // Execute after 5 data updates
@@ -202,13 +202,16 @@ func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
 	defer strategyMutex.Unlock()
 
 	// Create context for this strategy execution
-	ctx := context.Background()
+	ctx := strategy.NewStrategyContext(context.Background(), strat.GetName())
 
 	// Add profiling context if profiling is enabled
-	var profilingCtx profiling2.Context
+	var profilingCtx profileTypes.Context
 	if o.profilingStore != nil {
 		profilingCtx = o.profilingStore.NewContext(string(strat.GetName()))
-		ctx = profiling.WithContext(ctx, profilingCtx)
+		ctx = strategy.NewStrategyContext(
+			profiling.WithContext(ctx, profilingCtx),
+			strat.GetName(),
+		)
 	}
 
 	startTime := o.timeProvider.Now()
@@ -223,7 +226,7 @@ func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
 		// Check for performance anomalies
 		if o.anomalyDetector != nil {
 			alert := o.anomalyDetector.CheckExecution(string(strat.GetName()), duration)
-			if alert.Severity != profiling2.OK {
+			if alert.Severity != profileTypes.OK {
 				o.logger.Warn("Performance alert for %s: %s", strat.GetName(), alert.Message)
 			}
 			// Update baseline for future comparisons
