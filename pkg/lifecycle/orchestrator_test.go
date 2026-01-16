@@ -105,18 +105,23 @@ var _ = Describe("Orchestrator", func() {
 			// Setup mock strategy
 			mockStrat := mockStrategy.NewStrategy(GinkgoT())
 			mockStrat.EXPECT().GetName().Return(strategy.StrategyName("Strategy1")).Maybe()
-			mockStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]*strategy.Signal{}, nil).Maybe()
+			mockStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]*strategy.Signal{}, nil).Once()
 
 			strategyRegistry.RegisterStrategy(mockStrat)
 
 			err := orchestrator.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
 
-			// Trigger execution
-			orchestrator.NotifyDataUpdate()
+			// Wait for MinExecutionInterval to pass (100ms default)
+			time.Sleep(110 * time.Millisecond)
+
+			// Trigger execution - need to reach threshold (default 5)
+			for i := 0; i < 5; i++ {
+				orchestrator.NotifyDataUpdate()
+			}
 
 			// Allow time for async execution
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(50 * time.Millisecond)
 		})
 
 		It("should execute multiple strategies concurrently", func() {
@@ -125,9 +130,9 @@ var _ = Describe("Orchestrator", func() {
 			mockStrat2 := mockStrategy.NewStrategy(GinkgoT())
 
 			mockStrat1.EXPECT().GetName().Return(strategy.StrategyName("Strategy1")).Maybe()
-			mockStrat1.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]*strategy.Signal{}, nil).Maybe()
+			mockStrat1.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]*strategy.Signal{}, nil).Once()
 			mockStrat2.EXPECT().GetName().Return(strategy.StrategyName("Strategy2")).Maybe()
-			mockStrat2.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]*strategy.Signal{}, nil).Maybe()
+			mockStrat2.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]*strategy.Signal{}, nil).Once()
 
 			strategyRegistry.RegisterStrategy(mockStrat1)
 			strategyRegistry.RegisterStrategy(mockStrat2)
@@ -135,27 +140,39 @@ var _ = Describe("Orchestrator", func() {
 			err := orchestrator.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
 
-			orchestrator.NotifyDataUpdate()
+			// Wait for MinExecutionInterval to pass (100ms default)
+			time.Sleep(110 * time.Millisecond)
+
+			// Trigger execution - need to reach threshold (default 5)
+			for i := 0; i < 5; i++ {
+				orchestrator.NotifyDataUpdate()
+			}
 
 			// Allow time for async execution
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(50 * time.Millisecond)
 		})
 
 		It("should handle strategy returning error", func() {
 			// Setup mock strategy that returns error
 			mockStrat := mockStrategy.NewStrategy(GinkgoT())
 			mockStrat.EXPECT().GetName().Return(strategy.StrategyName("Strategy1")).Maybe()
-			mockStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return(nil, errors.New("strategy error")).Maybe()
+			mockStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return(nil, errors.New("strategy error")).Once()
 
 			strategyRegistry.RegisterStrategy(mockStrat)
 
 			err := orchestrator.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
 
-			orchestrator.NotifyDataUpdate()
+			// Wait for MinExecutionInterval to pass (100ms default)
+			time.Sleep(110 * time.Millisecond)
+
+			// Trigger execution - need to reach threshold (default 5)
+			for i := 0; i < 5; i++ {
+				orchestrator.NotifyDataUpdate()
+			}
 
 			// Should handle error gracefully
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(50 * time.Millisecond)
 		})
 
 		It("should handle no strategies registered", func() {
@@ -184,12 +201,12 @@ var _ = Describe("Orchestrator", func() {
 			err := orchestrator.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
 
-			// Trigger multiple times rapidly
-			go orchestrator.NotifyDataUpdate()
-			time.Sleep(10 * time.Millisecond)
-			go orchestrator.NotifyDataUpdate()
-			time.Sleep(10 * time.Millisecond)
-			go orchestrator.NotifyDataUpdate()
+			// Trigger multiple times rapidly to hit threshold multiple times
+			// This will queue up multiple ticks while strategy is executing
+			for i := 0; i < 15; i++ {
+				go orchestrator.NotifyDataUpdate()
+				time.Sleep(5 * time.Millisecond)
+			}
 
 			// Wait for executions to complete
 			time.Sleep(800 * time.Millisecond)
@@ -207,10 +224,10 @@ var _ = Describe("Orchestrator", func() {
 			panicStrat.EXPECT().GetName().Return(strategy.StrategyName("PanicStrategy")).Maybe()
 			panicStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).RunAndReturn(func(ctx strategy.StrategyContext) ([]*strategy.Signal, error) {
 				panic("intentional panic for testing")
-			}).Maybe()
+			}).Once()
 
 			normalStrat.EXPECT().GetName().Return(strategy.StrategyName("NormalStrategy")).Maybe()
-			normalStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]*strategy.Signal{}, nil).Maybe()
+			normalStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]*strategy.Signal{}, nil).Once()
 
 			strategyRegistry.RegisterStrategy(panicStrat)
 			strategyRegistry.RegisterStrategy(normalStrat)
@@ -218,10 +235,16 @@ var _ = Describe("Orchestrator", func() {
 			err := orchestrator.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
 
-			orchestrator.NotifyDataUpdate()
+			// Wait for MinExecutionInterval to pass (100ms default)
+			time.Sleep(110 * time.Millisecond)
+
+			// Trigger execution - need to reach threshold (default 5)
+			for i := 0; i < 5; i++ {
+				orchestrator.NotifyDataUpdate()
+			}
 
 			// Panic should be recovered
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(50 * time.Millisecond)
 		})
 	})
 

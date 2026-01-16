@@ -31,6 +31,9 @@ type orchestrator struct {
 	// Tick timer for data-driven execution
 	tickTimer *TickTimer
 
+	// Track in-flight strategy executions for graceful shutdown
+	executionWg sync.WaitGroup
+
 	// Prevent concurrent executions of same strategy
 	strategyMutexes map[strategy.StrategyName]*sync.Mutex
 	mutexMapLock    sync.RWMutex
@@ -133,7 +136,7 @@ func (o *orchestrator) Start(ctx context.Context) error {
 }
 
 // Stop gracefully stops orchestration
-func (o *orchestrator) Stop(ctx context.Context) error {
+func (o *orchestrator) Stop(_ context.Context) error {
 	if o.cancel == nil {
 		return nil
 	}
@@ -146,6 +149,9 @@ func (o *orchestrator) Stop(ctx context.Context) error {
 	// Then cancel the orchestrator's context
 	o.cancel()
 	o.cancel = nil
+
+	// Wait for all in-flight strategy executions to complete
+	o.executionWg.Wait()
 
 	o.logger.Info("✅ Strategy orchestrator stopped")
 	return nil
@@ -181,16 +187,12 @@ func (o *orchestrator) executeEnabledStrategies() {
 		return
 	}
 
-	// Execute each strategy concurrently
-	var wg sync.WaitGroup
+	// Execute each strategy concurrently without blocking
+	// Per-strategy mutex prevents same strategy running twice
+	// executionWg tracks in-flight executions for graceful shutdown
 	for _, strat := range strategies {
-		wg.Add(1)
-		go func(s strategy.Strategy) {
-			defer wg.Done()
-			o.executeStrategy(s)
-		}(strat)
+		go o.executeStrategy(strat)
 	}
-	wg.Wait()
 }
 
 // getStrategyMutex returns a mutex for the given strategy, creating one if needed
@@ -218,6 +220,10 @@ func (o *orchestrator) getStrategyMutex(strategyName strategy.StrategyName) *syn
 
 // executeStrategy runs a single strategy
 func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
+	// Track this execution for graceful shutdown
+	o.executionWg.Add(1)
+	defer o.executionWg.Done()
+
 	defer func() {
 		if r := recover(); r != nil {
 			o.logger.Error("Strategy %s panicked: %v", strat.GetName(), r)
@@ -241,7 +247,7 @@ func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
 			strat.GetName(),
 		)
 	}
-	
+
 	startTime := o.timeProvider.Now()
 	signals, err := strat.GetSignals(ctx)
 	duration := o.timeProvider.Since(startTime)
