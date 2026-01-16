@@ -11,10 +11,18 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
 )
 
+type connectorType string
+
+const (
+	connectorTypeSpot connectorType = "spot"
+	connectorTypePerp connectorType = "perp"
+)
+
 type connectorState struct {
-	connector connector.Connector
-	ready     bool
-	readyAt   time.Time
+	connector     connector.Connector
+	connectorType connectorType
+	ready         bool
+	readyAt       time.Time
 }
 
 type connectorRegistry struct {
@@ -52,8 +60,9 @@ func (cr *connectorRegistry) RegisterSpotConnector(name connector.ExchangeName, 
 	defer cr.mu.Unlock()
 
 	cr.connectors[name] = &connectorState{
-		connector: conn,
-		ready:     false,
+		connector:     conn,
+		connectorType: connectorTypeSpot,
+		ready:         false,
 	}
 }
 
@@ -63,8 +72,10 @@ func (cr *connectorRegistry) GetSpotConnectors() []spot.Connector {
 
 	var spotConnectors []spot.Connector
 	for _, state := range cr.connectors {
-		if spotConn, ok := state.connector.(spot.Connector); ok {
-			spotConnectors = append(spotConnectors, spotConn)
+		if state.connectorType == connectorTypeSpot {
+			if spotConn, ok := state.connector.(spot.Connector); ok {
+				spotConnectors = append(spotConnectors, spotConn)
+			}
 		}
 	}
 
@@ -77,7 +88,7 @@ func (cr *connectorRegistry) GetReadySpotConnectors() []spot.Connector {
 
 	var spotConnectors []spot.Connector
 	for _, state := range cr.connectors {
-		if state.ready {
+		if state.ready && state.connectorType == connectorTypeSpot {
 			if spotConn, ok := state.connector.(spot.Connector); ok {
 				spotConnectors = append(spotConnectors, spotConn)
 			}
@@ -93,8 +104,10 @@ func (cr *connectorRegistry) GetSpotWebSocketConnectors() []spot.WebSocketConnec
 
 	var wsConnectors []spot.WebSocketConnector
 	for _, state := range cr.connectors {
-		if wsConn, ok := state.connector.(spot.WebSocketConnector); ok {
-			wsConnectors = append(wsConnectors, wsConn)
+		if state.connectorType == connectorTypeSpot {
+			if wsConn, ok := state.connector.(spot.WebSocketConnector); ok {
+				wsConnectors = append(wsConnectors, wsConn)
+			}
 		}
 	}
 
@@ -107,7 +120,7 @@ func (cr *connectorRegistry) GetReadySpotWebSocketConnectors() []spot.WebSocketC
 
 	var wsConnectors []spot.WebSocketConnector
 	for _, state := range cr.connectors {
-		if state.ready {
+		if state.ready && state.connectorType == connectorTypeSpot {
 			if wsConn, ok := state.connector.(spot.WebSocketConnector); ok {
 				wsConnectors = append(wsConnectors, wsConn)
 			}
@@ -140,8 +153,9 @@ func (cr *connectorRegistry) RegisterPerpConnector(name connector.ExchangeName, 
 	defer cr.mu.Unlock()
 
 	cr.connectors[name] = &connectorState{
-		connector: conn,
-		ready:     false,
+		connector:     conn,
+		connectorType: connectorTypePerp,
+		ready:         false,
 	}
 }
 
@@ -151,8 +165,10 @@ func (cr *connectorRegistry) GetPerpConnectors() []perp.Connector {
 
 	var perpConnectors []perp.Connector
 	for _, state := range cr.connectors {
-		if perpConn, ok := state.connector.(perp.Connector); ok {
-			perpConnectors = append(perpConnectors, perpConn)
+		if state.connectorType == connectorTypePerp {
+			if perpConn, ok := state.connector.(perp.Connector); ok {
+				perpConnectors = append(perpConnectors, perpConn)
+			}
 		}
 	}
 
@@ -165,7 +181,7 @@ func (cr *connectorRegistry) GetReadyPerpConnectors() []perp.Connector {
 
 	var perpConnectors []perp.Connector
 	for _, state := range cr.connectors {
-		if state.ready {
+		if state.ready && state.connectorType == connectorTypePerp {
 			if perpConn, ok := state.connector.(perp.Connector); ok {
 				perpConnectors = append(perpConnectors, perpConn)
 			}
@@ -181,8 +197,10 @@ func (cr *connectorRegistry) GetPerpWebSocketConnectors() []perp.WebSocketConnec
 
 	var wsConnectors []perp.WebSocketConnector
 	for _, state := range cr.connectors {
-		if wsConn, ok := state.connector.(perp.WebSocketConnector); ok {
-			wsConnectors = append(wsConnectors, wsConn)
+		if state.connectorType == connectorTypePerp {
+			if wsConn, ok := state.connector.(perp.WebSocketConnector); ok {
+				wsConnectors = append(wsConnectors, wsConn)
+			}
 		}
 	}
 
@@ -195,7 +213,7 @@ func (cr *connectorRegistry) GetReadyPerpWebSocketConnectors() []perp.WebSocketC
 
 	var wsConnectors []perp.WebSocketConnector
 	for _, state := range cr.connectors {
-		if state.ready {
+		if state.ready && state.connectorType == connectorTypePerp {
 			if wsConn, ok := state.connector.(perp.WebSocketConnector); ok {
 				wsConnectors = append(wsConnectors, wsConn)
 			}
