@@ -202,13 +202,16 @@ func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
 	defer strategyMutex.Unlock()
 
 	// Create context for this strategy execution
-	ctx := strategy.WithStrategyName(context.Background(), strat.GetName())
+	ctx := strategy.NewStrategyContext(context.Background(), strat.GetName())
 
 	// Add profiling context if profiling is enabled
 	var profilingCtx profileTypes.Context
 	if o.profilingStore != nil {
 		profilingCtx = o.profilingStore.NewContext(string(strat.GetName()))
-		ctx = profiling.WithContext(ctx, profilingCtx)
+		ctx = strategy.NewStrategyContext(
+			profiling.WithContext(ctx, profilingCtx),
+			strat.GetName(),
+		)
 	}
 
 	startTime := o.timeProvider.Now()

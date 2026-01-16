@@ -1,8 +1,6 @@
 package activity
 
 import (
-	"context"
-
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 )
@@ -10,13 +8,13 @@ import (
 // Positions provides read-only access to position data
 type Positions interface {
 	// Strategy queries
-	GetStrategyExecution(ctx context.Context) *strategy.StrategyExecution
-	GetAllStrategyExecutions(ctx context.Context) map[strategy.StrategyName]*strategy.StrategyExecution
+	GetStrategyExecution(ctx strategy.StrategyContext) *strategy.StrategyExecution
+	GetAllStrategyExecutions(ctx strategy.StrategyContext) map[strategy.StrategyName]*strategy.StrategyExecution
 
 	// Order queries
-	GetStrategyForOrder(ctx context.Context, orderID string) (strategy.StrategyName, bool)
-	GetTotalOrderCount(ctx context.Context) int64
+	GetStrategyForOrder(ctx strategy.StrategyContext, orderID string) (strategy.StrategyName, bool)
+	GetTotalOrderCount(ctx strategy.StrategyContext) int64
 
 	// Trade queries
-	GetTradesForStrategy(ctx context.Context) []connector.Trade
+	GetTradesForStrategy(ctx strategy.StrategyContext) []connector.Trade
 }

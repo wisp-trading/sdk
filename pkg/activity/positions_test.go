@@ -42,7 +42,7 @@ var _ = Describe("Positions", func() {
 	Describe("GetStrategyExecution", func() {
 		It("should return execution for strategy in context", func() {
 			strategyName := strategy.StrategyName("test-strategy")
-			ctx := strategy.WithStrategyName(context.Background(), strategyName)
+			ctx := strategy.NewStrategyContext(context.Background(), strategyName)
 
 			// Populate store with test data
 			expectedExecution := &strategy.StrategyExecution{
@@ -57,7 +57,7 @@ var _ = Describe("Positions", func() {
 		})
 
 		It("should return nil when no strategy in context", func() {
-			ctx := context.Background()
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
 			result := positions.GetStrategyExecution(ctx)
 
@@ -66,7 +66,7 @@ var _ = Describe("Positions", func() {
 
 		It("should return nil for unknown strategy", func() {
 			strategyName := strategy.StrategyName("unknown")
-			ctx := strategy.WithStrategyName(context.Background(), strategyName)
+			ctx := strategy.NewStrategyContext(context.Background(), strategyName)
 
 			result := positions.GetStrategyExecution(ctx)
 
@@ -76,7 +76,7 @@ var _ = Describe("Positions", func() {
 
 	Describe("GetAllStrategyExecutions", func() {
 		It("should return all executions from store", func() {
-			ctx := context.Background()
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
 			// Populate store with multiple strategies
 			store.StoreStrategyExecution("strategy-1", &strategy.StrategyExecution{
@@ -94,7 +94,7 @@ var _ = Describe("Positions", func() {
 		})
 
 		It("should return empty map when no executions exist", func() {
-			ctx := context.Background()
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
 			result := positions.GetAllStrategyExecutions(ctx)
 
@@ -104,7 +104,7 @@ var _ = Describe("Positions", func() {
 
 	Describe("GetStrategyForOrder", func() {
 		It("should find strategy for existing order", func() {
-			ctx := context.Background()
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
 			strategyName := strategy.StrategyName("test-strategy")
 			order := connector.Order{ID: "order-123"}
@@ -117,7 +117,7 @@ var _ = Describe("Positions", func() {
 		})
 
 		It("should return false for unknown order", func() {
-			ctx := context.Background()
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
 			_, found := positions.GetStrategyForOrder(ctx, "unknown-order")
 
@@ -127,7 +127,7 @@ var _ = Describe("Positions", func() {
 
 	Describe("GetTotalOrderCount", func() {
 		It("should return count from store", func() {
-			ctx := context.Background()
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
 			// Add orders to multiple strategies
 			store.AddOrderToStrategy("strategy-1", connector.Order{ID: "order-1"})
@@ -140,7 +140,7 @@ var _ = Describe("Positions", func() {
 		})
 
 		It("should return zero when no orders exist", func() {
-			ctx := context.Background()
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
 			result := positions.GetTotalOrderCount(ctx)
 
@@ -151,7 +151,7 @@ var _ = Describe("Positions", func() {
 	Describe("GetTradesForStrategy", func() {
 		It("should return trades for strategy in context", func() {
 			strategyName := strategy.StrategyName("test-strategy")
-			ctx := strategy.WithStrategyName(context.Background(), strategyName)
+			ctx := strategy.NewStrategyContext(context.Background(), strategyName)
 
 			// Add trades to store
 			store.AddTradeToStrategy(strategyName, connector.Trade{
@@ -171,16 +171,16 @@ var _ = Describe("Positions", func() {
 		})
 
 		It("should return nil when no strategy in context", func() {
-			ctx := context.Background()
+			ctx := strategy.NewStrategyContext(context.Background(), "")
 
 			result := positions.GetTradesForStrategy(ctx)
 
-			Expect(result).To(BeNil())
+			Expect(len(result)).To(BeZero())
 		})
 
 		It("should return empty slice when no trades exist for strategy", func() {
 			strategyName := strategy.StrategyName("test-strategy")
-			ctx := strategy.WithStrategyName(context.Background(), strategyName)
+			ctx := strategy.NewStrategyContext(context.Background(), strategyName)
 
 			// Ensure strategy exists but with no trades
 			store.StoreStrategyExecution(strategyName, &strategy.StrategyExecution{

@@ -1,8 +1,6 @@
 package activity
 
 import (
-	"context"
-
 	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
 	kronosActivity "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
@@ -141,7 +139,7 @@ func calculateFromTrades(trades []connector.Trade) (numerical.Decimal, map[strin
 }
 
 // GetRealizedPNL returns the realized PNL for a strategy (net of fees)
-func (p *pnl) GetRealizedPNL(ctx context.Context, strategyName strategy.StrategyName) numerical.Decimal {
+func (p *pnl) GetRealizedPNL(ctx strategy.StrategyContext, strategyName strategy.StrategyName) numerical.Decimal {
 	trades := p.positions.GetTradesForStrategy(ctx)
 	realizedPnl, _ := calculateFromTrades(trades)
 
@@ -155,7 +153,7 @@ func (p *pnl) GetRealizedPNL(ctx context.Context, strategyName strategy.Strategy
 }
 
 // GetRealizedPNLByAsset returns the realized PNL for a specific asset across all strategies
-func (p *pnl) GetRealizedPNLByAsset(ctx context.Context, asset portfolio.Asset) numerical.Decimal {
+func (p *pnl) GetRealizedPNLByAsset(ctx strategy.StrategyContext, asset portfolio.Asset) numerical.Decimal {
 	trades := p.trades.GetTradesByAsset(ctx, asset)
 	realizedPnl, _ := calculateFromTrades(trades)
 
@@ -169,7 +167,7 @@ func (p *pnl) GetRealizedPNLByAsset(ctx context.Context, asset portfolio.Asset) 
 }
 
 // GetTotalRealizedPNL returns the total realized PNL across all strategies
-func (p *pnl) GetTotalRealizedPNL(ctx context.Context) numerical.Decimal {
+func (p *pnl) GetTotalRealizedPNL(ctx strategy.StrategyContext) numerical.Decimal {
 	allTrades := p.trades.GetAllTrades(ctx)
 	realizedPnl, _ := calculateFromTrades(allTrades)
 
@@ -183,7 +181,7 @@ func (p *pnl) GetTotalRealizedPNL(ctx context.Context) numerical.Decimal {
 }
 
 // GetUnrealizedPNL returns the unrealized PNL for a strategy
-func (p *pnl) GetUnrealizedPNL(ctx context.Context, strategyName strategy.StrategyName) (numerical.Decimal, error) {
+func (p *pnl) GetUnrealizedPNL(ctx strategy.StrategyContext, strategyName strategy.StrategyName) (numerical.Decimal, error) {
 	trades := p.positions.GetTradesForStrategy(ctx)
 	_, openPositions := calculateFromTrades(trades)
 
@@ -205,7 +203,7 @@ func (p *pnl) GetUnrealizedPNL(ctx context.Context, strategyName strategy.Strate
 }
 
 // GetTotalUnrealizedPNL returns the total unrealized PNL across all strategies
-func (p *pnl) GetTotalUnrealizedPNL(ctx context.Context) (numerical.Decimal, error) {
+func (p *pnl) GetTotalUnrealizedPNL(ctx strategy.StrategyContext) (numerical.Decimal, error) {
 	allTrades := p.trades.GetAllTrades(ctx)
 	_, openPositions := calculateFromTrades(allTrades)
 
@@ -227,7 +225,7 @@ func (p *pnl) GetTotalUnrealizedPNL(ctx context.Context) (numerical.Decimal, err
 }
 
 // GetTotalPNL returns the total PNL (realized + unrealized)
-func (p *pnl) GetTotalPNL(ctx context.Context) (numerical.Decimal, error) {
+func (p *pnl) GetTotalPNL(ctx strategy.StrategyContext) (numerical.Decimal, error) {
 	// Fetch trades once and calculate everything from cached data
 	allTrades := p.trades.GetAllTrades(ctx)
 	realizedPnl, openPositions := calculateFromTrades(allTrades)
@@ -258,7 +256,7 @@ func (p *pnl) GetTotalPNL(ctx context.Context) (numerical.Decimal, error) {
 }
 
 // GetTotalFees returns the total fees paid across all trades
-func (p *pnl) GetTotalFees(ctx context.Context) numerical.Decimal {
+func (p *pnl) GetTotalFees(ctx strategy.StrategyContext) numerical.Decimal {
 	allTrades := p.trades.GetAllTrades(ctx)
 	totalFees := numerical.Zero()
 	for _, trade := range allTrades {
@@ -268,7 +266,7 @@ func (p *pnl) GetTotalFees(ctx context.Context) numerical.Decimal {
 }
 
 // GetFeesByStrategy returns the total fees paid for a strategy
-func (p *pnl) GetFeesByStrategy(ctx context.Context, strategyName strategy.StrategyName) numerical.Decimal {
+func (p *pnl) GetFeesByStrategy(ctx strategy.StrategyContext, strategyName strategy.StrategyName) numerical.Decimal {
 	trades := p.positions.GetTradesForStrategy(ctx)
 	totalFees := numerical.Zero()
 	for _, trade := range trades {

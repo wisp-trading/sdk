@@ -2,15 +2,21 @@ package strategy
 
 import "context"
 
-type contextKey struct{}
-
-// WithStrategyName adds strategy name to context
-func WithStrategyName(ctx context.Context, name StrategyName) context.Context {
-	return context.WithValue(ctx, contextKey{}, name)
+// StrategyContext is a context that guarantees strategy name is present
+type StrategyContext struct {
+	context.Context
+	strategyName StrategyName
 }
 
-// FromContext extracts strategy name from context
-func FromContext(ctx context.Context) (StrategyName, bool) {
-	name, ok := ctx.Value(contextKey{}).(StrategyName)
-	return name, ok
+// NewStrategyContext creates a context with guaranteed strategy name
+func NewStrategyContext(parent context.Context, name StrategyName) StrategyContext {
+	return StrategyContext{
+		Context:      parent,
+		strategyName: name,
+	}
+}
+
+// StrategyName returns the strategy name (guaranteed to exist)
+func (sc *StrategyContext) StrategyName() StrategyName {
+	return sc.strategyName
 }

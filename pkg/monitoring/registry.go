@@ -43,8 +43,8 @@ func (r *viewRegistry) getStrategyName() strategy.StrategyName {
 }
 
 func (r *viewRegistry) GetPnLView() *monitoring.PnLView {
-	ctx := context.Background()
 	name := r.getStrategyName()
+	ctx := strategy.NewStrategyContext(context.Background(), name)
 	if name == "" {
 		return nil
 	}
@@ -65,13 +65,13 @@ func (r *viewRegistry) GetPnLView() *monitoring.PnLView {
 }
 
 func (r *viewRegistry) GetPositionsView() *strategy.StrategyExecution {
-	ctx := context.Background()
 	name := r.getStrategyName()
 
-	strategy.WithStrategyName(ctx, name)
 	if name == "" {
 		return nil
 	}
+
+	ctx := strategy.NewStrategyContext(context.Background(), name)
 	return r.kronos.Activity().Positions().GetStrategyExecution(ctx)
 }
 
@@ -87,14 +87,12 @@ func (r *viewRegistry) GetOrderbookView(symbol string) *connector.OrderBook {
 }
 
 func (r *viewRegistry) GetRecentTrades(limit int) []connector.Trade {
-	ctx := context.Background()
-
 	name := r.getStrategyName()
 	if name == "" {
 		return nil
 	}
 
-	ctx = strategy.WithStrategyName(ctx, name)
+	ctx := strategy.NewStrategyContext(context.Background(), name)
 	trades := r.kronos.Activity().Positions().GetTradesForStrategy(ctx)
 	if len(trades) <= limit {
 		return trades
