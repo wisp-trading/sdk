@@ -59,6 +59,7 @@ var _ = Describe("PNL", func() {
 		It("should sum fees for a strategy", func() {
 			ctx := context.Background()
 			strategyName := strategy.StrategyName("test-strategy")
+			ctx = strategy.WithStrategyName(ctx, strategyName)
 
 			// Add trades to position store
 			positionStore.AddTradeToStrategy(strategyName, connector.Trade{ID: "t1", Symbol: "BTC", Fee: numerical.NewFromFloat(10)})
@@ -100,6 +101,7 @@ var _ = Describe("PNL", func() {
 			It("should calculate profit correctly", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
+				ctx = strategy.WithStrategyName(ctx, strategyName)
 
 				// Buy 1 BTC at 50000, sell 1 BTC at 55000 = profit of 5000
 				positionStore.AddTradeToStrategy(strategyName, connector.Trade{
@@ -132,7 +134,8 @@ var _ = Describe("PNL", func() {
 			It("should calculate loss correctly", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
-
+				ctx = strategy.WithStrategyName(ctx, strategyName)
+				
 				// Buy 1 BTC at 50000, sell 1 BTC at 45000 = loss of 5000
 				positionStore.AddTradeToStrategy(strategyName, connector.Trade{
 					ID:       "t1",
@@ -161,6 +164,7 @@ var _ = Describe("PNL", func() {
 			It("should calculate profit correctly", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
+				ctx = strategy.WithStrategyName(ctx, strategyName)
 
 				// Sell 1 BTC at 50000, buy 1 BTC at 45000 = profit of 5000
 				positionStore.AddTradeToStrategy(strategyName, connector.Trade{
@@ -190,6 +194,7 @@ var _ = Describe("PNL", func() {
 			It("should calculate loss correctly", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
+				ctx = strategy.WithStrategyName(ctx, strategyName)
 
 				// Sell 1 BTC at 50000, buy 1 BTC at 55000 = loss of 5000
 				positionStore.AddTradeToStrategy(strategyName, connector.Trade{
@@ -219,6 +224,7 @@ var _ = Describe("PNL", func() {
 			It("should calculate realized PNL for partial close only", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
+				ctx = strategy.WithStrategyName(ctx, strategyName)
 
 				// Buy 2 BTC at 50000, sell 1 BTC at 55000 = profit of 5000 on closed portion
 				positionStore.AddTradeToStrategy(strategyName, connector.Trade{
@@ -249,6 +255,7 @@ var _ = Describe("PNL", func() {
 			It("should use weighted average entry price", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
+				ctx = strategy.WithStrategyName(ctx, strategyName)
 
 				// Buy 1 BTC at 50000, buy 1 BTC at 52000, sell 2 BTC at 54000
 				// Avg entry = (50000 + 52000) / 2 = 51000
@@ -288,6 +295,7 @@ var _ = Describe("PNL", func() {
 			It("should realize PNL on closed portion and track new short position", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
+				ctx = strategy.WithStrategyName(ctx, strategyName)
 
 				// Buy 1 BTC at 50000, sell 2 BTC at 55000
 				// Closes long 1 BTC for profit of 5000, opens short 1 BTC at 55000
@@ -319,6 +327,7 @@ var _ = Describe("PNL", func() {
 			It("should realize PNL on closed portion and track new long position", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
+				ctx = strategy.WithStrategyName(ctx, strategyName)
 
 				// Sell 1 BTC at 50000, buy 2 BTC at 45000
 				// Closes short 1 BTC for profit of 5000, opens long 1 BTC at 45000
@@ -352,6 +361,8 @@ var _ = Describe("PNL", func() {
 			It("should calculate unrealized profit", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
+				ctx = strategy.WithStrategyName(ctx, strategyName)
+
 				btc := portfolio.NewAsset("BTC")
 
 				// Buy 1 BTC at 50000, current price 55000
@@ -375,6 +386,8 @@ var _ = Describe("PNL", func() {
 			It("should calculate unrealized loss", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
+				ctx = strategy.WithStrategyName(ctx, strategyName)
+
 				btc := portfolio.NewAsset("BTC")
 
 				// Buy 1 BTC at 50000, current price 45000
@@ -400,6 +413,8 @@ var _ = Describe("PNL", func() {
 			It("should calculate unrealized profit", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
+				ctx = strategy.WithStrategyName(ctx, strategyName)
+
 				btc := portfolio.NewAsset("BTC")
 
 				// Sell 1 BTC at 50000, current price 45000
@@ -425,6 +440,7 @@ var _ = Describe("PNL", func() {
 			It("should return zero unrealized PNL", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
+				ctx = strategy.WithStrategyName(ctx, strategyName)
 
 				// Buy 1 BTC, then sell 1 BTC - position is flat
 				positionStore.AddTradeToStrategy(strategyName, connector.Trade{
@@ -455,6 +471,8 @@ var _ = Describe("PNL", func() {
 			It("should use new entry price for flipped short position", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
+				ctx = strategy.WithStrategyName(ctx, strategyName)
+
 				btc := portfolio.NewAsset("BTC")
 
 				// Buy 1 BTC at 50000, sell 2 BTC at 55000 (now short 1 at 55000)
@@ -488,6 +506,8 @@ var _ = Describe("PNL", func() {
 			It("should use new entry price for flipped long position", func() {
 				ctx := context.Background()
 				strategyName := strategy.StrategyName("test-strategy")
+				ctx = strategy.WithStrategyName(ctx, strategyName)
+
 				btc := portfolio.NewAsset("BTC")
 
 				// Sell 1 BTC at 50000, buy 2 BTC at 45000 (now long 1 at 45000)
