@@ -10,7 +10,7 @@ import (
 // Positions provides read-only access to position data
 type Positions interface {
 	// Strategy queries
-	GetStrategyExecution(ctx context.Context, strategy strategy.StrategyName) *strategy.StrategyExecution
+	GetStrategyExecution(ctx context.Context) *strategy.StrategyExecution
 	GetAllStrategyExecutions(ctx context.Context) map[strategy.StrategyName]*strategy.StrategyExecution
 
 	// Order queries
@@ -18,5 +18,5 @@ type Positions interface {
 	GetTotalOrderCount(ctx context.Context) int64
 
 	// Trade queries
-	GetTradesForStrategy(ctx context.Context, strategy strategy.StrategyName) []connector.Trade
+	GetTradesForStrategy(ctx context.Context) []connector.Trade
 }

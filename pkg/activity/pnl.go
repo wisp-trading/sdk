@@ -142,7 +142,7 @@ func calculateFromTrades(trades []connector.Trade) (numerical.Decimal, map[strin
 
 // GetRealizedPNL returns the realized PNL for a strategy (net of fees)
 func (p *pnl) GetRealizedPNL(ctx context.Context, strategyName strategy.StrategyName) numerical.Decimal {
-	trades := p.positions.GetTradesForStrategy(ctx, strategyName)
+	trades := p.positions.GetTradesForStrategy(ctx)
 	realizedPnl, _ := calculateFromTrades(trades)
 
 	// Calculate fees inline to avoid extra call
@@ -184,7 +184,7 @@ func (p *pnl) GetTotalRealizedPNL(ctx context.Context) numerical.Decimal {
 
 // GetUnrealizedPNL returns the unrealized PNL for a strategy
 func (p *pnl) GetUnrealizedPNL(ctx context.Context, strategyName strategy.StrategyName) (numerical.Decimal, error) {
-	trades := p.positions.GetTradesForStrategy(ctx, strategyName)
+	trades := p.positions.GetTradesForStrategy(ctx)
 	_, openPositions := calculateFromTrades(trades)
 
 	unrealizedPnl := numerical.Zero()
@@ -269,7 +269,7 @@ func (p *pnl) GetTotalFees(ctx context.Context) numerical.Decimal {
 
 // GetFeesByStrategy returns the total fees paid for a strategy
 func (p *pnl) GetFeesByStrategy(ctx context.Context, strategyName strategy.StrategyName) numerical.Decimal {
-	trades := p.positions.GetTradesForStrategy(ctx, strategyName)
+	trades := p.positions.GetTradesForStrategy(ctx)
 	totalFees := numerical.Zero()
 	for _, trade := range trades {
 		totalFees = totalFees.Add(trade.Fee)
