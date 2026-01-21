@@ -8,7 +8,6 @@ import (
 
 // ExecutionConfig defines how a strategy should be executed
 type ExecutionConfig struct {
-	// MinExecutionInterval prevents excessive execution (rate limiting)
 	ExecutionInterval time.Duration
 }
 
