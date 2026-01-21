@@ -3,9 +3,9 @@ package lifecycle
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/execution"
 	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
 	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
@@ -15,12 +15,17 @@ import (
 	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 )
 
+const (
+	// defaultTickInterval is how often the orchestrator checks if strategies should execute
+	// This is intentionally fast - per-strategy ExecutionConfig handles the actual timing
+	defaultTickInterval = 50 * time.Millisecond
+)
+
 type orchestrator struct {
 	executor         execution.Executor
 	strategyRegistry registry.StrategyRegistry
 	logger           logging.ApplicationLogger
 	timeProvider     temporal.TimeProvider
-	notifier         ingestors.DataUpdateNotifier
 	profilingStore   profileTypes.ProfilingStore  // Optional profiling
 	anomalyDetector  profileTypes.AnomalyDetector // Optional anomaly detection
 
@@ -28,8 +33,7 @@ type orchestrator struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
-	// Tick timer for data-driven execution
-	tickTimer *TickTimer
+	ticker *time.Ticker
 
 	// Track in-flight strategy executions for graceful shutdown
 	executionWg sync.WaitGroup
@@ -39,82 +43,23 @@ type orchestrator struct {
 	mutexMapLock    sync.RWMutex
 }
 
-// OrchestratorParams holds the dependencies for creating an orchestrator
-type OrchestratorParams struct {
-	Executor         execution.Executor
-	StrategyRegistry registry.StrategyRegistry
-	Logger           logging.ApplicationLogger
-	TimeProvider     temporal.TimeProvider
-	Notifier         ingestors.DataUpdateNotifier
-	ProfilingStore   profileTypes.ProfilingStore  // Optional: can be nil
-	AnomalyDetector  profileTypes.AnomalyDetector // Optional: can be nil
-	TickTimerConfig  *TickTimerConfig             // Optional: uses defaults if nil
-}
-
 // NewOrchestrator creates a new strategy orchestrator
 func NewOrchestrator(
 	executor execution.Executor,
 	strategyRegistry registry.StrategyRegistry,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
-	notifier ingestors.DataUpdateNotifier,
-	profilingStore profileTypes.ProfilingStore,   // Optional: can be nil
+	profilingStore profileTypes.ProfilingStore, // Optional: can be nil
 	anomalyDetector profileTypes.AnomalyDetector, // Optional: can be nil
 ) lifecycleTypes.Orchestrator {
-	return NewOrchestratorWithConfig(OrchestratorParams{
-		Executor:         executor,
-		StrategyRegistry: strategyRegistry,
-		Logger:           logger,
-		TimeProvider:     timeProvider,
-		Notifier:         notifier,
-		ProfilingStore:   profilingStore,
-		AnomalyDetector:  anomalyDetector,
-		TickTimerConfig:  nil, // Use defaults
-	})
-}
-
-// NewOrchestratorWithConfig creates a new strategy orchestrator with custom configuration
-func NewOrchestratorWithConfig(params OrchestratorParams) lifecycleTypes.Orchestrator {
-	// Use provided config or defaults
-	var tickTimerConfig TickTimerConfig
-	if params.TickTimerConfig != nil {
-		tickTimerConfig = *params.TickTimerConfig
-	} else {
-		tickTimerConfig = DefaultTickTimerConfig()
-	}
-
-	tickTimer := NewTickTimerWithConfig(tickTimerConfig, params.TimeProvider)
-
-	orch := &orchestrator{
-		executor:         params.Executor,
-		strategyRegistry: params.StrategyRegistry,
-		logger:           params.Logger,
-		timeProvider:     params.TimeProvider,
-		tickTimer:        tickTimer,
+	return &orchestrator{
+		executor:         executor,
+		strategyRegistry: strategyRegistry,
+		logger:           logger,
+		timeProvider:     timeProvider,
+		profilingStore:   profilingStore,
+		anomalyDetector:  anomalyDetector,
 		strategyMutexes:  make(map[strategy.StrategyName]*sync.Mutex),
-		notifier:         params.Notifier,
-		profilingStore:   params.ProfilingStore,
-		anomalyDetector:  params.AnomalyDetector,
-	}
-
-	return orch
-}
-
-// listenForDataUpdates forwards data update notifications to the tick timer
-func (o *orchestrator) listenForDataUpdates() {
-	for {
-		select {
-		case <-o.ctx.Done():
-			// Orchestrator stopped, exit goroutine
-			return
-		case _, ok := <-o.notifier.Updates():
-			if !ok {
-				// Channel closed, exit goroutine
-				return
-			}
-			// Forward notification to tick timer
-			o.tickTimer.NotifyDataUpdate()
-		}
 	}
 }
 
@@ -126,9 +71,10 @@ func (o *orchestrator) Start(ctx context.Context) error {
 	}
 
 	o.ctx, o.cancel = context.WithCancel(ctx)
+	o.ticker = time.NewTicker(defaultTickInterval)
+
 	o.logger.Info("🎯 Starting strategy orchestrator")
 
-	go o.listenForDataUpdates()
 	go o.executionLoop()
 
 	o.logger.Info("✅ Strategy orchestrator started")
@@ -143,10 +89,12 @@ func (o *orchestrator) Stop(_ context.Context) error {
 
 	o.logger.Info("🛑 Stopping strategy orchestrator")
 
-	// Stop the tick timer first to clean up its goroutine
-	o.tickTimer.Stop()
+	// Stop the ticker
+	if o.ticker != nil {
+		o.ticker.Stop()
+	}
 
-	// Then cancel the orchestrator's context
+	// Cancel the orchestrator's context
 	o.cancel()
 	o.cancel = nil
 
@@ -157,23 +105,13 @@ func (o *orchestrator) Stop(_ context.Context) error {
 	return nil
 }
 
-// NotifyDataUpdate triggers strategy execution on new market data
-func (o *orchestrator) NotifyDataUpdate() {
-	o.tickTimer.NotifyDataUpdate()
-}
-
-// GetStrategies returns all registered strategies
-func (o *orchestrator) GetStrategies() []strategy.Strategy {
-	return o.strategyRegistry.GetAllStrategies()
-}
-
-// executionLoop handles strategy execution triggers
+// executionLoop checks strategies at fixed intervals
 func (o *orchestrator) executionLoop() {
 	for {
 		select {
 		case <-o.ctx.Done():
 			return
-		case <-o.tickTimer.TickChannel():
+		case <-o.ticker.C:
 			o.executeEnabledStrategies()
 		}
 	}
@@ -218,8 +156,30 @@ func (o *orchestrator) getStrategyMutex(strategyName strategy.StrategyName) *syn
 	return mutex
 }
 
+// shouldExecuteStrategy checks if a strategy should execute
+// Currently always returns true - per-strategy timing can be added later
+func (o *orchestrator) shouldExecuteStrategy(strat strategy.Strategy) bool {
+	if strat.ExecutionConfig() == nil {
+		return true
+	}
+
+	config := strat.ExecutionConfig()
+
+	lastRun := strat.GetLastRunAt()
+	if o.timeProvider.Now().Sub(lastRun) < config.ExecutionInterval {
+		return false
+	}
+
+	return true
+}
+
 // executeStrategy runs a single strategy
 func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
+	// Check if strategy should execute based on its config
+	if !o.shouldExecuteStrategy(strat) {
+		return
+	}
+
 	// Track this execution for graceful shutdown
 	o.executionWg.Add(1)
 	defer o.executionWg.Done()
@@ -252,6 +212,8 @@ func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
 	signals, err := strat.GetSignals(ctx)
 	duration := o.timeProvider.Since(startTime)
 
+	//strategy.RecordExecution(strat, startTime)
+
 	// Finalize profiling if enabled
 	if profilingCtx != nil {
 		metrics := profilingCtx.Finalize(err == nil, err)
@@ -272,13 +234,6 @@ func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
 		o.logger.Error("Strategy %s failed: %v (duration: %v)", strat.GetName(), err, duration)
 		return
 	}
-
-	if len(signals) == 0 {
-		o.logger.Debug("Strategy %s generated no signals (duration: %v)", strat.GetName(), duration)
-		return
-	}
-
-	o.logger.Info("✅ Strategy %s generated %d signal(s) (duration: %v)", strat.GetName(), len(signals), duration)
 
 	// Execute signals
 	for _, signal := range signals {
