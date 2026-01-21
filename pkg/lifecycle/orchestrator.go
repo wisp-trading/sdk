@@ -157,7 +157,6 @@ func (o *orchestrator) getStrategyMutex(strategyName strategy.StrategyName) *syn
 }
 
 // shouldExecuteStrategy checks if a strategy should execute
-// Currently always returns true - per-strategy timing can be added later
 func (o *orchestrator) shouldExecuteStrategy(strat strategy.Strategy) bool {
 	if strat.ExecutionConfig() == nil {
 		return true
