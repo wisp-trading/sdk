@@ -6,4 +6,4 @@ package version
 
 // SDKVersion is the current Wisp SDK version
 // This is a var (not const) so it can be looked up from plugin symbol table
-var SDKVersion = "v0.0.7"
+var SDKVersion = "v0.0.8"
