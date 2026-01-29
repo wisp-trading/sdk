@@ -3,8 +3,8 @@ package registry
 import (
 	"sync"
 
-	"github.com/wisp-trading/wisp/pkg/types/registry"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/registry"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 type strategyRegistry struct {

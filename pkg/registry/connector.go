@@ -5,10 +5,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/connector/perp"
-	"github.com/wisp-trading/wisp/pkg/types/connector/spot"
-	"github.com/wisp-trading/wisp/pkg/types/registry"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	"github.com/wisp-trading/sdk/pkg/types/connector/spot"
+	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
 
 type connectorType string

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/wisp-trading/wisp/pkg/types/config"
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/logging"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/config"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/logging"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 type startupConfigLoader struct {

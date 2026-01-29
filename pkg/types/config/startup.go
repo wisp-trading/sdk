@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 // StartupConfig contains everything needed to start a strategy

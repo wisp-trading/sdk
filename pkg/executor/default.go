@@ -3,13 +3,13 @@ package executor
 import (
 	"fmt"
 
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
-	"github.com/wisp-trading/wisp/pkg/types/execution"
-	"github.com/wisp-trading/wisp/pkg/types/logging"
-	"github.com/wisp-trading/wisp/pkg/types/registry"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
+	"github.com/wisp-trading/sdk/pkg/types/logging"
+	"github.com/wisp-trading/sdk/pkg/types/registry"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 // executor is the standard executor implementation with hook support

@@ -1,7 +1,7 @@
 package activity
 
 import (
-	wispActivity "github.com/wisp-trading/wisp/pkg/types/wisp/activity"
+	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
 )
 
 // activity provides read-only access to positions, trades, and PNL

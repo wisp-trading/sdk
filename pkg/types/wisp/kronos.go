@@ -1,13 +1,13 @@
 package wisp
 
 import (
-	"github.com/wisp-trading/wisp/pkg/inference/features"
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/logging"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/activity"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/sdk/pkg/inference/features"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/logging"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/activity"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 )
 
 // Wisp is the main SDK context provided to strategies for accessing market data,

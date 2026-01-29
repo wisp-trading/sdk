@@ -44,7 +44,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/wisp-trading/wisp/tree/main/documentation/',
+            'https://github.com/wisp-trading/sdk/tree/main/documentation/',
         },
         blog: false, // Disable blog
         theme: {
@@ -74,7 +74,7 @@ const config: Config = {
           label: 'Documentation',
         },
         {
-          href: 'https://github.com/wisp-trading/wisp',
+          href: 'https://github.com/wisp-trading/sdk',
           label: 'GitHub',
           position: 'right',
         },
@@ -101,11 +101,11 @@ const config: Config = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/wisp-trading/wisp',
+              href: 'https://github.com/wisp-trading/sdk',
             },
             {
               label: 'Issues',
-              href: 'https://github.com/wisp-trading/wisp/issues',
+              href: 'https://github.com/wisp-trading/sdk/issues',
             },
           ],
         },

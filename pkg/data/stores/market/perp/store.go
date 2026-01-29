@@ -1,14 +1,14 @@
 package perp
 
 import (
-	"github.com/wisp-trading/wisp/pkg/data/stores/market/perp/extensions"
-	"github.com/wisp-trading/wisp/pkg/data/stores/market/store"
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/connector/perp"
-	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
-	perpTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market/perp"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	"github.com/wisp-trading/sdk/pkg/data/stores/market/perp/extensions"
+	"github.com/wisp-trading/sdk/pkg/data/stores/market/store"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	perpTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 // perpStore wraps the base store and adds perp-specific methods

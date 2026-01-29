@@ -1,8 +1,8 @@
 package execution
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 // HookPlugin is the interface that user's hooks.so must implement

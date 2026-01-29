@@ -3,7 +3,7 @@ package health
 import (
 	"time"
 
-	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
 
 // DataFlowErrorReport is the aggregated data flow error report

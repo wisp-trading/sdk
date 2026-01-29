@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/wisp-trading/wisp/pkg/types/config"
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/registry"
+	"github.com/wisp-trading/sdk/pkg/types/config"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
 
 type connectorService struct {

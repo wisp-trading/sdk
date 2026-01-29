@@ -1,7 +1,7 @@
 package runtime
 
 import (
-	"github.com/wisp-trading/wisp/pkg/runtime/time"
+	"github.com/wisp-trading/sdk/pkg/runtime/time"
 	"go.uber.org/fx"
 )
 

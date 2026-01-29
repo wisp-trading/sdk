@@ -104,13 +104,13 @@ jobs:
               --generate-notes \
               --notes "## Installation
           \`\`\`bash
-          go get github.com/wisp-trading/wisp@${{ steps.version.outputs.version }}
+          go get github.com/wisp-trading/sdk@${{ steps.version.outputs.version }}
           \`\`\`
 
           ## For Plugin Authors
           Update your existing plugins:
           \`\`\`bash
-          go get github.com/wisp-trading/wisp@${{ steps.version.outputs.version }}
+          go get github.com/wisp-trading/sdk@${{ steps.version.outputs.version }}
           go build -buildmode=plugin -o your_strategy.so your_strategy.go
           \`\`\`
 

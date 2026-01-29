@@ -3,7 +3,7 @@ package connector
 import (
 	"time"
 
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // OrderSide represents the side of an order (buy or sell).

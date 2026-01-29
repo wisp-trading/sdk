@@ -1,9 +1,9 @@
 package store
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
 func (ds *dataStore) UpdateAssetPrice(asset portfolio.Asset, exchangeName connector.ExchangeName, price connector.Price) {

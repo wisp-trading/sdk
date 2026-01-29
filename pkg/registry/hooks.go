@@ -3,8 +3,8 @@ package registry
 import (
 	"sync"
 
-	"github.com/wisp-trading/wisp/pkg/types/execution"
-	"github.com/wisp-trading/wisp/pkg/types/registry"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
+	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
 
 // hookRegistry maintains a runtime-updateable list of execution hooks

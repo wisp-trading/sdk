@@ -1,11 +1,11 @@
 package features
 
 import (
-	"github.com/wisp-trading/wisp/pkg/inference/features/analytics"
-	"github.com/wisp-trading/wisp/pkg/inference/features/market"
-	"github.com/wisp-trading/wisp/pkg/inference/features/orderbook"
-	"github.com/wisp-trading/wisp/pkg/inference/features/price"
-	"github.com/wisp-trading/wisp/pkg/inference/features/technical"
+	"github.com/wisp-trading/sdk/pkg/inference/features/analytics"
+	"github.com/wisp-trading/sdk/pkg/inference/features/market"
+	"github.com/wisp-trading/sdk/pkg/inference/features/orderbook"
+	"github.com/wisp-trading/sdk/pkg/inference/features/price"
+	"github.com/wisp-trading/sdk/pkg/inference/features/technical"
 	"go.uber.org/fx"
 )
 

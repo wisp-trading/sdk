@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	profiling2 "github.com/wisp-trading/wisp/pkg/types/monitoring/profiling"
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	profiling2 "github.com/wisp-trading/sdk/pkg/types/monitoring/profiling"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 // store implements profiling.ProfilingStore

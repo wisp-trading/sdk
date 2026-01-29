@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/wisp-trading/wisp/pkg/types/data/ingestors"
-	lifecycleTypes "github.com/wisp-trading/wisp/pkg/types/lifecycle"
-	"github.com/wisp-trading/wisp/pkg/types/logging"
-	monitoringTypes "github.com/wisp-trading/wisp/pkg/types/monitoring"
-	"github.com/wisp-trading/wisp/pkg/types/monitoring/health"
-	"github.com/wisp-trading/wisp/pkg/types/registry"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/data/ingestors"
+	lifecycleTypes "github.com/wisp-trading/sdk/pkg/types/lifecycle"
+	"github.com/wisp-trading/sdk/pkg/types/logging"
+	monitoringTypes "github.com/wisp-trading/sdk/pkg/types/monitoring"
+	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
+	"github.com/wisp-trading/sdk/pkg/types/registry"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 // controller implements the Controller interface for controlling SDK lifecycle

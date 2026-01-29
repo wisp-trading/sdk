@@ -1,7 +1,7 @@
 package registry
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 // StrategyRegistry manages strategy registration and lifecycle

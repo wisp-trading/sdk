@@ -1,7 +1,7 @@
 package testing
 
 import (
-	"github.com/wisp-trading/wisp/wisp"
+	"github.com/wisp-trading/sdk/wisp"
 	"go.uber.org/fx"
 )
 

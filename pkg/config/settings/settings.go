@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/viper"
-	"github.com/wisp-trading/wisp/pkg/types/config"
+	"github.com/wisp-trading/sdk/pkg/types/config"
 	"gopkg.in/yaml.v3"
 )
 

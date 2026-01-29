@@ -1,8 +1,8 @@
 package perp
 
 import (
-	"github.com/wisp-trading/wisp/pkg/data/ingestors/market/perp/batch"
-	"github.com/wisp-trading/wisp/pkg/data/ingestors/market/perp/realtime"
+	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/perp/batch"
+	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/perp/realtime"
 	"go.uber.org/fx"
 )
 

@@ -3,7 +3,7 @@ package indicators
 import (
 	"fmt"
 
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // SMA calculates the Simple Moving Average for the given prices and period.

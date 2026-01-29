@@ -4,9 +4,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 // Data types for atomic storage

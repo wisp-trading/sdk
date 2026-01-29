@@ -5,13 +5,13 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/wisp-trading/wisp/pkg/data/stores/activity/position"
-	timeProvider "github.com/wisp-trading/wisp/pkg/runtime/time"
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	activityTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/data/stores/activity/position"
+	timeProvider "github.com/wisp-trading/sdk/pkg/runtime/time"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	activityTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 var _ = Describe("Position Store - Orders", func() {

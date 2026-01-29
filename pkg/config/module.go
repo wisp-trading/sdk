@@ -1,10 +1,10 @@
 package config
 
 import (
-	"github.com/wisp-trading/wisp/pkg/config/settings"
-	"github.com/wisp-trading/wisp/pkg/config/settings/connectors"
-	"github.com/wisp-trading/wisp/pkg/config/startup"
-	"github.com/wisp-trading/wisp/pkg/config/strategy"
+	"github.com/wisp-trading/sdk/pkg/config/settings"
+	"github.com/wisp-trading/sdk/pkg/config/settings/connectors"
+	"github.com/wisp-trading/sdk/pkg/config/startup"
+	"github.com/wisp-trading/sdk/pkg/config/strategy"
 	"go.uber.org/fx"
 )
 

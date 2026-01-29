@@ -6,12 +6,12 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	sdkTesting "github.com/wisp-trading/wisp/pkg/testing"
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )

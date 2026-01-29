@@ -5,12 +5,12 @@ import (
 	"os"
 	"plugin"
 
-	"github.com/wisp-trading/wisp/pkg/types/execution"
-	"github.com/wisp-trading/wisp/pkg/types/logging"
-	plugintypes "github.com/wisp-trading/wisp/pkg/types/plugin"
-	"github.com/wisp-trading/wisp/pkg/types/registry"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
-	"github.com/wisp-trading/wisp/pkg/types/wisp"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
+	"github.com/wisp-trading/sdk/pkg/types/logging"
+	plugintypes "github.com/wisp-trading/sdk/pkg/types/plugin"
+	"github.com/wisp-trading/sdk/pkg/types/registry"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/wisp"
 )
 
 // manager is the unexported implementation of plugintypes.Manager

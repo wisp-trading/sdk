@@ -1,4 +1,4 @@
-module github.com/wisp-trading/wisp
+module github.com/wisp-trading/sdk
 
 go 1.24.2
 

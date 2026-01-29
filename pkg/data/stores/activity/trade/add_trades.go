@@ -1,7 +1,7 @@
 package trade
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
 
 // AddTrade adds a single trade to the store

@@ -3,8 +3,8 @@ package technical
 import (
 	"context"
 
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 )
 
 // Feature name constants (must match pkg/inference/features/types.go)

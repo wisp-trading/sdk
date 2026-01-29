@@ -1,7 +1,7 @@
 package spot
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
 
 // Connector represents a spot market exchange connection

@@ -19,9 +19,9 @@ Require multiple indicators to agree before trading.
 package main
 
 import (
-	sdk "github.com/wisp-trading/wisp/pkg/wisp"
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	sdk "github.com/wisp-trading/sdk/pkg/wisp"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	"github.com/shopspring/decimal"
 )
 

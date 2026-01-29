@@ -1,8 +1,8 @@
 package signal
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 // factory is the concrete implementation of wisp.SignalFactory.

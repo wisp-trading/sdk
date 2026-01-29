@@ -4,7 +4,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 type dataStore struct {

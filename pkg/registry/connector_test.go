@@ -3,10 +3,10 @@ package registry_test
 import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	perpMock "github.com/wisp-trading/wisp/mocks/github.com/wisp-trading/wisp/pkg/types/connector/perp"
-	spotMock "github.com/wisp-trading/wisp/mocks/github.com/wisp-trading/wisp/pkg/types/connector/spot"
-	sdkTesting "github.com/wisp-trading/wisp/pkg/testing"
-	registryTypes "github.com/wisp-trading/wisp/pkg/types/registry"
+	perpMock "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	spotMock "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/spot"
+	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
+	registryTypes "github.com/wisp-trading/sdk/pkg/types/registry"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )

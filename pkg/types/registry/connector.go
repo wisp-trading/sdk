@@ -1,9 +1,9 @@
 package registry
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/connector/perp"
-	"github.com/wisp-trading/wisp/pkg/types/connector/spot"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	"github.com/wisp-trading/sdk/pkg/types/connector/spot"
 )
 
 type ConnectorRegistry interface {

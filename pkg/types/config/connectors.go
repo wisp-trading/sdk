@@ -1,6 +1,6 @@
 package config
 
-import "github.com/wisp-trading/wisp/pkg/types/connector"
+import "github.com/wisp-trading/sdk/pkg/types/connector"
 
 type ConnectorService interface {
 	GetMatchingConnectors() (map[connector.ExchangeName]Connector, error)

@@ -154,6 +154,6 @@ Histogram = MACD Line - Signal Line
 
 ## References
 
-- **Go Package**: [pkg.go.dev](https://pkg.go.dev/github.com/wisp-trading/wisp/pkg/analytics/indicators#MACD)
-- **Source Code**: [macd.go](https://github.com/wisp-trading/wisp/blob/main/pkg/analytics/indicators/macd.go)
+- **Go Package**: [pkg.go.dev](https://pkg.go.dev/github.com/wisp-trading/sdk/pkg/analytics/indicators#MACD)
+- **Source Code**: [macd.go](https://github.com/wisp-trading/sdk/blob/main/pkg/analytics/indicators/macd.go)
 - **Theory**: [Investopedia - MACD](https://www.investopedia.com/terms/m/macd.asp)

@@ -11,15 +11,15 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/wisp-trading/wisp/pkg/monitoring"
-	monitoringTypes "github.com/wisp-trading/wisp/pkg/types/monitoring"
-	"github.com/wisp-trading/wisp/pkg/types/monitoring/health"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/monitoring"
+	monitoringTypes "github.com/wisp-trading/sdk/pkg/types/monitoring"
+	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 
-	monitoringMock "github.com/wisp-trading/wisp/mocks/github.com/wisp-trading/wisp/pkg/types/monitoring"
+	monitoringMock "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/monitoring"
 )
 
 var _ = Describe("Server", func() {

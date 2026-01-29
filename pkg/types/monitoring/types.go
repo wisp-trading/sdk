@@ -3,8 +3,8 @@ package monitoring
 import (
 	"time"
 
-	"github.com/wisp-trading/wisp/pkg/types/monitoring/profiling"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/types/monitoring/profiling"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // PnLView represents the PnL snapshot for a strategy

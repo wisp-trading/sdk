@@ -1,12 +1,12 @@
 package realtime
 
 import (
-	"github.com/wisp-trading/wisp/pkg/data/ingestors/market/ingestors"
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/data/ingestors/realtime"
-	spotStore "github.com/wisp-trading/wisp/pkg/types/data/stores/market/spot"
-	"github.com/wisp-trading/wisp/pkg/types/logging"
-	"github.com/wisp-trading/wisp/pkg/types/registry"
+	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
+	spotStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/spot"
+	"github.com/wisp-trading/sdk/pkg/types/logging"
+	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
 
 // Factory creates realtime ingestors for all registered spot WebSocket connectors

@@ -3,8 +3,8 @@ package health
 import (
 	"time"
 
-	health2 "github.com/wisp-trading/wisp/pkg/types/monitoring/health"
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	health2 "github.com/wisp-trading/sdk/pkg/types/monitoring/health"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 // HealthStore aggregates error reports from both stores into a unified view

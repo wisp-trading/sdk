@@ -1,8 +1,8 @@
 package trade
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 )
 
 func NewStore() activity.Trades {

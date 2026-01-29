@@ -1,7 +1,7 @@
 package market
 
 import (
-	spotTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market/spot"
+	spotTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/spot"
 )
 
 // spotMarketService implements analytics.SpotMarket

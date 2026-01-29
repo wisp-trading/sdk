@@ -1,6 +1,6 @@
 package health
 
-import "github.com/wisp-trading/wisp/pkg/types/connector"
+import "github.com/wisp-trading/sdk/pkg/types/connector"
 
 // ConnectionState represents the connection status
 type ConnectionState string

@@ -5,11 +5,11 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/wisp-trading/wisp/pkg/data/stores/activity/trade"
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	activityTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/data/stores/activity/trade"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	activityTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 var _ = Describe("Trade Store - Queries", func() {

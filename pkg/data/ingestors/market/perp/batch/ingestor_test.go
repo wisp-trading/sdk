@@ -3,24 +3,24 @@ package batch_test
 import (
 	"time"
 
-	mockPerpConnector "github.com/wisp-trading/wisp/mocks/github.com/wisp-trading/wisp/pkg/types/connector/perp"
-	perpBatch "github.com/wisp-trading/wisp/pkg/data/ingestors/market/perp/batch"
-	perpStore "github.com/wisp-trading/wisp/pkg/data/stores/market/perp"
-	"github.com/wisp-trading/wisp/pkg/types/data/ingestors/batch"
-	"github.com/wisp-trading/wisp/pkg/types/data/stores/market/perp"
-	registryTypes "github.com/wisp-trading/wisp/pkg/types/registry"
+	mockPerpConnector "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	perpBatch "github.com/wisp-trading/sdk/pkg/data/ingestors/market/perp/batch"
+	perpStore "github.com/wisp-trading/sdk/pkg/data/stores/market/perp"
+	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
+	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
+	registryTypes "github.com/wisp-trading/sdk/pkg/types/registry"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/mock"
-	"github.com/wisp-trading/wisp/pkg/registry"
-	timeProvider "github.com/wisp-trading/wisp/pkg/runtime/time"
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	perpConn "github.com/wisp-trading/wisp/pkg/types/connector/perp"
-	"github.com/wisp-trading/wisp/pkg/types/logging"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/registry"
+	timeProvider "github.com/wisp-trading/sdk/pkg/runtime/time"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	"github.com/wisp-trading/sdk/pkg/types/logging"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 func setupMockPerpConnector(t GinkgoTInterface, name connector.ExchangeName) *mockPerpConnector.Connector {

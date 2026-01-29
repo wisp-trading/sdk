@@ -1,10 +1,10 @@
 package activity
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	storeActivity "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
-	wispActivity "github.com/wisp-trading/wisp/pkg/types/wisp/activity"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	storeActivity "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
 )
 
 type positions struct {

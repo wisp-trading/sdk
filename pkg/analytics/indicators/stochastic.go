@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // Stochastic calculates the Stochastic Oscillator for the given price data.

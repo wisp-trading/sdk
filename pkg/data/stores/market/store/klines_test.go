@@ -5,12 +5,12 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/wisp-trading/wisp/pkg/data/stores/market/store"
-	timeProvider "github.com/wisp-trading/wisp/pkg/runtime/time"
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	"github.com/wisp-trading/sdk/pkg/data/stores/market/store"
+	timeProvider "github.com/wisp-trading/sdk/pkg/runtime/time"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 var _ = Describe("Market Data Store - Klines", func() {

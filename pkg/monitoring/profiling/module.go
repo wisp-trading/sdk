@@ -3,8 +3,8 @@ package profiling
 import (
 	"context"
 
-	"github.com/wisp-trading/wisp/pkg/types/monitoring/profiling"
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	"github.com/wisp-trading/sdk/pkg/types/monitoring/profiling"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 	"go.uber.org/fx"
 )
 

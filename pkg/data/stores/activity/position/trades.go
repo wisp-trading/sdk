@@ -1,9 +1,9 @@
 package position
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	portfolioTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	portfolioTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 func (ds *dataStore) AddTradeToStrategy(strategyName strategy.StrategyName, trade connector.Trade) {

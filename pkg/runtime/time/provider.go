@@ -3,7 +3,7 @@ package time
 import (
 	"time"
 
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 // TimeProvider is a wrapper around time operations

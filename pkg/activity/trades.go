@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	storeActivity "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	wispActivity "github.com/wisp-trading/wisp/pkg/types/wisp/activity"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	storeActivity "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // trades wraps the internal trade store with read-only access

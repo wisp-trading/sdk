@@ -77,8 +77,8 @@ Wisp automatically:
 Specify exchange or interval when needed:
 
 ```go
-import "github.com/wisp-trading/wisp/pkg/wisp/indicators"
-import "github.com/wisp-trading/wisp/pkg/types/connector"
+import "github.com/wisp-trading/sdk/pkg/wisp/indicators"
+import "github.com/wisp-trading/sdk/pkg/types/connector"
 
 // Use specific exchange
 rsi := s.k.Indicators().RSI(btc, 14, indicators.IndicatorOptions{
@@ -133,7 +133,7 @@ klines := s.k.Market().Klines(btc, "1h", 100)  // Last 100 1h candles
 Create trading signals with the fluent API:
 
 ```go
-import "github.com/wisp-trading/wisp/pkg/types/connector"
+import "github.com/wisp-trading/sdk/pkg/types/connector"
 
 // Buy signal - specify asset, exchange, and quantity
 signal := s.k.Signal(s.GetName()).
@@ -267,8 +267,8 @@ A simple RSI strategy:
 package main
 
 import (
-    sdk "github.com/wisp-trading/wisp/pkg/wisp"
-    "github.com/wisp-trading/wisp/pkg/types/strategy"
+    sdk "github.com/wisp-trading/sdk/pkg/wisp"
+    "github.com/wisp-trading/sdk/pkg/types/strategy"
     "github.com/shopspring/decimal"
 )
 

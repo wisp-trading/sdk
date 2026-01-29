@@ -3,7 +3,7 @@ package lifecycle
 import (
 	"context"
 
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 // State represents the current state of the SDK

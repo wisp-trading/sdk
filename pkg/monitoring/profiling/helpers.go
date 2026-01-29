@@ -3,7 +3,7 @@ package profiling
 import (
 	"context"
 
-	"github.com/wisp-trading/wisp/pkg/types/monitoring/profiling"
+	"github.com/wisp-trading/sdk/pkg/types/monitoring/profiling"
 )
 
 // contextKey is a private type for storing profiling context in context.Context

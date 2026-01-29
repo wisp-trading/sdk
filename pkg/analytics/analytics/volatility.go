@@ -6,10 +6,10 @@ import (
 	"math"
 	"time"
 
-	"github.com/wisp-trading/wisp/pkg/monitoring/profiling"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	analyticsTypes "github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/monitoring/profiling"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	analyticsTypes "github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // Volatility calculates the standard deviation of returns for an asset.

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package inference;
 
-option go_package = "github.com/wisp-trading/wisp/grpc/gen/inference";
+option go_package = "github.com/wisp-trading/sdk/grpc/gen/inference";
 
 // ModelInference service allows Wisp to send features to user's ML inference server
 // and receive trading predictions back.

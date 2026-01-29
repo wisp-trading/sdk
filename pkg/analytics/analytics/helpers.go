@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	analyticsTypes "github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	analyticsTypes "github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 )
 
 // fetchKlines gets klines from the market service, which automatically searches all stores

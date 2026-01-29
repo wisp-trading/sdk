@@ -3,13 +3,13 @@ package monitoring
 import (
 	"context"
 
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/monitoring"
-	"github.com/wisp-trading/wisp/pkg/types/monitoring/health"
-	"github.com/wisp-trading/wisp/pkg/types/monitoring/profiling"
-	"github.com/wisp-trading/wisp/pkg/types/registry"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
-	"github.com/wisp-trading/wisp/pkg/types/wisp"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/monitoring"
+	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
+	"github.com/wisp-trading/sdk/pkg/types/monitoring/profiling"
+	"github.com/wisp-trading/sdk/pkg/types/registry"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/wisp"
 )
 
 type viewRegistry struct {

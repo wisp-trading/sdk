@@ -3,10 +3,10 @@ package wisp
 import (
 	"sync"
 
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/registry"
-	wispTypes "github.com/wisp-trading/wisp/pkg/types/wisp"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/registry"
+	wispTypes "github.com/wisp-trading/sdk/pkg/types/wisp"
 )
 
 // UniverseProvider computes and caches the trading universe

@@ -1,7 +1,7 @@
 package adapters
 
 import (
-	"github.com/wisp-trading/wisp/pkg/adapters/logging"
+	"github.com/wisp-trading/sdk/pkg/adapters/logging"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )

@@ -1,8 +1,8 @@
 package store
 
 import (
-	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 func NewStore(timeProvider temporal.TimeProvider, extensions ...marketTypes.StoreExtension) marketTypes.MarketStore {

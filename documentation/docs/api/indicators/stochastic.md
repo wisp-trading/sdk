@@ -336,8 +336,8 @@ if stoch.K.LessThan(decimal.NewFromInt(20)) &&
 package main
 
 import (
-    sdk "github.com/wisp-trading/wisp/pkg/wisp"
-    "github.com/wisp-trading/wisp/pkg/types/strategy"
+    sdk "github.com/wisp-trading/sdk/pkg/wisp"
+    "github.com/wisp-trading/sdk/pkg/types/strategy"
     "github.com/shopspring/decimal"
 )
 
@@ -431,6 +431,6 @@ func (s *StochasticStrategy) GetStrategyType() strategy.StrategyType {
 
 ## References
 
-- **Go Package**: [pkg.go.dev](https://pkg.go.dev/github.com/wisp-trading/wisp/pkg/analytics/indicators#Stochastic)
-- **Source Code**: [stochastic.go](https://github.com/wisp-trading/wisp/blob/main/pkg/analytics/indicators/stochastic.go)
+- **Go Package**: [pkg.go.dev](https://pkg.go.dev/github.com/wisp-trading/sdk/pkg/analytics/indicators#Stochastic)
+- **Source Code**: [stochastic.go](https://github.com/wisp-trading/sdk/blob/main/pkg/analytics/indicators/stochastic.go)
 - **Theory**: [Investopedia - Stochastic Oscillator](https://www.investopedia.com/terms/s/stochasticoscillator.asp)

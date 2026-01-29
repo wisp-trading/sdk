@@ -6,13 +6,13 @@ import (
 	"sort"
 	"time"
 
-	"github.com/wisp-trading/wisp/pkg/monitoring/profiling"
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
-	perpTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market/perp"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/monitoring/profiling"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	perpTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // marketService is the concrete implementation of analytics.Market.

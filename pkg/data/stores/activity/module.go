@@ -1,8 +1,8 @@
 package activity
 
 import (
-	"github.com/wisp-trading/wisp/pkg/data/stores/activity/position"
-	"github.com/wisp-trading/wisp/pkg/data/stores/activity/trade"
+	"github.com/wisp-trading/sdk/pkg/data/stores/activity/position"
+	"github.com/wisp-trading/sdk/pkg/data/stores/activity/trade"
 	"go.uber.org/fx"
 )
 

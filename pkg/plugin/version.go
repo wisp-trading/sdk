@@ -4,7 +4,7 @@ import (
 	"debug/buildinfo"
 	"fmt"
 
-	"github.com/wisp-trading/wisp/pkg/version"
+	"github.com/wisp-trading/sdk/pkg/version"
 )
 
 // extractSDKVersionFromPath extracts the SDK version from a plugin file
@@ -18,13 +18,13 @@ func extractSDKVersionFromPath(pluginPath string) (string, error) {
 	}
 
 	// Look for the wisp module in dependencies
-	const sdkModulePath = "github.com/wisp-trading/wisp"
+	const sdkModulePath = "github.com/wisp-trading/sdk"
 
 	for _, dep := range info.Deps {
 		if dep != nil && dep.Path == sdkModulePath {
 			// Check for development/local versions
 			if dep.Version == "" || dep.Version == "(devel)" || dep.Version == "v0.0.0" {
-				return "", fmt.Errorf("plugin was built with development/local version of SDK (use 'go get github.com/wisp-trading/wisp@vX.Y.Z' instead of 'replace' directive)")
+				return "", fmt.Errorf("plugin was built with development/local version of SDK (use 'go get github.com/wisp-trading/sdk@vX.Y.Z' instead of 'replace' directive)")
 			}
 			return dep.Version, nil
 		}

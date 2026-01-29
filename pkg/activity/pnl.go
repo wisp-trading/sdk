@@ -1,12 +1,12 @@
 package activity
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
-	wispActivity "github.com/wisp-trading/wisp/pkg/types/wisp/activity"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // positionTracker tracks open position size and average entry price for an asset

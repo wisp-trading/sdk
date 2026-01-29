@@ -1,11 +1,11 @@
 package market
 
 import (
-	"github.com/wisp-trading/wisp/pkg/data/stores/market/perp"
-	"github.com/wisp-trading/wisp/pkg/data/stores/market/spot"
-	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
-	perpTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market/perp"
-	spotTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market/spot"
+	"github.com/wisp-trading/sdk/pkg/data/stores/market/perp"
+	"github.com/wisp-trading/sdk/pkg/data/stores/market/spot"
+	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	perpTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
+	spotTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/spot"
 	"go.uber.org/fx"
 )
 

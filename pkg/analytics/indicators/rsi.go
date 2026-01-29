@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // RSI calculates the Relative Strength Index for the given prices and period.

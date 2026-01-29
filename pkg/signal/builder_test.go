@@ -5,13 +5,13 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	temporal "github.com/wisp-trading/wisp/pkg/runtime/time"
-	"github.com/wisp-trading/wisp/pkg/signal"
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
-	temporalType "github.com/wisp-trading/wisp/pkg/types/temporal"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	temporal "github.com/wisp-trading/sdk/pkg/runtime/time"
+	"github.com/wisp-trading/sdk/pkg/signal"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	temporalType "github.com/wisp-trading/sdk/pkg/types/temporal"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 var _ = Describe("SignalBuilder", func() {

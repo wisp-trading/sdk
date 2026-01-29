@@ -3,8 +3,8 @@ package activity
 import (
 	"time"
 
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 type UpdateKey string

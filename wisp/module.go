@@ -1,7 +1,7 @@
 package wisp
 
 import (
-	packages "github.com/wisp-trading/wisp/pkg"
+	packages "github.com/wisp-trading/sdk/pkg"
 	"go.uber.org/fx"
 )
 

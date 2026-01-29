@@ -3,8 +3,8 @@ package indicators
 import (
 	"fmt"
 
-	"github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // MACD calculates the Moving Average Convergence Divergence for the given prices.

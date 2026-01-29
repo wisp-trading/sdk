@@ -3,8 +3,8 @@ package client
 import (
 	"context"
 
-	pb "github.com/wisp-trading/wisp/grpc/gen/inference"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	pb "github.com/wisp-trading/sdk/grpc/gen/inference"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

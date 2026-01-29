@@ -5,14 +5,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/wisp-trading/wisp/pkg/monitoring/profiling"
-	"github.com/wisp-trading/wisp/pkg/types/execution"
-	lifecycleTypes "github.com/wisp-trading/wisp/pkg/types/lifecycle"
-	"github.com/wisp-trading/wisp/pkg/types/logging"
-	profileTypes "github.com/wisp-trading/wisp/pkg/types/monitoring/profiling"
-	"github.com/wisp-trading/wisp/pkg/types/registry"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	"github.com/wisp-trading/sdk/pkg/monitoring/profiling"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
+	lifecycleTypes "github.com/wisp-trading/sdk/pkg/types/lifecycle"
+	"github.com/wisp-trading/sdk/pkg/types/logging"
+	profileTypes "github.com/wisp-trading/sdk/pkg/types/monitoring/profiling"
+	"github.com/wisp-trading/sdk/pkg/types/registry"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 const (

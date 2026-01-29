@@ -1,7 +1,7 @@
 package plugin
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 // Manager defines the interface for plugin management operations

@@ -3,7 +3,7 @@ package features
 import (
 	"context"
 
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"go.uber.org/fx"
 )
 

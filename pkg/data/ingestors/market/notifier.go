@@ -1,6 +1,6 @@
 package market
 
-import "github.com/wisp-trading/wisp/pkg/types/data/ingestors"
+import "github.com/wisp-trading/sdk/pkg/types/data/ingestors"
 
 // channelNotifier implements DataUpdateNotifier using a buffered channel
 type channelNotifier struct {

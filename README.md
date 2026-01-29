@@ -8,10 +8,10 @@ Build algorithmic trading strategies in Go with a clean, intuitive API.
 package main
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	"github.com/wisp-trading/wisp/pkg/types/wisp"
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
-	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/wisp"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 type MyStrategy struct {
@@ -42,7 +42,7 @@ func (s *MyStrategy) GetStrategyType() strategy.StrategyType { return strategy.S
 
 ```bash
 # Clone the repository
-git clone https://github.com/wisp-trading/wisp
+git clone https://github.com/wisp-trading/sdk
 
 # Get dependencies
 go mod download

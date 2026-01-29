@@ -304,8 +304,8 @@ if rsi.LessThan(oversoldLevel) {
 package main
 
 import (
-    sdk "github.com/wisp-trading/wisp/pkg/wisp"
-    "github.com/wisp-trading/wisp/pkg/types/strategy"
+    sdk "github.com/wisp-trading/sdk/pkg/wisp"
+    "github.com/wisp-trading/sdk/pkg/types/strategy"
     "github.com/shopspring/decimal"
 )
 
@@ -379,6 +379,6 @@ func (s *RSIStrategy) GetStrategyType() strategy.StrategyType { return strategy.
 
 ## References
 
-- **Go Package**: [pkg.go.dev](https://pkg.go.dev/github.com/wisp-trading/wisp/pkg/analytics/indicators#RSI)
-- **Source Code**: [rsi.go](https://github.com/wisp-trading/wisp/blob/main/pkg/analytics/indicators/rsi.go)
+- **Go Package**: [pkg.go.dev](https://pkg.go.dev/github.com/wisp-trading/sdk/pkg/analytics/indicators#RSI)
+- **Source Code**: [rsi.go](https://github.com/wisp-trading/sdk/blob/main/pkg/analytics/indicators/rsi.go)
 - **Theory**: [Investopedia - RSI](https://www.investopedia.com/terms/r/rsi.asp)

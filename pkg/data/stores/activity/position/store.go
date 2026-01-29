@@ -1,8 +1,8 @@
 package position
 
 import (
-	portfolioTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
-	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	portfolioTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 func NewStore(timeProvider temporal.TimeProvider) portfolioTypes.Positions {

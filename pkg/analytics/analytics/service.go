@@ -1,7 +1,7 @@
 package analytics
 
 import (
-	analyticsTypes "github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
+	analyticsTypes "github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 )
 
 // analytics provides user-friendly methods for market analytics.

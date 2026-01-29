@@ -1,12 +1,12 @@
 package batch
 
 import (
-	"github.com/wisp-trading/wisp/pkg/types/connector"
-	perpConn "github.com/wisp-trading/wisp/pkg/types/connector/perp"
-	"github.com/wisp-trading/wisp/pkg/types/data/ingestors/batch"
-	perpStore "github.com/wisp-trading/wisp/pkg/types/data/stores/market/perp"
-	"github.com/wisp-trading/wisp/pkg/types/logging"
-	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
+	perpStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
+	"github.com/wisp-trading/sdk/pkg/types/logging"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
 // FundingRateExtension collects perp-specific funding rate data

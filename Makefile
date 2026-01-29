@@ -2,8 +2,8 @@
 generate-proto:
 	@echo "Generating gRPC code from proto files..."
 	@mkdir -p grpc/gen/inference
-	protoc --go_out=. --go_opt=module=github.com/wisp-trading/wisp \
-		--go-grpc_out=. --go-grpc_opt=module=github.com/wisp-trading/wisp \
+	protoc --go_out=. --go_opt=module=github.com/wisp-trading/sdk \
+		--go-grpc_out=. --go-grpc_opt=module=github.com/wisp-trading/sdk \
 		grpc/proto/inference.proto
 	@echo "Generated gRPC code successfully"
 

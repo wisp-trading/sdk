@@ -111,8 +111,8 @@ Here's a full working strategy:
 package main
 
 import (
-    sdk "github.com/wisp-trading/wisp/pkg/wisp"
-    "github.com/wisp-trading/wisp/pkg/types/strategy"
+    sdk "github.com/wisp-trading/sdk/pkg/wisp"
+    "github.com/wisp-trading/sdk/pkg/types/strategy"
     "github.com/shopspring/decimal"
 )
 
@@ -372,9 +372,9 @@ Wisp is built on these principles:
 
 ## Community
 
-- **GitHub**: [wisp-trading/wisp](https://github.com/wisp-trading/wisp)
-- **Issues**: [Report bugs or request features](https://github.com/wisp-trading/wisp/issues)
-- **Go Docs**: [pkg.go.dev](https://pkg.go.dev/github.com/wisp-trading/wisp)
+- **GitHub**: [wisp-trading/wisp](https://github.com/wisp-trading/sdk)
+- **Issues**: [Report bugs or request features](https://github.com/wisp-trading/sdk/issues)
+- **Go Docs**: [pkg.go.dev](https://pkg.go.dev/github.com/wisp-trading/sdk)
 
 ## License
 

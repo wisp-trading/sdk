@@ -3,7 +3,7 @@ package indicators_test
 import (
 	"testing"
 
-	"github.com/wisp-trading/wisp/pkg/analytics/indicators"
+	"github.com/wisp-trading/sdk/pkg/analytics/indicators"
 )
 
 // Benchmark setup

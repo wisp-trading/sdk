@@ -1,7 +1,7 @@
 package store
 
 import (
-	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
+	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 )
 
 func (ds *dataStore) GetLastUpdated() marketTypes.LastUpdatedMap {

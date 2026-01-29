@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // ATR calculates the Average True Range for the given price data.

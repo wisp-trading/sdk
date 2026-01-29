@@ -1,8 +1,8 @@
 package monitoring
 
 import (
-	"github.com/wisp-trading/wisp/pkg/monitoring/health"
-	"github.com/wisp-trading/wisp/pkg/monitoring/profiling"
+	"github.com/wisp-trading/sdk/pkg/monitoring/health"
+	"github.com/wisp-trading/sdk/pkg/monitoring/profiling"
 	"go.uber.org/fx"
 )
 

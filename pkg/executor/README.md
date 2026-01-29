@@ -53,7 +53,7 @@ type ExecutionHook interface {
 ### Basic Usage (Default Executor)
 
 ```go
-import "github.com/wisp-trading/wisp/pkg/executor"
+import "github.com/wisp-trading/sdk/pkg/executor"
 
 // Create executor with dependencies
 exec := executor.NewDefaultExecutor(
@@ -72,8 +72,8 @@ err := exec.ExecuteSignal(signal)
 
 ```go
 import (
-    "github.com/wisp-trading/wisp/pkg/executor"
-    "github.com/wisp-trading/wisp/pkg/executor/hooks"
+    "github.com/wisp-trading/sdk/pkg/executor"
+    "github.com/wisp-trading/sdk/pkg/executor/hooks"
 )
 
 exec := executor.NewDefaultExecutor(...)
@@ -154,7 +154,7 @@ Users can create custom hooks as `.so` plugins:
 // hooks.go
 package main
 
-import "github.com/wisp-trading/wisp/pkg/executor"
+import "github.com/wisp-trading/sdk/pkg/executor"
 
 var HookPlugin hookPlugin
 
@@ -350,7 +350,7 @@ See `examples/custom_hooks/` for a complete working example of custom hooks.
 In your live trading application:
 
 ```go
-import "github.com/wisp-trading/wisp/pkg/executor"
+import "github.com/wisp-trading/sdk/pkg/executor"
 
 func main() {
     // Create executor
