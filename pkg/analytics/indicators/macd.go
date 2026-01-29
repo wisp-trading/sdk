@@ -3,8 +3,8 @@ package indicators
 import (
 	"fmt"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // MACD calculates the Moving Average Convergence Divergence for the given prices.

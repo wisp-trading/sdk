@@ -4,16 +4,16 @@ sidebar_position: 1
 
 # Getting Started
 
-Welcome to Kronos SDK. This section will help you get up and running quickly.
+Welcome to Wisp SDK. This section will help you get up and running quickly.
 
 ## Quick Navigation
 
-- **[Installation](installation)** - Install Kronos CLI, create your first strategy, run backtests and deploy live
+- **[Installation](installation)** - Install Wisp CLI, create your first strategy, run backtests and deploy live
 - **[Quick Reference](quick-reference)** - Essential API concepts: assets, indicators, signals, decimals, and logging
 - **[Writing Strategies](writing-strategies)** - Deep dive into building sophisticated strategies
 - **[Configuration](configuration)** - Configure exchanges, strategy settings, and production deployment
 
-## New to Kronos?
+## New to Wisp?
 
 Start with **[Installation](installation)** to get the CLI set up and create your first strategy in minutes.
 
@@ -21,7 +21,7 @@ Already installed? Jump to **[Quick Reference](quick-reference)** to learn the c
 
 ## What You'll Learn
 
-1. **Installation** - Get Kronos running with `brew install kronos`
+1. **Installation** - Get Wisp running with `brew install wisp`
 2. **Quick Reference** - Master `s.k.Indicators`, `s.k.Market`, and `s.k.Signal()`
 3. **Writing Strategies** - Learn patterns for multi-asset, multi-timeframe, and risk management
 4. **Configuration** - Set up for production with proper exchange configuration

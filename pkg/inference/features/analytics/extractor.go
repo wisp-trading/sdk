@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
-	analyticsTypes "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	analyticsTypes "github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // Feature name constants (must match pkg/inference/features/types.go)

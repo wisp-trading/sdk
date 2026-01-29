@@ -1,7 +1,7 @@
 package spot
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	"github.com/wisp-trading/wisp/pkg/types/data/stores/market"
 )
 
 // MarketStore handles spot market data storage

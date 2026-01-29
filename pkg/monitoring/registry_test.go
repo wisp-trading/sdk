@@ -3,18 +3,18 @@ package monitoring_test
 import (
 	"fmt"
 
-	strategyMock "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-	sdkTesting "github.com/backtesting-org/kronos-sdk/pkg/testing"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	storeActivity "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
-	kronosType "github.com/backtesting-org/kronos-sdk/pkg/types/kronos"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	strategyMock "github.com/wisp-trading/wisp/mocks/github.com/wisp-trading/wisp/pkg/types/strategy"
+	sdkTesting "github.com/wisp-trading/wisp/pkg/testing"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	storeActivity "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/wisp/pkg/types/monitoring"
+	"github.com/wisp-trading/wisp/pkg/types/monitoring/health"
+	"github.com/wisp-trading/wisp/pkg/types/registry"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	wispType "github.com/wisp-trading/wisp/pkg/types/wisp"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )
@@ -25,7 +25,7 @@ var _ = Describe("ViewRegistry", func() {
 		viewRegistry     monitoring.ViewRegistry
 		healthStore      health.HealthStore
 		strategyRegistry registry.StrategyRegistry
-		kronos           kronosType.Kronos
+		wisp             wispType.Wisp
 		positionsStore   storeActivity.Positions
 	)
 
@@ -36,7 +36,7 @@ var _ = Describe("ViewRegistry", func() {
 				&viewRegistry,
 				&healthStore,
 				&strategyRegistry,
-				&kronos,
+				&wisp,
 				&positionsStore,
 			),
 			fx.NopLogger,

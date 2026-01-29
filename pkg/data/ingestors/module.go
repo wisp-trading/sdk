@@ -1,8 +1,8 @@
 package ingestors
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/market"
-	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/position"
+	"github.com/wisp-trading/wisp/pkg/data/ingestors/market"
+	"github.com/wisp-trading/wisp/pkg/data/ingestors/position"
 	"go.uber.org/fx"
 )
 

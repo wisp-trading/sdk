@@ -1,8 +1,8 @@
 package perp
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
 )
 
 // Connector represents a perpetual futures exchange connection

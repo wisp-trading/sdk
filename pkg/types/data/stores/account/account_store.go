@@ -3,8 +3,8 @@ package account
 import (
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // AccountStore handles account balance and margin data per exchange

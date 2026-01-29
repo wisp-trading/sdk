@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/data/ingestors"
+	"github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/wisp/pkg/types/logging"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/registry"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 // coordinator handles trade backfill on startup

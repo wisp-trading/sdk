@@ -3,7 +3,7 @@ package market
 import (
 	"sync"
 
-	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
 )
 
 // marketRegistry is the concrete implementation of MarketRegistry

@@ -3,8 +3,8 @@ package plugin
 import (
 	"plugin"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	"github.com/google/uuid"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 // LoadedPlugin represents a plugin that has been loaded into memory

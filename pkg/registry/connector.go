@@ -5,10 +5,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/spot"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/connector/perp"
+	"github.com/wisp-trading/wisp/pkg/types/connector/spot"
+	"github.com/wisp-trading/wisp/pkg/types/registry"
 )
 
 type connectorType string

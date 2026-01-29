@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	sdkTesting "github.com/backtesting-org/kronos-sdk/pkg/testing"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	sdkTesting "github.com/wisp-trading/wisp/pkg/testing"
+	"github.com/wisp-trading/wisp/pkg/types/data/ingestors"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )

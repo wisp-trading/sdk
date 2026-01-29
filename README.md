@@ -1,4 +1,4 @@
-# Kronos SDK
+# Wisp SDK
 
 Build algorithmic trading strategies in Go with a clean, intuitive API.
 
@@ -8,14 +8,14 @@ Build algorithmic trading strategies in Go with a clean, intuitive API.
 package main
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/wisp"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 type MyStrategy struct {
-	k kronos.Kronos
+	k wisp.Wisp
 }
 
 func (s *MyStrategy) GetSignals() ([]*strategy.Signal, error) {
@@ -42,7 +42,7 @@ func (s *MyStrategy) GetStrategyType() strategy.StrategyType { return strategy.S
 
 ```bash
 # Clone the repository
-git clone https://github.com/backtesting-org/kronos-sdk
+git clone https://github.com/wisp-trading/wisp
 
 # Get dependencies
 go mod download
@@ -58,7 +58,7 @@ go mod download
 
 ## Documentation
 
-**📚 [Full Documentation](https://kronos-docs.vercel.app)** (coming soon)
+**📚 [Full Documentation](https://wisp-docs.vercel.app)** (coming soon)
 
 - [Getting Started](docs/getting-started/)
 - [Writing Strategies](docs/getting-started/writing-strategies.md)
@@ -77,9 +77,9 @@ go mod download
 ## Project Structure
 
 ```
-kronos-sdk/
+wisp/
 ├── pkg/
-│   ├── kronos/          # Main SDK (Indicators, Market, Analytics, Signal)
+│   ├── wisp/          # Main SDK (Indicators, Market, Analytics, Signal)
 │   └── types/           # Public interfaces (Strategy, Connector, Portfolio)
 ├── internal/            # Internal implementations
 ├── examples/            # Example strategies
@@ -90,13 +90,13 @@ kronos-sdk/
 
 ```bash
 # Backtest a strategy
-kronos backtest --strategy MyStrategy --start 2024-01-01 --end 2024-12-31
+wisp backtest --strategy MyStrategy --start 2024-01-01 --end 2024-12-31
 
 # Run live
-kronos live --strategy MyStrategy --exchange binance
+wisp live --strategy MyStrategy --exchange binance
 
 # List available strategies
-kronos list
+wisp list
 ```
 
 ## Contributing

@@ -3,17 +3,17 @@ package monitoring
 import (
 	"context"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/monitoring"
+	"github.com/wisp-trading/wisp/pkg/types/monitoring/health"
+	"github.com/wisp-trading/wisp/pkg/types/monitoring/profiling"
+	"github.com/wisp-trading/wisp/pkg/types/registry"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/wisp"
 )
 
 type viewRegistry struct {
-	kronos           kronos.Kronos
+	wisp             wisp.Wisp
 	health           health.HealthStore
 	strategyRegistry registry.StrategyRegistry
 	profilingStore   profiling.ProfilingStore
@@ -21,13 +21,13 @@ type viewRegistry struct {
 
 func NewViewRegistry(
 	health health.HealthStore,
-	kronos kronos.Kronos,
+	wisp wisp.Wisp,
 	strategyRegistry registry.StrategyRegistry,
 	profilingStore profiling.ProfilingStore,
 ) monitoring.ViewRegistry {
 	return &viewRegistry{
 		health:           health,
-		kronos:           kronos,
+		wisp:             wisp,
 		strategyRegistry: strategyRegistry,
 		profilingStore:   profilingStore,
 	}
@@ -49,7 +49,7 @@ func (r *viewRegistry) GetPnLView() *monitoring.PnLView {
 		return nil
 	}
 
-	pnl := r.kronos.Activity().PNL()
+	pnl := r.wisp.Activity().PNL()
 	realizedPnL := pnl.GetRealizedPNL(ctx, name)
 	unrealizedPnL, _ := pnl.GetUnrealizedPNL(ctx, name)
 	totalPnL, _ := pnl.GetTotalPNL(ctx)
@@ -72,14 +72,14 @@ func (r *viewRegistry) GetPositionsView() *strategy.StrategyExecution {
 	}
 
 	ctx := strategy.NewStrategyContext(context.Background(), name)
-	return r.kronos.Activity().Positions().GetStrategyExecution(ctx)
+	return r.wisp.Activity().Positions().GetStrategyExecution(ctx)
 }
 
 func (r *viewRegistry) GetOrderbookView(symbol string) *connector.OrderBook {
 	ctx := context.Background()
 
-	asset := r.kronos.Asset(symbol)
-	ob, err := r.kronos.Market().OrderBook(ctx, asset)
+	asset := r.wisp.Asset(symbol)
+	ob, err := r.wisp.Market().OrderBook(ctx, asset)
 	if err != nil {
 		return nil
 	}
@@ -93,7 +93,7 @@ func (r *viewRegistry) GetRecentTrades(limit int) []connector.Trade {
 	}
 
 	ctx := strategy.NewStrategyContext(context.Background(), name)
-	trades := r.kronos.Activity().Positions().GetTradesForStrategy(ctx)
+	trades := r.wisp.Activity().Positions().GetTradesForStrategy(ctx)
 	if len(trades) <= limit {
 		return trades
 	}
@@ -113,7 +113,7 @@ func (r *viewRegistry) GetHealth() *health.SystemHealthReport {
 }
 
 func (r *viewRegistry) GetAvailableAssets() []monitoring.AssetExchange {
-	universe := r.kronos.Universe()
+	universe := r.wisp.Universe()
 	assets := universe.Assets
 	exchanges := universe.Exchanges
 

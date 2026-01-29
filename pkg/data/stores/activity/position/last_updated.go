@@ -1,7 +1,7 @@
 package position
 
 import (
-	portfolioTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
+	portfolioTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
 )
 
 func (ds *dataStore) GetLastUpdated() portfolioTypes.LastUpdatedMap {

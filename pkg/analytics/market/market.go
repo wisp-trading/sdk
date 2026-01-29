@@ -6,13 +6,13 @@ import (
 	"sort"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
-	perpTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/monitoring/profiling"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
+	perpTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market/perp"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // marketService is the concrete implementation of analytics.Market.

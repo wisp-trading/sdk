@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/config"
+	"github.com/wisp-trading/wisp/pkg/types/config"
 	"gopkg.in/yaml.v3"
 )
 

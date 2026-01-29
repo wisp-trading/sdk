@@ -1,7 +1,7 @@
 package registry
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 // StrategyRegistry manages strategy registration and lifecycle

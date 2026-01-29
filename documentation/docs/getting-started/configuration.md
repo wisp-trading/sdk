@@ -4,11 +4,11 @@ sidebar_position: 5
 
 # Configuration
 
-Configure Kronos for your exchange, assets, and trading parameters.
+Configure Wisp for your exchange, assets, and trading parameters.
 
 ## Configuration Structure
 
-Kronos uses two types of configuration:
+Wisp uses two types of configuration:
 
 1. **Project-level config** (`config.yaml` in project root) - Exchanges, logging, risk settings
 2. **Strategy-specific config** (`strategies/{name}/config.yaml`) - Strategy settings, backtest parameters
@@ -36,7 +36,7 @@ exchanges:
 # Logging
 logging:
   level: "info"            # debug, info, warn, error
-  file: "kronos.log"
+  file: "wisp.log"
 
 # Risk management
 risk:
@@ -170,7 +170,7 @@ prices := s.k.Market().Prices(btc)
 ```yaml
 logging:
   level: "info"              # debug, info, warn, error
-  file: "kronos.log"
+  file: "wisp.log"
   console: true              # Also log to console
 ```
 
@@ -245,7 +245,7 @@ Each strategy keeps its own config in `strategies/{name}/config.yaml`.
 Use with:
 
 ```bash
-kronos live --config config.prod.yaml
+wisp live --config config.prod.yaml
 ```
 
 ## Next Steps

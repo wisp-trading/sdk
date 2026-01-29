@@ -3,10 +3,10 @@ package profiling_test
 import (
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
-	profiling2 "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/wisp-trading/wisp/pkg/monitoring/profiling"
+	profiling2 "github.com/wisp-trading/wisp/pkg/types/monitoring/profiling"
 )
 
 var _ = Describe("AnomalyDetector", func() {

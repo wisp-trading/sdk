@@ -1,9 +1,9 @@
 package monitoring
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/monitoring/health"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 // ViewRegistry aggregates runtime data from SDK stores and exposes it for monitoring.

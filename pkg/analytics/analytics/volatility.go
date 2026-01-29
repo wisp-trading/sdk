@@ -6,10 +6,10 @@ import (
 	"math"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
-	analyticsTypes "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/monitoring/profiling"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	analyticsTypes "github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // Volatility calculates the standard deviation of returns for an asset.

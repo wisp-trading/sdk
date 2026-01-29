@@ -4,20 +4,20 @@ sidebar_position: 1
 
 # Installation
 
-Get up and running with Kronos in minutes.
+Get up and running with Wisp in minutes.
 
-## Install Kronos CLI
+## Install Wisp CLI
 
 Install via Homebrew:
 
 ```bash
-brew install backtesting-org/tap/kronos
+brew install wisp-trading/tap/wisp
 ```
 
 Verify the installation:
 
 ```bash
-kronos --version
+wisp --version
 ```
 
 ## Prerequisites
@@ -34,17 +34,17 @@ go version
 
 ## Create a New Strategy
 
-Initialize a new Kronos project:
+Initialize a new Wisp project:
 
 ```bash
-kronos init my-strategy
+wisp init my-strategy
 cd my-strategy
 ```
 
 This creates:
 - `strategy.go` - Your strategy implementation
 - `go.mod` - Go dependencies
-- `config.yaml` - Kronos configuration
+- `config.yaml` - Wisp configuration
 - `README.md` - Project documentation
 
 ## Project Structure
@@ -53,7 +53,7 @@ This creates:
 my-strategy/
 ├── strategy.go      # Your strategy code
 ├── go.mod           # Go module
-├── config.yaml      # Kronos config
+├── config.yaml      # Wisp config
 └── README.md        # Documentation
 ```
 
@@ -62,7 +62,7 @@ my-strategy/
 Test your strategy with historical data:
 
 ```bash
-kronos backtest
+wisp backtest
 ```
 
 This runs your strategy against past market data and shows performance metrics:
@@ -76,16 +76,16 @@ This runs your strategy against past market data and shows performance metrics:
 
 ```bash
 # Backtest specific date range
-kronos backtest --start 2024-01-01 --end 2024-12-31
+wisp backtest --start 2024-01-01 --end 2024-12-31
 
 # Use specific exchange
-kronos backtest --exchange binance
+wisp backtest --exchange binance
 
 # Specify starting capital
-kronos backtest --capital 10000
+wisp backtest --capital 10000
 
 # Detailed output
-kronos backtest --verbose
+wisp backtest --verbose
 ```
 
 ## Deploy to Live Trading
@@ -93,10 +93,10 @@ kronos backtest --verbose
 Once you're satisfied with backtest results, deploy your strategy:
 
 ```bash
-kronos live
+wisp live
 ```
 
-This starts your strategy in live trading mode. Kronos will:
+This starts your strategy in live trading mode. Wisp will:
 1. Connect to your configured exchange(s)
 2. Start monitoring markets in real-time
 3. Execute trades based on your strategy signals
@@ -106,16 +106,16 @@ This starts your strategy in live trading mode. Kronos will:
 
 ```bash
 # Dry run (paper trading - no real orders)
-kronos live --dry-run
+wisp live --dry-run
 
 # Specific exchange
-kronos live --exchange binance
+wisp live --exchange binance
 
 # Enable verbose logging
-kronos live --verbose
+wisp live --verbose
 
 # Custom config file
-kronos live --config production.yaml
+wisp live --config production.yaml
 ```
 
 ## Configuration
@@ -150,29 +150,29 @@ Never commit sensitive config files to version control. Keep config files with A
 
 ```bash
 # Create new strategy
-kronos init <name>
+wisp init <name>
 
 # Backtest strategy
-kronos backtest
+wisp backtest
 
 # Run live (paper trading)
-kronos live --dry-run
+wisp live --dry-run
 
 # Run live (real trading)
-kronos live
+wisp live
 
 # View logs
-kronos logs
+wisp logs
 
 # Check status
-kronos status
+wisp status
 
 # Stop running strategy
-kronos stop
+wisp stop
 ```
 
 ## Next Steps
 
-- **[Quick Reference](quick-reference)** - Learn the Kronos API basics
+- **[Quick Reference](quick-reference)** - Learn the Wisp API basics
 - **[Writing Strategies](writing-strategies)** - Deep dive into strategy development
 - **[Configuration](configuration)** - Detailed config options

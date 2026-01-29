@@ -1,10 +1,10 @@
 package spot
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/market/store"
-	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
-	spotTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/spot"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
+	"github.com/wisp-trading/wisp/pkg/data/stores/market/store"
+	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
+	spotTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market/spot"
+	"github.com/wisp-trading/wisp/pkg/types/temporal"
 )
 
 type spotStore struct {

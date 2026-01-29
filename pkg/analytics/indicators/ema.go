@@ -3,7 +3,7 @@ package indicators
 import (
 	"fmt"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // emaFloat64 is the internal float64 implementation for use by other indicators

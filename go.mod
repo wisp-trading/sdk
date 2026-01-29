@@ -1,4 +1,4 @@
-module github.com/backtesting-org/kronos-sdk
+module github.com/wisp-trading/wisp
 
 go 1.24.2
 

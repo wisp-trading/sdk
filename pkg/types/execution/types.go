@@ -3,7 +3,7 @@ package execution
 import (
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 // ExecutionContext contains the context for an execution

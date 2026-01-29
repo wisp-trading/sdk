@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	profiling2 "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
+	profiling2 "github.com/wisp-trading/wisp/pkg/types/monitoring/profiling"
 )
 
 // anomalyDetector implements profiling.AnomalyDetector

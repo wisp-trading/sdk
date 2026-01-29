@@ -3,7 +3,7 @@ package health
 import (
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
 )
 
 // DataType represents types of market data

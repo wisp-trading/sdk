@@ -1,12 +1,12 @@
 package signal
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 	"github.com/google/uuid"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // builder is the concrete implementation of strategy.SignalBuilder.

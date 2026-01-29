@@ -1,5 +1,5 @@
 /**
- * Kronos SDK - Custom Styling
+ * Wisp SDK - Custom Styling
  * Slate gray with subtle Greek theming
  */
 
@@ -15,26 +15,26 @@
   --ifm-color-primary-light: #94a3b8;
   --ifm-color-primary-lighter: #cbd5e1;
   --ifm-color-primary-lightest: #e2e8f0;
-  
+
   /* Accent Colors - Bronze/Gold for Greek feel */
-  --kronos-accent: #d4a574;
-  --kronos-accent-dark: #b8935f;
-  --kronos-accent-light: #e8c9a8;
-  
+  --wisp-accent: #d4a574;
+  --wisp-accent-dark: #b8935f;
+  --wisp-accent-light: #e8c9a8;
+
   /* Typography */
   --ifm-font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
   --ifm-font-family-monospace: 'IBM Plex Mono', 'Courier New', monospace;
   --ifm-code-font-size: 95%;
   --ifm-heading-font-weight: 600;
-  
+
   /* Spacing & Border Radius */
   --ifm-border-radius: 8px;
   --ifm-card-border-radius: 12px;
-  
+
   /* Background */
   --ifm-background-color: #f8fafc;
   --ifm-navbar-background-color: #ffffff;
-  
+
   /* Code blocks */
   --docusaurus-highlighted-code-line-bg: rgba(100, 116, 139, 0.1);
 }
@@ -48,16 +48,16 @@
   --ifm-color-primary-light: #cbd5e1;
   --ifm-color-primary-lighter: #e2e8f0;
   --ifm-color-primary-lightest: #f1f5f9;
-  
+
   /* Dark mode backgrounds */
   --ifm-background-color: #0f172a;
   --ifm-navbar-background-color: #1e293b;
   --ifm-footer-background-color: #0f172a;
-  
+
   /* Accent in dark mode */
-  --kronos-accent: #e8c9a8;
-  --kronos-accent-dark: #d4a574;
-  
+  --wisp-accent: #e8c9a8;
+  --wisp-accent-dark: #d4a574;
+
   --docusaurus-highlighted-code-line-bg: rgba(148, 163, 184, 0.15);
 }
 
@@ -68,19 +68,19 @@
   font-weight: 700;
   font-size: 1.3em;
   margin-right: 0.3rem;
-  color: var(--kronos-accent);
+  color: var(--wisp-accent);
   vertical-align: middle;
 }
 
 /* Styled headings with subtle Greek border */
 .markdown h1 {
-  border-bottom: 3px solid var(--kronos-accent);
+  border-bottom: 3px solid var(--wisp-accent);
   padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
 }
 
 .markdown h2 {
-  border-left: 4px solid var(--kronos-accent);
+  border-left: 4px solid var(--wisp-accent);
   padding-left: 1rem;
   margin-top: 2rem;
 }
@@ -99,18 +99,18 @@ div[class^='codeBlockContainer'] {
 
 /* Styled links with bronze accent */
 .markdown a {
-  color: var(--kronos-accent-dark);
+  color: var(--wisp-accent-dark);
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: border-color 0.2s;
 }
 
 .markdown a:hover {
-  border-bottom-color: var(--kronos-accent);
+  border-bottom-color: var(--wisp-accent);
 }
 
 [data-theme='dark'] .markdown a {
-  color: var(--kronos-accent);
+  color: var(--wisp-accent);
 }
 
 /* Enhanced sidebar */
@@ -124,7 +124,7 @@ div[class^='codeBlockContainer'] {
 
 /* Greek meander pattern on footer (subtle) */
 .footer {
-  border-top: 3px solid var(--kronos-accent);
+  border-top: 3px solid var(--wisp-accent);
   background: linear-gradient(
     to bottom,
     var(--ifm-footer-background-color),
@@ -153,12 +153,12 @@ div[class^='codeBlockContainer'] {
 
 /* Table of contents accent */
 .table-of-contents__link--active {
-  color: var(--kronos-accent-dark);
-  border-left-color: var(--kronos-accent);
+  color: var(--wisp-accent-dark);
+  border-left-color: var(--wisp-accent);
 }
 
 [data-theme='dark'] .table-of-contents__link--active {
-  color: var(--kronos-accent);
+  color: var(--wisp-accent);
 }
 
 /* Navbar subtle enhancement */
@@ -177,7 +177,7 @@ div[class^='codeBlockContainer'] {
     var(--ifm-background-color) 0%,
     var(--ifm-color-primary-lightest) 100%
   );
-  border-bottom: 3px solid var(--kronos-accent);
+  border-bottom: 3px solid var(--wisp-accent);
 }
 
 [data-theme='dark'] .hero {
@@ -190,11 +190,11 @@ div[class^='codeBlockContainer'] {
 
 /* Strategy overview boxes */
 .markdown > p > strong:first-child {
-  color: var(--kronos-accent-dark);
+  color: var(--wisp-accent-dark);
 }
 
 [data-theme='dark'] .markdown > p > strong:first-child {
-  color: var(--kronos-accent);
+  color: var(--wisp-accent);
 }
 
 /* Inline code with slate styling */

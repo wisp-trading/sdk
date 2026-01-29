@@ -21,6 +21,6 @@ type ServerConfig struct {
 	InstanceID string
 
 	// SocketDir is the directory where socket files are created
-	// Defaults to ~/.kronos/sockets/
+	// Defaults to ~/.wisp/sockets/
 	SocketDir string
 }

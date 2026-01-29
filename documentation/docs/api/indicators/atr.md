@@ -192,6 +192,6 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
 
 ## References
 
-- **Go Package**: [pkg.go.dev](https://pkg.go.dev/github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators#ATR)
-- **Source Code**: [atr.go](https://github.com/backtesting-org/kronos-sdk/blob/main/pkg/analytics/indicators/atr.go)
+- **Go Package**: [pkg.go.dev](https://pkg.go.dev/github.com/wisp-trading/wisp/pkg/analytics/indicators#ATR)
+- **Source Code**: [atr.go](https://github.com/wisp-trading/wisp/blob/main/pkg/analytics/indicators/atr.go)
 - **Theory**: [Investopedia - ATR](https://www.investopedia.com/terms/a/atr.asp)

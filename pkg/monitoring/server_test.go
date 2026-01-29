@@ -9,17 +9,17 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/monitoring"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	monitoringTypes "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/wisp-trading/wisp/pkg/monitoring"
+	monitoringTypes "github.com/wisp-trading/wisp/pkg/types/monitoring"
+	"github.com/wisp-trading/wisp/pkg/types/monitoring/health"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 
-	monitoringMock "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/monitoring"
+	monitoringMock "github.com/wisp-trading/wisp/mocks/github.com/wisp-trading/wisp/pkg/types/monitoring"
 )
 
 var _ = Describe("Server", func() {

@@ -1,8 +1,8 @@
 package monitoring
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/health"
-	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
+	"github.com/wisp-trading/wisp/pkg/monitoring/health"
+	"github.com/wisp-trading/wisp/pkg/monitoring/profiling"
 	"go.uber.org/fx"
 )
 

@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
-	perpTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/connector/perp"
+	perpTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market/perp"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
 )
 
 // perpMarketService implements analytics.PerpMarket

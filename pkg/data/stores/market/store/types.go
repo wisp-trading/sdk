@@ -4,9 +4,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
+	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/temporal"
 )
 
 // Data types for atomic storage

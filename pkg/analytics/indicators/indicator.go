@@ -29,11 +29,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/monitoring/profiling"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 const (
@@ -74,7 +74,7 @@ func NewIndicators(market analytics.Market) analytics.Indicators {
 //	    Interval: "4h",  // 4-hour timeframe
 //	})
 //
-// Kronos automatically:
+// Wisp automatically:
 //   - Fetches price data from the exchange
 //   - Calculates the moving average
 //   - Returns the current value
@@ -119,7 +119,7 @@ func (s *indicators) SMA(ctx context.Context, asset portfolio.Asset, period int,
 //	    // Uptrend detected
 //	}
 //
-// Kronos automatically:
+// Wisp automatically:
 //   - Fetches historical price data
 //   - Applies exponential weighting
 //   - Returns the current EMA value
@@ -169,7 +169,7 @@ func (s *indicators) EMA(ctx context.Context, asset portfolio.Asset, period int,
 //	    return s.Signal().Sell(btc).Build()
 //	}
 //
-// Kronos automatically:
+// Wisp automatically:
 //   - Fetches price history
 //   - Calculates gains and losses
 //   - Computes the RSI value

@@ -319,16 +319,16 @@ if price.GreaterThan(sma50) {
 package main
 
 import (
-    sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
-    "github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+    sdk "github.com/wisp-trading/wisp/pkg/wisp"
+    "github.com/wisp-trading/wisp/pkg/types/strategy"
     "github.com/shopspring/decimal"
 )
 
 type MAStrategy struct {
-    k *sdk.Kronos
+    k *sdk.Wisp
 }
 
-func NewMA(k *sdk.Kronos) *MAStrategy {
+func NewMA(k *sdk.Wisp) *MAStrategy {
     return &MAStrategy{k: k}
 }
 
@@ -392,6 +392,6 @@ func (s *MAStrategy) GetStrategyType() strategy.StrategyType { return strategy.S
 
 ## References
 
-- **Go Package**: [pkg.go.dev - SMA](https://pkg.go.dev/github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators#SMA) | [EMA](https://pkg.go.dev/github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators#EMA)
-- **Source Code**: [sma.go](https://github.com/backtesting-org/kronos-sdk/blob/main/pkg/analytics/indicators/sma.go) | [ema.go](https://github.com/backtesting-org/kronos-sdk/blob/main/pkg/analytics/indicators/ema.go)
+- **Go Package**: [pkg.go.dev - SMA](https://pkg.go.dev/github.com/wisp-trading/wisp/pkg/analytics/indicators#SMA) | [EMA](https://pkg.go.dev/github.com/wisp-trading/wisp/pkg/analytics/indicators#EMA)
+- **Source Code**: [sma.go](https://github.com/wisp-trading/wisp/blob/main/pkg/analytics/indicators/sma.go) | [ema.go](https://github.com/wisp-trading/wisp/blob/main/pkg/analytics/indicators/ema.go)
 - **Theory**: [Investopedia - SMA](https://www.investopedia.com/terms/s/sma.asp) | [EMA](https://www.investopedia.com/terms/e/ema.asp)

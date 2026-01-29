@@ -1,17 +1,17 @@
 package activity
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	storeActivity "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
-	kronosActivity "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	storeActivity "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	wispActivity "github.com/wisp-trading/wisp/pkg/types/wisp/activity"
 )
 
 type positions struct {
 	store storeActivity.Positions
 }
 
-func NewPositions(store storeActivity.Positions) kronosActivity.Positions {
+func NewPositions(store storeActivity.Positions) wispActivity.Positions {
 	return &positions{store: store}
 }
 
@@ -35,4 +35,4 @@ func (p *positions) GetTotalOrderCount(ctx strategy.StrategyContext) int64 {
 	return p.store.GetTotalOrderCount()
 }
 
-var _ kronosActivity.Positions = (*positions)(nil)
+var _ wispActivity.Positions = (*positions)(nil)

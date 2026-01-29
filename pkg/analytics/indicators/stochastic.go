@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // Stochastic calculates the Stochastic Oscillator for the given price data.

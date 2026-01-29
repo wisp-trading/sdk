@@ -3,7 +3,7 @@ package features
 import (
 	"context"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
 	"go.uber.org/fx"
 )
 

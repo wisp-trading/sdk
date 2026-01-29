@@ -1,11 +1,11 @@
 package features
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/inference/features/analytics"
-	"github.com/backtesting-org/kronos-sdk/pkg/inference/features/market"
-	"github.com/backtesting-org/kronos-sdk/pkg/inference/features/orderbook"
-	"github.com/backtesting-org/kronos-sdk/pkg/inference/features/price"
-	"github.com/backtesting-org/kronos-sdk/pkg/inference/features/technical"
+	"github.com/wisp-trading/wisp/pkg/inference/features/analytics"
+	"github.com/wisp-trading/wisp/pkg/inference/features/market"
+	"github.com/wisp-trading/wisp/pkg/inference/features/orderbook"
+	"github.com/wisp-trading/wisp/pkg/inference/features/price"
+	"github.com/wisp-trading/wisp/pkg/inference/features/technical"
 	"go.uber.org/fx"
 )
 
@@ -20,9 +20,9 @@ var Module = fx.Module("inference-features",
 		),
 	),
 	// Feature extractor sub-modules:
-	market.Module,     // Price data, funding rates
-	technical.Module,  // Technical indicators (RSI, MACD, BB, etc.)
-	analytics.Module,  // Analytics features (volatility, volume, time)
-	price.Module,      // Price metrics (returns, high/low, VWAP)
-	orderbook.Module,  // Orderbook features (spread, depth, imbalance)
+	market.Module,    // Price data, funding rates
+	technical.Module, // Technical indicators (RSI, MACD, BB, etc.)
+	analytics.Module, // Analytics features (volatility, volume, time)
+	price.Module,     // Price metrics (returns, high/low, VWAP)
+	orderbook.Module, // Orderbook features (spread, depth, imbalance)
 )

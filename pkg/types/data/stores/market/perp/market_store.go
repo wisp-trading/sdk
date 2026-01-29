@@ -1,10 +1,10 @@
 package perp
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/connector/perp"
+	"github.com/wisp-trading/wisp/pkg/types/data/stores/market"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
 )
 
 // MarketStore handles perpetual market data storage

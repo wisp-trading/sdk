@@ -1,6 +1,6 @@
 package registry
 
-import "github.com/backtesting-org/kronos-sdk/pkg/types/execution"
+import "github.com/wisp-trading/wisp/pkg/types/execution"
 
 // Hooks manages execution hooks at runtime
 type Hooks interface {

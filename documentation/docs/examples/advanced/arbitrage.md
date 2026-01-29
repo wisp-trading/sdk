@@ -19,17 +19,17 @@ Find and exploit price differences across exchanges.
 package main
 
 import (
-    sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
-    "github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-    "github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+    sdk "github.com/wisp-trading/wisp/pkg/wisp"
+    "github.com/wisp-trading/wisp/pkg/types/connector"
+    "github.com/wisp-trading/wisp/pkg/types/strategy"
     "github.com/shopspring/decimal"
 )
 
 type Arbitrage struct {
-    k *sdk.Kronos
+    k *sdk.Wisp
 }
 
-func NewArbitrage(k *sdk.Kronos) *Arbitrage {
+func NewArbitrage(k *sdk.Wisp) *Arbitrage {
     return &Arbitrage{k: k}
 }
 
@@ -100,7 +100,7 @@ func (s *Arbitrage) GetStrategyType() strategy.StrategyType { return strategy.St
 Run with:
 
 ```bash
-kronos backtest
+wisp backtest
 ```
 
 Expected characteristics:

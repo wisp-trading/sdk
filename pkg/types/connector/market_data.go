@@ -3,8 +3,8 @@ package connector
 import (
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // Price represents the market price data for a symbol.

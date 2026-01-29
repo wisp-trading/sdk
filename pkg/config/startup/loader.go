@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/config"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/config"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/logging"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 type startupConfigLoader struct {
@@ -36,15 +36,15 @@ func NewStartupConfigLoader(
 // LoadForStrategy loads ALL configuration needed to run a strategy
 func (l *startupConfigLoader) LoadForStrategy(
 	strategyDir string,
-	kronosPath string,
+	wispPath string,
 ) (*config.StartupConfig, error) {
-	// Load kronos settings first (this sets the path for connector service)
-	_, err := l.configuration.LoadSettings(kronosPath)
+	// Load wisp settings first (this sets the path for connector service)
+	_, err := l.configuration.LoadSettings(wispPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load kronos settings: %w", err)
+		return nil, fmt.Errorf("failed to load wisp settings: %w", err)
 	}
 
-	l.logger.Info("Loaded kronos settings", "path", kronosPath)
+	l.logger.Info("Loaded wisp settings", "path", wispPath)
 
 	// Load strategy config
 	configPath := filepath.Join(strategyDir, "config.yml")

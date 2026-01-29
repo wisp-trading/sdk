@@ -1,7 +1,7 @@
 package analytics
 
 import (
-	analyticsTypes "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
+	analyticsTypes "github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
 )
 
 // analytics provides user-friendly methods for market analytics.

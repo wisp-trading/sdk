@@ -3,24 +3,24 @@ package batch_test
 import (
 	"time"
 
-	mockPerpConnector "github.com/backtesting-org/kronos-sdk/mocks/github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
-	perpBatch "github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/market/perp/batch"
-	perpStore "github.com/backtesting-org/kronos-sdk/pkg/data/stores/market/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/batch"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
-	registryTypes "github.com/backtesting-org/kronos-sdk/pkg/types/registry"
+	mockPerpConnector "github.com/wisp-trading/wisp/mocks/github.com/wisp-trading/wisp/pkg/types/connector/perp"
+	perpBatch "github.com/wisp-trading/wisp/pkg/data/ingestors/market/perp/batch"
+	perpStore "github.com/wisp-trading/wisp/pkg/data/stores/market/perp"
+	"github.com/wisp-trading/wisp/pkg/types/data/ingestors/batch"
+	"github.com/wisp-trading/wisp/pkg/types/data/stores/market/perp"
+	registryTypes "github.com/wisp-trading/wisp/pkg/types/registry"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/registry"
-	timeProvider "github.com/backtesting-org/kronos-sdk/pkg/runtime/time"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	perpConn "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/mock"
+	"github.com/wisp-trading/wisp/pkg/registry"
+	timeProvider "github.com/wisp-trading/wisp/pkg/runtime/time"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	perpConn "github.com/wisp-trading/wisp/pkg/types/connector/perp"
+	"github.com/wisp-trading/wisp/pkg/types/logging"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 func setupMockPerpConnector(t GinkgoTInterface, name connector.ExchangeName) *mockPerpConnector.Connector {

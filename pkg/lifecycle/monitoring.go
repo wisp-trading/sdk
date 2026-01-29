@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/monitoring"
-	monitoringTypes "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/monitoring"
+	monitoringTypes "github.com/wisp-trading/wisp/pkg/types/monitoring"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 // initializeMonitoringServer creates and configures the monitoring server

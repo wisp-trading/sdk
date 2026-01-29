@@ -137,6 +137,6 @@ Lower Band = Middle - (stdDev × Standard Deviation)
 
 ## References
 
-- **Go Package**: [pkg.go.dev](https://pkg.go.dev/github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators#BollingerBands)
-- **Source Code**: [bollinger.go](https://github.com/backtesting-org/kronos-sdk/blob/main/pkg/analytics/indicators/bollinger.go)
+- **Go Package**: [pkg.go.dev](https://pkg.go.dev/github.com/wisp-trading/wisp/pkg/analytics/indicators#BollingerBands)
+- **Source Code**: [bollinger.go](https://github.com/wisp-trading/wisp/blob/main/pkg/analytics/indicators/bollinger.go)
 - **Theory**: [Investopedia - Bollinger Bands](https://www.investopedia.com/terms/b/bollingerbands.asp)

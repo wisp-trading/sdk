@@ -4,16 +4,16 @@ import (
 	"context"
 	"time"
 
-	sdkTesting "github.com/backtesting-org/kronos-sdk/pkg/testing"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	storeActivity "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
-	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
-	kronosActivity "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	sdkTesting "github.com/wisp-trading/wisp/pkg/testing"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	storeActivity "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
+	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	wispActivity "github.com/wisp-trading/wisp/pkg/types/wisp/activity"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )
@@ -21,7 +21,7 @@ import (
 var _ = Describe("PNL", func() {
 	var (
 		app            *fxtest.App
-		pnl            kronosActivity.PNL
+		pnl            wispActivity.PNL
 		positionStore  storeActivity.Positions
 		tradesStore    storeActivity.Trades
 		marketRegistry marketTypes.MarketRegistry

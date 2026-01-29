@@ -24,7 +24,7 @@ const (
 // Features contains preprocessed market data for ML inference.
 //
 // The map allows flexibility - different models can use different feature sets.
-// Kronos sends comprehensive features; users select what their model needs.
+// Wisp sends comprehensive features; users select what their model needs.
 type Features struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// named_features is a flexible map of feature name -> value
@@ -133,7 +133,7 @@ const file_grpc_proto_inference_proto_rawDesc = "" +
 	"confidence\x18\x01 \x01(\x01R\n" +
 	"confidence2G\n" +
 	"\x0eModelInference\x125\n" +
-	"\aPredict\x12\x13.inference.Features\x1a\x15.inference.PredictionB:Z8github.com/backtesting-org/kronos-sdk/grpc/gen/inferenceb\x06proto3"
+	"\aPredict\x12\x13.inference.Features\x1a\x15.inference.PredictionB:Z8github.com/wisp-trading/wisp/grpc/gen/inferenceb\x06proto3"
 
 var (
 	file_grpc_proto_inference_proto_rawDescOnce sync.Once

@@ -3,9 +3,9 @@ package store
 import (
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
 )
 
 func (ds *dataStore) UpdateKline(asset portfolio.Asset, exchangeName connector.ExchangeName, kline connector.Kline) {

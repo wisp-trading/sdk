@@ -1,11 +1,11 @@
 package signal
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/temporal"
 )
 
-// factory is the concrete implementation of kronos.SignalFactory.
+// factory is the concrete implementation of wisp.SignalFactory.
 type factory struct {
 	timeProvider temporal.TimeProvider
 }

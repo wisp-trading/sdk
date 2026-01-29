@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	analyticsTypes "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	analyticsTypes "github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
 )
 
 // fetchKlines gets klines from the market service, which automatically searches all stores

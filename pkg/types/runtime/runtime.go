@@ -1,8 +1,8 @@
 package runtime
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 // BootMode defines how strategies are loaded into the runtime
@@ -25,11 +25,11 @@ type BootConfig struct {
 // Runtime is the main entry point for running strategies
 type Runtime interface {
 	// Start runs a strategy in plugin mode
-	// Loads config from configPath (strategy dir) and kronosPath (kronos.yml)
-	Start(configPath string, kronosPath string) error
+	// Loads config from configPath (strategy dir) and wispPath (wisp.yml)
+	Start(configPath string, wispPath string) error
 
 	// StartStandalone runs a strategy in standalone mode (debuggable)
-	StartStandalone(strategy strategy.Strategy, configPath string, kronosPath string) error
+	StartStandalone(strategy strategy.Strategy, configPath string, wispPath string) error
 
 	// Stop gracefully shuts down
 	Stop() error

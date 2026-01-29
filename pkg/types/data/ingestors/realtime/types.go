@@ -3,8 +3,8 @@ package realtime
 import (
 	"context"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
 )
 
 // RealtimeIngestorFactory creates realtime ingestors dynamically based on registered connectors

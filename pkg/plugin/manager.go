@@ -5,12 +5,12 @@ import (
 	"os"
 	"plugin"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/execution"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	plugintypes "github.com/backtesting-org/kronos-sdk/pkg/types/plugin"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/execution"
+	"github.com/wisp-trading/wisp/pkg/types/logging"
+	plugintypes "github.com/wisp-trading/wisp/pkg/types/plugin"
+	"github.com/wisp-trading/wisp/pkg/types/registry"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/wisp"
 )
 
 // manager is the unexported implementation of plugintypes.Manager
@@ -18,7 +18,7 @@ type manager struct {
 	logger           logging.ApplicationLogger
 	hookRegistry     registry.Hooks
 	strategyRegistry registry.StrategyRegistry
-	kronos           kronos.Kronos
+	wisp             wisp.Wisp
 }
 
 // NewManager creates a new plugin manager
@@ -26,13 +26,13 @@ func NewManager(
 	logging logging.ApplicationLogger,
 	hookRegistry registry.Hooks,
 	strategyRegistry registry.StrategyRegistry,
-	kronos kronos.Kronos,
+	wisp wisp.Wisp,
 ) plugintypes.Manager {
 	return &manager{
 		logger:           logging,
 		hookRegistry:     hookRegistry,
 		strategyRegistry: strategyRegistry,
-		kronos:           kronos,
+		wisp:             wisp,
 	}
 }
 
@@ -68,13 +68,13 @@ func (m *manager) LoadStrategyPlugin(pluginPath string) (strategy.Strategy, erro
 	}
 
 	// Type assert to constructor function
-	newStrategyFunc, ok := newStrategySymbol.(func(kronos.Kronos) strategy.Strategy)
+	newStrategyFunc, ok := newStrategySymbol.(func(wisp.Wisp) strategy.Strategy)
 	if !ok {
-		return nil, fmt.Errorf("NewStrategy must have signature: func(kronos.Kronos) strategy.Strategy, got %T", newStrategySymbol)
+		return nil, fmt.Errorf("NewStrategy must have signature: func(wisp.Wisp) strategy.Strategy, got %T", newStrategySymbol)
 	}
-	
+
 	// Call it to get the strategy instance
-	strat := newStrategyFunc(m.kronos)
+	strat := newStrategyFunc(m.wisp)
 	if strat == nil {
 		return nil, fmt.Errorf("NewStrategy() returned nil")
 	}

@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 
-	configTypes "github.com/backtesting-org/kronos-sdk/pkg/types/config"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/plugin"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/runtime"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	configTypes "github.com/wisp-trading/wisp/pkg/types/config"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/lifecycle"
+	"github.com/wisp-trading/wisp/pkg/types/logging"
+	"github.com/wisp-trading/wisp/pkg/types/plugin"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/registry"
+	"github.com/wisp-trading/wisp/pkg/types/runtime"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 type rt struct {
@@ -49,11 +49,11 @@ func NewRuntime(
 }
 
 // Start runs a strategy in plugin mode
-func (r *rt) Start(configPath string, kronosPath string) error {
+func (r *rt) Start(configPath string, wispPath string) error {
 	r.ctx, r.cancel = context.WithCancel(context.Background())
 
 	// Load all config
-	cfg, err := r.configLoader.LoadForStrategy(configPath, kronosPath)
+	cfg, err := r.configLoader.LoadForStrategy(configPath, wispPath)
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
@@ -80,12 +80,12 @@ func (r *rt) Start(configPath string, kronosPath string) error {
 func (r *rt) StartStandalone(
 	strat strategy.Strategy,
 	configPath string,
-	kronosPath string,
+	wispPath string,
 ) error {
 	r.ctx, r.cancel = context.WithCancel(context.Background())
 
 	// Load all config
-	cfg, err := r.configLoader.LoadForStrategy(configPath, kronosPath)
+	cfg, err := r.configLoader.LoadForStrategy(configPath, wispPath)
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
 	}

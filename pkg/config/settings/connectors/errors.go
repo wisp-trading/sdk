@@ -3,7 +3,7 @@ package connectors
 import (
 	"fmt"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
 )
 
 // ValidationError provides detailed information about what went wrong during connector validation

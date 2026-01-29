@@ -8,7 +8,7 @@ Learn from complete, production-ready strategy implementations organized by comp
 
 ## Basic Strategies
 
-Perfect for getting started with Kronos. These strategies use 1-2 indicators and simple logic.
+Perfect for getting started with Wisp. These strategies use 1-2 indicators and simple logic.
 
 - **[RSI Strategy](basic/rsi)** - Classic momentum with oversold/overbought levels
 - **[Moving Average Crossover](basic/ma-crossover)** - Golden/death cross trend following
@@ -38,7 +38,7 @@ Complex strategies for experienced traders: portfolios, arbitrage, and multi-ass
 3. Run backtest:
 
 ```bash
-kronos backtest
+wisp backtest
 ```
 
 ### Customize

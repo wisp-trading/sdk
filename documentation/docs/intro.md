@@ -2,11 +2,11 @@
 sidebar_position: 1
 ---
 
-# Welcome to Kronos SDK
+# Welcome to Wisp SDK
 
-Kronos SDK is a Go framework that makes building trading strategies simple. Write your strategy logic once, and Kronos handles all the complexity—market data, exchange APIs, indicators, and execution.
+Wisp SDK is a Go framework that makes building trading strategies simple. Write your strategy logic once, and Wisp handles all the complexity—market data, exchange APIs, indicators, and execution.
 
-## The Kronos Way
+## The Wisp Way
 
 Instead of managing exchange connections, API calls, and data pipelines, you write this:
 
@@ -14,7 +14,7 @@ Instead of managing exchange connections, API calls, and data pipelines, you wri
 func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     
-    // Just ask for what you need - Kronos figures out the rest
+    // Just ask for what you need - Wisp figures out the rest
     rsi, _ := s.k.Indicators().RSI(btc, 14)
     price, _ := s.k.Market().Price(btc)
     
@@ -31,7 +31,7 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
 
 That's it. No exchange client setup. No data fetching. No indicator calculations from scratch.
 
-## What Kronos Does for You
+## What Wisp Does for You
 
 ### Automatic Data Management
 
@@ -39,7 +39,7 @@ That's it. No exchange client setup. No data fetching. No indicator calculations
 // You write:
 rsi, _ := s.k.Indicators().RSI(btc, 14)
 
-// Kronos handles:
+// Wisp handles:
 // - Fetching price data from the exchange
 // - Caching and managing historical data
 // - Calculating the RSI indicator
@@ -72,7 +72,7 @@ stoch, _ := s.k.Indicators().Stochastic(btc, 14, 3)
 atr, _ := s.k.Indicators().ATR(btc, 14)
 ```
 
-Clean, consistent API. Pass the asset and parameters. Kronos does the rest.
+Clean, consistent API. Pass the asset and parameters. Wisp does the rest.
 
 ### Market Data
 
@@ -111,16 +111,16 @@ Here's a full working strategy:
 package main
 
 import (
-    sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
-    "github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+    sdk "github.com/wisp-trading/wisp/pkg/wisp"
+    "github.com/wisp-trading/wisp/pkg/types/strategy"
     "github.com/shopspring/decimal"
 )
 
 type MomentumStrategy struct {
-    k *sdk.Kronos
+    k *sdk.Wisp
 }
 
-func NewMomentum(k *sdk.Kronos) *MomentumStrategy {
+func NewMomentum(k *sdk.Wisp) *MomentumStrategy {
     return &MomentumStrategy{k: k}
 }
 
@@ -128,7 +128,7 @@ func (s *MomentumStrategy) GetSignals() ([]*strategy.Signal, error) {
     btc := s.k.Asset("BTC")
     eth := s.k.Asset("ETH")
     
-    // Get indicators (Kronos fetches data automatically)
+    // Get indicators (Wisp fetches data automatically)
     btcRSI, _ := s.k.Indicators().RSI(btc, 14)
     ethRSI, _ := s.k.Indicators().RSI(eth, 14)
     
@@ -216,11 +216,11 @@ Currently supported:
 - Bybit
 - Hyperliquid
 
-Your strategy code doesn't care which exchange you use. Kronos abstracts it all.
+Your strategy code doesn't care which exchange you use. Wisp abstracts it all.
 
 ## How It Works
 
-When you call an indicator or market data function, Kronos:
+When you call an indicator or market data function, Wisp:
 
 1. **Identifies the data source** - Uses your configured exchange or specified exchange
 2. **Fetches required data** - Gets price history, order book, funding rates, etc.
@@ -228,7 +228,7 @@ When you call an indicator or market data function, Kronos:
 4. **Calculates/returns** - Computes indicators or returns market data
 5. **Handles errors** - Manages rate limits, retries, and error cases
 
-You just write `s.k.Indicators().RSI(btc, 14)` and Kronos does the rest.
+You just write `s.k.Indicators().RSI(btc, 14)` and Wisp does the rest.
 
 ## Multiple Timeframes
 
@@ -288,7 +288,7 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
 
 ## Analytics
 
-Beyond indicators, Kronos provides market analytics:
+Beyond indicators, Wisp provides market analytics:
 
 ```go
 // Volatility analysis
@@ -312,11 +312,11 @@ s.k.Log().Info("24h change: %s%%", change.ChangePercent)
 
 ## Architecture
 
-Kronos consists of three components:
+Wisp consists of three components:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  kronos-cli                                             │
+│  wisp-cli                                             │
 │  • Single CLI for all operations                        │
 │  • Manages backtesting and live runtimes               │
 └──────────────────┬──────────────────────────────────────┘
@@ -325,7 +325,7 @@ Kronos consists of three components:
          │                   │
          ▼                   ▼
 ┌─────────────────┐  ┌─────────────────┐
-│ kronos-backtest │  │  kronos-live    │
+│ wisp-backtest │  │  wisp-live    │
 │ • Simulated     │  │ • Real exchange │
 │   exchange      │  │   connectors    │
 │ • Historical    │  │ • Live data     │
@@ -336,7 +336,7 @@ Kronos consists of three components:
                    │
                    ▼
          ┌─────────────────────┐
-         │   kronos-sdk        │
+         │   wisp        │
          │   (this package)    │
          │                     │
          │ • Strategy API      │
@@ -345,7 +345,7 @@ Kronos consists of three components:
          └─────────────────────┘
 ```
 
-As a strategy developer, you only interact with `kronos-sdk`. The CLI and runtimes are handled automatically.
+As a strategy developer, you only interact with `wisp`. The CLI and runtimes are handled automatically.
 
 ## Getting Started
 
@@ -362,7 +362,7 @@ Explore the complete API:
 
 ## Philosophy
 
-Kronos is built on these principles:
+Wisp is built on these principles:
 
 1. **Simplicity** - Hide complexity, expose clean APIs
 2. **Type Safety** - Catch errors at compile time
@@ -372,10 +372,10 @@ Kronos is built on these principles:
 
 ## Community
 
-- **GitHub**: [backtesting-org/kronos-sdk](https://github.com/backtesting-org/kronos-sdk)
-- **Issues**: [Report bugs or request features](https://github.com/backtesting-org/kronos-sdk/issues)
-- **Go Docs**: [pkg.go.dev](https://pkg.go.dev/github.com/backtesting-org/kronos-sdk)
+- **GitHub**: [wisp-trading/wisp](https://github.com/wisp-trading/wisp)
+- **Issues**: [Report bugs or request features](https://github.com/wisp-trading/wisp/issues)
+- **Go Docs**: [pkg.go.dev](https://pkg.go.dev/github.com/wisp-trading/wisp)
 
 ## License
 
-Kronos SDK is open source under the MIT License.
+Wisp SDK is open source under the MIT License.

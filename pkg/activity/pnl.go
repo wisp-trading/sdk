@@ -1,12 +1,12 @@
 package activity
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	kronosActivity "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/analytics"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	wispActivity "github.com/wisp-trading/wisp/pkg/types/wisp/activity"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // positionTracker tracks open position size and average entry price for an asset
@@ -100,13 +100,13 @@ func (pt *positionTracker) getUnrealizedPNL(currentPrice numerical.Decimal) nume
 
 // pnl provides PNL calculation functionality
 type pnl struct {
-	positions kronosActivity.Positions
-	trades    kronosActivity.Trades
+	positions wispActivity.Positions
+	trades    wispActivity.Trades
 	market    analytics.Market
 }
 
 // NewPNL creates a new PNL calculator
-func NewPNL(positions kronosActivity.Positions, trades kronosActivity.Trades, market analytics.Market) kronosActivity.PNL {
+func NewPNL(positions wispActivity.Positions, trades wispActivity.Trades, market analytics.Market) wispActivity.PNL {
 	return &pnl{
 		positions: positions,
 		trades:    trades,
@@ -275,4 +275,4 @@ func (p *pnl) GetFeesByStrategy(ctx strategy.StrategyContext, strategyName strat
 	return totalFees
 }
 
-var _ kronosActivity.PNL = (*pnl)(nil)
+var _ wispActivity.PNL = (*pnl)(nil)

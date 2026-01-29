@@ -1,8 +1,8 @@
 package spot
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/market/spot/batch"
-	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/market/spot/realtime"
+	"github.com/wisp-trading/wisp/pkg/data/ingestors/market/spot/batch"
+	"github.com/wisp-trading/wisp/pkg/data/ingestors/market/spot/realtime"
 	"go.uber.org/fx"
 )
 

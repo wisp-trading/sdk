@@ -3,15 +3,15 @@ package signal_test
 import (
 	"time"
 
-	temporal "github.com/backtesting-org/kronos-sdk/pkg/runtime/time"
-	"github.com/backtesting-org/kronos-sdk/pkg/signal"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-	temporalType "github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	temporal "github.com/wisp-trading/wisp/pkg/runtime/time"
+	"github.com/wisp-trading/wisp/pkg/signal"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	temporalType "github.com/wisp-trading/wisp/pkg/types/temporal"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 var _ = Describe("SignalBuilder", func() {

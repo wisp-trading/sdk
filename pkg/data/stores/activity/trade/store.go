@@ -1,8 +1,8 @@
 package trade
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
 )
 
 func NewStore() activity.Trades {

@@ -3,12 +3,12 @@ package signal_test
 import (
 	"testing"
 
-	temporal "github.com/backtesting-org/kronos-sdk/pkg/runtime/time"
-	"github.com/backtesting-org/kronos-sdk/pkg/signal"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	temporal "github.com/wisp-trading/wisp/pkg/runtime/time"
+	"github.com/wisp-trading/wisp/pkg/signal"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 var (

@@ -1,9 +1,9 @@
 package market
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/market/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/market/spot"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
+	"github.com/wisp-trading/wisp/pkg/data/ingestors/market/perp"
+	"github.com/wisp-trading/wisp/pkg/data/ingestors/market/spot"
+	"github.com/wisp-trading/wisp/pkg/types/data/ingestors"
 	"go.uber.org/fx"
 )
 

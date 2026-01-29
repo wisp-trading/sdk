@@ -3,8 +3,8 @@ package registry
 import (
 	"sync"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/registry"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 type strategyRegistry struct {

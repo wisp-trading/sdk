@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // RSI calculates the Relative Strength Index for the given prices and period.

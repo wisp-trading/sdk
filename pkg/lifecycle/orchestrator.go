@@ -5,14 +5,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/monitoring/profiling"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/execution"
-	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	profileTypes "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
+	"github.com/wisp-trading/wisp/pkg/monitoring/profiling"
+	"github.com/wisp-trading/wisp/pkg/types/execution"
+	lifecycleTypes "github.com/wisp-trading/wisp/pkg/types/lifecycle"
+	"github.com/wisp-trading/wisp/pkg/types/logging"
+	profileTypes "github.com/wisp-trading/wisp/pkg/types/monitoring/profiling"
+	"github.com/wisp-trading/wisp/pkg/types/registry"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/temporal"
 )
 
 const (

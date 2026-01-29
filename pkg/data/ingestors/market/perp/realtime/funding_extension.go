@@ -3,13 +3,13 @@ package realtime
 import (
 	"context"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	perpConn "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/realtime"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
-	perpStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	perpConn "github.com/wisp-trading/wisp/pkg/types/connector/perp"
+	"github.com/wisp-trading/wisp/pkg/types/data/ingestors/realtime"
+	"github.com/wisp-trading/wisp/pkg/types/data/stores/market"
+	perpStore "github.com/wisp-trading/wisp/pkg/types/data/stores/market/perp"
+	"github.com/wisp-trading/wisp/pkg/types/logging"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
 )
 
 // FundingRateExtension handles WebSocket subscriptions for perp funding rate updates

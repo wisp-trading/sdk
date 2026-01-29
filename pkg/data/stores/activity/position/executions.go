@@ -3,8 +3,8 @@ package position
 import (
 	"fmt"
 
-	portfolioTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	portfolioTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 func (ds *dataStore) StoreStrategyExecution(strategyName strategy.StrategyName, execution *strategy.StrategyExecution) {

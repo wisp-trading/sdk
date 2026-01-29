@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
-	lifecycleTypes "github.com/backtesting-org/kronos-sdk/pkg/types/lifecycle"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	monitoringTypes "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/data/ingestors"
+	lifecycleTypes "github.com/wisp-trading/wisp/pkg/types/lifecycle"
+	"github.com/wisp-trading/wisp/pkg/types/logging"
+	monitoringTypes "github.com/wisp-trading/wisp/pkg/types/monitoring"
+	"github.com/wisp-trading/wisp/pkg/types/monitoring/health"
+	"github.com/wisp-trading/wisp/pkg/types/registry"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 // controller implements the Controller interface for controlling SDK lifecycle
@@ -67,7 +67,7 @@ func (c *controller) Start(ctx context.Context, strategyName strategy.StrategyNa
 	c.state = lifecycleTypes.StateStarting
 	c.stateMu.Unlock()
 
-	c.logger.Info("🚀 Initializing Kronos SDK...")
+	c.logger.Info("🚀 Initializing Wisp SDK...")
 
 	// Validate connectors are ready (must be initialized before Start())
 	if err := c.validateConnectorsReady(); err != nil {
@@ -138,7 +138,7 @@ func (c *controller) Start(ctx context.Context, strategyName strategy.StrategyNa
 		close(c.readyChan)
 	})
 
-	c.logger.Info("Kronos ready")
+	c.logger.Info("Wisp ready")
 	return nil
 }
 
@@ -152,7 +152,7 @@ func (c *controller) Stop(ctx context.Context) error {
 	c.state = lifecycleTypes.StateStopping
 	c.stateMu.Unlock()
 
-	c.logger.Info("Stopping Kronos SDK...")
+	c.logger.Info("Stopping Wisp SDK...")
 
 	// Stop orchestrator first (stop generating new signals)
 	if err := c.orchestrator.Stop(ctx); err != nil {
@@ -183,7 +183,7 @@ func (c *controller) Stop(ctx context.Context) error {
 	c.state = lifecycleTypes.StateStopped
 	c.stateMu.Unlock()
 
-	c.logger.Info("Kronos SDK stopped")
+	c.logger.Info("Wisp SDK stopped")
 	return nil
 }
 

@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 // StartupConfig contains everything needed to start a strategy
@@ -32,5 +32,5 @@ type StartupConfig struct {
 type StartupConfigLoader interface {
 	// LoadForStrategy loads strategy config, connector configs, and asset configs
 	// strategyDir: path to the strategy directory containing config.yml
-	LoadForStrategy(strategyDir string, kronosPath string) (*StartupConfig, error)
+	LoadForStrategy(strategyDir string, wispPath string) (*StartupConfig, error)
 }

@@ -3,14 +3,14 @@ package activity_test
 import (
 	"context"
 
-	sdkTesting "github.com/backtesting-org/kronos-sdk/pkg/testing"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	storeActivity "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
-	kronosActivity "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	sdkTesting "github.com/wisp-trading/wisp/pkg/testing"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	storeActivity "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	wispActivity "github.com/wisp-trading/wisp/pkg/types/wisp/activity"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )
@@ -18,7 +18,7 @@ import (
 var _ = Describe("Positions", func() {
 	var (
 		app       *fxtest.App
-		positions kronosActivity.Positions
+		positions wispActivity.Positions
 		store     storeActivity.Positions
 	)
 

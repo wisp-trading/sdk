@@ -4,7 +4,7 @@ filename: "{{.InterfaceName}}.go"
 mockname: "{{.InterfaceName}}"
 outpkg: "{{.PackageName}}"
 packages:
-  github.com/backtesting-org/kronos-sdk/pkg/types:
+  github.com/wisp-trading/wisp/pkg/types:
     config:
       recursive: true
       all: true

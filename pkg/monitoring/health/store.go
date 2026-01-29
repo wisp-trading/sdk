@@ -3,8 +3,8 @@ package health
 import (
 	"time"
 
-	health2 "github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
+	health2 "github.com/wisp-trading/wisp/pkg/types/monitoring/health"
+	"github.com/wisp-trading/wisp/pkg/types/temporal"
 )
 
 // HealthStore aggregates error reports from both stores into a unified view

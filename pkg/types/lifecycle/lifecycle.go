@@ -3,7 +3,7 @@ package lifecycle
 import (
 	"context"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 )
 
 // State represents the current state of the SDK
@@ -36,7 +36,7 @@ func (s State) String() string {
 
 // Controller controls the lifecycle of SDK internal components.
 // This is used by the application layer (orchestrator), never exposed to strategy authors.
-// It operates at the infrastructure level, below the Kronos/KronosExecutor APIs.
+// It operates at the infrastructure level, below the Wisp/WispExecutor APIs.
 type Controller interface {
 	// Start starts the SDK and all its components
 	Start(ctx context.Context, name strategy.StrategyName) error

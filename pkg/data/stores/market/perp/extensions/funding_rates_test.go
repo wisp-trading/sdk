@@ -3,15 +3,15 @@ package extensions_test
 import (
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/market/perp"
-	timeProvider "github.com/backtesting-org/kronos-sdk/pkg/runtime/time"
-	perp2 "github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
-	perpTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/wisp-trading/wisp/pkg/data/stores/market/perp"
+	timeProvider "github.com/wisp-trading/wisp/pkg/runtime/time"
+	perp2 "github.com/wisp-trading/wisp/pkg/types/connector/perp"
+	perpTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market/perp"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 var _ = Describe("Market Data Store - Funding Rates", func() {

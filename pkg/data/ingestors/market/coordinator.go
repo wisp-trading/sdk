@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/batch"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/realtime"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
+	"github.com/wisp-trading/wisp/pkg/types/data/ingestors"
+	"github.com/wisp-trading/wisp/pkg/types/data/ingestors/batch"
+	"github.com/wisp-trading/wisp/pkg/types/data/ingestors/realtime"
+	"github.com/wisp-trading/wisp/pkg/types/logging"
+	"github.com/wisp-trading/wisp/pkg/types/temporal"
 )
 
 type coordinator struct {

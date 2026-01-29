@@ -4,11 +4,11 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector/perp"
-	marketTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market"
+	"github.com/wisp-trading/wisp/pkg/types/connector/perp"
+	marketTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/market"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
 )
 
 // Type aliases for funding rate storage

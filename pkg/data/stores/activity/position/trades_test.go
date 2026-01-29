@@ -3,15 +3,15 @@ package position_test
 import (
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/data/stores/activity/position"
-	timeProvider "github.com/backtesting-org/kronos-sdk/pkg/runtime/time"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	activityTypes "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/wisp-trading/wisp/pkg/data/stores/activity/position"
+	timeProvider "github.com/wisp-trading/wisp/pkg/runtime/time"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	activityTypes "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
+	"github.com/wisp-trading/wisp/pkg/types/temporal"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 var _ = Describe("Position Store - Trades", func() {

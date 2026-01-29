@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/config"
 	"github.com/spf13/viper"
+	"github.com/wisp-trading/wisp/pkg/types/config"
 	"gopkg.in/yaml.v3"
 )
 
 // ConfigOptions holds configuration for the settings service
 type ConfigOptions struct {
-	// SettingsPath is the path to the kronos.yml file
-	// If empty, defaults to "kronos.yml" in current directory
+	// SettingsPath is the path to the wisp.yml file
+	// If empty, defaults to "wisp.yml" in current directory
 	SettingsPath string
 }
 
@@ -25,7 +25,7 @@ type settings struct {
 func NewConfiguration(opts ConfigOptions) config.Configuration {
 	path := opts.SettingsPath
 	if path == "" {
-		path = config.KronosConfigurationFileName + ".yml"
+		path = config.WispConfigurationFileName + ".yml"
 	}
 
 	return &settings{
@@ -101,7 +101,7 @@ func (c *settings) GetEnabledConnectors() ([]config.Connector, error) {
 	return enabled, nil
 }
 
-// SaveSettings writes the settings to the kronos.yml file
+// SaveSettings writes the settings to the wisp.yml file
 func (c *settings) SaveSettings(settings *config.Settings) error {
 	// Use gopkg.in/yaml.v3 for better control over formatting
 	data, err := marshalYAML(settings)

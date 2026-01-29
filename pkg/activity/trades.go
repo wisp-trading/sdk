@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	storeActivity "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/activity"
-	kronosActivity "github.com/backtesting-org/kronos-sdk/pkg/types/kronos/activity"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	storeActivity "github.com/wisp-trading/wisp/pkg/types/data/stores/activity"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	wispActivity "github.com/wisp-trading/wisp/pkg/types/wisp/activity"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // trades wraps the internal trade store with read-only access
@@ -17,7 +17,7 @@ type trades struct {
 }
 
 // NewTrades creates a new read-only trades accessor
-func NewTrades(store storeActivity.Trades) kronosActivity.Trades {
+func NewTrades(store storeActivity.Trades) wispActivity.Trades {
 	return &trades{store: store}
 }
 
@@ -56,4 +56,4 @@ func (t *trades) GetTotalVolume(ctx context.Context, asset portfolio.Asset) nume
 	return t.store.GetTotalVolume(asset)
 }
 
-var _ kronosActivity.Trades = (*trades)(nil)
+var _ wispActivity.Trades = (*trades)(nil)

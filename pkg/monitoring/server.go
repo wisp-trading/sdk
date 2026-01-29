@@ -13,9 +13,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/health"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/monitoring"
+	"github.com/wisp-trading/wisp/pkg/types/monitoring/health"
 )
 
 // server implements the Server interface
@@ -46,7 +46,7 @@ func NewServer(
 		if err != nil {
 			return nil, fmt.Errorf("failed to get home directory: %w", err)
 		}
-		socketDir = filepath.Join(homeDir, ".kronos", "sockets")
+		socketDir = filepath.Join(homeDir, ".wisp", "sockets")
 	}
 
 	// Check if socket directory exists

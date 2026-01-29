@@ -19,17 +19,17 @@ Trade MACD crossovers only with the prevailing trend.
 package main
 
 import (
-	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	sdk "github.com/wisp-trading/wisp/pkg/wisp"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 	"github.com/shopspring/decimal"
 )
 
 type MACDMomentum struct {
-	k *sdk.Kronos
+	k *sdk.Wisp
 }
 
-func NewMACDMomentum(k *sdk.Kronos) *MACDMomentum {
+func NewMACDMomentum(k *sdk.Wisp) *MACDMomentum {
 	return &MACDMomentum{k: k}
 }
 
@@ -94,7 +94,7 @@ func (s *MACDMomentum) GetStrategyType() strategy.StrategyType { return strategy
 Run with:
 
 ```bash
-kronos backtest
+wisp backtest
 ```
 
 Expected characteristics:

@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Writing Strategies
 
-Learn how to build sophisticated trading strategies with Kronos.
+Learn how to build sophisticated trading strategies with Wisp.
 
 ## Strategy Structure
 
@@ -24,7 +24,7 @@ The most important method is `GetSignals()` - this is where your trading logic l
 
 ## GetSignals()
 
-Kronos calls `GetSignals()` on each interval (configured in `config.yaml`). Your job is to:
+Wisp calls `GetSignals()` on each interval (configured in `config.yaml`). Your job is to:
 1. Analyze market conditions
 2. Return trade signals if conditions are met
 3. Return `nil, nil` if no action needed
@@ -79,7 +79,7 @@ func (s *Strategy) GetSignals() ([]*strategy.Signal, error) {
 }
 ```
 
-Kronos automatically manages data for all assets in parallel.
+Wisp automatically manages data for all assets in parallel.
 
 ## Multiple Timeframes
 
@@ -403,7 +403,7 @@ Keep track of positions and state:
 
 ```go
 type TrendStrategy struct {
-    k            *sdk.Kronos
+    k            *sdk.Wisp
     inPosition   bool
     entryPrice   decimal.Decimal
     trailingStop decimal.Decimal

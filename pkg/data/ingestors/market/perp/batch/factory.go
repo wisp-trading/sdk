@@ -1,13 +1,13 @@
 package batch
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/data/ingestors/market/ingestors"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/data/ingestors/batch"
-	perpStore "github.com/backtesting-org/kronos-sdk/pkg/types/data/stores/market/perp"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/registry"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/temporal"
+	"github.com/wisp-trading/wisp/pkg/data/ingestors/market/ingestors"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/data/ingestors/batch"
+	perpStore "github.com/wisp-trading/wisp/pkg/types/data/stores/market/perp"
+	"github.com/wisp-trading/wisp/pkg/types/logging"
+	"github.com/wisp-trading/wisp/pkg/types/registry"
+	"github.com/wisp-trading/wisp/pkg/types/temporal"
 )
 
 // Factory creates batch ingestors for all registered perp connectors

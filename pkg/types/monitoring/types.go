@@ -3,8 +3,8 @@ package monitoring
 import (
 	"time"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/monitoring/profiling"
+	"github.com/wisp-trading/wisp/pkg/types/monitoring/profiling"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // PnLView represents the PnL snapshot for a strategy

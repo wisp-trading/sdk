@@ -26,12 +26,12 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// ModelInference service allows Kronos to send features to user's ML inference server
+// ModelInference service allows Wisp to send features to user's ML inference server
 // and receive trading predictions back.
 //
 // Flow:
-// 1. Kronos preprocesses market data into features
-// 2. Kronos calls Predict() with feature map
+// 1. Wisp preprocesses market data into features
+// 2. Wisp calls Predict() with feature map
 // 3. User's server runs inference (ONNX, PyTorch, etc.)
 // 4. User's server returns confidence score
 type ModelInferenceClient interface {
@@ -60,12 +60,12 @@ func (c *modelInferenceClient) Predict(ctx context.Context, in *Features, opts .
 // All implementations must embed UnimplementedModelInferenceServer
 // for forward compatibility.
 //
-// ModelInference service allows Kronos to send features to user's ML inference server
+// ModelInference service allows Wisp to send features to user's ML inference server
 // and receive trading predictions back.
 //
 // Flow:
-// 1. Kronos preprocesses market data into features
-// 2. Kronos calls Predict() with feature map
+// 1. Wisp preprocesses market data into features
+// 2. Wisp calls Predict() with feature map
 // 3. User's server runs inference (ONNX, PyTorch, etc.)
 // 4. User's server returns confidence score
 type ModelInferenceServer interface {

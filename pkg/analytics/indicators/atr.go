@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 // ATR calculates the Average True Range for the given price data.

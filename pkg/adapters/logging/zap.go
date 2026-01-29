@@ -1,7 +1,7 @@
 package logging
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/types/logging"
+	"github.com/wisp-trading/wisp/pkg/types/logging"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

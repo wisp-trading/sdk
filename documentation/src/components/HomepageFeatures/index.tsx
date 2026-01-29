@@ -12,7 +12,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Type-Safe by Design',
-    image: require('@site/static/img/kronos_arrow.png').default,
+    image: require('@site/static/img/wisp_arrow.png').default,
     description: (
       <>
         Write strategies with full IDE autocomplete and compile-time guarantees.
@@ -22,17 +22,17 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Focus on Strategy Logic',
-    image: require('@site/static/img/kronos_target.png').default,
+    image: require('@site/static/img/wisp_target.png').default,
     description: (
       <>
         Don&apos;t worry about exchange APIs or data management.
-        Focus on writing your strategies, Kronos handles the rest.
+        Focus on writing your strategies, Wisp handles the rest.
       </>
     ),
   },
   {
     title: 'Write Once, Run Anywhere',
-    image: require('@site/static/img/kronos_result.png').default,
+    image: require('@site/static/img/wisp_result.png').default,
     description: (
       <>
         Same code works in backtesting and live trading.

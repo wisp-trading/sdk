@@ -19,17 +19,17 @@ Dynamic stops and position sizing based on volatility.
 package main
 
 import (
-	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	sdk "github.com/wisp-trading/wisp/pkg/wisp"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 	"github.com/shopspring/decimal"
 )
 
 type ATRRiskManaged struct {
-	k *sdk.Kronos
+	k *sdk.Wisp
 }
 
-func NewATRRiskManaged(k *sdk.Kronos) *ATRRiskManaged {
+func NewATRRiskManaged(k *sdk.Wisp) *ATRRiskManaged {
 	return &ATRRiskManaged{k: k}
 }
 
@@ -99,7 +99,7 @@ func (s *ATRRiskManaged) GetStrategyType() strategy.StrategyType {
 Run with:
 
 ```bash
-kronos backtest
+wisp backtest
 ```
 
 Expected characteristics:

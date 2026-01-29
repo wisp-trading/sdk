@@ -1,10 +1,10 @@
 package indicators_test
 
 import (
-	"github.com/backtesting-org/kronos-sdk/pkg/analytics/indicators"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/kronos/numerical"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/wisp-trading/wisp/pkg/analytics/indicators"
+	"github.com/wisp-trading/wisp/pkg/types/wisp/numerical"
 )
 
 var _ = Describe("ATR", func() {

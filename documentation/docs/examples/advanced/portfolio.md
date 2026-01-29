@@ -19,18 +19,18 @@ Trade multiple assets with individual analysis and allocation.
 package main
 
 import (
-	sdk "github.com/backtesting-org/kronos-sdk/pkg/kronos"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/portfolio"
-	"github.com/backtesting-org/kronos-sdk/pkg/types/strategy"
+	sdk "github.com/wisp-trading/wisp/pkg/wisp"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/portfolio"
+	"github.com/wisp-trading/wisp/pkg/types/strategy"
 	"github.com/shopspring/decimal"
 )
 
 type Portfolio struct {
-	k *sdk.Kronos
+	k *sdk.Wisp
 }
 
-func NewPortfolio(k *sdk.Kronos) *Portfolio {
+func NewPortfolio(k *sdk.Wisp) *Portfolio {
 	return &Portfolio{k: k}
 }
 
@@ -84,7 +84,7 @@ func (s *Portfolio) GetStrategyType() strategy.StrategyType { return strategy.St
 
 ## Key Concepts
 
-- **Parallel Analysis**: Kronos handles data for all assets automatically
+- **Parallel Analysis**: Wisp handles data for all assets automatically
 - **Different Sizes**: Position sizes vary by asset (0.1 BTC, 1.0 ETH, 10.0 SOL)
 - **Diversification**: Spreads risk across multiple assets
 - **Same Logic**: Each asset uses identical entry criteria
@@ -94,7 +94,7 @@ func (s *Portfolio) GetStrategyType() strategy.StrategyType { return strategy.St
 Run with:
 
 ```bash
-kronos backtest
+wisp backtest
 ```
 
 Expected characteristics:

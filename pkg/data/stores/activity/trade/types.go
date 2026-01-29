@@ -4,7 +4,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/backtesting-org/kronos-sdk/pkg/types/connector"
+	"github.com/wisp-trading/wisp/pkg/types/connector"
 )
 
 type TradeMap map[string]connector.Trade // tradeID -> Trade
