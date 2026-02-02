@@ -648,23 +648,23 @@ func (_c *WebSocketConnector_FetchRecentTrades_Call) RunAndReturn(run func(strin
 }
 
 // FetchRiskFundBalance provides a mock function with given fields: symbol
-func (_m *WebSocketConnector) FetchRiskFundBalance(symbol string) (*connector.RiskFundBalance, error) {
+func (_m *WebSocketConnector) FetchRiskFundBalance(symbol string) (*perp.RiskFundBalance, error) {
 	ret := _m.Called(symbol)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchRiskFundBalance")
 	}
 
-	var r0 *connector.RiskFundBalance
+	var r0 *perp.RiskFundBalance
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*connector.RiskFundBalance, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*perp.RiskFundBalance, error)); ok {
 		return rf(symbol)
 	}
-	if rf, ok := ret.Get(0).(func(string) *connector.RiskFundBalance); ok {
+	if rf, ok := ret.Get(0).(func(string) *perp.RiskFundBalance); ok {
 		r0 = rf(symbol)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*connector.RiskFundBalance)
+			r0 = ret.Get(0).(*perp.RiskFundBalance)
 		}
 	}
 
@@ -695,12 +695,12 @@ func (_c *WebSocketConnector_FetchRiskFundBalance_Call) Run(run func(symbol stri
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchRiskFundBalance_Call) Return(_a0 *connector.RiskFundBalance, _a1 error) *WebSocketConnector_FetchRiskFundBalance_Call {
+func (_c *WebSocketConnector_FetchRiskFundBalance_Call) Return(_a0 *perp.RiskFundBalance, _a1 error) *WebSocketConnector_FetchRiskFundBalance_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchRiskFundBalance_Call) RunAndReturn(run func(string) (*connector.RiskFundBalance, error)) *WebSocketConnector_FetchRiskFundBalance_Call {
+func (_c *WebSocketConnector_FetchRiskFundBalance_Call) RunAndReturn(run func(string) (*perp.RiskFundBalance, error)) *WebSocketConnector_FetchRiskFundBalance_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1112,23 +1112,23 @@ func (_c *WebSocketConnector_GetPerpSymbol_Call) RunAndReturn(run func(portfolio
 }
 
 // GetPositions provides a mock function with no fields
-func (_m *WebSocketConnector) GetPositions() ([]connector.Position, error) {
+func (_m *WebSocketConnector) GetPositions() ([]perp.Position, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetPositions")
 	}
 
-	var r0 []connector.Position
+	var r0 []perp.Position
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]connector.Position, error)); ok {
+	if rf, ok := ret.Get(0).(func() ([]perp.Position, error)); ok {
 		return rf()
 	}
-	if rf, ok := ret.Get(0).(func() []connector.Position); ok {
+	if rf, ok := ret.Get(0).(func() []perp.Position); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]connector.Position)
+			r0 = ret.Get(0).([]perp.Position)
 		}
 	}
 
@@ -1158,12 +1158,12 @@ func (_c *WebSocketConnector_GetPositions_Call) Run(run func()) *WebSocketConnec
 	return _c
 }
 
-func (_c *WebSocketConnector_GetPositions_Call) Return(_a0 []connector.Position, _a1 error) *WebSocketConnector_GetPositions_Call {
+func (_c *WebSocketConnector_GetPositions_Call) Return(_a0 []perp.Position, _a1 error) *WebSocketConnector_GetPositions_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *WebSocketConnector_GetPositions_Call) RunAndReturn(run func() ([]connector.Position, error)) *WebSocketConnector_GetPositions_Call {
+func (_c *WebSocketConnector_GetPositions_Call) RunAndReturn(run func() ([]perp.Position, error)) *WebSocketConnector_GetPositions_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1532,19 +1532,19 @@ func (_c *WebSocketConnector_PlaceMarketOrder_Call) RunAndReturn(run func(string
 }
 
 // PositionUpdates provides a mock function with no fields
-func (_m *WebSocketConnector) PositionUpdates() <-chan connector.Position {
+func (_m *WebSocketConnector) PositionUpdates() <-chan perp.Position {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for PositionUpdates")
 	}
 
-	var r0 <-chan connector.Position
-	if rf, ok := ret.Get(0).(func() <-chan connector.Position); ok {
+	var r0 <-chan perp.Position
+	if rf, ok := ret.Get(0).(func() <-chan perp.Position); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan connector.Position)
+			r0 = ret.Get(0).(<-chan perp.Position)
 		}
 	}
 
@@ -1568,12 +1568,12 @@ func (_c *WebSocketConnector_PositionUpdates_Call) Run(run func()) *WebSocketCon
 	return _c
 }
 
-func (_c *WebSocketConnector_PositionUpdates_Call) Return(_a0 <-chan connector.Position) *WebSocketConnector_PositionUpdates_Call {
+func (_c *WebSocketConnector_PositionUpdates_Call) Return(_a0 <-chan perp.Position) *WebSocketConnector_PositionUpdates_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *WebSocketConnector_PositionUpdates_Call) RunAndReturn(run func() <-chan connector.Position) *WebSocketConnector_PositionUpdates_Call {
+func (_c *WebSocketConnector_PositionUpdates_Call) RunAndReturn(run func() <-chan perp.Position) *WebSocketConnector_PositionUpdates_Call {
 	_c.Call.Return(run)
 	return _c
 }

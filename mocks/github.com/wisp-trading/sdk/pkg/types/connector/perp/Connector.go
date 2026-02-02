@@ -554,23 +554,23 @@ func (_c *Connector_FetchRecentTrades_Call) RunAndReturn(run func(string, int) (
 }
 
 // FetchRiskFundBalance provides a mock function with given fields: symbol
-func (_m *Connector) FetchRiskFundBalance(symbol string) (*connector.RiskFundBalance, error) {
+func (_m *Connector) FetchRiskFundBalance(symbol string) (*perp.RiskFundBalance, error) {
 	ret := _m.Called(symbol)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchRiskFundBalance")
 	}
 
-	var r0 *connector.RiskFundBalance
+	var r0 *perp.RiskFundBalance
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*connector.RiskFundBalance, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*perp.RiskFundBalance, error)); ok {
 		return rf(symbol)
 	}
-	if rf, ok := ret.Get(0).(func(string) *connector.RiskFundBalance); ok {
+	if rf, ok := ret.Get(0).(func(string) *perp.RiskFundBalance); ok {
 		r0 = rf(symbol)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*connector.RiskFundBalance)
+			r0 = ret.Get(0).(*perp.RiskFundBalance)
 		}
 	}
 
@@ -601,12 +601,12 @@ func (_c *Connector_FetchRiskFundBalance_Call) Run(run func(symbol string)) *Con
 	return _c
 }
 
-func (_c *Connector_FetchRiskFundBalance_Call) Return(_a0 *connector.RiskFundBalance, _a1 error) *Connector_FetchRiskFundBalance_Call {
+func (_c *Connector_FetchRiskFundBalance_Call) Return(_a0 *perp.RiskFundBalance, _a1 error) *Connector_FetchRiskFundBalance_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Connector_FetchRiskFundBalance_Call) RunAndReturn(run func(string) (*connector.RiskFundBalance, error)) *Connector_FetchRiskFundBalance_Call {
+func (_c *Connector_FetchRiskFundBalance_Call) RunAndReturn(run func(string) (*perp.RiskFundBalance, error)) *Connector_FetchRiskFundBalance_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -877,23 +877,23 @@ func (_c *Connector_GetPerpSymbol_Call) RunAndReturn(run func(portfolio.Asset) s
 }
 
 // GetPositions provides a mock function with no fields
-func (_m *Connector) GetPositions() ([]connector.Position, error) {
+func (_m *Connector) GetPositions() ([]perp.Position, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetPositions")
 	}
 
-	var r0 []connector.Position
+	var r0 []perp.Position
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]connector.Position, error)); ok {
+	if rf, ok := ret.Get(0).(func() ([]perp.Position, error)); ok {
 		return rf()
 	}
-	if rf, ok := ret.Get(0).(func() []connector.Position); ok {
+	if rf, ok := ret.Get(0).(func() []perp.Position); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]connector.Position)
+			r0 = ret.Get(0).([]perp.Position)
 		}
 	}
 
@@ -923,12 +923,12 @@ func (_c *Connector_GetPositions_Call) Run(run func()) *Connector_GetPositions_C
 	return _c
 }
 
-func (_c *Connector_GetPositions_Call) Return(_a0 []connector.Position, _a1 error) *Connector_GetPositions_Call {
+func (_c *Connector_GetPositions_Call) Return(_a0 []perp.Position, _a1 error) *Connector_GetPositions_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Connector_GetPositions_Call) RunAndReturn(run func() ([]connector.Position, error)) *Connector_GetPositions_Call {
+func (_c *Connector_GetPositions_Call) RunAndReturn(run func() ([]perp.Position, error)) *Connector_GetPositions_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -29,7 +29,7 @@ type WebSocketConnector interface {
 	GetOrderBookChannels() map[string]<-chan connector.OrderBook
 	GetKlineChannels() map[string]<-chan connector.Kline
 	TradeUpdates() <-chan connector.Trade
-	PositionUpdates() <-chan connector.Position
+	PositionUpdates() <-chan Position
 	FundingRateUpdates() <-chan FundingRate
 	AccountBalanceUpdates() <-chan connector.AccountBalance
 }

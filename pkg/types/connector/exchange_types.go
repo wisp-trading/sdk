@@ -6,13 +6,6 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-type RiskFundBalance struct {
-	Symbol    string            `json:"symbol"`
-	Balance   numerical.Decimal `json:"balance"`
-	Currency  string            `json:"currency"`
-	UpdatedAt time.Time         `json:"updated_at"`
-}
-
 type ContractInfo struct {
 	Symbol       string            `json:"symbol"`
 	BaseAsset    string            `json:"base_asset"`

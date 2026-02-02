@@ -14,11 +14,11 @@ type FundingRateProvider interface {
 
 // PositionManager handles leveraged positions (perps only)
 type PositionManager interface {
-	GetPositions() ([]connector.Position, error)
+	GetPositions() ([]Position, error)
 }
 
 // ContractProvider handles contract/derivative specifications (perps only)
 type ContractProvider interface {
 	FetchContracts() ([]connector.ContractInfo, error)
-	FetchRiskFundBalance(symbol string) (*connector.RiskFundBalance, error)
+	FetchRiskFundBalance(symbol string) (*RiskFundBalance, error)
 }
