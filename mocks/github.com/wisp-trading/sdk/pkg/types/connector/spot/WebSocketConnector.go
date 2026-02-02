@@ -24,49 +24,49 @@ func (_m *WebSocketConnector) EXPECT() *WebSocketConnector_Expecter {
 	return &WebSocketConnector_Expecter{mock: &_m.Mock}
 }
 
-// AccountBalanceUpdates provides a mock function with no fields
-func (_m *WebSocketConnector) AccountBalanceUpdates() <-chan connector.AccountBalance {
+// AssetBalanceUpdates provides a mock function with no fields
+func (_m *WebSocketConnector) AssetBalanceUpdates() <-chan connector.AssetBalance {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for AccountBalanceUpdates")
+		panic("no return value specified for AssetBalanceUpdates")
 	}
 
-	var r0 <-chan connector.AccountBalance
-	if rf, ok := ret.Get(0).(func() <-chan connector.AccountBalance); ok {
+	var r0 <-chan connector.AssetBalance
+	if rf, ok := ret.Get(0).(func() <-chan connector.AssetBalance); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan connector.AccountBalance)
+			r0 = ret.Get(0).(<-chan connector.AssetBalance)
 		}
 	}
 
 	return r0
 }
 
-// WebSocketConnector_AccountBalanceUpdates_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AccountBalanceUpdates'
-type WebSocketConnector_AccountBalanceUpdates_Call struct {
+// WebSocketConnector_AssetBalanceUpdates_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AssetBalanceUpdates'
+type WebSocketConnector_AssetBalanceUpdates_Call struct {
 	*mock.Call
 }
 
-// AccountBalanceUpdates is a helper method to define mock.On call
-func (_e *WebSocketConnector_Expecter) AccountBalanceUpdates() *WebSocketConnector_AccountBalanceUpdates_Call {
-	return &WebSocketConnector_AccountBalanceUpdates_Call{Call: _e.mock.On("AccountBalanceUpdates")}
+// AssetBalanceUpdates is a helper method to define mock.On call
+func (_e *WebSocketConnector_Expecter) AssetBalanceUpdates() *WebSocketConnector_AssetBalanceUpdates_Call {
+	return &WebSocketConnector_AssetBalanceUpdates_Call{Call: _e.mock.On("AssetBalanceUpdates")}
 }
 
-func (_c *WebSocketConnector_AccountBalanceUpdates_Call) Run(run func()) *WebSocketConnector_AccountBalanceUpdates_Call {
+func (_c *WebSocketConnector_AssetBalanceUpdates_Call) Run(run func()) *WebSocketConnector_AssetBalanceUpdates_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *WebSocketConnector_AccountBalanceUpdates_Call) Return(_a0 <-chan connector.AccountBalance) *WebSocketConnector_AccountBalanceUpdates_Call {
+func (_c *WebSocketConnector_AssetBalanceUpdates_Call) Return(_a0 <-chan connector.AssetBalance) *WebSocketConnector_AssetBalanceUpdates_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *WebSocketConnector_AccountBalanceUpdates_Call) RunAndReturn(run func() <-chan connector.AccountBalance) *WebSocketConnector_AccountBalanceUpdates_Call {
+func (_c *WebSocketConnector_AssetBalanceUpdates_Call) RunAndReturn(run func() <-chan connector.AssetBalance) *WebSocketConnector_AssetBalanceUpdates_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -413,24 +413,24 @@ func (_c *WebSocketConnector_FetchRecentTrades_Call) RunAndReturn(run func(strin
 	return _c
 }
 
-// GetAccountBalance provides a mock function with no fields
-func (_m *WebSocketConnector) GetAccountBalance() (*connector.AccountBalance, error) {
+// GetBalances provides a mock function with no fields
+func (_m *WebSocketConnector) GetBalances() ([]connector.AssetBalance, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetAccountBalance")
+		panic("no return value specified for GetBalances")
 	}
 
-	var r0 *connector.AccountBalance
+	var r0 []connector.AssetBalance
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*connector.AccountBalance, error)); ok {
+	if rf, ok := ret.Get(0).(func() ([]connector.AssetBalance, error)); ok {
 		return rf()
 	}
-	if rf, ok := ret.Get(0).(func() *connector.AccountBalance); ok {
+	if rf, ok := ret.Get(0).(func() []connector.AssetBalance); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*connector.AccountBalance)
+			r0 = ret.Get(0).([]connector.AssetBalance)
 		}
 	}
 
@@ -443,29 +443,29 @@ func (_m *WebSocketConnector) GetAccountBalance() (*connector.AccountBalance, er
 	return r0, r1
 }
 
-// WebSocketConnector_GetAccountBalance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAccountBalance'
-type WebSocketConnector_GetAccountBalance_Call struct {
+// WebSocketConnector_GetBalances_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBalances'
+type WebSocketConnector_GetBalances_Call struct {
 	*mock.Call
 }
 
-// GetAccountBalance is a helper method to define mock.On call
-func (_e *WebSocketConnector_Expecter) GetAccountBalance() *WebSocketConnector_GetAccountBalance_Call {
-	return &WebSocketConnector_GetAccountBalance_Call{Call: _e.mock.On("GetAccountBalance")}
+// GetBalances is a helper method to define mock.On call
+func (_e *WebSocketConnector_Expecter) GetBalances() *WebSocketConnector_GetBalances_Call {
+	return &WebSocketConnector_GetBalances_Call{Call: _e.mock.On("GetBalances")}
 }
 
-func (_c *WebSocketConnector_GetAccountBalance_Call) Run(run func()) *WebSocketConnector_GetAccountBalance_Call {
+func (_c *WebSocketConnector_GetBalances_Call) Run(run func()) *WebSocketConnector_GetBalances_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *WebSocketConnector_GetAccountBalance_Call) Return(_a0 *connector.AccountBalance, _a1 error) *WebSocketConnector_GetAccountBalance_Call {
+func (_c *WebSocketConnector_GetBalances_Call) Return(_a0 []connector.AssetBalance, _a1 error) *WebSocketConnector_GetBalances_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *WebSocketConnector_GetAccountBalance_Call) RunAndReturn(run func() (*connector.AccountBalance, error)) *WebSocketConnector_GetAccountBalance_Call {
+func (_c *WebSocketConnector_GetBalances_Call) RunAndReturn(run func() ([]connector.AssetBalance, error)) *WebSocketConnector_GetBalances_Call {
 	_c.Call.Return(run)
 	return _c
 }

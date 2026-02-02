@@ -31,5 +31,5 @@ type WebSocketConnector interface {
 	TradeUpdates() <-chan connector.Trade
 	PositionUpdates() <-chan Position
 	FundingRateUpdates() <-chan FundingRate
-	AccountBalanceUpdates() <-chan connector.AccountBalance
+	AssetBalanceUpdates() <-chan connector.AssetBalance
 }

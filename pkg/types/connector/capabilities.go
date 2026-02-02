@@ -24,7 +24,7 @@ type OrderExecutor interface {
 
 // AccountReader provides account information
 type AccountReader interface {
-	GetAccountBalance() (*AccountBalance, error)
+	GetBalances() ([]AssetBalance, error)
 	GetTradingHistory(symbol string, limit int) ([]Trade, error)
 }
 

@@ -6,12 +6,11 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-// AccountBalance represents the balance and positions of an account.
-type AccountBalance struct {
-	TotalBalance     numerical.Decimal `json:"total_balance"`
-	AvailableBalance numerical.Decimal `json:"available_balance"`
-	UsedMargin       numerical.Decimal `json:"used_margin,omitempty"`
-	UnrealizedPnL    numerical.Decimal `json:"unrealized_pnl,omitempty"`
-	Currency         string            `json:"currency"`
-	UpdatedAt        time.Time         `json:"updated_at"`
+// AssetBalance represents the balance of a single asset in an account.
+type AssetBalance struct {
+	Asset     string            `json:"asset"`  // e.g., "BTC", "ETH", "USDT"
+	Free      numerical.Decimal `json:"free"`   // Available balance
+	Locked    numerical.Decimal `json:"locked"` // Balance locked in orders
+	Total     numerical.Decimal `json:"total"`  // Total = Free + Locked
+	UpdatedAt time.Time         `json:"updated_at"`
 }

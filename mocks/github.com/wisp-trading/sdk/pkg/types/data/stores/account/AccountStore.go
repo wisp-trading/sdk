@@ -55,19 +55,19 @@ func (_c *AccountStore_Clear_Call) RunAndReturn(run func()) *AccountStore_Clear_
 }
 
 // GetAllBalances provides a mock function with no fields
-func (_m *AccountStore) GetAllBalances() map[connector.ExchangeName]connector.AccountBalance {
+func (_m *AccountStore) GetAllBalances() map[connector.ExchangeName]connector.AssetBalance {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAllBalances")
 	}
 
-	var r0 map[connector.ExchangeName]connector.AccountBalance
-	if rf, ok := ret.Get(0).(func() map[connector.ExchangeName]connector.AccountBalance); ok {
+	var r0 map[connector.ExchangeName]connector.AssetBalance
+	if rf, ok := ret.Get(0).(func() map[connector.ExchangeName]connector.AssetBalance); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[connector.ExchangeName]connector.AccountBalance)
+			r0 = ret.Get(0).(map[connector.ExchangeName]connector.AssetBalance)
 		}
 	}
 
@@ -91,12 +91,12 @@ func (_c *AccountStore_GetAllBalances_Call) Run(run func()) *AccountStore_GetAll
 	return _c
 }
 
-func (_c *AccountStore_GetAllBalances_Call) Return(_a0 map[connector.ExchangeName]connector.AccountBalance) *AccountStore_GetAllBalances_Call {
+func (_c *AccountStore_GetAllBalances_Call) Return(_a0 map[connector.ExchangeName]connector.AssetBalance) *AccountStore_GetAllBalances_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *AccountStore_GetAllBalances_Call) RunAndReturn(run func() map[connector.ExchangeName]connector.AccountBalance) *AccountStore_GetAllBalances_Call {
+func (_c *AccountStore_GetAllBalances_Call) RunAndReturn(run func() map[connector.ExchangeName]connector.AssetBalance) *AccountStore_GetAllBalances_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -149,19 +149,19 @@ func (_c *AccountStore_GetAllMarginInfo_Call) RunAndReturn(run func() map[connec
 }
 
 // GetBalance provides a mock function with given fields: exchange
-func (_m *AccountStore) GetBalance(exchange connector.ExchangeName) *connector.AccountBalance {
+func (_m *AccountStore) GetBalance(exchange connector.ExchangeName) *connector.AssetBalance {
 	ret := _m.Called(exchange)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetBalance")
 	}
 
-	var r0 *connector.AccountBalance
-	if rf, ok := ret.Get(0).(func(connector.ExchangeName) *connector.AccountBalance); ok {
+	var r0 *connector.AssetBalance
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) *connector.AssetBalance); ok {
 		r0 = rf(exchange)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*connector.AccountBalance)
+			r0 = ret.Get(0).(*connector.AssetBalance)
 		}
 	}
 
@@ -186,12 +186,12 @@ func (_c *AccountStore_GetBalance_Call) Run(run func(exchange connector.Exchange
 	return _c
 }
 
-func (_c *AccountStore_GetBalance_Call) Return(_a0 *connector.AccountBalance) *AccountStore_GetBalance_Call {
+func (_c *AccountStore_GetBalance_Call) Return(_a0 *connector.AssetBalance) *AccountStore_GetBalance_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *AccountStore_GetBalance_Call) RunAndReturn(run func(connector.ExchangeName) *connector.AccountBalance) *AccountStore_GetBalance_Call {
+func (_c *AccountStore_GetBalance_Call) RunAndReturn(run func(connector.ExchangeName) *connector.AssetBalance) *AccountStore_GetBalance_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -245,7 +245,7 @@ func (_c *AccountStore_GetMarginInfo_Call) RunAndReturn(run func(connector.Excha
 }
 
 // UpdateBalance provides a mock function with given fields: exchange, balance
-func (_m *AccountStore) UpdateBalance(exchange connector.ExchangeName, balance connector.AccountBalance) {
+func (_m *AccountStore) UpdateBalance(exchange connector.ExchangeName, balance connector.AssetBalance) {
 	_m.Called(exchange, balance)
 }
 
@@ -256,14 +256,14 @@ type AccountStore_UpdateBalance_Call struct {
 
 // UpdateBalance is a helper method to define mock.On call
 //   - exchange connector.ExchangeName
-//   - balance connector.AccountBalance
+//   - balance connector.AssetBalance
 func (_e *AccountStore_Expecter) UpdateBalance(exchange interface{}, balance interface{}) *AccountStore_UpdateBalance_Call {
 	return &AccountStore_UpdateBalance_Call{Call: _e.mock.On("UpdateBalance", exchange, balance)}
 }
 
-func (_c *AccountStore_UpdateBalance_Call) Run(run func(exchange connector.ExchangeName, balance connector.AccountBalance)) *AccountStore_UpdateBalance_Call {
+func (_c *AccountStore_UpdateBalance_Call) Run(run func(exchange connector.ExchangeName, balance connector.AssetBalance)) *AccountStore_UpdateBalance_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(connector.ExchangeName), args[1].(connector.AccountBalance))
+		run(args[0].(connector.ExchangeName), args[1].(connector.AssetBalance))
 	})
 	return _c
 }
@@ -273,7 +273,7 @@ func (_c *AccountStore_UpdateBalance_Call) Return() *AccountStore_UpdateBalance_
 	return _c
 }
 
-func (_c *AccountStore_UpdateBalance_Call) RunAndReturn(run func(connector.ExchangeName, connector.AccountBalance)) *AccountStore_UpdateBalance_Call {
+func (_c *AccountStore_UpdateBalance_Call) RunAndReturn(run func(connector.ExchangeName, connector.AssetBalance)) *AccountStore_UpdateBalance_Call {
 	_c.Run(run)
 	return _c
 }

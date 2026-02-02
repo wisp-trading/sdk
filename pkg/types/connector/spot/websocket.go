@@ -25,5 +25,5 @@ type WebSocketConnector interface {
 	GetOrderBookChannels() map[string]<-chan connector.OrderBook
 	GetKlineChannels() map[string]<-chan connector.Kline
 	TradeUpdates() <-chan connector.Trade
-	AccountBalanceUpdates() <-chan connector.AccountBalance
+	AssetBalanceUpdates() <-chan connector.AssetBalance
 }

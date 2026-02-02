@@ -20,24 +20,24 @@ func (_m *AccountReader) EXPECT() *AccountReader_Expecter {
 	return &AccountReader_Expecter{mock: &_m.Mock}
 }
 
-// GetAccountBalance provides a mock function with no fields
-func (_m *AccountReader) GetAccountBalance() (*connector.AccountBalance, error) {
+// GetBalances provides a mock function with no fields
+func (_m *AccountReader) GetBalances() ([]connector.AssetBalance, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetAccountBalance")
+		panic("no return value specified for GetBalances")
 	}
 
-	var r0 *connector.AccountBalance
+	var r0 []connector.AssetBalance
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (*connector.AccountBalance, error)); ok {
+	if rf, ok := ret.Get(0).(func() ([]connector.AssetBalance, error)); ok {
 		return rf()
 	}
-	if rf, ok := ret.Get(0).(func() *connector.AccountBalance); ok {
+	if rf, ok := ret.Get(0).(func() []connector.AssetBalance); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*connector.AccountBalance)
+			r0 = ret.Get(0).([]connector.AssetBalance)
 		}
 	}
 
@@ -50,29 +50,29 @@ func (_m *AccountReader) GetAccountBalance() (*connector.AccountBalance, error) 
 	return r0, r1
 }
 
-// AccountReader_GetAccountBalance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAccountBalance'
-type AccountReader_GetAccountBalance_Call struct {
+// AccountReader_GetBalances_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBalances'
+type AccountReader_GetBalances_Call struct {
 	*mock.Call
 }
 
-// GetAccountBalance is a helper method to define mock.On call
-func (_e *AccountReader_Expecter) GetAccountBalance() *AccountReader_GetAccountBalance_Call {
-	return &AccountReader_GetAccountBalance_Call{Call: _e.mock.On("GetAccountBalance")}
+// GetBalances is a helper method to define mock.On call
+func (_e *AccountReader_Expecter) GetBalances() *AccountReader_GetBalances_Call {
+	return &AccountReader_GetBalances_Call{Call: _e.mock.On("GetBalances")}
 }
 
-func (_c *AccountReader_GetAccountBalance_Call) Run(run func()) *AccountReader_GetAccountBalance_Call {
+func (_c *AccountReader_GetBalances_Call) Run(run func()) *AccountReader_GetBalances_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *AccountReader_GetAccountBalance_Call) Return(_a0 *connector.AccountBalance, _a1 error) *AccountReader_GetAccountBalance_Call {
+func (_c *AccountReader_GetBalances_Call) Return(_a0 []connector.AssetBalance, _a1 error) *AccountReader_GetBalances_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *AccountReader_GetAccountBalance_Call) RunAndReturn(run func() (*connector.AccountBalance, error)) *AccountReader_GetAccountBalance_Call {
+func (_c *AccountReader_GetBalances_Call) RunAndReturn(run func() ([]connector.AssetBalance, error)) *AccountReader_GetBalances_Call {
 	_c.Call.Return(run)
 	return _c
 }
