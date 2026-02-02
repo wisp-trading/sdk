@@ -101,25 +101,25 @@ func (pc *coordinator) backfillTrades() error {
 	for _, conn := range connectors {
 		accountReader, ok := conn.(connector.AccountReader)
 		if !ok {
-			pc.logger.Warn("⚠️  Connector %s does not support AccountReader interface, skipping trade backfill", conn.GetConnectorInfo().Name)
+			pc.logger.Warn("Connector %s does not support AccountReader interface, skipping trade backfill", conn.GetConnectorInfo().Name)
 			continue
 		}
 		exchangeName := conn.GetConnectorInfo().Name
-		pc.logger.Info("📥 Backfilling trades from %s...", exchangeName)
+		pc.logger.Info("Backfilling trades from %s...", exchangeName)
 
 		// Get all strategy executions to know which symbols to fetch
 		executions := pc.positionStore.GetAllStrategyExecutions()
 		symbols := pc.getUniqueSymbols(executions)
 
 		if len(symbols) == 0 {
-			pc.logger.Warn("⚠️  No symbols found for trade backfill on %s", exchangeName)
+			pc.logger.Warn("No symbols found for trade backfill on %s", exchangeName)
 			continue
 		}
 
 		for _, symbol := range symbols {
 			trades, err := accountReader.GetTradingHistory(symbol.Symbol(), pc.tradeBackfillLimit)
 			if err != nil {
-				pc.logger.Warn("⚠️  Failed to fetch trades for %s on %s: %v", symbol.Symbol(), exchangeName, err)
+				pc.logger.Warn("Failed to fetch trades for %s on %s: %v", symbol.Symbol(), exchangeName, err)
 				continue
 			}
 
@@ -141,12 +141,12 @@ func (pc *coordinator) backfillTrades() error {
 					}
 				}
 
-				pc.logger.Info("✅ Backfilled %d trades for %s on %s", len(trades), symbol.Symbol(), exchangeName)
+				pc.logger.Info("Backfilled %d trades for %s on %s", len(trades), symbol.Symbol(), exchangeName)
 			}
 		}
 	}
 
-	pc.logger.Info("📊 Total trades backfilled: %d", totalBackfilled)
+	pc.logger.Info("Total trades backfilled: %d", totalBackfilled)
 	return nil
 }
 
