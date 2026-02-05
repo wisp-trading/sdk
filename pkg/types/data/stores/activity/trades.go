@@ -27,7 +27,7 @@ type Trades interface {
 
 	// Analytics helpers
 	GetTradeCount() int
-	GetTotalVolume(asset portfolio.Pair) numerical.Decimal
+	GetTotalVolume(pair portfolio.Pair) numerical.Decimal
 
 	// Clear for simulation restart
 	Clear()

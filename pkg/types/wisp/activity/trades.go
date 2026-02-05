@@ -14,7 +14,7 @@ type Trades interface {
 	// Query trades
 	GetAllTrades(ctx context.Context) []connector.Trade
 	GetTradesByExchange(ctx context.Context, exchange connector.ExchangeName) []connector.Trade
-	GetTradesByAsset(ctx context.Context, asset portfolio.Pair) []connector.Trade
+	GetTradesByPair(ctx context.Context, asset portfolio.Pair) []connector.Trade
 	GetTradesSince(ctx context.Context, since time.Time) []connector.Trade
 	GetTradeByID(ctx context.Context, tradeID string) *connector.Trade
 

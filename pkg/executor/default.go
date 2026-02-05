@@ -167,9 +167,9 @@ func (e *executor) executeTradeAction(signal *strategy.Signal, action strategy.T
 func (e *executor) placeOrder(exchange connector.OrderExecutor, action strategy.TradeAction) (*connector.OrderResponse, error) {
 	switch action.Action {
 	case strategy.ActionBuy, strategy.ActionCover:
-		return exchange.PlaceLimitOrder(action.Pair.Symbol(), connector.OrderSideBuy, action.Quantity, action.Price)
+		return exchange.PlaceLimitOrder(action.Pair, connector.OrderSideBuy, action.Quantity, action.Price)
 	case strategy.ActionSell, strategy.ActionSellShort:
-		return exchange.PlaceLimitOrder(action.Pair.Symbol(), connector.OrderSideSell, action.Quantity, action.Price)
+		return exchange.PlaceLimitOrder(action.Pair, connector.OrderSideSell, action.Quantity, action.Price)
 	default:
 		return nil, fmt.Errorf("unsupported trade action: %s", action.Action)
 	}

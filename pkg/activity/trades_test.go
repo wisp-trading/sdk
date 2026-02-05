@@ -44,9 +44,12 @@ var _ = Describe("Trades", func() {
 		It("should return all trades from underlying store", func() {
 			ctx := context.Background()
 
+			btcPair := portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))
+			ethPair := portfolio.NewPair(portfolio.NewAsset("ETH"), portfolio.NewAsset("USDT"))
+
 			// Add trades to store
-			store.AddTrade(connector.Trade{ID: "trade-1", Symbol: "BTC", Price: numerical.NewFromFloat(50000)})
-			store.AddTrade(connector.Trade{ID: "trade-2", Symbol: "ETH", Price: numerical.NewFromFloat(3000)})
+			store.AddTrade(connector.Trade{ID: "trade-1", Pair: btcPair, Price: numerical.NewFromFloat(50000)})
+			store.AddTrade(connector.Trade{ID: "trade-2", Pair: ethPair, Price: numerical.NewFromFloat(3000)})
 
 			result := trades.GetAllTrades(ctx)
 
@@ -69,11 +72,13 @@ var _ = Describe("Trades", func() {
 			ctx := context.Background()
 
 			exchange := connector.ExchangeName("binance")
+			btcPair := portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))
+			ethPair := portfolio.NewPair(portfolio.NewAsset("ETH"), portfolio.NewAsset("USDT"))
 
 			// Add trades to store
-			store.AddTrade(connector.Trade{ID: "trade-1", Exchange: exchange, Symbol: "BTC"})
-			store.AddTrade(connector.Trade{ID: "trade-2", Exchange: exchange, Symbol: "ETH"})
-			store.AddTrade(connector.Trade{ID: "trade-3", Exchange: "coinbase", Symbol: "BTC"})
+			store.AddTrade(connector.Trade{ID: "trade-1", Exchange: exchange, Pair: btcPair})
+			store.AddTrade(connector.Trade{ID: "trade-2", Exchange: exchange, Pair: ethPair})
+			store.AddTrade(connector.Trade{ID: "trade-3", Exchange: "coinbase", Pair: btcPair})
 
 			result := trades.GetTradesByExchange(ctx, exchange)
 
@@ -94,29 +99,40 @@ var _ = Describe("Trades", func() {
 	})
 
 	Describe("GetTradesByPair", func() {
-		It("should filter trades by asset", func() {
+		It("should filter trades by pair", func() {
 			ctx := context.Background()
 
-			asset := portfolio.NewAsset("BTC")
+			btc := portfolio.NewPair(
+				portfolio.NewAsset("BTC"),
+				portfolio.NewAsset("USDT"),
+			)
+
+			eth := portfolio.NewPair(
+				portfolio.NewAsset("ETH"),
+				portfolio.NewAsset("USDT"),
+			)
 
 			// Add trades to store
-			store.AddTrade(connector.Trade{ID: "trade-1", Symbol: "BTC", Price: numerical.NewFromFloat(50000)})
-			store.AddTrade(connector.Trade{ID: "trade-2", Symbol: "BTC", Price: numerical.NewFromFloat(51000)})
-			store.AddTrade(connector.Trade{ID: "trade-3", Symbol: "ETH", Price: numerical.NewFromFloat(3000)})
+			store.AddTrade(connector.Trade{ID: "trade-1", Pair: btc, Price: numerical.NewFromFloat(50000)})
+			store.AddTrade(connector.Trade{ID: "trade-2", Pair: btc, Price: numerical.NewFromFloat(51000)})
+			store.AddTrade(connector.Trade{ID: "trade-3", Pair: eth, Price: numerical.NewFromFloat(3000)})
 
-			result := trades.GetTradesByAsset(ctx, asset)
+			result := trades.GetTradesByPair(ctx, btc)
 
 			Expect(result).To(HaveLen(2))
-			Expect(result[0].Symbol).To(Equal("BTC"))
-			Expect(result[1].Symbol).To(Equal("BTC"))
+			Expect(result[0].Pair.Symbol()).To(Equal("BTC-USDT"))
+			Expect(result[1].Pair.Symbol()).To(Equal("BTC-USDT"))
 		})
 
-		It("should return empty slice when no trades for asset", func() {
+		It("should return empty slice when no trades for pair", func() {
 			ctx := context.Background()
 
-			asset := portfolio.NewAsset("UNKNOWN")
+			pair := portfolio.NewPair(
+				portfolio.NewAsset("UNKNOWN"),
+				portfolio.NewAsset("USDT"),
+			)
 
-			result := trades.GetTradesByAsset(ctx, asset)
+			result := trades.GetTradesByPair(ctx, pair)
 
 			Expect(result).To(BeEmpty())
 		})
@@ -128,11 +144,12 @@ var _ = Describe("Trades", func() {
 
 			since := time.Now().Add(-1 * time.Hour)
 			now := time.Now()
+			btcPair := portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))
 
 			// Add trades to store with different timestamps
-			store.AddTrade(connector.Trade{ID: "trade-1", Timestamp: now})
-			store.AddTrade(connector.Trade{ID: "trade-2", Timestamp: now.Add(-30 * time.Minute)})
-			store.AddTrade(connector.Trade{ID: "trade-3", Timestamp: now.Add(-2 * time.Hour)}) // Before 'since'
+			store.AddTrade(connector.Trade{ID: "trade-1", Timestamp: now, Pair: btcPair})
+			store.AddTrade(connector.Trade{ID: "trade-2", Timestamp: now.Add(-30 * time.Minute), Pair: btcPair})
+			store.AddTrade(connector.Trade{ID: "trade-3", Timestamp: now.Add(-2 * time.Hour), Pair: btcPair}) // Before 'since'
 
 			result := trades.GetTradesSince(ctx, since)
 
@@ -155,10 +172,12 @@ var _ = Describe("Trades", func() {
 			ctx := context.Background()
 
 			tradeID := "trade-123"
+			btcPair := portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))
 
 			// Add trade to store
 			store.AddTrade(connector.Trade{
 				ID:    tradeID,
+				Pair:  btcPair,
 				Price: numerical.NewFromFloat(50000),
 			})
 
@@ -181,10 +200,12 @@ var _ = Describe("Trades", func() {
 		It("should return count from underlying store", func() {
 			ctx := context.Background()
 
+			btcPair := portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))
+
 			// Add trades to store
-			store.AddTrade(connector.Trade{ID: "trade-1"})
-			store.AddTrade(connector.Trade{ID: "trade-2"})
-			store.AddTrade(connector.Trade{ID: "trade-3"})
+			store.AddTrade(connector.Trade{ID: "trade-1", Pair: btcPair})
+			store.AddTrade(connector.Trade{ID: "trade-2", Pair: btcPair})
+			store.AddTrade(connector.Trade{ID: "trade-3", Pair: btcPair})
 
 			result := trades.GetTradeCount(ctx)
 
@@ -204,36 +225,36 @@ var _ = Describe("Trades", func() {
 		It("should return volume from underlying store", func() {
 			ctx := context.Background()
 
-			asset := portfolio.NewAsset("BTC")
+			btcPair := portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))
 
 			// Add trades with quantities
 			store.AddTrade(connector.Trade{
-				Symbol:   "BTC",
+				Pair:     btcPair,
 				Quantity: numerical.NewFromFloat(5.5),
 				ID:       "trade-1",
 			})
 			store.AddTrade(connector.Trade{
-				Symbol:   "BTC",
+				Pair:     btcPair,
 				Quantity: numerical.NewFromFloat(3.0),
 				ID:       "trade-2",
 			})
 			store.AddTrade(connector.Trade{
-				Symbol:   "BTC",
+				Pair:     btcPair,
 				Quantity: numerical.NewFromFloat(2.0),
 				ID:       "trade-3",
 			})
 
-			result := trades.GetTotalVolume(ctx, asset)
+			result := trades.GetTotalVolume(ctx, btcPair)
 
 			Expect(result.Equal(numerical.NewFromFloat(10.5))).To(BeTrue())
 		})
 
-		It("should return zero volume when no trades for asset", func() {
+		It("should return zero volume when no trades for pair", func() {
 			ctx := context.Background()
 
-			asset := portfolio.NewAsset("UNKNOWN")
+			unknownPair := portfolio.NewPair(portfolio.NewAsset("UNKNOWN"), portfolio.NewAsset("USDT"))
 
-			result := trades.GetTotalVolume(ctx, asset)
+			result := trades.GetTotalVolume(ctx, unknownPair)
 
 			Expect(result.IsZero()).To(BeTrue())
 		})

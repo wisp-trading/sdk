@@ -31,9 +31,9 @@ func (t *trades) GetTradesByExchange(ctx context.Context, exchange connector.Exc
 	return t.store.GetTradesByExchange(exchange)
 }
 
-// GetTradesByAsset retrieves trades for a specific asset
-func (t *trades) GetTradesByAsset(ctx context.Context, asset portfolio.Pair) []connector.Trade {
-	return t.store.GetTradesByPair(asset)
+// GetTradesByPair retrieves trades for a specific pair
+func (t *trades) GetTradesByPair(ctx context.Context, pair portfolio.Pair) []connector.Trade {
+	return t.store.GetTradesByPair(pair)
 }
 
 // GetTradesSince retrieves trades since a specific time
@@ -51,9 +51,9 @@ func (t *trades) GetTradeCount(ctx context.Context) int {
 	return t.store.GetTradeCount()
 }
 
-// GetTotalVolume calculates total volume for a specific asset
-func (t *trades) GetTotalVolume(ctx context.Context, asset portfolio.Pair) numerical.Decimal {
-	return t.store.GetTotalVolume(asset)
+// GetTotalVolume calculates total volume for a specific pair
+func (t *trades) GetTotalVolume(ctx context.Context, pair portfolio.Pair) numerical.Decimal {
+	return t.store.GetTotalVolume(pair)
 }
 
 var _ wispActivity.Trades = (*trades)(nil)

@@ -42,10 +42,15 @@ type Wisp interface {
 	// Example: k.Activity().Positions().GetStrategyExecution(strategyName)
 	Activity() activity.Activity
 
-	// Asset creates a new portfolio.Pair from a symbol string.
+	// Asset creates a new portfolio.Asset from a symbol string.
 	// Convenience method to avoid importing portfolio package in strategies.
-	// Example: btc := k.Pair("BTC")
-	Asset(symbol string) portfolio.Pair
+	// Example: btc := k.Asset("BTC")
+	Asset(symbol string) portfolio.Asset
+
+	// Pair creates a new portfolio.Pair from a symbol string.
+	// Convenience method to avoid importing portfolio package in strategies.
+	// Example: btc := k.Pair(base, quote)
+	Pair(base, quote portfolio.Asset) portfolio.Pair
 
 	// Signal creates a new signal builder for constructing trading signals.
 	// Returns a fluent API for building buy/sell signals with price targets.

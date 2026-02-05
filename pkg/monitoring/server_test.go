@@ -14,6 +14,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/monitoring"
 	monitoringTypes "github.com/wisp-trading/sdk/pkg/types/monitoring"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 
 	"github.com/wisp-trading/sdk/pkg/types/connector"
@@ -26,6 +27,10 @@ var _ = Describe("Server", func() {
 	var (
 		tmpDir       string
 		viewRegistry *monitoringMock.ViewRegistry
+		pair         = portfolio.NewPair(
+			portfolio.NewAsset("BTC"),
+			portfolio.NewAsset("USDT"),
+		)
 	)
 
 	BeforeEach(func() {
@@ -245,12 +250,12 @@ var _ = Describe("Server", func() {
 
 		Describe("/api/orderbook", func() {
 			It("should return orderbook for asset", func() {
-				viewRegistry.EXPECT().GetOrderbookView("BTC/USDT").Return(&connector.OrderBook{
+				viewRegistry.EXPECT().GetOrderbookView(pair).Return(&connector.OrderBook{
 					Bids: []connector.PriceLevel{},
 					Asks: []connector.PriceLevel{},
 				})
 
-				resp, err := client.Get("http://unix/api/orderbook?asset=BTC/USDT")
+				resp, err := client.Get("http://unix/api/orderbook?pair=BTC-USDT")
 				Expect(err).NotTo(HaveOccurred())
 				defer resp.Body.Close()
 
@@ -266,9 +271,13 @@ var _ = Describe("Server", func() {
 			})
 
 			It("should return 404 for unknown asset", func() {
-				viewRegistry.EXPECT().GetOrderbookView("DOGE/USDT").Return(nil)
+				doge := portfolio.NewPair(
+					portfolio.NewAsset("DOGE"),
+					portfolio.NewAsset("USDT"),
+				)
+				viewRegistry.EXPECT().GetOrderbookView(doge).Return(nil)
 
-				resp, err := client.Get("http://unix/api/orderbook?asset=DOGE/USDT")
+				resp, err := client.Get("http://unix/api/orderbook?pair=DOGE-USDT")
 				Expect(err).NotTo(HaveOccurred())
 				defer resp.Body.Close()
 
@@ -279,8 +288,8 @@ var _ = Describe("Server", func() {
 		Describe("/api/trades", func() {
 			It("should return trades with default limit", func() {
 				viewRegistry.EXPECT().GetRecentTrades(50).Return([]connector.Trade{
-					{ID: "1", Symbol: "BTC/USDT"},
-					{ID: "2", Symbol: "BTC/USDT"},
+					{ID: "1", Pair: pair},
+					{ID: "2", Pair: pair},
 				})
 
 				resp, err := client.Get("http://unix/api/trades")

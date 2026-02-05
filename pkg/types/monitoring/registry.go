@@ -3,6 +3,7 @@ package monitoring
 import (
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
@@ -11,7 +12,7 @@ import (
 type ViewRegistry interface {
 	GetPnLView() *PnLView
 	GetPositionsView() *strategy.StrategyExecution
-	GetOrderbookView(symbol string) *connector.OrderBook
+	GetOrderbookView(pair portfolio.Pair) *connector.OrderBook
 	GetRecentTrades(limit int) []connector.Trade
 	GetMetrics() *StrategyMetrics
 	GetHealth() *health.SystemHealthReport

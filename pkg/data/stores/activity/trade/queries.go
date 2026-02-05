@@ -27,13 +27,13 @@ func (ds *dataStore) GetTradesByExchange(exchange connector.ExchangeName) []conn
 	return result
 }
 
-// GetTradesByAsset retrieves trades for a specific asset
+// GetTradesByPair retrieves trades for a specific asset
 func (ds *dataStore) GetTradesByPair(asset portfolio.Pair) []connector.Trade {
 	trades := ds.getTrades()
 	result := make([]connector.Trade, 0)
 
 	for _, trade := range trades {
-		if trade.Symbol == asset.Symbol() {
+		if trade.Pair.Symbol() == asset.Symbol() {
 			result = append(result, trade)
 		}
 	}
@@ -41,13 +41,13 @@ func (ds *dataStore) GetTradesByPair(asset portfolio.Pair) []connector.Trade {
 	return result
 }
 
-// GetTradesByExchangeAndAsset retrieves trades for a specific exchange and asset
+// GetTradesByExchangeAndPair retrieves trades for a specific exchange and asset
 func (ds *dataStore) GetTradesByExchangeAndPair(exchange connector.ExchangeName, pair portfolio.Pair) []connector.Trade {
 	trades := ds.getTrades()
 	result := make([]connector.Trade, 0)
 
 	for _, trade := range trades {
-		if trade.Exchange == exchange && trade.Symbol == pair.Symbol() {
+		if trade.Exchange == exchange && trade.Pair.Symbol() == pair.Symbol() {
 			result = append(result, trade)
 		}
 	}
@@ -94,12 +94,12 @@ func (ds *dataStore) GetTradeCount() int {
 }
 
 // GetTotalVolume calculates total volume for a specific asset
-func (ds *dataStore) GetTotalVolume(asset portfolio.Pair) numerical.Decimal {
+func (ds *dataStore) GetTotalVolume(pair portfolio.Pair) numerical.Decimal {
 	trades := ds.getTrades()
 	totalVolume := numerical.Zero()
 
 	for _, trade := range trades {
-		if trade.Symbol == asset.Symbol() {
+		if trade.Pair.Symbol() == pair.Symbol() {
 			totalVolume = totalVolume.Add(trade.Quantity)
 		}
 	}

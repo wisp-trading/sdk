@@ -10,7 +10,8 @@ type StrategyConfig interface {
 
 // Asset represents a trading asset with its required instruments
 type Asset struct {
-	Symbol      string   `yaml:"symbol"`
+	Base        string   `yaml:"base"`
+	Quote       string   `yaml:"quote"`
 	Instruments []string `yaml:"instruments"`
 }
 

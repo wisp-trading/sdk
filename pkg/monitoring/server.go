@@ -10,12 +10,14 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
 // server implements the Server interface
@@ -212,13 +214,24 @@ func (s *server) handleOrderbook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	asset := r.URL.Query().Get("asset")
-	if asset == "" {
-		http.Error(w, "asset parameter required", http.StatusBadRequest)
+	queryPair := r.URL.Query().Get("pair")
+	if queryPair == "" {
+		http.Error(w, "pair parameter required", http.StatusBadRequest)
 		return
 	}
 
-	orderbook := s.viewRegistry.GetOrderbookView(asset)
+	parts := strings.Split(queryPair, "-")
+	if len(parts) != 2 {
+		http.Error(w, "invalid pair format, expected BASE-QUOTE", http.StatusBadRequest)
+		return
+	}
+
+	pair := portfolio.NewPair(
+		portfolio.NewAsset(parts[0]),
+		portfolio.NewAsset(parts[1]),
+	)
+
+	orderbook := s.viewRegistry.GetOrderbookView(pair)
 	if orderbook == nil {
 		http.Error(w, "orderbook not found", http.StatusNotFound)
 		return

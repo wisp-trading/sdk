@@ -32,3 +32,7 @@ func (p Pair) Quote() Asset {
 func (p Pair) Symbol() string {
 	return p.base.Symbol() + p.separator + p.quote.Symbol()
 }
+
+func (p Pair) Equals(other Pair) bool {
+	return p.base.Equals(other.base) && p.quote.Equals(other.quote)
+}

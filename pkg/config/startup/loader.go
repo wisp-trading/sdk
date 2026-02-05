@@ -108,7 +108,11 @@ func (l *startupConfigLoader) convertAssets(stratConfig *config.Strategy) map[po
 			}
 
 			if len(instruments) > 0 {
-				instrumentMap[portfolio.NewAsset(asset.Symbol)] = instruments
+				pair := portfolio.NewPair(
+					portfolio.NewAsset(asset.Base),
+					portfolio.NewAsset(asset.Quote),
+				)
+				instrumentMap[pair] = instruments
 			}
 		}
 	}

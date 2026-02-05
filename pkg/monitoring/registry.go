@@ -7,6 +7,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/profiling"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	"github.com/wisp-trading/sdk/pkg/types/wisp"
@@ -75,11 +76,10 @@ func (r *viewRegistry) GetPositionsView() *strategy.StrategyExecution {
 	return r.wisp.Activity().Positions().GetStrategyExecution(ctx)
 }
 
-func (r *viewRegistry) GetOrderbookView(symbol string) *connector.OrderBook {
+func (r *viewRegistry) GetOrderbookView(pair portfolio.Pair) *connector.OrderBook {
 	ctx := context.Background()
 
-	asset := r.wisp.Asset(symbol)
-	ob, err := r.wisp.Market().OrderBook(ctx, asset)
+	ob, err := r.wisp.Market().OrderBook(ctx, pair)
 	if err != nil {
 		return nil
 	}

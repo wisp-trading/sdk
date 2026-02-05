@@ -11,6 +11,7 @@ import (
 	storeActivity "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	wispType "github.com/wisp-trading/sdk/pkg/types/wisp"
@@ -125,7 +126,12 @@ var _ = Describe("ViewRegistry", func() {
 
 	Describe("GetOrderbookView", func() {
 		It("should return nil when no orderbook data available", func() {
-			result := viewRegistry.GetOrderbookView("BTC/USDT")
+			pair := portfolio.NewPair(
+				portfolio.NewAsset("BTC"),
+				portfolio.NewAsset("USDT"),
+			)
+
+			result := viewRegistry.GetOrderbookView(pair)
 
 			// Without market data ingestion, orderbook will be nil
 			Expect(result).To(BeNil())
