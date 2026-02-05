@@ -131,7 +131,7 @@ func (_m *Wisp) Asset(symbol string) portfolio.Asset {
 	ret := _m.Called(symbol)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Asset")
+		panic("no return value specified for Pair")
 	}
 
 	var r0 portfolio.Asset
@@ -144,7 +144,7 @@ func (_m *Wisp) Asset(symbol string) portfolio.Asset {
 	return r0
 }
 
-// Wisp_Asset_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Asset'
+// Wisp_Asset_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Pair'
 type Wisp_Asset_Call struct {
 	*mock.Call
 }
@@ -152,7 +152,7 @@ type Wisp_Asset_Call struct {
 // Asset is a helper method to define mock.On call
 //   - symbol string
 func (_e *Wisp_Expecter) Asset(symbol interface{}) *Wisp_Asset_Call {
-	return &Wisp_Asset_Call{Call: _e.mock.On("Asset", symbol)}
+	return &Wisp_Asset_Call{Call: _e.mock.On("Pair", symbol)}
 }
 
 func (_c *Wisp_Asset_Call) Run(run func(symbol string)) *Wisp_Asset_Call {

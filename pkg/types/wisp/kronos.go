@@ -44,7 +44,7 @@ type Wisp interface {
 
 	// Asset creates a new portfolio.Asset from a symbol string.
 	// Convenience method to avoid importing portfolio package in strategies.
-	// Example: btc := k.Asset("BTC")
+	// Example: btc := k.Pair("BTC")
 	Asset(symbol string) portfolio.Asset
 
 	// Pair creates a new portfolio.Pair from a symbol string.

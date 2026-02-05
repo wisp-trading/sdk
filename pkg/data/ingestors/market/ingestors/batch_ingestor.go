@@ -155,7 +155,7 @@ func (bi *BatchIngestor) collectOrderBooks(assets []portfolio.Pair) {
 			bi.store.UpdateOrderBook(a, bi.exchangeName, *orderBook)
 			bi.store.UpdateLastUpdated(marketTypes.UpdateKey{
 				DataType: marketTypes.DataKeyOrderBooks,
-				Asset:    a,
+				Pair:     a,
 				Exchange: bi.exchangeName,
 			})
 
@@ -187,10 +187,10 @@ func (bi *BatchIngestor) collectPrices(pairs []portfolio.Pair) {
 				return
 			}
 
-			bi.store.UpdateAssetPrice(p, bi.exchangeName, *price)
+			bi.store.UpdatePairPrice(p, bi.exchangeName, *price)
 			bi.store.UpdateLastUpdated(marketTypes.UpdateKey{
-				DataType: marketTypes.DataKeyAssetPrice,
-				Asset:    p,
+				DataType: marketTypes.DataKeyPairPrice,
+				Pair:     p,
 				Exchange: bi.exchangeName,
 			})
 

@@ -41,7 +41,7 @@ func (e *Extractor) Extract(asset portfolio.Pair, featureMap map[string]float64)
 	now := e.timeProvider.Now()
 
 	// Get current price (use first available exchange)
-	prices := e.marketData.GetAssetPrices(asset)
+	prices := e.marketData.GetPairPrices(asset)
 	if len(prices) == 0 {
 		return nil // No price data available
 	}

@@ -40,6 +40,7 @@ var _ = Describe("LifecycleController", func() {
 		assetRegistry     registryTypes.PairRegistry
 		ctx               context.Context
 		cancel            context.CancelFunc
+		btcPair           portfolio.Pair
 	)
 
 	BeforeEach(func() {
@@ -50,6 +51,8 @@ var _ = Describe("LifecycleController", func() {
 		)
 		Expect(app.Start(context.Background())).To(Succeed())
 		ctx, cancel = context.WithCancel(context.Background())
+
+		btcPair = portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))
 	})
 
 	AfterEach(func() {
@@ -72,7 +75,7 @@ var _ = Describe("LifecycleController", func() {
 				m := setupMockSpotConnector(GinkgoT(), exchangeName)
 				connectorRegistry.RegisterSpotConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterPair(portfolio.NewAsset("BTC"), connector.TypeSpot)
+				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
 
 				// Start
 				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))
@@ -98,7 +101,7 @@ var _ = Describe("LifecycleController", func() {
 				m := setupMockSpotConnector(GinkgoT(), exchangeName)
 				connectorRegistry.RegisterSpotConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterPair(portfolio.NewAsset("BTC"), connector.TypeSpot)
+				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
 
 				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))
 				Expect(err).ToNot(HaveOccurred())
@@ -136,7 +139,7 @@ var _ = Describe("LifecycleController", func() {
 			m := setupMockSpotConnector(GinkgoT(), exchangeName)
 			connectorRegistry.RegisterSpotConnector(exchangeName, m)
 			Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-			assetRegistry.RegisterPair(portfolio.NewAsset("BTC"), connector.TypeSpot)
+			assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
 
 			// Start in background
 			go func() {
@@ -171,7 +174,7 @@ var _ = Describe("LifecycleController", func() {
 				m := setupMockSpotConnector(GinkgoT(), exchangeName)
 				connectorRegistry.RegisterSpotConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterPair(portfolio.NewAsset("BTC"), connector.TypeSpot)
+				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
 
 				// First start
 				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))

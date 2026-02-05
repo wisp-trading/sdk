@@ -24,7 +24,7 @@ func newBaseMarketService(store storeTypes.MarketStore) baseMarketService {
 
 // Price returns the current price for an asset
 func (b *baseMarketService) Price(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (numerical.Decimal, error) {
-	priceMap := b.store.GetAssetPrices(asset)
+	priceMap := b.store.GetPairPrices(asset)
 
 	if len(exchange) > 0 && exchange[0] != "" {
 		price, exists := priceMap[exchange[0]]
@@ -49,7 +49,7 @@ func (b *baseMarketService) Price(ctx context.Context, asset portfolio.Pair, exc
 // Prices returns prices across all exchanges for this market type
 func (b *baseMarketService) Prices(ctx context.Context, asset portfolio.Pair) map[connector.ExchangeName]numerical.Decimal {
 	result := make(map[connector.ExchangeName]numerical.Decimal)
-	priceMap := b.store.GetAssetPrices(asset)
+	priceMap := b.store.GetPairPrices(asset)
 	for exchange, price := range priceMap {
 		result[exchange] = price.Price
 	}

@@ -127,7 +127,7 @@ func populateTestKlines(store marketTypes.MarketStore, asset portfolio.Pair, exc
 	}
 
 	// Add a price so getDefaultExchange works
-	store.UpdateAssetPrice(asset, exchange, connector.Price{
+	store.UpdatePairPrice(asset, exchange, connector.Price{
 		Price:     numerical.NewFromInt(100),
 		Timestamp: now,
 	})

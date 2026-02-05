@@ -62,7 +62,7 @@ func (ds *dataStore) UpdateKline(asset portfolio.Pair, exchangeName connector.Ex
 
 	ds.UpdateLastUpdated(marketTypes.UpdateKey{
 		DataType: marketTypes.DataKeyKlines,
-		Asset:    asset,
+		Pair:     asset,
 		Exchange: exchangeName,
 	})
 }

@@ -17,21 +17,21 @@ type MarketStore interface {
 	MarketType() MarketType
 
 	// Order books
-	UpdateOrderBook(asset portfolio.Pair, exchange connector.ExchangeName, orderBook connector.OrderBook)
-	GetOrderBook(asset portfolio.Pair, exchange connector.ExchangeName) *connector.OrderBook
-	GetOrderBooks(asset portfolio.Pair) OrderBookMap
-	GetAllAssetsWithOrderBooks() []portfolio.Pair
+	UpdateOrderBook(pair portfolio.Pair, exchange connector.ExchangeName, orderBook connector.OrderBook)
+	GetOrderBook(pair portfolio.Pair, exchange connector.ExchangeName) *connector.OrderBook
+	GetOrderBooks(pair portfolio.Pair) OrderBookMap
+	GetAllPairsWithOrderBooks() []portfolio.Pair
 
 	// Prices
-	UpdateAssetPrice(asset portfolio.Pair, exchange connector.ExchangeName, price connector.Price)
-	UpdateAssetPrices(asset portfolio.Pair, prices PriceMap)
-	GetAssetPrice(asset portfolio.Pair, exchange connector.ExchangeName) *connector.Price
-	GetAssetPrices(asset portfolio.Pair) PriceMap
+	UpdatePairPrice(pair portfolio.Pair, exchange connector.ExchangeName, price connector.Price)
+	UpdatePairPrices(pair portfolio.Pair, prices PriceMap)
+	GetPairPrice(pair portfolio.Pair, exchange connector.ExchangeName) *connector.Price
+	GetPairPrices(pair portfolio.Pair) PriceMap
 
 	// Klines
-	UpdateKline(asset portfolio.Pair, exchange connector.ExchangeName, kline connector.Kline)
-	GetKlines(asset portfolio.Pair, exchange connector.ExchangeName, interval string, limit int) []connector.Kline
-	GetKlinesSince(asset portfolio.Pair, exchange connector.ExchangeName, interval string, since time.Time) []connector.Kline
+	UpdateKline(pair portfolio.Pair, exchange connector.ExchangeName, kline connector.Kline)
+	GetKlines(pair portfolio.Pair, exchange connector.ExchangeName, interval string, limit int) []connector.Kline
+	GetKlinesSince(pair portfolio.Pair, exchange connector.ExchangeName, interval string, since time.Time) []connector.Kline
 
 	// Metadata
 	GetLastUpdated() LastUpdatedMap
@@ -43,14 +43,14 @@ type DataKey string
 
 const (
 	DataKeyOrderBooks DataKey = "order_books"
-	DataKeyAssetPrice DataKey = "asset_price"
+	DataKeyPairPrice  DataKey = "pair_price"
 	DataKeyKlines     DataKey = "klines"
 )
 
 // UpdateKey identifies a specific data update (matches old store structure)
 type UpdateKey struct {
 	DataType DataKey
-	Asset    portfolio.Pair
+	Pair     portfolio.Pair
 	Exchange connector.ExchangeName
 }
 

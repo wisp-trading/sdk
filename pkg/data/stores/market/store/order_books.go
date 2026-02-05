@@ -45,12 +45,12 @@ func (ds *dataStore) UpdateOrderBook(asset portfolio.Pair, exchangeName connecto
 			Timestamp: orderBook.Timestamp,
 		}
 
-		ds.UpdateAssetPrice(asset, exchangeName, price)
+		ds.UpdatePairPrice(asset, exchangeName, price)
 	}
 
 	ds.UpdateLastUpdated(marketTypes.UpdateKey{
 		DataType: marketTypes.DataKeyOrderBooks,
-		Asset:    asset,
+		Pair:     asset,
 		Exchange: exchangeName,
 	})
 }
@@ -73,7 +73,7 @@ func (ds *dataStore) GetOrderBook(asset portfolio.Pair, exchangeName connector.E
 	return nil
 }
 
-func (ds *dataStore) GetAllAssetsWithOrderBooks() []portfolio.Pair {
+func (ds *dataStore) GetAllPairsWithOrderBooks() []portfolio.Pair {
 	current := ds.getOrderBooks()
 	assets := make([]portfolio.Pair, 0, len(current))
 	for asset := range current {

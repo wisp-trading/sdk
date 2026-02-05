@@ -211,7 +211,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 				Expect(ethFunding.CurrentRate.InexactFloat64()).To(Equal(0.00005))
 
 				// Assert - verify prices are stored
-				storedBtcPrice := store.GetAssetPrice(btcPair, exchangeName)
+				storedBtcPrice := store.GetPairPrice(btcPair, exchangeName)
 				Expect(storedBtcPrice).ToNot(BeNil(), "BTC price should be stored")
 				Expect(storedBtcPrice.Price.InexactFloat64()).To(BeNumerically("~", 50050.0, 1.0))
 			})

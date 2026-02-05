@@ -367,7 +367,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 		})
 	})
 
-	Describe("GetAllAssetsWithOrderBooks", func() {
+	Describe("GetAllPairsWithOrderBooks", func() {
 		Context("when orderbooks exist", func() {
 			It("should return all assets with orderbooks", func() {
 				now := time.Now()
@@ -389,7 +389,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				marketStore.UpdateOrderBook(btc, "hyperliquid", orderBookBTC)
 				marketStore.UpdateOrderBook(eth, "hyperliquid", orderBookETH)
 
-				assets := marketStore.GetAllAssetsWithOrderBooks()
+				assets := marketStore.GetAllPairsWithOrderBooks()
 				Expect(assets).To(HaveLen(2))
 				Expect(assets).To(ContainElement(btc))
 				Expect(assets).To(ContainElement(eth))
@@ -398,7 +398,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 
 		Context("when no orderbooks exist", func() {
 			It("should return an empty slice", func() {
-				assets := marketStore.GetAllAssetsWithOrderBooks()
+				assets := marketStore.GetAllPairsWithOrderBooks()
 				Expect(assets).To(HaveLen(0))
 			})
 		})
@@ -435,7 +435,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 					defer GinkgoRecover()
 					_ = marketStore.GetOrderBook(btc, "hyperliquid")
 					_ = marketStore.GetOrderBooks(btc)
-					_ = marketStore.GetAllAssetsWithOrderBooks()
+					_ = marketStore.GetAllPairsWithOrderBooks()
 					done <- true
 				}()
 			}

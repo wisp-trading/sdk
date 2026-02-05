@@ -56,7 +56,7 @@ func (s *marketService) Price(ctx context.Context, asset portfolio.Pair, exchang
 
 	// Iterate all registered market stores
 	for _, store := range s.registry.GetAll() {
-		prices := store.GetAssetPrices(asset)
+		prices := store.GetPairPrices(asset)
 
 		if targetExchange != "" {
 			if price, exists := prices[targetExchange]; exists {
@@ -82,7 +82,7 @@ func (s *marketService) Prices(ctx context.Context, asset portfolio.Pair) map[co
 
 	// Iterate all registered market stores
 	for _, store := range s.registry.GetAll() {
-		prices := store.GetAssetPrices(asset)
+		prices := store.GetPairPrices(asset)
 		for exchange, price := range prices {
 			result[exchange] = price.Price
 		}
@@ -156,7 +156,7 @@ func (s *marketService) FindArbitrage(ctx context.Context, asset portfolio.Pair,
 	priceMap := make(map[connector.ExchangeName]connector.Price)
 
 	for _, store := range s.registry.GetAll() {
-		prices := store.GetAssetPrices(asset)
+		prices := store.GetPairPrices(asset)
 		for exchange, price := range prices {
 			priceMap[exchange] = price
 		}

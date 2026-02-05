@@ -176,7 +176,7 @@ func (ri *RealtimeIngestor) processOrderBookChannel(channelKey string, orderBook
 			ri.store.UpdateOrderBook(update.Pair, ri.exchangeName, update)
 			ri.store.UpdateLastUpdated(market.UpdateKey{
 				DataType: market.DataKeyOrderBooks,
-				Asset:    update.Pair,
+				Pair:     update.Pair,
 				Exchange: ri.exchangeName,
 			})
 

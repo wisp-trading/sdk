@@ -27,11 +27,11 @@ func (_m *MarketStore) EXPECT() *MarketStore_Expecter {
 }
 
 // GetAllAssetsWithOrderBooks provides a mock function with no fields
-func (_m *MarketStore) GetAllAssetsWithOrderBooks() []portfolio.Pair {
+func (_m *MarketStore) GetAllPairsWithOrderBooks() []portfolio.Pair {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetAllAssetsWithOrderBooks")
+		panic("no return value specified for GetAllPairsWithOrderBooks")
 	}
 
 	var r0 []portfolio.Pair
@@ -46,14 +46,14 @@ func (_m *MarketStore) GetAllAssetsWithOrderBooks() []portfolio.Pair {
 	return r0
 }
 
-// MarketStore_GetAllAssetsWithOrderBooks_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAllAssetsWithOrderBooks'
+// MarketStore_GetAllAssetsWithOrderBooks_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAllPairsWithOrderBooks'
 type MarketStore_GetAllAssetsWithOrderBooks_Call struct {
 	*mock.Call
 }
 
 // GetAllAssetsWithOrderBooks is a helper method to define mock.On call
 func (_e *MarketStore_Expecter) GetAllAssetsWithOrderBooks() *MarketStore_GetAllAssetsWithOrderBooks_Call {
-	return &MarketStore_GetAllAssetsWithOrderBooks_Call{Call: _e.mock.On("GetAllAssetsWithOrderBooks")}
+	return &MarketStore_GetAllAssetsWithOrderBooks_Call{Call: _e.mock.On("GetAllPairsWithOrderBooks")}
 }
 
 func (_c *MarketStore_GetAllAssetsWithOrderBooks_Call) Run(run func()) *MarketStore_GetAllAssetsWithOrderBooks_Call {
@@ -74,11 +74,11 @@ func (_c *MarketStore_GetAllAssetsWithOrderBooks_Call) RunAndReturn(run func() [
 }
 
 // GetAssetPrice provides a mock function with given fields: asset, exchange
-func (_m *MarketStore) GetAssetPrice(asset portfolio.Pair, exchange connector.ExchangeName) *connector.Price {
+func (_m *MarketStore) GetPairPrice(asset portfolio.Pair, exchange connector.ExchangeName) *connector.Price {
 	ret := _m.Called(asset, exchange)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetAssetPrice")
+		panic("no return value specified for GetPairPrice")
 	}
 
 	var r0 *connector.Price
@@ -93,7 +93,7 @@ func (_m *MarketStore) GetAssetPrice(asset portfolio.Pair, exchange connector.Ex
 	return r0
 }
 
-// MarketStore_GetAssetPrice_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAssetPrice'
+// MarketStore_GetAssetPrice_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPairPrice'
 type MarketStore_GetAssetPrice_Call struct {
 	*mock.Call
 }
@@ -102,7 +102,7 @@ type MarketStore_GetAssetPrice_Call struct {
 //   - asset portfolio.Pair
 //   - exchange connector.ExchangeName
 func (_e *MarketStore_Expecter) GetAssetPrice(asset interface{}, exchange interface{}) *MarketStore_GetAssetPrice_Call {
-	return &MarketStore_GetAssetPrice_Call{Call: _e.mock.On("GetAssetPrice", asset, exchange)}
+	return &MarketStore_GetAssetPrice_Call{Call: _e.mock.On("GetPairPrice", asset, exchange)}
 }
 
 func (_c *MarketStore_GetAssetPrice_Call) Run(run func(asset portfolio.Pair, exchange connector.ExchangeName)) *MarketStore_GetAssetPrice_Call {
@@ -123,11 +123,11 @@ func (_c *MarketStore_GetAssetPrice_Call) RunAndReturn(run func(portfolio.Pair, 
 }
 
 // GetAssetPrices provides a mock function with given fields: asset
-func (_m *MarketStore) GetAssetPrices(asset portfolio.Pair) market.PriceMap {
+func (_m *MarketStore) GetPairPrices(asset portfolio.Pair) market.PriceMap {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetAssetPrices")
+		panic("no return value specified for GetPairPrices")
 	}
 
 	var r0 market.PriceMap
@@ -142,7 +142,7 @@ func (_m *MarketStore) GetAssetPrices(asset portfolio.Pair) market.PriceMap {
 	return r0
 }
 
-// MarketStore_GetAssetPrices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAssetPrices'
+// MarketStore_GetAssetPrices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPairPrices'
 type MarketStore_GetAssetPrices_Call struct {
 	*mock.Call
 }
@@ -150,7 +150,7 @@ type MarketStore_GetAssetPrices_Call struct {
 // GetAssetPrices is a helper method to define mock.On call
 //   - asset portfolio.Pair
 func (_e *MarketStore_Expecter) GetAssetPrices(asset interface{}) *MarketStore_GetAssetPrices_Call {
-	return &MarketStore_GetAssetPrices_Call{Call: _e.mock.On("GetAssetPrices", asset)}
+	return &MarketStore_GetAssetPrices_Call{Call: _e.mock.On("GetPairPrices", asset)}
 }
 
 func (_c *MarketStore_GetAssetPrices_Call) Run(run func(asset portfolio.Pair)) *MarketStore_GetAssetPrices_Call {
@@ -462,11 +462,11 @@ func (_c *MarketStore_MarketType_Call) RunAndReturn(run func() market.MarketType
 }
 
 // UpdateAssetPrice provides a mock function with given fields: asset, exchange, price
-func (_m *MarketStore) UpdateAssetPrice(asset portfolio.Pair, exchange connector.ExchangeName, price connector.Price) {
+func (_m *MarketStore) UpdatePairPrice(asset portfolio.Pair, exchange connector.ExchangeName, price connector.Price) {
 	_m.Called(asset, exchange, price)
 }
 
-// MarketStore_UpdateAssetPrice_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateAssetPrice'
+// MarketStore_UpdateAssetPrice_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdatePairPrice'
 type MarketStore_UpdateAssetPrice_Call struct {
 	*mock.Call
 }
@@ -476,7 +476,7 @@ type MarketStore_UpdateAssetPrice_Call struct {
 //   - exchange connector.ExchangeName
 //   - price connector.Price
 func (_e *MarketStore_Expecter) UpdateAssetPrice(asset interface{}, exchange interface{}, price interface{}) *MarketStore_UpdateAssetPrice_Call {
-	return &MarketStore_UpdateAssetPrice_Call{Call: _e.mock.On("UpdateAssetPrice", asset, exchange, price)}
+	return &MarketStore_UpdateAssetPrice_Call{Call: _e.mock.On("UpdatePairPrice", asset, exchange, price)}
 }
 
 func (_c *MarketStore_UpdateAssetPrice_Call) Run(run func(asset portfolio.Pair, exchange connector.ExchangeName, price connector.Price)) *MarketStore_UpdateAssetPrice_Call {
@@ -497,11 +497,11 @@ func (_c *MarketStore_UpdateAssetPrice_Call) RunAndReturn(run func(portfolio.Pai
 }
 
 // UpdateAssetPrices provides a mock function with given fields: asset, prices
-func (_m *MarketStore) UpdateAssetPrices(asset portfolio.Pair, prices market.PriceMap) {
+func (_m *MarketStore) UpdatePairPrices(asset portfolio.Pair, prices market.PriceMap) {
 	_m.Called(asset, prices)
 }
 
-// MarketStore_UpdateAssetPrices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateAssetPrices'
+// MarketStore_UpdateAssetPrices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdatePairPrices'
 type MarketStore_UpdateAssetPrices_Call struct {
 	*mock.Call
 }
@@ -510,7 +510,7 @@ type MarketStore_UpdateAssetPrices_Call struct {
 //   - asset portfolio.Pair
 //   - prices market.PriceMap
 func (_e *MarketStore_Expecter) UpdateAssetPrices(asset interface{}, prices interface{}) *MarketStore_UpdateAssetPrices_Call {
-	return &MarketStore_UpdateAssetPrices_Call{Call: _e.mock.On("UpdateAssetPrices", asset, prices)}
+	return &MarketStore_UpdateAssetPrices_Call{Call: _e.mock.On("UpdatePairPrices", asset, prices)}
 }
 
 func (_c *MarketStore_UpdateAssetPrices_Call) Run(run func(asset portfolio.Pair, prices market.PriceMap)) *MarketStore_UpdateAssetPrices_Call {

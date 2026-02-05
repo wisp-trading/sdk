@@ -84,7 +84,7 @@ func (f *FundingRateExtension) handleFundingRateUpdate(exchangeName connector.Ex
 	// Update last updated timestamp
 	f.store.UpdateLastUpdated(market.UpdateKey{
 		DataType: "funding_rates", // Use string literal for perp-specific data type
-		Asset:    asset,
+		Pair:     asset,
 		Exchange: exchangeName,
 	})
 
