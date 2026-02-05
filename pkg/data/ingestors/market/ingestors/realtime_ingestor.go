@@ -84,9 +84,9 @@ func (ri *RealtimeIngestor) Start(ctx context.Context) error {
 		return fmt.Errorf("realtime ingestor for %s already active", ri.exchangeName)
 	}
 
-	assets := ri.assetRegistry.GetRequiredPairs()
-	if len(assets) == 0 {
-		ri.logger.Warn("No assets registered for %s realtime ingestion", ri.exchangeName)
+	pairs := ri.assetRegistry.GetRequiredPairs()
+	if len(pairs) == 0 {
+		ri.logger.Warn("No pairs registered for %s realtime ingestion", ri.exchangeName)
 		return nil
 	}
 
@@ -97,30 +97,30 @@ func (ri *RealtimeIngestor) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to start WebSocket for %s: %w", ri.exchangeName, err)
 	}
 
-	// Subscribe to order books for all assets
-	for _, asset := range assets {
-		if err := ri.wsSubscriber.SubscribeOrderBook(asset); err != nil {
+	// Subscribe to order books for all pairs
+	for _, pair := range pairs {
+		if err := ri.wsSubscriber.SubscribeOrderBook(pair); err != nil {
 			ri.logger.Error("Failed to subscribe to order book for %s on %s: %v",
-				asset.Symbol(), ri.exchangeName, err)
+				pair.Symbol(), ri.exchangeName, err)
 		} else {
-			ri.logger.Info("Subscribed to order book for %s on %s", asset.Symbol(), ri.exchangeName)
+			ri.logger.Info("Subscribed to order book for %s on %s", pair.Symbol(), ri.exchangeName)
 		}
 	}
 
-	// Subscribe to klines for all assets
+	// Subscribe to klines for all pairs
 	klineIntervals := []string{"1m", "5m", "15m", "1h"}
-	for _, asset := range assets {
+	for _, pair := range pairs {
 		for _, interval := range klineIntervals {
-			if err := ri.wsSubscriber.SubscribeKlines(asset, interval); err != nil {
+			if err := ri.wsSubscriber.SubscribeKlines(pair, interval); err != nil {
 				ri.logger.Debug("Failed to subscribe to %s klines for %s on %s: %v",
-					interval, asset.Symbol(), ri.exchangeName, err)
+					interval, pair.Symbol(), ri.exchangeName, err)
 			}
 		}
 	}
 
 	// Market-specific WebSocket subscriptions (funding rate updates, etc.)
 	for _, ext := range ri.extensions {
-		if err := ext.Subscribe(ri.conn, ri.exchangeName, assets); err != nil {
+		if err := ext.Subscribe(ri.conn, ri.exchangeName, pairs); err != nil {
 			ri.logger.Error("Failed to subscribe to %s-specific data for %s: %v",
 				ri.marketType, ri.exchangeName, err)
 		}
