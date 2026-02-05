@@ -27,7 +27,10 @@ var _ = Describe("Indicators with Market Registry", func() {
 	)
 
 	BeforeEach(func() {
-		btc = portfolio.NewAsset("BTC")
+		btc = portfolio.NewPair(
+			portfolio.NewAsset("BTC"),
+			portfolio.NewAsset("USDT"),
+		)
 		exchangeName = "binance"
 		ctx = context.Background()
 
