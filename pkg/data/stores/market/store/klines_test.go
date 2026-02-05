@@ -16,16 +16,23 @@ import (
 var _ = Describe("Market Data Store - Klines", func() {
 	var (
 		marketStore marketTypes.MarketStore
-		btc         portfolio.Asset
-		eth         portfolio.Asset
+		btc         portfolio.Pair
+		eth         portfolio.Pair
 		provider    temporal.TimeProvider
 	)
 
 	BeforeEach(func() {
 		provider = timeProvider.NewTimeProvider()
 		marketStore = store.NewStore(provider)
-		btc = portfolio.NewAsset("BTC")
-		eth = portfolio.NewAsset("ETH")
+		btc = portfolio.NewPair(
+			portfolio.NewAsset("BTC"),
+			portfolio.NewAsset("USD"),
+		)
+
+		eth = portfolio.NewPair(
+			portfolio.NewAsset("ETH"),
+			portfolio.NewAsset("USD"),
+		)
 	})
 
 	Describe("UpdateKline", func() {

@@ -9,7 +9,6 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
-	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
 
@@ -20,7 +19,7 @@ type RealtimeIngestor struct {
 	wsSubscriber  realtime.WebSocketSubscriber
 	exchangeName  connector.ExchangeName
 	marketType    connector.MarketType
-	assetRegistry registry.AssetRegistry
+	assetRegistry registry.PairRegistry
 	store         market.MarketStore
 	logger        logging.ApplicationLogger
 
@@ -38,7 +37,7 @@ func NewRealtimeIngestor(
 	conn interface{},
 	exchangeName connector.ExchangeName,
 	marketType connector.MarketType,
-	assetRegistry registry.AssetRegistry,
+	assetRegistry registry.PairRegistry,
 	store interface{},
 	logger logging.ApplicationLogger,
 	extensions ...realtime.WebSocketExtension,
@@ -85,7 +84,7 @@ func (ri *RealtimeIngestor) Start(ctx context.Context) error {
 		return fmt.Errorf("realtime ingestor for %s already active", ri.exchangeName)
 	}
 
-	assets := ri.assetRegistry.GetRequiredAssets()
+	assets := ri.assetRegistry.GetRequiredPairs()
 	if len(assets) == 0 {
 		ri.logger.Warn("No assets registered for %s realtime ingestion", ri.exchangeName)
 		return nil
@@ -174,17 +173,17 @@ func (ri *RealtimeIngestor) processOrderBookChannel(channelKey string, orderBook
 			}
 
 			// Write to store
-			ri.store.UpdateOrderBook(update.Asset, ri.exchangeName, update)
+			ri.store.UpdateOrderBook(update.Pair, ri.exchangeName, update)
 			ri.store.UpdateLastUpdated(market.UpdateKey{
 				DataType: market.DataKeyOrderBooks,
-				Asset:    update.Asset,
+				Pair:     update.Pair,
 				Exchange: ri.exchangeName,
 			})
 
 			if len(update.Bids) > 0 && len(update.Asks) > 0 {
 				ri.logger.Debug(
 					"WebSocket updated order book for %s on %s - bid: %s, ask: %s",
-					update.Asset.Symbol(),
+					update.Pair.Symbol(),
 					ri.exchangeName,
 					update.Bids[0].Price.StringFixed(2),
 					update.Asks[0].Price.StringFixed(2),
@@ -226,13 +225,13 @@ func (ri *RealtimeIngestor) processKlineChannel(channelKey string, klineChan <-c
 				return
 			}
 
-			asset := portfolio.NewAsset(kline.Symbol)
+			pair := kline.Pair
 
 			// Write to store
-			ri.store.UpdateKline(asset, ri.exchangeName, kline)
+			ri.store.UpdateKline(pair, ri.exchangeName, kline)
 
 			ri.logger.Debug("WebSocket updated %s kline for %s on %s",
-				kline.Interval, asset.Symbol(), ri.exchangeName)
+				kline.Interval, pair.Symbol(), ri.exchangeName)
 		}
 	}
 }

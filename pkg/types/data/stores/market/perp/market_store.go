@@ -13,16 +13,16 @@ type MarketStore interface {
 	market.MarketStore
 
 	// Funding rates
-	UpdateFundingRate(asset portfolio.Asset, exchange connector.ExchangeName, rate perp.FundingRate)
-	UpdateFundingRates(exchange connector.ExchangeName, rates map[portfolio.Asset]perp.FundingRate)
-	GetFundingRate(asset portfolio.Asset, exchange connector.ExchangeName) *perp.FundingRate
-	GetFundingRatesForAsset(asset portfolio.Asset) FundingRateMap
-	GetAllAssetsWithFundingRates() []portfolio.Asset
+	UpdateFundingRate(asset portfolio.Pair, exchange connector.ExchangeName, rate perp.FundingRate)
+	UpdateFundingRates(exchange connector.ExchangeName, rates map[portfolio.Pair]perp.FundingRate)
+	GetFundingRate(asset portfolio.Pair, exchange connector.ExchangeName) *perp.FundingRate
+	GetFundingRatesForAsset(asset portfolio.Pair) FundingRateMap
+	GetAllAssetsWithFundingRates() []portfolio.Pair
 
 	// Historical funding rates
-	UpdateHistoricalFundingRates(asset portfolio.Asset, exchange connector.ExchangeName, rates []perp.HistoricalFundingRate)
-	GetHistoricalFundingRates(asset portfolio.Asset, exchange connector.ExchangeName) []perp.HistoricalFundingRate
-	GetHistoricalFundingRatesForAsset(asset portfolio.Asset) HistoricalFundingMap
+	UpdateHistoricalFundingRates(asset portfolio.Pair, exchange connector.ExchangeName, rates []perp.HistoricalFundingRate)
+	GetHistoricalFundingRates(asset portfolio.Pair, exchange connector.ExchangeName) []perp.HistoricalFundingRate
+	GetHistoricalFundingRatesForAsset(asset portfolio.Pair) HistoricalFundingMap
 }
 
 // Perp-specific data keys

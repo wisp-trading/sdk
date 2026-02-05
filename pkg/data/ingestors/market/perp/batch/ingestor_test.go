@@ -35,10 +35,13 @@ var _ = Describe("Perp BatchIngestor", func() {
 	var (
 		store             perp.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
-		assetRegistry     registryTypes.AssetRegistry
+		assetRegistry     registryTypes.PairRegistry
 		logger            logging.ApplicationLogger
 		timeProviderInst  temporal.TimeProvider
 		factory           batch.BatchIngestorFactory
+		quote             = portfolio.NewAsset("USD")
+		btcPair           = portfolio.NewPair(portfolio.NewAsset("BTC"), quote)
+		ethPair           = portfolio.NewPair(portfolio.NewAsset("ETH"), quote)
 	)
 
 	BeforeEach(func() {
@@ -65,27 +68,24 @@ var _ = Describe("Perp BatchIngestor", func() {
 				exchangeName := connector.ExchangeName("test-perp-exchange")
 				m := setupMockPerpConnector(GinkgoT(), exchangeName)
 
-				btc := portfolio.NewAsset("BTC")
-				eth := portfolio.NewAsset("ETH")
-
 				now := time.Now()
 
 				// Setup orderbook expectations
 				btcOrderbook := &connector.OrderBook{
-					Asset:     btc,
+					Pair:      btcPair,
 					Bids:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50000), Quantity: numerical.NewFromFloat(1.0)}},
 					Asks:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50100), Quantity: numerical.NewFromFloat(1.0)}},
 					Timestamp: now,
 				}
 				ethOrderbook := &connector.OrderBook{
-					Asset:     eth,
+					Pair:      ethPair,
 					Bids:      []connector.PriceLevel{{Price: numerical.NewFromFloat(3000), Quantity: numerical.NewFromFloat(1.0)}},
 					Asks:      []connector.PriceLevel{{Price: numerical.NewFromFloat(3010), Quantity: numerical.NewFromFloat(1.0)}},
 					Timestamp: now,
 				}
 
-				m.EXPECT().FetchOrderBook(btc, 20).Return(btcOrderbook, nil).Maybe()
-				m.EXPECT().FetchOrderBook(eth, 20).Return(ethOrderbook, nil).Maybe()
+				m.EXPECT().FetchOrderBook(btcPair, 20).Return(btcOrderbook, nil).Maybe()
+				m.EXPECT().FetchOrderBook(ethPair, 20).Return(ethOrderbook, nil).Maybe()
 
 				// Setup price expectations
 				btcPrice := &connector.Price{
@@ -104,13 +104,13 @@ var _ = Describe("Perp BatchIngestor", func() {
 					Source:    exchangeName,
 					Timestamp: now,
 				}
-				m.EXPECT().FetchPrice("BTC").Return(btcPrice, nil).Maybe()
-				m.EXPECT().FetchPrice("ETH").Return(ethPrice, nil).Maybe()
+				m.EXPECT().FetchPrice(btcPair).Return(btcPrice, nil).Maybe()
+				m.EXPECT().FetchPrice(ethPair).Return(ethPrice, nil).Maybe()
 
 				// Setup kline expectations for all intervals
 				intervals := []string{"1m", "5m", "15m", "1h", "4h", "1d"}
 				for _, interval := range intervals {
-					m.EXPECT().FetchKlines("BTC", interval, mock.Anything).Return([]connector.Kline{
+					m.EXPECT().FetchKlines(btcPair, interval, mock.Anything).Return([]connector.Kline{
 						{
 							Symbol:    "BTC",
 							Interval:  interval,
@@ -123,7 +123,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 							CloseTime: now,
 						},
 					}, nil).Maybe()
-					m.EXPECT().FetchKlines("ETH", interval, mock.Anything).Return([]connector.Kline{
+					m.EXPECT().FetchKlines(ethPair, interval, mock.Anything).Return([]connector.Kline{
 						{
 							Symbol:    "ETH",
 							Interval:  interval,
@@ -140,7 +140,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 
 				// Setup funding rate expectations (perp-specific)
 				btcFundingRate := perpConn.FundingRate{
-					Asset:           btc,
+					Asset:           btcPair,
 					CurrentRate:     numerical.NewFromFloat(0.0001),
 					NextFundingTime: now.Add(8 * time.Hour),
 					MarkPrice:       numerical.NewFromFloat(50050),
@@ -148,7 +148,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 					Timestamp:       now,
 				}
 				ethFundingRate := perpConn.FundingRate{
-					Asset:           eth,
+					Asset:           ethPair,
 					CurrentRate:     numerical.NewFromFloat(0.00005),
 					NextFundingTime: now.Add(8 * time.Hour),
 					MarkPrice:       numerical.NewFromFloat(3005),
@@ -156,21 +156,21 @@ var _ = Describe("Perp BatchIngestor", func() {
 					Timestamp:       now,
 				}
 
-				m.EXPECT().FetchFundingRate(btc).Return(&btcFundingRate, nil).Maybe()
-				m.EXPECT().FetchFundingRate(eth).Return(&ethFundingRate, nil).Maybe()
+				m.EXPECT().FetchFundingRate(btcPair).Return(&btcFundingRate, nil).Maybe()
+				m.EXPECT().FetchFundingRate(ethPair).Return(&ethFundingRate, nil).Maybe()
 
 				// Setup FetchCurrentFundingRates expectation (for batch collection extension)
-				allFundingRates := map[portfolio.Asset]perpConn.FundingRate{
-					btc: btcFundingRate,
-					eth: ethFundingRate,
+				allFundingRates := map[portfolio.Pair]perpConn.FundingRate{
+					btcPair: btcFundingRate,
+					ethPair: ethFundingRate,
 				}
 				m.EXPECT().FetchCurrentFundingRates().Return(allFundingRates, nil).Maybe()
 
-				// Register connector and assets
+				// Register connector and pairs
 				connectorRegistry.RegisterPerpConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterAsset(btc, connector.TypePerpetual)
-				assetRegistry.RegisterAsset(eth, connector.TypePerpetual)
+				assetRegistry.RegisterPair(btcPair, connector.TypePerpetual)
+				assetRegistry.RegisterPair(ethPair, connector.TypePerpetual)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -183,35 +183,35 @@ var _ = Describe("Perp BatchIngestor", func() {
 				time.Sleep(300 * time.Millisecond) // Give it time to complete
 
 				// Assert - verify orderbooks are stored
-				btcOB := store.GetOrderBook(btc, exchangeName)
+				btcOB := store.GetOrderBook(btcPair, exchangeName)
 				Expect(btcOB).ToNot(BeNil(), "BTC orderbook should be stored")
 				Expect(btcOB.Bids).To(HaveLen(1))
 				Expect(btcOB.Bids[0].Price.InexactFloat64()).To(Equal(50000.0))
 
-				ethOB := store.GetOrderBook(eth, exchangeName)
+				ethOB := store.GetOrderBook(ethPair, exchangeName)
 				Expect(ethOB).ToNot(BeNil(), "ETH orderbook should be stored")
 				Expect(ethOB.Asks).To(HaveLen(1))
 				Expect(ethOB.Asks[0].Price.InexactFloat64()).To(Equal(3010.0))
 
 				// Assert - verify klines are stored
-				btcKlines := store.GetKlines(btc, exchangeName, "1m", 10)
+				btcKlines := store.GetKlines(btcPair, exchangeName, "1m", 10)
 				Expect(btcKlines).ToNot(BeEmpty(), "BTC klines should be stored")
 				Expect(btcKlines[0].Symbol).To(Equal("BTC"))
 
-				ethKlines := store.GetKlines(eth, exchangeName, "5m", 10)
+				ethKlines := store.GetKlines(ethPair, exchangeName, "5m", 10)
 				Expect(ethKlines).ToNot(BeEmpty(), "ETH klines should be stored")
 
 				// Assert - verify funding rates are stored (perp-specific)
-				btcFunding := store.GetFundingRate(btc, exchangeName)
+				btcFunding := store.GetFundingRate(btcPair, exchangeName)
 				Expect(btcFunding).ToNot(BeNil(), "BTC funding rate should be stored")
 				Expect(btcFunding.CurrentRate.InexactFloat64()).To(Equal(0.0001))
 
-				ethFunding := store.GetFundingRate(eth, exchangeName)
+				ethFunding := store.GetFundingRate(ethPair, exchangeName)
 				Expect(ethFunding).ToNot(BeNil(), "ETH funding rate should be stored")
 				Expect(ethFunding.CurrentRate.InexactFloat64()).To(Equal(0.00005))
 
 				// Assert - verify prices are stored
-				storedBtcPrice := store.GetAssetPrice(btc, exchangeName)
+				storedBtcPrice := store.GetPairPrice(btcPair, exchangeName)
 				Expect(storedBtcPrice).ToNot(BeNil(), "BTC price should be stored")
 				Expect(storedBtcPrice.Price.InexactFloat64()).To(BeNumerically("~", 50050.0, 1.0))
 			})

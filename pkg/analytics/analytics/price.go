@@ -12,7 +12,7 @@ import (
 )
 
 // GetPriceChange calculates price statistics over a period.
-func (s *analytics) GetPriceChange(ctx context.Context, asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.PriceChange, error) {
+func (s *analytics) GetPriceChange(ctx context.Context, asset portfolio.Pair, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.PriceChange, error) {
 	start := time.Now()
 	defer func() {
 		if profCtx := profiling.FromContext(ctx); profCtx != nil {

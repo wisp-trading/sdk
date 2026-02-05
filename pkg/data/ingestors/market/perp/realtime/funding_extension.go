@@ -25,7 +25,7 @@ func NewFundingRateExtension(store perpStore.MarketStore, logger logging.Applica
 	}
 }
 
-func (f *FundingRateExtension) Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Asset) error {
+func (f *FundingRateExtension) Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Pair) error {
 	// Type-assert to perp WebSocket connector
 	perpWS, ok := wsConn.(perpConn.WebSocketConnector)
 	if !ok {
@@ -84,7 +84,7 @@ func (f *FundingRateExtension) handleFundingRateUpdate(exchangeName connector.Ex
 	// Update last updated timestamp
 	f.store.UpdateLastUpdated(market.UpdateKey{
 		DataType: "funding_rates", // Use string literal for perp-specific data type
-		Asset:    asset,
+		Pair:     asset,
 		Exchange: exchangeName,
 	})
 

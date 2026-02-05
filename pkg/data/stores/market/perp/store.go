@@ -32,7 +32,7 @@ func NewStore(timeProvider temporal.TimeProvider) perpTypes.MarketStore {
 // ===== Perp-specific methods (funding rates) =====
 
 func (ps *perpStore) UpdateFundingRate(
-	asset portfolio.Asset,
+	asset portfolio.Pair,
 	exchange connector.ExchangeName,
 	rate perp.FundingRate,
 ) {
@@ -41,30 +41,30 @@ func (ps *perpStore) UpdateFundingRate(
 
 func (ps *perpStore) UpdateFundingRates(
 	exchange connector.ExchangeName,
-	rates map[portfolio.Asset]perp.FundingRate,
+	rates map[portfolio.Pair]perp.FundingRate,
 ) {
 	ps.fundingExt.UpdateFundingRates(exchange, rates)
 }
 
 func (ps *perpStore) GetFundingRate(
-	asset portfolio.Asset,
+	asset portfolio.Pair,
 	exchange connector.ExchangeName,
 ) *perp.FundingRate {
 	return ps.fundingExt.GetFundingRate(asset, exchange)
 }
 
 func (ps *perpStore) GetFundingRatesForAsset(
-	asset portfolio.Asset,
+	asset portfolio.Pair,
 ) perpTypes.FundingRateMap {
 	return ps.fundingExt.GetFundingRatesForAsset(asset)
 }
 
-func (ps *perpStore) GetAllAssetsWithFundingRates() []portfolio.Asset {
+func (ps *perpStore) GetAllAssetsWithFundingRates() []portfolio.Pair {
 	return ps.fundingExt.GetAllAssetsWithFundingRates()
 }
 
 func (ps *perpStore) UpdateHistoricalFundingRates(
-	asset portfolio.Asset,
+	asset portfolio.Pair,
 	exchange connector.ExchangeName,
 	rates []perp.HistoricalFundingRate,
 ) {
@@ -72,14 +72,14 @@ func (ps *perpStore) UpdateHistoricalFundingRates(
 }
 
 func (ps *perpStore) GetHistoricalFundingRates(
-	asset portfolio.Asset,
+	asset portfolio.Pair,
 	exchange connector.ExchangeName,
 ) []perp.HistoricalFundingRate {
 	return ps.fundingExt.GetHistoricalFundingRates(asset, exchange)
 }
 
 func (ps *perpStore) GetHistoricalFundingRatesForAsset(
-	asset portfolio.Asset,
+	asset portfolio.Pair,
 ) perpTypes.HistoricalFundingMap {
 	return ps.fundingExt.GetHistoricalFundingRatesForAsset(asset)
 }

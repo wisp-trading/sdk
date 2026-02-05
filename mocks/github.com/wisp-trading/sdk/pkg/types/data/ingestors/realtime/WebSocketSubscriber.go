@@ -117,7 +117,7 @@ func (_c *WebSocketSubscriber_GetOrderBookChannels_Call) RunAndReturn(run func()
 }
 
 // SubscribeKlines provides a mock function with given fields: asset, interval
-func (_m *WebSocketSubscriber) SubscribeKlines(asset portfolio.Asset, interval string) error {
+func (_m *WebSocketSubscriber) SubscribeKlines(asset portfolio.Pair, interval string) error {
 	ret := _m.Called(asset, interval)
 
 	if len(ret) == 0 {
@@ -125,7 +125,7 @@ func (_m *WebSocketSubscriber) SubscribeKlines(asset portfolio.Asset, interval s
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, string) error); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string) error); ok {
 		r0 = rf(asset, interval)
 	} else {
 		r0 = ret.Error(0)
@@ -140,15 +140,15 @@ type WebSocketSubscriber_SubscribeKlines_Call struct {
 }
 
 // SubscribeKlines is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - interval string
 func (_e *WebSocketSubscriber_Expecter) SubscribeKlines(asset interface{}, interval interface{}) *WebSocketSubscriber_SubscribeKlines_Call {
 	return &WebSocketSubscriber_SubscribeKlines_Call{Call: _e.mock.On("SubscribeKlines", asset, interval)}
 }
 
-func (_c *WebSocketSubscriber_SubscribeKlines_Call) Run(run func(asset portfolio.Asset, interval string)) *WebSocketSubscriber_SubscribeKlines_Call {
+func (_c *WebSocketSubscriber_SubscribeKlines_Call) Run(run func(asset portfolio.Pair, interval string)) *WebSocketSubscriber_SubscribeKlines_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(string))
+		run(args[0].(portfolio.Pair), args[1].(string))
 	})
 	return _c
 }
@@ -158,13 +158,13 @@ func (_c *WebSocketSubscriber_SubscribeKlines_Call) Return(_a0 error) *WebSocket
 	return _c
 }
 
-func (_c *WebSocketSubscriber_SubscribeKlines_Call) RunAndReturn(run func(portfolio.Asset, string) error) *WebSocketSubscriber_SubscribeKlines_Call {
+func (_c *WebSocketSubscriber_SubscribeKlines_Call) RunAndReturn(run func(portfolio.Pair, string) error) *WebSocketSubscriber_SubscribeKlines_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SubscribeOrderBook provides a mock function with given fields: asset
-func (_m *WebSocketSubscriber) SubscribeOrderBook(asset portfolio.Asset) error {
+func (_m *WebSocketSubscriber) SubscribeOrderBook(asset portfolio.Pair) error {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -172,7 +172,7 @@ func (_m *WebSocketSubscriber) SubscribeOrderBook(asset portfolio.Asset) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) error); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) error); ok {
 		r0 = rf(asset)
 	} else {
 		r0 = ret.Error(0)
@@ -187,14 +187,14 @@ type WebSocketSubscriber_SubscribeOrderBook_Call struct {
 }
 
 // SubscribeOrderBook is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *WebSocketSubscriber_Expecter) SubscribeOrderBook(asset interface{}) *WebSocketSubscriber_SubscribeOrderBook_Call {
 	return &WebSocketSubscriber_SubscribeOrderBook_Call{Call: _e.mock.On("SubscribeOrderBook", asset)}
 }
 
-func (_c *WebSocketSubscriber_SubscribeOrderBook_Call) Run(run func(asset portfolio.Asset)) *WebSocketSubscriber_SubscribeOrderBook_Call {
+func (_c *WebSocketSubscriber_SubscribeOrderBook_Call) Run(run func(asset portfolio.Pair)) *WebSocketSubscriber_SubscribeOrderBook_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -204,7 +204,7 @@ func (_c *WebSocketSubscriber_SubscribeOrderBook_Call) Return(_a0 error) *WebSoc
 	return _c
 }
 
-func (_c *WebSocketSubscriber_SubscribeOrderBook_Call) RunAndReturn(run func(portfolio.Asset) error) *WebSocketSubscriber_SubscribeOrderBook_Call {
+func (_c *WebSocketSubscriber_SubscribeOrderBook_Call) RunAndReturn(run func(portfolio.Pair) error) *WebSocketSubscriber_SubscribeOrderBook_Call {
 	_c.Call.Return(run)
 	return _c
 }

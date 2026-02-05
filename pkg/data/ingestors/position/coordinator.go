@@ -101,25 +101,25 @@ func (pc *coordinator) backfillTrades() error {
 	for _, conn := range connectors {
 		accountReader, ok := conn.(connector.AccountReader)
 		if !ok {
-			pc.logger.Warn("⚠️  Connector %s does not support AccountReader interface, skipping trade backfill", conn.GetConnectorInfo().Name)
+			pc.logger.Warn("Connector %s does not support AccountReader interface, skipping trade backfill", conn.GetConnectorInfo().Name)
 			continue
 		}
 		exchangeName := conn.GetConnectorInfo().Name
-		pc.logger.Info("📥 Backfilling trades from %s...", exchangeName)
+		pc.logger.Info("Backfilling trades from %s...", exchangeName)
 
 		// Get all strategy executions to know which symbols to fetch
 		executions := pc.positionStore.GetAllStrategyExecutions()
 		symbols := pc.getUniqueSymbols(executions)
 
 		if len(symbols) == 0 {
-			pc.logger.Warn("⚠️  No symbols found for trade backfill on %s", exchangeName)
+			pc.logger.Warn("No symbols found for trade backfill on %s", exchangeName)
 			continue
 		}
 
-		for _, symbol := range symbols {
-			trades, err := accountReader.GetTradingHistory(symbol.Symbol(), pc.tradeBackfillLimit)
+		for _, pair := range symbols {
+			trades, err := accountReader.GetTradingHistory(pair, pc.tradeBackfillLimit)
 			if err != nil {
-				pc.logger.Warn("⚠️  Failed to fetch trades for %s on %s: %v", symbol.Symbol(), exchangeName, err)
+				pc.logger.Warn("Failed to fetch trades for %s on %s: %v", pair.Symbol(), exchangeName, err)
 				continue
 			}
 
@@ -135,24 +135,24 @@ func (pc *coordinator) backfillTrades() error {
 
 				// Add trades to strategy
 				for _, t := range trades {
-					strategyName := pc.findStrategyForSymbol(executions, symbol)
+					strategyName := pc.findStrategyForSymbol(executions, pair)
 					if strategyName != "" {
 						pc.positionStore.AddTradeToStrategy(strategyName, t)
 					}
 				}
 
-				pc.logger.Info("✅ Backfilled %d trades for %s on %s", len(trades), symbol.Symbol(), exchangeName)
+				pc.logger.Info("Backfilled %d trades for %s on %s", len(trades), pair.Symbol(), exchangeName)
 			}
 		}
 	}
 
-	pc.logger.Info("📊 Total trades backfilled: %d", totalBackfilled)
+	pc.logger.Info("Total trades backfilled: %d", totalBackfilled)
 	return nil
 }
 
 // getUniqueSymbols extracts all unique symbols from strategy executions
-func (pc *coordinator) getUniqueSymbols(executions map[strategy.StrategyName]*strategy.StrategyExecution) []portfolio.Asset {
-	symbolMap := make(map[string]portfolio.Asset)
+func (pc *coordinator) getUniqueSymbols(executions map[strategy.StrategyName]*strategy.StrategyExecution) []portfolio.Pair {
+	pairMap := make(map[string]portfolio.Pair)
 
 	for _, execution := range executions {
 		if execution == nil {
@@ -160,20 +160,20 @@ func (pc *coordinator) getUniqueSymbols(executions map[strategy.StrategyName]*st
 		}
 
 		for _, order := range execution.Orders {
-			symbolMap[order.Symbol] = portfolio.NewAsset(order.Symbol)
+			pairMap[order.Pair.Symbol()] = order.Pair
 		}
 	}
 
-	symbols := make([]portfolio.Asset, 0, len(symbolMap))
-	for _, asset := range symbolMap {
-		symbols = append(symbols, asset)
+	pairs := make([]portfolio.Pair, 0, len(pairMap))
+	for _, pair := range pairMap {
+		pairs = append(pairs, pair)
 	}
 
-	return symbols
+	return pairs
 }
 
 // findStrategyForSymbol determines which strategy is trading a given symbol
-func (pc *coordinator) findStrategyForSymbol(executions map[strategy.StrategyName]*strategy.StrategyExecution, asset portfolio.Asset) strategy.StrategyName {
+func (pc *coordinator) findStrategyForSymbol(executions map[strategy.StrategyName]*strategy.StrategyExecution, pair portfolio.Pair) strategy.StrategyName {
 	for strategyName, execution := range executions {
 		if execution == nil {
 			continue
@@ -181,7 +181,7 @@ func (pc *coordinator) findStrategyForSymbol(executions map[strategy.StrategyNam
 
 		// Check if this strategy has orders for this symbol
 		for _, order := range execution.Orders {
-			if order.Symbol == asset.Symbol() {
+			if order.Pair.Equals(pair) {
 				return strategyName
 			}
 		}

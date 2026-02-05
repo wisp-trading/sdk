@@ -23,15 +23,15 @@ type RealtimeIngestor interface {
 
 // WebSocketExtension allows market-specific WebSocket subscriptions (funding rate updates, etc.)
 type WebSocketExtension interface {
-	Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Asset) error
+	Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Pair) error
 	Unsubscribe(wsConn interface{}, exchangeName connector.ExchangeName) error
 	ProcessChannels(wsConn interface{}, exchangeName connector.ExchangeName, ctx context.Context)
 }
 
 // WebSocketSubscriber provides subscription methods
 type WebSocketSubscriber interface {
-	SubscribeOrderBook(asset portfolio.Asset) error
-	SubscribeKlines(asset portfolio.Asset, interval string) error
+	SubscribeOrderBook(asset portfolio.Pair) error
+	SubscribeKlines(asset portfolio.Pair, interval string) error
 	GetOrderBookChannels() map[string]<-chan connector.OrderBook
 	GetKlineChannels() map[string]<-chan connector.Kline
 }

@@ -21,23 +21,23 @@ type Market interface {
 
 	// Price returns the current price for an asset from specified exchange or first available.
 	// Works across both spot and perp exchanges.
-	Price(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (numerical.Decimal, error)
+	Price(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (numerical.Decimal, error)
 
 	// Prices returns prices for an asset across all spot and perp exchanges.
-	Prices(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]numerical.Decimal
+	Prices(ctx context.Context, asset portfolio.Pair) map[connector.ExchangeName]numerical.Decimal
 
 	// Klines returns historical kline data for an asset on the specified exchange.
 	// Automatically searches all registered market stores (spot, perp, etc.) to find the exchange.
 	// The user doesn't need to know which market type the exchange belongs to.
-	Klines(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int) []connector.Kline
+	Klines(asset portfolio.Pair, exchange connector.ExchangeName, interval string, limit int) []connector.Kline
 
 	// OrderBook returns the order book for an asset on the specified exchange.
 	// Automatically searches all registered market stores to find which one has this exchange.
 	// The user doesn't need to know which market type the exchange belongs to.
-	OrderBook(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (*connector.OrderBook, error)
+	OrderBook(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (*connector.OrderBook, error)
 
 	// FindArbitrage finds arbitrage opportunities across all exchanges (spot and perp).
-	FindArbitrage(ctx context.Context, asset portfolio.Asset, minSpreadBps numerical.Decimal) []ArbitrageOpportunity
+	FindArbitrage(ctx context.Context, asset portfolio.Pair, minSpreadBps numerical.Decimal) []ArbitrageOpportunity
 }
 
 // MarketOptions configures market data queries
@@ -55,7 +55,7 @@ type LiquidityOptions struct {
 
 // ArbitrageOpportunity represents a price discrepancy across exchanges
 type ArbitrageOpportunity struct {
-	Asset         portfolio.Asset
+	Asset         portfolio.Pair
 	BuyExchange   connector.ExchangeName
 	SellExchange  connector.ExchangeName
 	BuyPrice      numerical.Decimal
@@ -67,44 +67,44 @@ type ArbitrageOpportunity struct {
 // SpotMarket provides spot-specific market data access
 type SpotMarket interface {
 	// Price returns the current price for an asset on spot exchanges
-	Price(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (numerical.Decimal, error)
+	Price(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (numerical.Decimal, error)
 
 	// Prices returns prices across all spot exchanges
-	Prices(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]numerical.Decimal
+	Prices(ctx context.Context, asset portfolio.Pair) map[connector.ExchangeName]numerical.Decimal
 
 	// OrderBook returns the order book for an asset on a spot exchange
-	OrderBook(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (*connector.OrderBook, error)
+	OrderBook(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (*connector.OrderBook, error)
 
 	// GetKlines returns historical kline/candlestick data for spot markets
-	GetKlines(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int) []connector.Kline
+	GetKlines(asset portfolio.Pair, exchange connector.ExchangeName, interval string, limit int) []connector.Kline
 
 	// GetTradableQuantity calculates available liquidity for spot trading
-	GetTradableQuantity(ctx context.Context, asset portfolio.Asset, opts ...LiquidityOptions) numerical.Decimal
+	GetTradableQuantity(ctx context.Context, asset portfolio.Pair, opts ...LiquidityOptions) numerical.Decimal
 }
 
 // PerpMarket provides perpetual-specific market data access
 type PerpMarket interface {
 	// Price returns the current price for an asset on perp exchanges
-	Price(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (numerical.Decimal, error)
+	Price(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (numerical.Decimal, error)
 
 	// Prices returns prices across all perp exchanges
-	Prices(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]numerical.Decimal
+	Prices(ctx context.Context, asset portfolio.Pair) map[connector.ExchangeName]numerical.Decimal
 
 	// OrderBook returns the order book for an asset on a perp exchange
-	OrderBook(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (*connector.OrderBook, error)
+	OrderBook(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (*connector.OrderBook, error)
 
 	// GetKlines returns historical kline/candlestick data for perp markets
-	GetKlines(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int) []connector.Kline
+	GetKlines(asset portfolio.Pair, exchange connector.ExchangeName, interval string, limit int) []connector.Kline
 
 	// GetTradableQuantity calculates available liquidity for perp trading
-	GetTradableQuantity(ctx context.Context, asset portfolio.Asset, opts ...LiquidityOptions) numerical.Decimal
+	GetTradableQuantity(ctx context.Context, asset portfolio.Pair, opts ...LiquidityOptions) numerical.Decimal
 
 	// FundingRate returns the funding rate for an asset on a specific perp exchange
-	FundingRate(ctx context.Context, asset portfolio.Asset, exchange connector.ExchangeName) (*perp.FundingRate, error)
+	FundingRate(ctx context.Context, asset portfolio.Pair, exchange connector.ExchangeName) (*perp.FundingRate, error)
 
 	// FundingRates returns funding rates across all perp exchanges
-	FundingRates(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]perp.FundingRate
+	FundingRates(ctx context.Context, asset portfolio.Pair) map[connector.ExchangeName]perp.FundingRate
 
 	// GetAllAssetsWithFundingRates returns all assets that have funding rate data
-	GetAllAssetsWithFundingRates(ctx context.Context) []portfolio.Asset
+	GetAllAssetsWithFundingRates(ctx context.Context) []portfolio.Pair
 }

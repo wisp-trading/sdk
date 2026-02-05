@@ -78,7 +78,7 @@ func (_c *Trades_GetAllTrades_Call) RunAndReturn(run func(context.Context) []con
 }
 
 // GetTotalVolume provides a mock function with given fields: ctx, asset
-func (_m *Trades) GetTotalVolume(ctx context.Context, asset portfolio.Asset) numerical.Decimal {
+func (_m *Trades) GetTotalVolume(ctx context.Context, asset portfolio.Pair) numerical.Decimal {
 	ret := _m.Called(ctx, asset)
 
 	if len(ret) == 0 {
@@ -86,7 +86,7 @@ func (_m *Trades) GetTotalVolume(ctx context.Context, asset portfolio.Asset) num
 	}
 
 	var r0 numerical.Decimal
-	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset) numerical.Decimal); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Pair) numerical.Decimal); ok {
 		r0 = rf(ctx, asset)
 	} else {
 		r0 = ret.Get(0).(numerical.Decimal)
@@ -102,14 +102,14 @@ type Trades_GetTotalVolume_Call struct {
 
 // GetTotalVolume is a helper method to define mock.On call
 //   - ctx context.Context
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *Trades_Expecter) GetTotalVolume(ctx interface{}, asset interface{}) *Trades_GetTotalVolume_Call {
 	return &Trades_GetTotalVolume_Call{Call: _e.mock.On("GetTotalVolume", ctx, asset)}
 }
 
-func (_c *Trades_GetTotalVolume_Call) Run(run func(ctx context.Context, asset portfolio.Asset)) *Trades_GetTotalVolume_Call {
+func (_c *Trades_GetTotalVolume_Call) Run(run func(ctx context.Context, asset portfolio.Pair)) *Trades_GetTotalVolume_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(portfolio.Asset))
+		run(args[0].(context.Context), args[1].(portfolio.Pair))
 	})
 	return _c
 }
@@ -119,7 +119,7 @@ func (_c *Trades_GetTotalVolume_Call) Return(_a0 numerical.Decimal) *Trades_GetT
 	return _c
 }
 
-func (_c *Trades_GetTotalVolume_Call) RunAndReturn(run func(context.Context, portfolio.Asset) numerical.Decimal) *Trades_GetTotalVolume_Call {
+func (_c *Trades_GetTotalVolume_Call) RunAndReturn(run func(context.Context, portfolio.Pair) numerical.Decimal) *Trades_GetTotalVolume_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -219,55 +219,6 @@ func (_c *Trades_GetTradeCount_Call) RunAndReturn(run func(context.Context) int)
 	return _c
 }
 
-// GetTradesByAsset provides a mock function with given fields: ctx, asset
-func (_m *Trades) GetTradesByAsset(ctx context.Context, asset portfolio.Asset) []connector.Trade {
-	ret := _m.Called(ctx, asset)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetTradesByAsset")
-	}
-
-	var r0 []connector.Trade
-	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset) []connector.Trade); ok {
-		r0 = rf(ctx, asset)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]connector.Trade)
-		}
-	}
-
-	return r0
-}
-
-// Trades_GetTradesByAsset_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTradesByAsset'
-type Trades_GetTradesByAsset_Call struct {
-	*mock.Call
-}
-
-// GetTradesByAsset is a helper method to define mock.On call
-//   - ctx context.Context
-//   - asset portfolio.Asset
-func (_e *Trades_Expecter) GetTradesByAsset(ctx interface{}, asset interface{}) *Trades_GetTradesByAsset_Call {
-	return &Trades_GetTradesByAsset_Call{Call: _e.mock.On("GetTradesByAsset", ctx, asset)}
-}
-
-func (_c *Trades_GetTradesByAsset_Call) Run(run func(ctx context.Context, asset portfolio.Asset)) *Trades_GetTradesByAsset_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(portfolio.Asset))
-	})
-	return _c
-}
-
-func (_c *Trades_GetTradesByAsset_Call) Return(_a0 []connector.Trade) *Trades_GetTradesByAsset_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Trades_GetTradesByAsset_Call) RunAndReturn(run func(context.Context, portfolio.Asset) []connector.Trade) *Trades_GetTradesByAsset_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetTradesByExchange provides a mock function with given fields: ctx, exchange
 func (_m *Trades) GetTradesByExchange(ctx context.Context, exchange connector.ExchangeName) []connector.Trade {
 	ret := _m.Called(ctx, exchange)
@@ -313,6 +264,55 @@ func (_c *Trades_GetTradesByExchange_Call) Return(_a0 []connector.Trade) *Trades
 }
 
 func (_c *Trades_GetTradesByExchange_Call) RunAndReturn(run func(context.Context, connector.ExchangeName) []connector.Trade) *Trades_GetTradesByExchange_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTradesByPair provides a mock function with given fields: ctx, asset
+func (_m *Trades) GetTradesByPair(ctx context.Context, asset portfolio.Pair) []connector.Trade {
+	ret := _m.Called(ctx, asset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTradesByPair")
+	}
+
+	var r0 []connector.Trade
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Pair) []connector.Trade); ok {
+		r0 = rf(ctx, asset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector.Trade)
+		}
+	}
+
+	return r0
+}
+
+// Trades_GetTradesByPair_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTradesByPair'
+type Trades_GetTradesByPair_Call struct {
+	*mock.Call
+}
+
+// GetTradesByPair is a helper method to define mock.On call
+//   - ctx context.Context
+//   - asset portfolio.Pair
+func (_e *Trades_Expecter) GetTradesByPair(ctx interface{}, asset interface{}) *Trades_GetTradesByPair_Call {
+	return &Trades_GetTradesByPair_Call{Call: _e.mock.On("GetTradesByPair", ctx, asset)}
+}
+
+func (_c *Trades_GetTradesByPair_Call) Run(run func(ctx context.Context, asset portfolio.Pair)) *Trades_GetTradesByPair_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(portfolio.Pair))
+	})
+	return _c
+}
+
+func (_c *Trades_GetTradesByPair_Call) Return(_a0 []connector.Trade) *Trades_GetTradesByPair_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Trades_GetTradesByPair_Call) RunAndReturn(run func(context.Context, portfolio.Pair) []connector.Trade) *Trades_GetTradesByPair_Call {
 	_c.Call.Return(run)
 	return _c
 }

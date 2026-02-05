@@ -19,7 +19,7 @@ var _ = Describe("SignalBuilder", func() {
 		factory      strategy.SignalFactory
 		timeProvider temporalType.TimeProvider
 		strategyName strategy.StrategyName
-		testAsset    portfolio.Asset
+		testAsset    portfolio.Pair
 		testExchange connector.ExchangeName
 	)
 
@@ -27,7 +27,10 @@ var _ = Describe("SignalBuilder", func() {
 		timeProvider = temporal.NewTimeProvider()
 		factory = signal.NewFactory(timeProvider)
 		strategyName = strategy.StrategyName("test-strategy")
-		testAsset = portfolio.NewAsset("BTC")
+		testAsset = portfolio.NewPair(
+			portfolio.NewAsset("BTC"),
+			portfolio.NewAsset("USDT"),
+		)
 		testExchange = connector.ExchangeName("binance")
 	})
 
@@ -42,7 +45,7 @@ var _ = Describe("SignalBuilder", func() {
 			Expect(signal.Strategy).To(Equal(strategyName))
 			Expect(signal.Actions).To(HaveLen(1))
 			Expect(signal.Actions[0].Action).To(Equal(strategy.ActionBuy))
-			Expect(signal.Actions[0].Asset).To(Equal(testAsset))
+			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
 			Expect(signal.Actions[0].Exchange).To(Equal(testExchange))
 			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
 			Expect(signal.Actions[0].Price).To(Equal(numerical.NewFromInt(0)))
@@ -53,7 +56,10 @@ var _ = Describe("SignalBuilder", func() {
 		It("should allow chaining multiple buy actions", func() {
 			qty1 := numerical.NewFromInt(10)
 			qty2 := numerical.NewFromInt(20)
-			asset2 := portfolio.NewAsset("ETH")
+			asset2 := portfolio.NewPair(
+				portfolio.NewAsset("ETH"),
+				portfolio.NewAsset("USDT"),
+			)
 
 			builder := factory.New(strategyName)
 			signal := builder.
@@ -62,9 +68,9 @@ var _ = Describe("SignalBuilder", func() {
 				Build()
 
 			Expect(signal.Actions).To(HaveLen(2))
-			Expect(signal.Actions[0].Asset).To(Equal(testAsset))
+			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
 			Expect(signal.Actions[0].Quantity).To(Equal(qty1))
-			Expect(signal.Actions[1].Asset).To(Equal(asset2))
+			Expect(signal.Actions[1].Pair).To(Equal(asset2))
 			Expect(signal.Actions[1].Quantity).To(Equal(qty2))
 		})
 	})
@@ -79,7 +85,7 @@ var _ = Describe("SignalBuilder", func() {
 
 			Expect(signal.Actions).To(HaveLen(1))
 			Expect(signal.Actions[0].Action).To(Equal(strategy.ActionBuy))
-			Expect(signal.Actions[0].Asset).To(Equal(testAsset))
+			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
 			Expect(signal.Actions[0].Exchange).To(Equal(testExchange))
 			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
 			Expect(signal.Actions[0].Price).To(Equal(price))
@@ -95,7 +101,7 @@ var _ = Describe("SignalBuilder", func() {
 
 			Expect(signal.Actions).To(HaveLen(1))
 			Expect(signal.Actions[0].Action).To(Equal(strategy.ActionSell))
-			Expect(signal.Actions[0].Asset).To(Equal(testAsset))
+			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
 			Expect(signal.Actions[0].Exchange).To(Equal(testExchange))
 			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
 			Expect(signal.Actions[0].Price).To(Equal(numerical.NewFromInt(0)))
@@ -112,7 +118,7 @@ var _ = Describe("SignalBuilder", func() {
 
 			Expect(signal.Actions).To(HaveLen(1))
 			Expect(signal.Actions[0].Action).To(Equal(strategy.ActionSell))
-			Expect(signal.Actions[0].Asset).To(Equal(testAsset))
+			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
 			Expect(signal.Actions[0].Exchange).To(Equal(testExchange))
 			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
 			Expect(signal.Actions[0].Price).To(Equal(price))
@@ -128,7 +134,7 @@ var _ = Describe("SignalBuilder", func() {
 
 			Expect(signal.Actions).To(HaveLen(1))
 			Expect(signal.Actions[0].Action).To(Equal(strategy.ActionSellShort))
-			Expect(signal.Actions[0].Asset).To(Equal(testAsset))
+			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
 			Expect(signal.Actions[0].Exchange).To(Equal(testExchange))
 			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
 			Expect(signal.Actions[0].Price).To(Equal(numerical.NewFromInt(0)))
@@ -145,7 +151,7 @@ var _ = Describe("SignalBuilder", func() {
 
 			Expect(signal.Actions).To(HaveLen(1))
 			Expect(signal.Actions[0].Action).To(Equal(strategy.ActionSellShort))
-			Expect(signal.Actions[0].Asset).To(Equal(testAsset))
+			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
 			Expect(signal.Actions[0].Exchange).To(Equal(testExchange))
 			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
 			Expect(signal.Actions[0].Price).To(Equal(price))
@@ -163,7 +169,15 @@ var _ = Describe("SignalBuilder", func() {
 			signal := builder.
 				Buy(testAsset, testExchange, qty1).
 				SellLimit(testAsset, testExchange, qty2, price2).
-				BuyLimit(portfolio.NewAsset("ETH"), testExchange, qty1, price1).
+				BuyLimit(
+					portfolio.NewPair(
+						portfolio.NewAsset("ETH"),
+						portfolio.NewAsset("USDT"),
+					),
+					testExchange,
+					qty1,
+					price1,
+				).
 				Build()
 
 			Expect(signal.Actions).To(HaveLen(3))
@@ -172,7 +186,7 @@ var _ = Describe("SignalBuilder", func() {
 			Expect(signal.Actions[1].Action).To(Equal(strategy.ActionSell))
 			Expect(signal.Actions[1].Price).To(Equal(price2)) // limit order
 			Expect(signal.Actions[2].Action).To(Equal(strategy.ActionBuy))
-			Expect(signal.Actions[2].Asset).To(Equal(portfolio.NewAsset("ETH")))
+			Expect(signal.Actions[2].Pair.Symbol()).To(Equal("ETH-USDT"))
 			Expect(signal.Actions[2].Price).To(Equal(price1)) // limit order
 		})
 

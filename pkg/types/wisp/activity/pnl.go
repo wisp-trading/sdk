@@ -10,7 +10,7 @@ import (
 type PNL interface {
 	// Realized PNL (from executed trades)
 	GetRealizedPNL(ctx strategy.StrategyContext, strategy strategy.StrategyName) numerical.Decimal
-	GetRealizedPNLByAsset(ctx strategy.StrategyContext, asset portfolio.Asset) numerical.Decimal
+	GetRealizedPNLByPair(ctx strategy.StrategyContext, asset portfolio.Pair) numerical.Decimal
 	GetTotalRealizedPNL(ctx strategy.StrategyContext) numerical.Decimal
 
 	// Unrealized PNL (requires current market prices)

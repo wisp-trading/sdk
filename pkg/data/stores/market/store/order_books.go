@@ -7,7 +7,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-func (ds *dataStore) UpdateOrderBook(asset portfolio.Asset, exchangeName connector.ExchangeName, orderBook connector.OrderBook) {
+func (ds *dataStore) UpdateOrderBook(asset portfolio.Pair, exchangeName connector.ExchangeName, orderBook connector.OrderBook) {
 	ds.mutex.Lock()
 
 	current := ds.getOrderBooks()
@@ -45,17 +45,17 @@ func (ds *dataStore) UpdateOrderBook(asset portfolio.Asset, exchangeName connect
 			Timestamp: orderBook.Timestamp,
 		}
 
-		ds.UpdateAssetPrice(asset, exchangeName, price)
+		ds.UpdatePairPrice(asset, exchangeName, price)
 	}
 
 	ds.UpdateLastUpdated(marketTypes.UpdateKey{
 		DataType: marketTypes.DataKeyOrderBooks,
-		Asset:    asset,
+		Pair:     asset,
 		Exchange: exchangeName,
 	})
 }
 
-func (ds *dataStore) GetOrderBooks(asset portfolio.Asset) marketTypes.OrderBookMap {
+func (ds *dataStore) GetOrderBooks(asset portfolio.Pair) marketTypes.OrderBookMap {
 	current := ds.getOrderBooks()
 	if books, ok := current[asset]; ok {
 		return books
@@ -63,7 +63,7 @@ func (ds *dataStore) GetOrderBooks(asset portfolio.Asset) marketTypes.OrderBookM
 	return make(marketTypes.OrderBookMap)
 }
 
-func (ds *dataStore) GetOrderBook(asset portfolio.Asset, exchangeName connector.ExchangeName) *connector.OrderBook {
+func (ds *dataStore) GetOrderBook(asset portfolio.Pair, exchangeName connector.ExchangeName) *connector.OrderBook {
 	current := ds.getOrderBooks()
 	if books, ok := current[asset]; ok {
 		if book, ok := books[exchangeName]; ok {
@@ -73,9 +73,9 @@ func (ds *dataStore) GetOrderBook(asset portfolio.Asset, exchangeName connector.
 	return nil
 }
 
-func (ds *dataStore) GetAllAssetsWithOrderBooks() []portfolio.Asset {
+func (ds *dataStore) GetAllPairsWithOrderBooks() []portfolio.Pair {
 	current := ds.getOrderBooks()
-	assets := make([]portfolio.Asset, 0, len(current))
+	assets := make([]portfolio.Pair, 0, len(current))
 	for asset := range current {
 		assets = append(assets, asset)
 	}

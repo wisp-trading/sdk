@@ -18,7 +18,7 @@ import (
 type rt struct {
 	pluginManager     plugin.Manager
 	connectorRegistry registry.ConnectorRegistry
-	assetRegistry     registry.AssetRegistry
+	assetRegistry     registry.PairRegistry
 	strategyRegistry  registry.StrategyRegistry
 	configLoader      configTypes.StartupConfigLoader
 	controller        lifecycle.Controller
@@ -31,7 +31,7 @@ type rt struct {
 func NewRuntime(
 	pluginManager plugin.Manager,
 	connectorRegistry registry.ConnectorRegistry,
-	assetRegistry registry.AssetRegistry,
+	assetRegistry registry.PairRegistry,
 	strategyRegistry registry.StrategyRegistry,
 	configLoader configTypes.StartupConfigLoader,
 	controller lifecycle.Controller,
@@ -152,10 +152,10 @@ func (r *rt) initializeConnectors(connectors map[connector.ExchangeName]connecto
 }
 
 // registerAssets registers all assets with their instruments
-func (r *rt) registerAssets(assets map[portfolio.Asset][]connector.Instrument) {
+func (r *rt) registerAssets(assets map[portfolio.Pair][]connector.Instrument) {
 	for asset, instruments := range assets {
 		for _, instr := range instruments {
-			r.assetRegistry.RegisterAsset(asset, instr)
+			r.assetRegistry.RegisterPair(asset, instr)
 		}
 	}
 	r.logger.Info("Registered assets", "count", len(assets))

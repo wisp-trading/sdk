@@ -53,7 +53,7 @@ func NewExtractor(analytics analyticsTypes.Analytics, trades activity.Trades, ti
 // Extract computes analytics features and adds them to the feature map.
 // Currently supports: volatility (5m, 1h, ratio), volume (1m, 5m, ratio, buy ratio, trade count),
 // and time-based features (hour, day of week, minute).
-func (e *Extractor) Extract(ctx context.Context, asset portfolio.Asset, featureMap map[string]float64) error {
+func (e *Extractor) Extract(ctx context.Context, asset portfolio.Pair, featureMap map[string]float64) error {
 	// Calculate 5-minute volatility
 	vol5m, err := e.analytics.Volatility(ctx, asset, 5, analyticsTypes.AnalyticsOptions{
 		Interval: "1m", // 5 periods of 1-minute data
@@ -136,8 +136,8 @@ func (e *Extractor) Extract(ctx context.Context, asset portfolio.Asset, featureM
 }
 
 // getTradesInWindow retrieves trades for an asset within a time window
-func (e *Extractor) getTradesInWindow(asset portfolio.Asset, start, end time.Time) []connector.Trade {
-	allTrades := e.trades.GetTradesByAsset(asset)
+func (e *Extractor) getTradesInWindow(asset portfolio.Pair, start, end time.Time) []connector.Trade {
+	allTrades := e.trades.GetTradesByPair(asset)
 
 	var filtered []connector.Trade
 	for _, trade := range allTrades {

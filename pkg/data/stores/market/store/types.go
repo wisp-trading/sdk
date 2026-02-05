@@ -10,9 +10,9 @@ import (
 )
 
 // Data types for atomic storage
-type assetOrderBooks map[portfolio.Asset]marketTypes.OrderBookMap
-type assetPrices map[portfolio.Asset]marketTypes.PriceMap
-type assetKlines map[portfolio.Asset]marketTypes.KlineMap
+type assetOrderBooks map[portfolio.Pair]marketTypes.OrderBookMap
+type assetPrices map[portfolio.Pair]marketTypes.PriceMap
+type assetKlines map[portfolio.Pair]marketTypes.KlineMap
 
 type dataStore struct {
 	timeProvider temporal.TimeProvider

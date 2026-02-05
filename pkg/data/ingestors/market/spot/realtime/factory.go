@@ -12,14 +12,14 @@ import (
 // Factory creates realtime ingestors for all registered spot WebSocket connectors
 type Factory struct {
 	connectorRegistry registry.ConnectorRegistry
-	assetRegistry     registry.AssetRegistry
+	assetRegistry     registry.PairRegistry
 	store             spotStore.MarketStore
 	logger            logging.ApplicationLogger
 }
 
 func NewFactory(
 	connectorRegistry registry.ConnectorRegistry,
-	assetRegistry registry.AssetRegistry,
+	assetRegistry registry.PairRegistry,
 	store spotStore.MarketStore,
 	logger logging.ApplicationLogger,
 ) realtime.RealtimeIngestorFactory {

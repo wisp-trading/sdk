@@ -12,7 +12,7 @@ import (
 )
 
 // VolumeAnalysis detects volume patterns and spikes.
-func (s *analytics) VolumeAnalysis(ctx context.Context, asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.VolumeAnalysis, error) {
+func (s *analytics) VolumeAnalysis(ctx context.Context, asset portfolio.Pair, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.VolumeAnalysis, error) {
 	start := time.Now()
 	defer func() {
 		if profCtx := profiling.FromContext(ctx); profCtx != nil {

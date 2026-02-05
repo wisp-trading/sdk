@@ -6,7 +6,7 @@
 //
 // Example usage:
 //
-//	btc := s.k.Asset("BTC")
+//	btc := s.k.Pair("BTC")
 //	rsi := s.k.Indicators.RSI(btc, 14)
 //	sma := s.k.Indicators.SMA(btc, 50)
 //	macd := s.k.Indicators.MACD(btc, 12, 26, 9)
@@ -60,7 +60,7 @@ func NewIndicators(market analytics.Market) analytics.Indicators {
 // It's used to identify trends and smooth out price fluctuations.
 //
 // Parameters:
-//   - asset: The asset to calculate SMA for (e.g., btc from s.k.Asset("BTC"))
+//   - asset: The asset to calculate SMA for (e.g., btc from s.k.Pair("BTC"))
 //   - period: Number of periods to average (e.g., 20, 50, 200)
 //   - opts: Optional exchange and interval configuration
 //
@@ -68,7 +68,7 @@ func NewIndicators(market analytics.Market) analytics.Indicators {
 //
 // Example:
 //
-//	btc := s.k.Asset("BTC")
+//	btc := s.k.Pair("BTC")
 //	sma50 := s.k.Indicators.SMA(btc, 50)  // 50-period SMA
 //	sma200 := s.k.Indicators.SMA(btc, 200, analytics.analytics.IndicatorOptions{
 //	    Interval: "4h",  // 4-hour timeframe
@@ -78,7 +78,7 @@ func NewIndicators(market analytics.Market) analytics.Indicators {
 //   - Fetches price data from the exchange
 //   - Calculates the moving average
 //   - Returns the current value
-func (s *indicators) SMA(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+func (s *indicators) SMA(ctx context.Context, asset portfolio.Pair, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	start := time.Now()
 	defer func() {
 		if profCtx := profiling.FromContext(ctx); profCtx != nil {
@@ -109,7 +109,7 @@ func (s *indicators) SMA(ctx context.Context, asset portfolio.Asset, period int,
 //
 // Example:
 //
-//	eth := s.k.Asset("ETH")
+//	eth := s.k.Pair("ETH")
 //	ema20 := s.k.Indicators.EMA(eth, 20)   // 20-period EMA
 //	ema50 := s.k.Indicators.EMA(eth, 50)   // 50-period EMA
 //
@@ -123,7 +123,7 @@ func (s *indicators) SMA(ctx context.Context, asset portfolio.Asset, period int,
 //   - Fetches historical price data
 //   - Applies exponential weighting
 //   - Returns the current EMA value
-func (s *indicators) EMA(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+func (s *indicators) EMA(ctx context.Context, asset portfolio.Pair, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	start := time.Now()
 	defer func() {
 		if profCtx := profiling.FromContext(ctx); profCtx != nil {
@@ -156,7 +156,7 @@ func (s *indicators) EMA(ctx context.Context, asset portfolio.Asset, period int,
 //
 // Example:
 //
-//	btc := s.k.Asset("BTC")
+//	btc := s.k.Pair("BTC")
 //	rsi := s.k.Indicators.RSI(btc, 14)  // Standard 14-period RSI
 //
 //	if rsi.LessThan(numerical.NewFromInt(30)) {
@@ -173,7 +173,7 @@ func (s *indicators) EMA(ctx context.Context, asset portfolio.Asset, period int,
 //   - Fetches price history
 //   - Calculates gains and losses
 //   - Computes the RSI value
-func (s *indicators) RSI(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+func (s *indicators) RSI(ctx context.Context, asset portfolio.Pair, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	start := time.Now()
 	defer func() {
 		if profCtx := profiling.FromContext(ctx); profCtx != nil {
@@ -208,7 +208,7 @@ func (s *indicators) RSI(ctx context.Context, asset portfolio.Asset, period int,
 //
 // Example:
 //
-//	btc := s.k.Asset("BTC")
+//	btc := s.k.Pair("BTC")
 //	macd := s.k.Indicators.MACD(btc, 12, 26, 9)  // Standard settings
 //
 //	// Bullish crossover: MACD crosses above signal
@@ -226,7 +226,7 @@ func (s *indicators) RSI(ctx context.Context, asset portfolio.Asset, period int,
 //   - MACD < Signal: Bearish momentum
 //   - Histogram growing: Momentum strengthening
 //   - Histogram shrinking: Momentum weakening
-func (s *indicators) MACD(ctx context.Context, asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...analytics.IndicatorOptions) (*analytics.MACDResult, error) {
+func (s *indicators) MACD(ctx context.Context, asset portfolio.Pair, fastPeriod, slowPeriod, signalPeriod int, opts ...analytics.IndicatorOptions) (*analytics.MACDResult, error) {
 	start := time.Now()
 	defer func() {
 		if profCtx := profiling.FromContext(ctx); profCtx != nil {
@@ -267,7 +267,7 @@ func (s *indicators) MACD(ctx context.Context, asset portfolio.Asset, fastPeriod
 //
 // Example:
 //
-//	btc := s.k.Asset("BTC")
+//	btc := s.k.Pair("BTC")
 //	bb := s.k.Indicators.BollingerBands(btc, 20, 2.0)  // 20-period, 2 std dev
 //	price := s.k.Market.Price(btc)
 //
@@ -286,7 +286,7 @@ func (s *indicators) MACD(ctx context.Context, asset portfolio.Asset, fastPeriod
 //   - Price near lower band: Oversold
 //   - Bands narrowing: Low volatility (potential breakout)
 //   - Bands widening: High volatility
-func (s *indicators) BollingerBands(ctx context.Context, asset portfolio.Asset, period int, stdDev float64, opts ...analytics.IndicatorOptions) (*analytics.BollingerBandsResult, error) {
+func (s *indicators) BollingerBands(ctx context.Context, asset portfolio.Pair, period int, stdDev float64, opts ...analytics.IndicatorOptions) (*analytics.BollingerBandsResult, error) {
 	start := time.Now()
 	defer func() {
 		if profCtx := profiling.FromContext(ctx); profCtx != nil {
@@ -328,7 +328,7 @@ func (s *indicators) BollingerBands(ctx context.Context, asset portfolio.Asset, 
 //
 // Example:
 //
-//	eth := s.k.Asset("ETH")
+//	eth := s.k.Pair("ETH")
 //	stoch := s.k.Indicators.Stochastic(eth, 14, 3)  // Standard 14,3 settings
 //
 //	// Both lines oversold - strong buy signal
@@ -348,7 +348,7 @@ func (s *indicators) BollingerBands(ctx context.Context, asset portfolio.Asset, 
 //   - %K crosses below %D: Bearish signal
 //   - Both in oversold zone: Potential reversal up
 //   - Both in overbought zone: Potential reversal down
-func (s *indicators) Stochastic(ctx context.Context, asset portfolio.Asset, kPeriod, dPeriod int, opts ...analytics.IndicatorOptions) (*analytics.StochasticResult, error) {
+func (s *indicators) Stochastic(ctx context.Context, asset portfolio.Pair, kPeriod, dPeriod int, opts ...analytics.IndicatorOptions) (*analytics.StochasticResult, error) {
 	start := time.Now()
 	defer func() {
 		if profCtx := profiling.FromContext(ctx); profCtx != nil {
@@ -410,7 +410,7 @@ func (s *indicators) Stochastic(ctx context.Context, asset portfolio.Asset, kPer
 //
 // Example:
 //
-//	btc := s.k.Asset("BTC")
+//	btc := s.k.Pair("BTC")
 //	atr := s.k.Indicators.ATR(btc, 14)  // 14-period ATR
 //	price := s.k.Market.Price(btc)
 //
@@ -429,7 +429,7 @@ func (s *indicators) Stochastic(ctx context.Context, asset portfolio.Asset, kPer
 //   - Low ATR: Low volatility, price consolidation
 //   - Rising ATR: Volatility increasing
 //   - Falling ATR: Volatility decreasing
-func (s *indicators) ATR(ctx context.Context, asset portfolio.Asset, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
+func (s *indicators) ATR(ctx context.Context, asset portfolio.Pair, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
 	start := time.Now()
 	defer func() {
 		if profCtx := profiling.FromContext(ctx); profCtx != nil {
@@ -470,7 +470,7 @@ func (s *indicators) ATR(ctx context.Context, asset portfolio.Asset, period int,
 }
 
 // fetchClosePrices is a helper that fetches klines and extracts close prices as float64
-func (s *indicators) fetchClosePrices(asset portfolio.Asset, limit int, opts ...analytics.IndicatorOptions) ([]float64, error) {
+func (s *indicators) fetchClosePrices(asset portfolio.Pair, limit int, opts ...analytics.IndicatorOptions) ([]float64, error) {
 	options := s.parseOptions(opts...)
 	exchange := options.Exchange
 	interval := options.Interval
@@ -496,7 +496,7 @@ func (s *indicators) fetchClosePrices(asset portfolio.Asset, limit int, opts ...
 }
 
 // getDefaultExchange returns the first available exchange for an asset
-func (s *indicators) getDefaultExchange(asset portfolio.Asset) connector.ExchangeName {
+func (s *indicators) getDefaultExchange(asset portfolio.Pair) connector.ExchangeName {
 	priceMap := s.market.Prices(context.Background(), asset)
 	for exchange := range priceMap {
 		return exchange

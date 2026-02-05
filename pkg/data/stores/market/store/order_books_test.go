@@ -17,16 +17,23 @@ import (
 var _ = Describe("Market Data Store - OrderBooks", func() {
 	var (
 		marketStore marketTypes.MarketStore
-		btc         portfolio.Asset
-		eth         portfolio.Asset
+		btc         portfolio.Pair
+		eth         portfolio.Pair
 		provider    temporal.TimeProvider
 	)
 
 	BeforeEach(func() {
 		provider = timeProvider.NewTimeProvider()
 		marketStore = store.NewStore(provider)
-		btc = portfolio.NewAsset("BTC")
-		eth = portfolio.NewAsset("ETH")
+		btc = portfolio.NewPair(
+			portfolio.NewAsset("BTC"),
+			portfolio.NewAsset("USD"),
+		)
+
+		eth = portfolio.NewPair(
+			portfolio.NewAsset("ETH"),
+			portfolio.NewAsset("USD"),
+		)
 	})
 
 	Describe("UpdateOrderBook", func() {
@@ -35,7 +42,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				// Create an orderbook
 				now := time.Now()
 				orderBook := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now,
 					Bids: []connector.PriceLevel{
 						{Price: numerical.NewFromFloat(50000), Quantity: numerical.NewFromFloat(1.5)},
@@ -55,7 +62,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				// Retrieve and verify
 				retrieved := marketStore.GetOrderBook(btc, "hyperliquid")
 				Expect(retrieved).NotTo(BeNil())
-				Expect(retrieved.Asset).To(Equal(btc))
+				Expect(retrieved.Pair.Symbol()).To(Equal(btc.Symbol()))
 				Expect(retrieved.Bids).To(HaveLen(3))
 				Expect(retrieved.Asks).To(HaveLen(3))
 				Expect(retrieved.Bids[0].Price).To(Equal(numerical.NewFromFloat(50000)))
@@ -66,7 +73,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				now := time.Now()
 
 				orderBookPerp := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now,
 					Bids: []connector.PriceLevel{
 						{Price: numerical.NewFromFloat(50000), Quantity: numerical.NewFromFloat(1.5)},
@@ -77,7 +84,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				}
 
 				orderBookSpot := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now,
 					Bids: []connector.PriceLevel{
 						{Price: numerical.NewFromFloat(50005), Quantity: numerical.NewFromFloat(2.0)},
@@ -105,7 +112,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				now := time.Now()
 
 				orderBookHyper := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now,
 					Bids: []connector.PriceLevel{
 						{Price: numerical.NewFromFloat(50000), Quantity: numerical.NewFromFloat(1.5)},
@@ -116,7 +123,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				}
 
 				orderBookBybit := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now,
 					Bids: []connector.PriceLevel{
 						{Price: numerical.NewFromFloat(50100), Quantity: numerical.NewFromFloat(2.0)},
@@ -142,7 +149,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				now := time.Now()
 
 				orderBookBTC := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now,
 					Bids: []connector.PriceLevel{
 						{Price: numerical.NewFromFloat(50000), Quantity: numerical.NewFromFloat(1.5)},
@@ -153,7 +160,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				}
 
 				orderBookETH := connector.OrderBook{
-					Asset:     eth,
+					Pair:      eth,
 					Timestamp: now,
 					Bids: []connector.PriceLevel{
 						{Price: numerical.NewFromFloat(3000), Quantity: numerical.NewFromFloat(5.0)},
@@ -171,8 +178,8 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 
 				Expect(btcBook).NotTo(BeNil())
 				Expect(ethBook).NotTo(BeNil())
-				Expect(btcBook.Asset).To(Equal(btc))
-				Expect(ethBook.Asset).To(Equal(eth))
+				Expect(btcBook.Pair.Symbol()).To(Equal(btc.Symbol()))
+				Expect(ethBook.Pair.Symbol()).To(Equal(eth.Symbol()))
 				Expect(btcBook.Bids[0].Price).To(Equal(numerical.NewFromFloat(50000)))
 				Expect(ethBook.Bids[0].Price).To(Equal(numerical.NewFromFloat(3000)))
 			})
@@ -184,7 +191,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 
 				// First orderbook
 				orderBook1 := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now,
 					Bids: []connector.PriceLevel{
 						{Price: numerical.NewFromFloat(50000), Quantity: numerical.NewFromFloat(1.5)},
@@ -198,7 +205,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 
 				// Updated orderbook with different prices/quantities
 				orderBook2 := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now.Add(time.Second),
 					Bids: []connector.PriceLevel{
 						{Price: numerical.NewFromFloat(50005), Quantity: numerical.NewFromFloat(2.0)},
@@ -229,7 +236,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				now := time.Now()
 
 				orderBook := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now,
 					Bids:      []connector.PriceLevel{},
 					Asks:      []connector.PriceLevel{},
@@ -254,7 +261,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 					go func(idx int) {
 						defer GinkgoRecover()
 						orderBook := connector.OrderBook{
-							Asset:     btc,
+							Pair:      btc,
 							Timestamp: now,
 							Bids: []connector.PriceLevel{
 								{Price: numerical.NewFromFloat(50000 + float64(idx*10)), Quantity: numerical.NewFromFloat(1.0)},
@@ -286,14 +293,14 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				now := time.Now()
 
 				orderBook1 := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now,
 					Bids:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50000), Quantity: numerical.NewFromFloat(1.5)}},
 					Asks:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50010), Quantity: numerical.NewFromFloat(1.0)}},
 				}
 
 				orderBook2 := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now,
 					Bids:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50100), Quantity: numerical.NewFromFloat(2.0)}},
 					Asks:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50110), Quantity: numerical.NewFromFloat(1.5)}},
@@ -323,7 +330,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				now := time.Now()
 
 				orderBook := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now,
 					Bids:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50000), Quantity: numerical.NewFromFloat(1.5)}},
 					Asks:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50010), Quantity: numerical.NewFromFloat(1.0)}},
@@ -333,7 +340,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 
 				retrieved := marketStore.GetOrderBook(btc, "hyperliquid")
 				Expect(retrieved).NotTo(BeNil())
-				Expect(retrieved.Asset).To(Equal(btc))
+				Expect(retrieved.Pair.Symbol()).To(Equal(btc.Symbol()))
 			})
 		})
 
@@ -346,7 +353,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 			It("should return nil for non-existent exchange", func() {
 				now := time.Now()
 				orderBook := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now,
 					Bids:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50000), Quantity: numerical.NewFromFloat(1.5)}},
 					Asks:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50010), Quantity: numerical.NewFromFloat(1.0)}},
@@ -360,20 +367,20 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 		})
 	})
 
-	Describe("GetAllAssetsWithOrderBooks", func() {
+	Describe("GetAllPairsWithOrderBooks", func() {
 		Context("when orderbooks exist", func() {
 			It("should return all assets with orderbooks", func() {
 				now := time.Now()
 
 				orderBookBTC := connector.OrderBook{
-					Asset:     btc,
+					Pair:      btc,
 					Timestamp: now,
 					Bids:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50000), Quantity: numerical.NewFromFloat(1.5)}},
 					Asks:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50010), Quantity: numerical.NewFromFloat(1.0)}},
 				}
 
 				orderBookETH := connector.OrderBook{
-					Asset:     eth,
+					Pair:      eth,
 					Timestamp: now,
 					Bids:      []connector.PriceLevel{{Price: numerical.NewFromFloat(3000), Quantity: numerical.NewFromFloat(5.0)}},
 					Asks:      []connector.PriceLevel{{Price: numerical.NewFromFloat(3010), Quantity: numerical.NewFromFloat(4.0)}},
@@ -382,7 +389,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				marketStore.UpdateOrderBook(btc, "hyperliquid", orderBookBTC)
 				marketStore.UpdateOrderBook(eth, "hyperliquid", orderBookETH)
 
-				assets := marketStore.GetAllAssetsWithOrderBooks()
+				assets := marketStore.GetAllPairsWithOrderBooks()
 				Expect(assets).To(HaveLen(2))
 				Expect(assets).To(ContainElement(btc))
 				Expect(assets).To(ContainElement(eth))
@@ -391,7 +398,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 
 		Context("when no orderbooks exist", func() {
 			It("should return an empty slice", func() {
-				assets := marketStore.GetAllAssetsWithOrderBooks()
+				assets := marketStore.GetAllPairsWithOrderBooks()
 				Expect(assets).To(HaveLen(0))
 			})
 		})
@@ -408,7 +415,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 				go func(idx int) {
 					defer GinkgoRecover()
 					orderBook := connector.OrderBook{
-						Asset:     btc,
+						Pair:      btc,
 						Timestamp: now,
 						Bids: []connector.PriceLevel{
 							{Price: numerical.NewFromFloat(50000 + float64(idx)), Quantity: numerical.NewFromFloat(float64(idx))},
@@ -428,7 +435,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 					defer GinkgoRecover()
 					_ = marketStore.GetOrderBook(btc, "hyperliquid")
 					_ = marketStore.GetOrderBooks(btc)
-					_ = marketStore.GetAllAssetsWithOrderBooks()
+					_ = marketStore.GetAllPairsWithOrderBooks()
 					done <- true
 				}()
 			}
@@ -441,7 +448,7 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 			// Verify final state is valid
 			retrieved := marketStore.GetOrderBook(btc, "hyperliquid")
 			Expect(retrieved).NotTo(BeNil())
-			Expect(retrieved.Asset).To(Equal(btc))
+			Expect(retrieved.Pair.Symbol()).To(Equal(btc.Symbol()))
 		})
 	})
 })

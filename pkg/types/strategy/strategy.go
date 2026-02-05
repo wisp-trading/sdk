@@ -41,7 +41,7 @@ type Strategy interface {
 
 // RequiredAsset specifies an asset and which instrument types are needed
 type RequiredAsset struct {
-	Symbol      portfolio.Asset
+	Symbol      portfolio.Pair
 	Instruments []connector.Instrument
 }
 

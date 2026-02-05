@@ -21,7 +21,7 @@ type BatchIngestor struct {
 	orderExecutor connector.OrderExecutor
 	exchangeName  connector.ExchangeName
 	marketType    connector.MarketType
-	assetRegistry registry.AssetRegistry
+	assetRegistry registry.PairRegistry
 	store         marketTypes.MarketStore
 	logger        logging.ApplicationLogger
 	timeProvider  temporal.TimeProvider
@@ -43,7 +43,7 @@ func NewBatchIngestor(
 	conn connector.Connector,
 	exchangeName connector.ExchangeName,
 	marketType connector.MarketType,
-	assetRegistry registry.AssetRegistry,
+	assetRegistry registry.PairRegistry,
 	store marketTypes.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
@@ -110,7 +110,7 @@ func (bi *BatchIngestor) collectLoop() {
 func (bi *BatchIngestor) CollectNow() {
 	bi.logger.Debug("Starting %s market data collection for %s", bi.marketType, bi.exchangeName)
 
-	assets := bi.assetRegistry.GetRequiredAssets()
+	assets := bi.assetRegistry.GetRequiredPairs()
 	if len(assets) == 0 {
 		bi.logger.Debug("No assets required for collection")
 		return
@@ -129,7 +129,7 @@ func (bi *BatchIngestor) CollectNow() {
 	bi.logger.Debug("Completed %s market data collection for %s", bi.marketType, bi.exchangeName)
 }
 
-func (bi *BatchIngestor) collectOrderBooks(assets []portfolio.Asset) {
+func (bi *BatchIngestor) collectOrderBooks(assets []portfolio.Pair) {
 	if bi.marketData == nil {
 		return
 	}
@@ -138,7 +138,7 @@ func (bi *BatchIngestor) collectOrderBooks(assets []portfolio.Asset) {
 
 	for _, asset := range assets {
 		wg.Add(1)
-		go func(a portfolio.Asset) {
+		go func(a portfolio.Pair) {
 			defer wg.Done()
 
 			orderBook, err := bi.marketData.FetchOrderBook(a, 20)
@@ -155,7 +155,7 @@ func (bi *BatchIngestor) collectOrderBooks(assets []portfolio.Asset) {
 			bi.store.UpdateOrderBook(a, bi.exchangeName, *orderBook)
 			bi.store.UpdateLastUpdated(marketTypes.UpdateKey{
 				DataType: marketTypes.DataKeyOrderBooks,
-				Asset:    a,
+				Pair:     a,
 				Exchange: bi.exchangeName,
 			})
 
@@ -169,40 +169,44 @@ func (bi *BatchIngestor) collectOrderBooks(assets []portfolio.Asset) {
 	wg.Wait()
 }
 
-func (bi *BatchIngestor) collectPrices(assets []portfolio.Asset) {
+func (bi *BatchIngestor) collectPrices(pairs []portfolio.Pair) {
 	if bi.marketData == nil {
 		return
 	}
 
 	var wg sync.WaitGroup
 
-	for _, asset := range assets {
+	for _, pair := range pairs {
 		wg.Add(1)
-		go func(a portfolio.Asset) {
+		go func(p portfolio.Pair) {
 			defer wg.Done()
 
-			price, err := bi.marketData.FetchPrice(a.Symbol())
+			price, err := bi.marketData.FetchPrice(p)
 			if err != nil {
-				bi.logger.Debug("Failed to fetch price for %s on %s: %v", a.Symbol(), bi.exchangeName, err)
+				bi.logger.Debug("Failed to fetch price for %s on %s: %v", p.Symbol(), bi.exchangeName, err)
 				return
 			}
 
-			bi.store.UpdateAssetPrice(a, bi.exchangeName, *price)
+			bi.store.UpdatePairPrice(p, bi.exchangeName, *price)
 			bi.store.UpdateLastUpdated(marketTypes.UpdateKey{
-				DataType: marketTypes.DataKeyAssetPrice,
-				Asset:    a,
+				DataType: marketTypes.DataKeyPairPrice,
+				Pair:     p,
 				Exchange: bi.exchangeName,
 			})
 
-			bi.logger.Debug("Updated price for %s on %s = %s",
-				a.Symbol(), bi.exchangeName, price.Price.String())
-		}(asset)
+			bi.logger.Debug(
+				"Updated price for %s on %s = %s",
+				p.Symbol(),
+				bi.exchangeName,
+				price.Price.String(),
+			)
+		}(pair)
 	}
 
 	wg.Wait()
 }
 
-func (bi *BatchIngestor) collectKlines(assets []portfolio.Asset) {
+func (bi *BatchIngestor) collectKlines(pairs []portfolio.Pair) {
 	if bi.marketData == nil {
 		return
 	}
@@ -210,10 +214,10 @@ func (bi *BatchIngestor) collectKlines(assets []portfolio.Asset) {
 	intervals := []string{"1m", "5m", "15m", "1h", "4h", "1d"}
 	var wg sync.WaitGroup
 
-	for _, asset := range assets {
+	for _, pair := range pairs {
 		for _, interval := range intervals {
 			wg.Add(1)
-			go func(a portfolio.Asset, iv string) {
+			go func(p portfolio.Pair, iv string) {
 				defer wg.Done()
 
 				limit := bi.klineLimits[iv]
@@ -221,9 +225,9 @@ func (bi *BatchIngestor) collectKlines(assets []portfolio.Asset) {
 					limit = 100
 				}
 
-				klines, err := bi.marketData.FetchKlines(a.Symbol(), iv, limit)
+				klines, err := bi.marketData.FetchKlines(p, iv, limit)
 				if err != nil {
-					bi.logger.Debug("Failed to fetch %s klines for %s on %s: %v", iv, a.Symbol(), bi.exchangeName, err)
+					bi.logger.Debug("Failed to fetch %s klines for %s on %s: %v", iv, p.Symbol(), bi.exchangeName, err)
 					return
 				}
 
@@ -233,11 +237,11 @@ func (bi *BatchIngestor) collectKlines(assets []portfolio.Asset) {
 
 				// Store all klines
 				for _, kline := range klines {
-					bi.store.UpdateKline(a, bi.exchangeName, kline)
+					bi.store.UpdateKline(p, bi.exchangeName, kline)
 				}
 
-				bi.logger.Debug("Updated %d %s klines for %s on %s", len(klines), iv, a.Symbol(), bi.exchangeName)
-			}(asset, interval)
+				bi.logger.Debug("Updated %d %s klines for %s on %s", len(klines), iv, p.Symbol(), bi.exchangeName)
+			}(pair, interval)
 		}
 	}
 

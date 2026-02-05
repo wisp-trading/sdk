@@ -26,161 +26,64 @@ func (_m *MarketStore) EXPECT() *MarketStore_Expecter {
 	return &MarketStore_Expecter{mock: &_m.Mock}
 }
 
-// GetAllAssetsWithOrderBooks provides a mock function with no fields
-func (_m *MarketStore) GetAllAssetsWithOrderBooks() []portfolio.Asset {
+// GetAllPairsWithOrderBooks provides a mock function with no fields
+func (_m *MarketStore) GetAllPairsWithOrderBooks() []portfolio.Pair {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetAllAssetsWithOrderBooks")
+		panic("no return value specified for GetAllPairsWithOrderBooks")
 	}
 
-	var r0 []portfolio.Asset
-	if rf, ok := ret.Get(0).(func() []portfolio.Asset); ok {
+	var r0 []portfolio.Pair
+	if rf, ok := ret.Get(0).(func() []portfolio.Pair); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]portfolio.Asset)
+			r0 = ret.Get(0).([]portfolio.Pair)
 		}
 	}
 
 	return r0
 }
 
-// MarketStore_GetAllAssetsWithOrderBooks_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAllAssetsWithOrderBooks'
-type MarketStore_GetAllAssetsWithOrderBooks_Call struct {
+// MarketStore_GetAllPairsWithOrderBooks_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAllPairsWithOrderBooks'
+type MarketStore_GetAllPairsWithOrderBooks_Call struct {
 	*mock.Call
 }
 
-// GetAllAssetsWithOrderBooks is a helper method to define mock.On call
-func (_e *MarketStore_Expecter) GetAllAssetsWithOrderBooks() *MarketStore_GetAllAssetsWithOrderBooks_Call {
-	return &MarketStore_GetAllAssetsWithOrderBooks_Call{Call: _e.mock.On("GetAllAssetsWithOrderBooks")}
+// GetAllPairsWithOrderBooks is a helper method to define mock.On call
+func (_e *MarketStore_Expecter) GetAllPairsWithOrderBooks() *MarketStore_GetAllPairsWithOrderBooks_Call {
+	return &MarketStore_GetAllPairsWithOrderBooks_Call{Call: _e.mock.On("GetAllPairsWithOrderBooks")}
 }
 
-func (_c *MarketStore_GetAllAssetsWithOrderBooks_Call) Run(run func()) *MarketStore_GetAllAssetsWithOrderBooks_Call {
+func (_c *MarketStore_GetAllPairsWithOrderBooks_Call) Run(run func()) *MarketStore_GetAllPairsWithOrderBooks_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *MarketStore_GetAllAssetsWithOrderBooks_Call) Return(_a0 []portfolio.Asset) *MarketStore_GetAllAssetsWithOrderBooks_Call {
+func (_c *MarketStore_GetAllPairsWithOrderBooks_Call) Return(_a0 []portfolio.Pair) *MarketStore_GetAllPairsWithOrderBooks_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MarketStore_GetAllAssetsWithOrderBooks_Call) RunAndReturn(run func() []portfolio.Asset) *MarketStore_GetAllAssetsWithOrderBooks_Call {
+func (_c *MarketStore_GetAllPairsWithOrderBooks_Call) RunAndReturn(run func() []portfolio.Pair) *MarketStore_GetAllPairsWithOrderBooks_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetAssetPrice provides a mock function with given fields: asset, exchange
-func (_m *MarketStore) GetAssetPrice(asset portfolio.Asset, exchange connector.ExchangeName) *connector.Price {
-	ret := _m.Called(asset, exchange)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetAssetPrice")
-	}
-
-	var r0 *connector.Price
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName) *connector.Price); ok {
-		r0 = rf(asset, exchange)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*connector.Price)
-		}
-	}
-
-	return r0
-}
-
-// MarketStore_GetAssetPrice_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAssetPrice'
-type MarketStore_GetAssetPrice_Call struct {
-	*mock.Call
-}
-
-// GetAssetPrice is a helper method to define mock.On call
-//   - asset portfolio.Asset
-//   - exchange connector.ExchangeName
-func (_e *MarketStore_Expecter) GetAssetPrice(asset interface{}, exchange interface{}) *MarketStore_GetAssetPrice_Call {
-	return &MarketStore_GetAssetPrice_Call{Call: _e.mock.On("GetAssetPrice", asset, exchange)}
-}
-
-func (_c *MarketStore_GetAssetPrice_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName)) *MarketStore_GetAssetPrice_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName))
-	})
-	return _c
-}
-
-func (_c *MarketStore_GetAssetPrice_Call) Return(_a0 *connector.Price) *MarketStore_GetAssetPrice_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MarketStore_GetAssetPrice_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName) *connector.Price) *MarketStore_GetAssetPrice_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetAssetPrices provides a mock function with given fields: asset
-func (_m *MarketStore) GetAssetPrices(asset portfolio.Asset) market.PriceMap {
-	ret := _m.Called(asset)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetAssetPrices")
-	}
-
-	var r0 market.PriceMap
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) market.PriceMap); ok {
-		r0 = rf(asset)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(market.PriceMap)
-		}
-	}
-
-	return r0
-}
-
-// MarketStore_GetAssetPrices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAssetPrices'
-type MarketStore_GetAssetPrices_Call struct {
-	*mock.Call
-}
-
-// GetAssetPrices is a helper method to define mock.On call
-//   - asset portfolio.Asset
-func (_e *MarketStore_Expecter) GetAssetPrices(asset interface{}) *MarketStore_GetAssetPrices_Call {
-	return &MarketStore_GetAssetPrices_Call{Call: _e.mock.On("GetAssetPrices", asset)}
-}
-
-func (_c *MarketStore_GetAssetPrices_Call) Run(run func(asset portfolio.Asset)) *MarketStore_GetAssetPrices_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
-	})
-	return _c
-}
-
-func (_c *MarketStore_GetAssetPrices_Call) Return(_a0 market.PriceMap) *MarketStore_GetAssetPrices_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MarketStore_GetAssetPrices_Call) RunAndReturn(run func(portfolio.Asset) market.PriceMap) *MarketStore_GetAssetPrices_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetKlines provides a mock function with given fields: asset, exchange, interval, limit
-func (_m *MarketStore) GetKlines(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int) []connector.Kline {
-	ret := _m.Called(asset, exchange, interval, limit)
+// GetKlines provides a mock function with given fields: pair, exchange, interval, limit
+func (_m *MarketStore) GetKlines(pair portfolio.Pair, exchange connector.ExchangeName, interval string, limit int) []connector.Kline {
+	ret := _m.Called(pair, exchange, interval, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetKlines")
 	}
 
 	var r0 []connector.Kline
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName, string, int) []connector.Kline); ok {
-		r0 = rf(asset, exchange, interval, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.ExchangeName, string, int) []connector.Kline); ok {
+		r0 = rf(pair, exchange, interval, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Kline)
@@ -196,17 +99,17 @@ type MarketStore_GetKlines_Call struct {
 }
 
 // GetKlines is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - pair portfolio.Pair
 //   - exchange connector.ExchangeName
 //   - interval string
 //   - limit int
-func (_e *MarketStore_Expecter) GetKlines(asset interface{}, exchange interface{}, interval interface{}, limit interface{}) *MarketStore_GetKlines_Call {
-	return &MarketStore_GetKlines_Call{Call: _e.mock.On("GetKlines", asset, exchange, interval, limit)}
+func (_e *MarketStore_Expecter) GetKlines(pair interface{}, exchange interface{}, interval interface{}, limit interface{}) *MarketStore_GetKlines_Call {
+	return &MarketStore_GetKlines_Call{Call: _e.mock.On("GetKlines", pair, exchange, interval, limit)}
 }
 
-func (_c *MarketStore_GetKlines_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int)) *MarketStore_GetKlines_Call {
+func (_c *MarketStore_GetKlines_Call) Run(run func(pair portfolio.Pair, exchange connector.ExchangeName, interval string, limit int)) *MarketStore_GetKlines_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(string), args[3].(int))
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName), args[2].(string), args[3].(int))
 	})
 	return _c
 }
@@ -216,22 +119,22 @@ func (_c *MarketStore_GetKlines_Call) Return(_a0 []connector.Kline) *MarketStore
 	return _c
 }
 
-func (_c *MarketStore_GetKlines_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, string, int) []connector.Kline) *MarketStore_GetKlines_Call {
+func (_c *MarketStore_GetKlines_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName, string, int) []connector.Kline) *MarketStore_GetKlines_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetKlinesSince provides a mock function with given fields: asset, exchange, interval, since
-func (_m *MarketStore) GetKlinesSince(asset portfolio.Asset, exchange connector.ExchangeName, interval string, since time.Time) []connector.Kline {
-	ret := _m.Called(asset, exchange, interval, since)
+// GetKlinesSince provides a mock function with given fields: pair, exchange, interval, since
+func (_m *MarketStore) GetKlinesSince(pair portfolio.Pair, exchange connector.ExchangeName, interval string, since time.Time) []connector.Kline {
+	ret := _m.Called(pair, exchange, interval, since)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetKlinesSince")
 	}
 
 	var r0 []connector.Kline
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName, string, time.Time) []connector.Kline); ok {
-		r0 = rf(asset, exchange, interval, since)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.ExchangeName, string, time.Time) []connector.Kline); ok {
+		r0 = rf(pair, exchange, interval, since)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Kline)
@@ -247,17 +150,17 @@ type MarketStore_GetKlinesSince_Call struct {
 }
 
 // GetKlinesSince is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - pair portfolio.Pair
 //   - exchange connector.ExchangeName
 //   - interval string
 //   - since time.Time
-func (_e *MarketStore_Expecter) GetKlinesSince(asset interface{}, exchange interface{}, interval interface{}, since interface{}) *MarketStore_GetKlinesSince_Call {
-	return &MarketStore_GetKlinesSince_Call{Call: _e.mock.On("GetKlinesSince", asset, exchange, interval, since)}
+func (_e *MarketStore_Expecter) GetKlinesSince(pair interface{}, exchange interface{}, interval interface{}, since interface{}) *MarketStore_GetKlinesSince_Call {
+	return &MarketStore_GetKlinesSince_Call{Call: _e.mock.On("GetKlinesSince", pair, exchange, interval, since)}
 }
 
-func (_c *MarketStore_GetKlinesSince_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, interval string, since time.Time)) *MarketStore_GetKlinesSince_Call {
+func (_c *MarketStore_GetKlinesSince_Call) Run(run func(pair portfolio.Pair, exchange connector.ExchangeName, interval string, since time.Time)) *MarketStore_GetKlinesSince_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(string), args[3].(time.Time))
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName), args[2].(string), args[3].(time.Time))
 	})
 	return _c
 }
@@ -267,7 +170,7 @@ func (_c *MarketStore_GetKlinesSince_Call) Return(_a0 []connector.Kline) *Market
 	return _c
 }
 
-func (_c *MarketStore_GetKlinesSince_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, string, time.Time) []connector.Kline) *MarketStore_GetKlinesSince_Call {
+func (_c *MarketStore_GetKlinesSince_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName, string, time.Time) []connector.Kline) *MarketStore_GetKlinesSince_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -319,17 +222,17 @@ func (_c *MarketStore_GetLastUpdated_Call) RunAndReturn(run func() market.LastUp
 	return _c
 }
 
-// GetOrderBook provides a mock function with given fields: asset, exchange
-func (_m *MarketStore) GetOrderBook(asset portfolio.Asset, exchange connector.ExchangeName) *connector.OrderBook {
-	ret := _m.Called(asset, exchange)
+// GetOrderBook provides a mock function with given fields: pair, exchange
+func (_m *MarketStore) GetOrderBook(pair portfolio.Pair, exchange connector.ExchangeName) *connector.OrderBook {
+	ret := _m.Called(pair, exchange)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOrderBook")
 	}
 
 	var r0 *connector.OrderBook
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName) *connector.OrderBook); ok {
-		r0 = rf(asset, exchange)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.ExchangeName) *connector.OrderBook); ok {
+		r0 = rf(pair, exchange)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.OrderBook)
@@ -345,15 +248,15 @@ type MarketStore_GetOrderBook_Call struct {
 }
 
 // GetOrderBook is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - pair portfolio.Pair
 //   - exchange connector.ExchangeName
-func (_e *MarketStore_Expecter) GetOrderBook(asset interface{}, exchange interface{}) *MarketStore_GetOrderBook_Call {
-	return &MarketStore_GetOrderBook_Call{Call: _e.mock.On("GetOrderBook", asset, exchange)}
+func (_e *MarketStore_Expecter) GetOrderBook(pair interface{}, exchange interface{}) *MarketStore_GetOrderBook_Call {
+	return &MarketStore_GetOrderBook_Call{Call: _e.mock.On("GetOrderBook", pair, exchange)}
 }
 
-func (_c *MarketStore_GetOrderBook_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName)) *MarketStore_GetOrderBook_Call {
+func (_c *MarketStore_GetOrderBook_Call) Run(run func(pair portfolio.Pair, exchange connector.ExchangeName)) *MarketStore_GetOrderBook_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName))
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName))
 	})
 	return _c
 }
@@ -363,22 +266,22 @@ func (_c *MarketStore_GetOrderBook_Call) Return(_a0 *connector.OrderBook) *Marke
 	return _c
 }
 
-func (_c *MarketStore_GetOrderBook_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName) *connector.OrderBook) *MarketStore_GetOrderBook_Call {
+func (_c *MarketStore_GetOrderBook_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName) *connector.OrderBook) *MarketStore_GetOrderBook_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetOrderBooks provides a mock function with given fields: asset
-func (_m *MarketStore) GetOrderBooks(asset portfolio.Asset) market.OrderBookMap {
-	ret := _m.Called(asset)
+// GetOrderBooks provides a mock function with given fields: pair
+func (_m *MarketStore) GetOrderBooks(pair portfolio.Pair) market.OrderBookMap {
+	ret := _m.Called(pair)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOrderBooks")
 	}
 
 	var r0 market.OrderBookMap
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) market.OrderBookMap); ok {
-		r0 = rf(asset)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) market.OrderBookMap); ok {
+		r0 = rf(pair)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(market.OrderBookMap)
@@ -394,14 +297,14 @@ type MarketStore_GetOrderBooks_Call struct {
 }
 
 // GetOrderBooks is a helper method to define mock.On call
-//   - asset portfolio.Asset
-func (_e *MarketStore_Expecter) GetOrderBooks(asset interface{}) *MarketStore_GetOrderBooks_Call {
-	return &MarketStore_GetOrderBooks_Call{Call: _e.mock.On("GetOrderBooks", asset)}
+//   - pair portfolio.Pair
+func (_e *MarketStore_Expecter) GetOrderBooks(pair interface{}) *MarketStore_GetOrderBooks_Call {
+	return &MarketStore_GetOrderBooks_Call{Call: _e.mock.On("GetOrderBooks", pair)}
 }
 
-func (_c *MarketStore_GetOrderBooks_Call) Run(run func(asset portfolio.Asset)) *MarketStore_GetOrderBooks_Call {
+func (_c *MarketStore_GetOrderBooks_Call) Run(run func(pair portfolio.Pair)) *MarketStore_GetOrderBooks_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -411,7 +314,104 @@ func (_c *MarketStore_GetOrderBooks_Call) Return(_a0 market.OrderBookMap) *Marke
 	return _c
 }
 
-func (_c *MarketStore_GetOrderBooks_Call) RunAndReturn(run func(portfolio.Asset) market.OrderBookMap) *MarketStore_GetOrderBooks_Call {
+func (_c *MarketStore_GetOrderBooks_Call) RunAndReturn(run func(portfolio.Pair) market.OrderBookMap) *MarketStore_GetOrderBooks_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetPairPrice provides a mock function with given fields: pair, exchange
+func (_m *MarketStore) GetPairPrice(pair portfolio.Pair, exchange connector.ExchangeName) *connector.Price {
+	ret := _m.Called(pair, exchange)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPairPrice")
+	}
+
+	var r0 *connector.Price
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.ExchangeName) *connector.Price); ok {
+		r0 = rf(pair, exchange)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*connector.Price)
+		}
+	}
+
+	return r0
+}
+
+// MarketStore_GetPairPrice_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPairPrice'
+type MarketStore_GetPairPrice_Call struct {
+	*mock.Call
+}
+
+// GetPairPrice is a helper method to define mock.On call
+//   - pair portfolio.Pair
+//   - exchange connector.ExchangeName
+func (_e *MarketStore_Expecter) GetPairPrice(pair interface{}, exchange interface{}) *MarketStore_GetPairPrice_Call {
+	return &MarketStore_GetPairPrice_Call{Call: _e.mock.On("GetPairPrice", pair, exchange)}
+}
+
+func (_c *MarketStore_GetPairPrice_Call) Run(run func(pair portfolio.Pair, exchange connector.ExchangeName)) *MarketStore_GetPairPrice_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName))
+	})
+	return _c
+}
+
+func (_c *MarketStore_GetPairPrice_Call) Return(_a0 *connector.Price) *MarketStore_GetPairPrice_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MarketStore_GetPairPrice_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName) *connector.Price) *MarketStore_GetPairPrice_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetPairPrices provides a mock function with given fields: pair
+func (_m *MarketStore) GetPairPrices(pair portfolio.Pair) market.PriceMap {
+	ret := _m.Called(pair)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPairPrices")
+	}
+
+	var r0 market.PriceMap
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) market.PriceMap); ok {
+		r0 = rf(pair)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(market.PriceMap)
+		}
+	}
+
+	return r0
+}
+
+// MarketStore_GetPairPrices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPairPrices'
+type MarketStore_GetPairPrices_Call struct {
+	*mock.Call
+}
+
+// GetPairPrices is a helper method to define mock.On call
+//   - pair portfolio.Pair
+func (_e *MarketStore_Expecter) GetPairPrices(pair interface{}) *MarketStore_GetPairPrices_Call {
+	return &MarketStore_GetPairPrices_Call{Call: _e.mock.On("GetPairPrices", pair)}
+}
+
+func (_c *MarketStore_GetPairPrices_Call) Run(run func(pair portfolio.Pair)) *MarketStore_GetPairPrices_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(portfolio.Pair))
+	})
+	return _c
+}
+
+func (_c *MarketStore_GetPairPrices_Call) Return(_a0 market.PriceMap) *MarketStore_GetPairPrices_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MarketStore_GetPairPrices_Call) RunAndReturn(run func(portfolio.Pair) market.PriceMap) *MarketStore_GetPairPrices_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -461,78 +461,9 @@ func (_c *MarketStore_MarketType_Call) RunAndReturn(run func() market.MarketType
 	return _c
 }
 
-// UpdateAssetPrice provides a mock function with given fields: asset, exchange, price
-func (_m *MarketStore) UpdateAssetPrice(asset portfolio.Asset, exchange connector.ExchangeName, price connector.Price) {
-	_m.Called(asset, exchange, price)
-}
-
-// MarketStore_UpdateAssetPrice_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateAssetPrice'
-type MarketStore_UpdateAssetPrice_Call struct {
-	*mock.Call
-}
-
-// UpdateAssetPrice is a helper method to define mock.On call
-//   - asset portfolio.Asset
-//   - exchange connector.ExchangeName
-//   - price connector.Price
-func (_e *MarketStore_Expecter) UpdateAssetPrice(asset interface{}, exchange interface{}, price interface{}) *MarketStore_UpdateAssetPrice_Call {
-	return &MarketStore_UpdateAssetPrice_Call{Call: _e.mock.On("UpdateAssetPrice", asset, exchange, price)}
-}
-
-func (_c *MarketStore_UpdateAssetPrice_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, price connector.Price)) *MarketStore_UpdateAssetPrice_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(connector.Price))
-	})
-	return _c
-}
-
-func (_c *MarketStore_UpdateAssetPrice_Call) Return() *MarketStore_UpdateAssetPrice_Call {
-	_c.Call.Return()
-	return _c
-}
-
-func (_c *MarketStore_UpdateAssetPrice_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, connector.Price)) *MarketStore_UpdateAssetPrice_Call {
-	_c.Run(run)
-	return _c
-}
-
-// UpdateAssetPrices provides a mock function with given fields: asset, prices
-func (_m *MarketStore) UpdateAssetPrices(asset portfolio.Asset, prices market.PriceMap) {
-	_m.Called(asset, prices)
-}
-
-// MarketStore_UpdateAssetPrices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateAssetPrices'
-type MarketStore_UpdateAssetPrices_Call struct {
-	*mock.Call
-}
-
-// UpdateAssetPrices is a helper method to define mock.On call
-//   - asset portfolio.Asset
-//   - prices market.PriceMap
-func (_e *MarketStore_Expecter) UpdateAssetPrices(asset interface{}, prices interface{}) *MarketStore_UpdateAssetPrices_Call {
-	return &MarketStore_UpdateAssetPrices_Call{Call: _e.mock.On("UpdateAssetPrices", asset, prices)}
-}
-
-func (_c *MarketStore_UpdateAssetPrices_Call) Run(run func(asset portfolio.Asset, prices market.PriceMap)) *MarketStore_UpdateAssetPrices_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(market.PriceMap))
-	})
-	return _c
-}
-
-func (_c *MarketStore_UpdateAssetPrices_Call) Return() *MarketStore_UpdateAssetPrices_Call {
-	_c.Call.Return()
-	return _c
-}
-
-func (_c *MarketStore_UpdateAssetPrices_Call) RunAndReturn(run func(portfolio.Asset, market.PriceMap)) *MarketStore_UpdateAssetPrices_Call {
-	_c.Run(run)
-	return _c
-}
-
-// UpdateKline provides a mock function with given fields: asset, exchange, kline
-func (_m *MarketStore) UpdateKline(asset portfolio.Asset, exchange connector.ExchangeName, kline connector.Kline) {
-	_m.Called(asset, exchange, kline)
+// UpdateKline provides a mock function with given fields: pair, exchange, kline
+func (_m *MarketStore) UpdateKline(pair portfolio.Pair, exchange connector.ExchangeName, kline connector.Kline) {
+	_m.Called(pair, exchange, kline)
 }
 
 // MarketStore_UpdateKline_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateKline'
@@ -541,16 +472,16 @@ type MarketStore_UpdateKline_Call struct {
 }
 
 // UpdateKline is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - pair portfolio.Pair
 //   - exchange connector.ExchangeName
 //   - kline connector.Kline
-func (_e *MarketStore_Expecter) UpdateKline(asset interface{}, exchange interface{}, kline interface{}) *MarketStore_UpdateKline_Call {
-	return &MarketStore_UpdateKline_Call{Call: _e.mock.On("UpdateKline", asset, exchange, kline)}
+func (_e *MarketStore_Expecter) UpdateKline(pair interface{}, exchange interface{}, kline interface{}) *MarketStore_UpdateKline_Call {
+	return &MarketStore_UpdateKline_Call{Call: _e.mock.On("UpdateKline", pair, exchange, kline)}
 }
 
-func (_c *MarketStore_UpdateKline_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, kline connector.Kline)) *MarketStore_UpdateKline_Call {
+func (_c *MarketStore_UpdateKline_Call) Run(run func(pair portfolio.Pair, exchange connector.ExchangeName, kline connector.Kline)) *MarketStore_UpdateKline_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(connector.Kline))
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName), args[2].(connector.Kline))
 	})
 	return _c
 }
@@ -560,7 +491,7 @@ func (_c *MarketStore_UpdateKline_Call) Return() *MarketStore_UpdateKline_Call {
 	return _c
 }
 
-func (_c *MarketStore_UpdateKline_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, connector.Kline)) *MarketStore_UpdateKline_Call {
+func (_c *MarketStore_UpdateKline_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName, connector.Kline)) *MarketStore_UpdateKline_Call {
 	_c.Run(run)
 	return _c
 }
@@ -598,9 +529,9 @@ func (_c *MarketStore_UpdateLastUpdated_Call) RunAndReturn(run func(market.Updat
 	return _c
 }
 
-// UpdateOrderBook provides a mock function with given fields: asset, exchange, orderBook
-func (_m *MarketStore) UpdateOrderBook(asset portfolio.Asset, exchange connector.ExchangeName, orderBook connector.OrderBook) {
-	_m.Called(asset, exchange, orderBook)
+// UpdateOrderBook provides a mock function with given fields: pair, exchange, orderBook
+func (_m *MarketStore) UpdateOrderBook(pair portfolio.Pair, exchange connector.ExchangeName, orderBook connector.OrderBook) {
+	_m.Called(pair, exchange, orderBook)
 }
 
 // MarketStore_UpdateOrderBook_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateOrderBook'
@@ -609,16 +540,16 @@ type MarketStore_UpdateOrderBook_Call struct {
 }
 
 // UpdateOrderBook is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - pair portfolio.Pair
 //   - exchange connector.ExchangeName
 //   - orderBook connector.OrderBook
-func (_e *MarketStore_Expecter) UpdateOrderBook(asset interface{}, exchange interface{}, orderBook interface{}) *MarketStore_UpdateOrderBook_Call {
-	return &MarketStore_UpdateOrderBook_Call{Call: _e.mock.On("UpdateOrderBook", asset, exchange, orderBook)}
+func (_e *MarketStore_Expecter) UpdateOrderBook(pair interface{}, exchange interface{}, orderBook interface{}) *MarketStore_UpdateOrderBook_Call {
+	return &MarketStore_UpdateOrderBook_Call{Call: _e.mock.On("UpdateOrderBook", pair, exchange, orderBook)}
 }
 
-func (_c *MarketStore_UpdateOrderBook_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, orderBook connector.OrderBook)) *MarketStore_UpdateOrderBook_Call {
+func (_c *MarketStore_UpdateOrderBook_Call) Run(run func(pair portfolio.Pair, exchange connector.ExchangeName, orderBook connector.OrderBook)) *MarketStore_UpdateOrderBook_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(connector.OrderBook))
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName), args[2].(connector.OrderBook))
 	})
 	return _c
 }
@@ -628,7 +559,76 @@ func (_c *MarketStore_UpdateOrderBook_Call) Return() *MarketStore_UpdateOrderBoo
 	return _c
 }
 
-func (_c *MarketStore_UpdateOrderBook_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, connector.OrderBook)) *MarketStore_UpdateOrderBook_Call {
+func (_c *MarketStore_UpdateOrderBook_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName, connector.OrderBook)) *MarketStore_UpdateOrderBook_Call {
+	_c.Run(run)
+	return _c
+}
+
+// UpdatePairPrice provides a mock function with given fields: pair, exchange, price
+func (_m *MarketStore) UpdatePairPrice(pair portfolio.Pair, exchange connector.ExchangeName, price connector.Price) {
+	_m.Called(pair, exchange, price)
+}
+
+// MarketStore_UpdatePairPrice_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdatePairPrice'
+type MarketStore_UpdatePairPrice_Call struct {
+	*mock.Call
+}
+
+// UpdatePairPrice is a helper method to define mock.On call
+//   - pair portfolio.Pair
+//   - exchange connector.ExchangeName
+//   - price connector.Price
+func (_e *MarketStore_Expecter) UpdatePairPrice(pair interface{}, exchange interface{}, price interface{}) *MarketStore_UpdatePairPrice_Call {
+	return &MarketStore_UpdatePairPrice_Call{Call: _e.mock.On("UpdatePairPrice", pair, exchange, price)}
+}
+
+func (_c *MarketStore_UpdatePairPrice_Call) Run(run func(pair portfolio.Pair, exchange connector.ExchangeName, price connector.Price)) *MarketStore_UpdatePairPrice_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName), args[2].(connector.Price))
+	})
+	return _c
+}
+
+func (_c *MarketStore_UpdatePairPrice_Call) Return() *MarketStore_UpdatePairPrice_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MarketStore_UpdatePairPrice_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName, connector.Price)) *MarketStore_UpdatePairPrice_Call {
+	_c.Run(run)
+	return _c
+}
+
+// UpdatePairPrices provides a mock function with given fields: pair, prices
+func (_m *MarketStore) UpdatePairPrices(pair portfolio.Pair, prices market.PriceMap) {
+	_m.Called(pair, prices)
+}
+
+// MarketStore_UpdatePairPrices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdatePairPrices'
+type MarketStore_UpdatePairPrices_Call struct {
+	*mock.Call
+}
+
+// UpdatePairPrices is a helper method to define mock.On call
+//   - pair portfolio.Pair
+//   - prices market.PriceMap
+func (_e *MarketStore_Expecter) UpdatePairPrices(pair interface{}, prices interface{}) *MarketStore_UpdatePairPrices_Call {
+	return &MarketStore_UpdatePairPrices_Call{Call: _e.mock.On("UpdatePairPrices", pair, prices)}
+}
+
+func (_c *MarketStore_UpdatePairPrices_Call) Run(run func(pair portfolio.Pair, prices market.PriceMap)) *MarketStore_UpdatePairPrices_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(portfolio.Pair), args[1].(market.PriceMap))
+	})
+	return _c
+}
+
+func (_c *MarketStore_UpdatePairPrices_Call) Return() *MarketStore_UpdatePairPrices_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MarketStore_UpdatePairPrices_Call) RunAndReturn(run func(portfolio.Pair, market.PriceMap)) *MarketStore_UpdatePairPrices_Call {
 	_c.Run(run)
 	return _c
 }

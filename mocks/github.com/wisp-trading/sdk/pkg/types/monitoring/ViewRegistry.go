@@ -10,6 +10,8 @@ import (
 
 	monitoring "github.com/wisp-trading/sdk/pkg/types/monitoring"
 
+	portfolio "github.com/wisp-trading/sdk/pkg/types/portfolio"
+
 	profiling "github.com/wisp-trading/sdk/pkg/types/monitoring/profiling"
 
 	strategy "github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -169,17 +171,17 @@ func (_c *ViewRegistry_GetMetrics_Call) RunAndReturn(run func() *monitoring.Stra
 	return _c
 }
 
-// GetOrderbookView provides a mock function with given fields: symbol
-func (_m *ViewRegistry) GetOrderbookView(symbol string) *connector.OrderBook {
-	ret := _m.Called(symbol)
+// GetOrderbookView provides a mock function with given fields: pair
+func (_m *ViewRegistry) GetOrderbookView(pair portfolio.Pair) *connector.OrderBook {
+	ret := _m.Called(pair)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOrderbookView")
 	}
 
 	var r0 *connector.OrderBook
-	if rf, ok := ret.Get(0).(func(string) *connector.OrderBook); ok {
-		r0 = rf(symbol)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) *connector.OrderBook); ok {
+		r0 = rf(pair)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.OrderBook)
@@ -195,14 +197,14 @@ type ViewRegistry_GetOrderbookView_Call struct {
 }
 
 // GetOrderbookView is a helper method to define mock.On call
-//   - symbol string
-func (_e *ViewRegistry_Expecter) GetOrderbookView(symbol interface{}) *ViewRegistry_GetOrderbookView_Call {
-	return &ViewRegistry_GetOrderbookView_Call{Call: _e.mock.On("GetOrderbookView", symbol)}
+//   - pair portfolio.Pair
+func (_e *ViewRegistry_Expecter) GetOrderbookView(pair interface{}) *ViewRegistry_GetOrderbookView_Call {
+	return &ViewRegistry_GetOrderbookView_Call{Call: _e.mock.On("GetOrderbookView", pair)}
 }
 
-func (_c *ViewRegistry_GetOrderbookView_Call) Run(run func(symbol string)) *ViewRegistry_GetOrderbookView_Call {
+func (_c *ViewRegistry_GetOrderbookView_Call) Run(run func(pair portfolio.Pair)) *ViewRegistry_GetOrderbookView_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -212,7 +214,7 @@ func (_c *ViewRegistry_GetOrderbookView_Call) Return(_a0 *connector.OrderBook) *
 	return _c
 }
 
-func (_c *ViewRegistry_GetOrderbookView_Call) RunAndReturn(run func(string) *connector.OrderBook) *ViewRegistry_GetOrderbookView_Call {
+func (_c *ViewRegistry_GetOrderbookView_Call) RunAndReturn(run func(portfolio.Pair) *connector.OrderBook) *ViewRegistry_GetOrderbookView_Call {
 	_c.Call.Return(run)
 	return _c
 }

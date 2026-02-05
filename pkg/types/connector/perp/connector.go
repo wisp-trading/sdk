@@ -16,5 +16,5 @@ type Connector interface {
 	ContractProvider
 
 	// Perp-specific
-	GetPerpSymbol(symbol portfolio.Asset) string
+	GetPerpSymbol(symbol portfolio.Pair) string
 }

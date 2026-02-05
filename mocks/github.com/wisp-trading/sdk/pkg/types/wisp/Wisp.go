@@ -360,6 +360,53 @@ func (_c *Wisp_Market_Call) RunAndReturn(run func() analytics.Market) *Wisp_Mark
 	return _c
 }
 
+// Pair provides a mock function with given fields: base, quote
+func (_m *Wisp) Pair(base portfolio.Asset, quote portfolio.Asset) portfolio.Pair {
+	ret := _m.Called(base, quote)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Pair")
+	}
+
+	var r0 portfolio.Pair
+	if rf, ok := ret.Get(0).(func(portfolio.Asset, portfolio.Asset) portfolio.Pair); ok {
+		r0 = rf(base, quote)
+	} else {
+		r0 = ret.Get(0).(portfolio.Pair)
+	}
+
+	return r0
+}
+
+// Wisp_Pair_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Pair'
+type Wisp_Pair_Call struct {
+	*mock.Call
+}
+
+// Pair is a helper method to define mock.On call
+//   - base portfolio.Asset
+//   - quote portfolio.Asset
+func (_e *Wisp_Expecter) Pair(base interface{}, quote interface{}) *Wisp_Pair_Call {
+	return &Wisp_Pair_Call{Call: _e.mock.On("Pair", base, quote)}
+}
+
+func (_c *Wisp_Pair_Call) Run(run func(base portfolio.Asset, quote portfolio.Asset)) *Wisp_Pair_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(portfolio.Asset), args[1].(portfolio.Asset))
+	})
+	return _c
+}
+
+func (_c *Wisp_Pair_Call) Return(_a0 portfolio.Pair) *Wisp_Pair_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Wisp_Pair_Call) RunAndReturn(run func(portfolio.Asset, portfolio.Asset) portfolio.Pair) *Wisp_Pair_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Signal provides a mock function with given fields: strategyName
 func (_m *Wisp) Signal(strategyName strategy.StrategyName) strategy.SignalBuilder {
 	ret := _m.Called(strategyName)

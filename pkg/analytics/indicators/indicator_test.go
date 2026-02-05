@@ -22,12 +22,15 @@ var _ = Describe("Indicators with Market Registry", func() {
 		indicatorsSvc analytics.Indicators
 		registry      marketTypes.MarketRegistry
 		ctx           context.Context
-		btc           portfolio.Asset
+		btc           portfolio.Pair
 		exchangeName  connector.ExchangeName
 	)
 
 	BeforeEach(func() {
-		btc = portfolio.NewAsset("BTC")
+		btc = portfolio.NewPair(
+			portfolio.NewAsset("BTC"),
+			portfolio.NewAsset("USDT"),
+		)
 		exchangeName = "binance"
 		ctx = context.Background()
 
@@ -103,7 +106,7 @@ var _ = Describe("Indicators with Market Registry", func() {
 })
 
 // populateTestKlines adds test klines to the store
-func populateTestKlines(store marketTypes.MarketStore, asset portfolio.Asset, exchange connector.ExchangeName, count int) {
+func populateTestKlines(store marketTypes.MarketStore, asset portfolio.Pair, exchange connector.ExchangeName, count int) {
 	now := time.Now()
 	// Use the default interval that matches what indicators use
 	interval := analytics.DefaultInterval
@@ -124,7 +127,7 @@ func populateTestKlines(store marketTypes.MarketStore, asset portfolio.Asset, ex
 	}
 
 	// Add a price so getDefaultExchange works
-	store.UpdateAssetPrice(asset, exchange, connector.Price{
+	store.UpdatePairPrice(asset, exchange, connector.Price{
 		Price:     numerical.NewFromInt(100),
 		Timestamp: now,
 	})

@@ -36,7 +36,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 	var (
 		store             perp.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
-		assetRegistry     registryTypes.AssetRegistry
+		pairRegistry      registryTypes.PairRegistry
 		logger            logging.ApplicationLogger
 		timeProviderInst  temporal.TimeProvider
 		factory           realtimeTypes.RealtimeIngestorFactory
@@ -50,12 +50,12 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 		timeProviderInst = timeProvider.NewTimeProvider()
 		store = perpStore.NewStore(timeProviderInst)
 		connectorRegistry = registry.NewConnectorRegistry()
-		assetRegistry = registry.NewAssetRegistry()
+		pairRegistry = registry.NewAssetRegistry()
 
 		// Create factory
 		factory = realtime.NewFactory(
 			connectorRegistry,
-			assetRegistry,
+			pairRegistry,
 			store,
 			logger,
 		)
@@ -74,7 +74,10 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				exchangeName := connector.ExchangeName("test-perp-exchange")
 				m := setupMockPerpWSConnector(GinkgoT(), exchangeName)
 
-				btc := portfolio.NewAsset("BTC")
+				btc := portfolio.NewPair(
+					portfolio.NewAsset("BTC"),
+					portfolio.NewAsset("USDT"),
+				)
 
 				// Setup channels
 				orderbookChan := make(chan connector.OrderBook, 10)
@@ -98,10 +101,10 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				m.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 				m.EXPECT().SubscribeFundingRates(mock.Anything).Return(nil).Maybe()
 
-				// Register connector and assets
+				// Register connector and pairs
 				connectorRegistry.RegisterPerpConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterAsset(btc, connector.TypePerpetual)
+				pairRegistry.RegisterPair(btc, connector.TypePerpetual)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -115,7 +118,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 
 				// Send orderbook update
 				orderbook := connector.OrderBook{
-					Asset: btc,
+					Pair: btc,
 					Bids: []connector.PriceLevel{
 						{Price: numerical.NewFromFloat(50000), Quantity: numerical.NewFromFloat(1.0)},
 					},
@@ -146,7 +149,10 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				exchangeName := connector.ExchangeName("test-perp-exchange")
 				m := setupMockPerpWSConnector(GinkgoT(), exchangeName)
 
-				btc := portfolio.NewAsset("BTC")
+				btc := portfolio.NewPair(
+					portfolio.NewAsset("BTC"),
+					portfolio.NewAsset("USDT"),
+				)
 
 				// Setup channels
 				orderbookChan := make(chan connector.OrderBook, 10)
@@ -155,7 +161,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				errorChan := make(chan error, 10)
 
 				orderbookChannels := map[string]<-chan connector.OrderBook{
-					"BTC": orderbookChan,
+					"BTC-USDT": orderbookChan,
 				}
 				klineChannels := map[string]<-chan connector.Kline{
 					"BTC-1m": klineChan,
@@ -170,10 +176,10 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				m.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 				m.EXPECT().SubscribeFundingRates(mock.Anything).Return(nil).Maybe()
 
-				// Register connector and assets
+				// Register connector and pairs
 				connectorRegistry.RegisterPerpConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterAsset(btc, connector.TypePerpetual)
+				pairRegistry.RegisterPair(btc, connector.TypePerpetual)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -187,7 +193,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 
 				// Send kline update
 				kline := connector.Kline{
-					Symbol:    "BTC",
+					Pair:      btc,
 					Interval:  "1m",
 					Open:      50000,
 					High:      50100,
@@ -203,7 +209,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				// Assert - data should be stored
 				storedKlines := store.GetKlines(btc, exchangeName, "1m", 10)
 				Expect(storedKlines).ToNot(BeEmpty(), "Klines should be stored")
-				Expect(storedKlines[0].Symbol).To(Equal("BTC"))
+				Expect(storedKlines[0].Pair.Symbol()).To(Equal("BTC-USDT"))
 				Expect(storedKlines[0].Close).To(Equal(50050.0))
 
 				close(orderbookChan)
@@ -217,7 +223,10 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				exchangeName := connector.ExchangeName("test-perp-exchange")
 				m := setupMockPerpWSConnector(GinkgoT(), exchangeName)
 
-				btc := portfolio.NewAsset("BTC")
+				btc := portfolio.NewPair(
+					portfolio.NewAsset("BTC"),
+					portfolio.NewAsset("USDT"),
+				)
 
 				// Setup channels
 				orderbookChan := make(chan connector.OrderBook, 10)
@@ -241,10 +250,10 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				m.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 				m.EXPECT().SubscribeFundingRates(mock.Anything).Return(nil).Maybe()
 
-				// Register connector and assets
+				// Register connector and pairs
 				connectorRegistry.RegisterPerpConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterAsset(btc, connector.TypePerpetual)
+				pairRegistry.RegisterPair(btc, connector.TypePerpetual)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -286,7 +295,10 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				exchangeName := connector.ExchangeName("test-perp-exchange")
 				m := setupMockPerpWSConnector(GinkgoT(), exchangeName)
 
-				btc := portfolio.NewAsset("BTC")
+				btc := portfolio.NewPair(
+					portfolio.NewAsset("BTC"),
+					portfolio.NewAsset("USDT"),
+				)
 
 				// Setup channels
 				orderbookChan := make(chan connector.OrderBook, 10)
@@ -310,10 +322,10 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				m.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 				m.EXPECT().SubscribeFundingRates(mock.Anything).Return(nil).Maybe()
 
-				// Register connector and assets
+				// Register connector and pairs
 				connectorRegistry.RegisterPerpConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterAsset(btc, connector.TypePerpetual)
+				pairRegistry.RegisterPair(btc, connector.TypePerpetual)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()

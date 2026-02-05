@@ -9,9 +9,9 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-// positionTracker tracks open position size and average entry price for an asset
+// positionTracker tracks open position size and average entry price for an pair
 type positionTracker struct {
-	asset    portfolio.Asset
+	pair     portfolio.Pair
 	size     numerical.Decimal // Positive = long, negative = short
 	avgEntry numerical.Decimal
 }
@@ -120,11 +120,11 @@ func calculateFromTrades(trades []connector.Trade) (numerical.Decimal, map[strin
 	realizedPnl := numerical.Zero()
 
 	for _, trade := range trades {
-		symbol := trade.Symbol
+		symbol := trade.Pair.Symbol()
 		tracker, exists := positions[symbol]
 		if !exists {
 			tracker = &positionTracker{
-				asset:    portfolio.NewAsset(symbol),
+				pair:     trade.Pair,
 				size:     numerical.Zero(),
 				avgEntry: numerical.Zero(),
 			}
@@ -152,12 +152,12 @@ func (p *pnl) GetRealizedPNL(ctx strategy.StrategyContext, strategyName strategy
 	return realizedPnl.Sub(fees)
 }
 
-// GetRealizedPNLByAsset returns the realized PNL for a specific asset across all strategies
-func (p *pnl) GetRealizedPNLByAsset(ctx strategy.StrategyContext, asset portfolio.Asset) numerical.Decimal {
-	trades := p.trades.GetTradesByAsset(ctx, asset)
+// GetRealizedPNLByPair returns the realized PNL for a specific pair across all strategies
+func (p *pnl) GetRealizedPNLByPair(ctx strategy.StrategyContext, pair portfolio.Pair) numerical.Decimal {
+	trades := p.trades.GetTradesByPair(ctx, pair)
 	realizedPnl, _ := calculateFromTrades(trades)
 
-	// Subtract fees for this asset
+	// Subtract fees for this pair
 	fees := numerical.Zero()
 	for _, trade := range trades {
 		fees = fees.Add(trade.Fee)
@@ -191,7 +191,7 @@ func (p *pnl) GetUnrealizedPNL(ctx strategy.StrategyContext, strategyName strate
 			continue
 		}
 
-		currentPrice, err := p.market.Price(ctx, tracker.asset)
+		currentPrice, err := p.market.Price(ctx, tracker.pair)
 		if err != nil {
 			return numerical.Zero(), err
 		}
@@ -213,7 +213,7 @@ func (p *pnl) GetTotalUnrealizedPNL(ctx strategy.StrategyContext) (numerical.Dec
 			continue
 		}
 
-		currentPrice, err := p.market.Price(ctx, tracker.asset)
+		currentPrice, err := p.market.Price(ctx, tracker.pair)
 		if err != nil {
 			return numerical.Zero(), err
 		}
@@ -244,7 +244,7 @@ func (p *pnl) GetTotalPNL(ctx strategy.StrategyContext) (numerical.Decimal, erro
 			continue
 		}
 
-		currentPrice, err := p.market.Price(ctx, tracker.asset)
+		currentPrice, err := p.market.Price(ctx, tracker.pair)
 		if err != nil {
 			return numerical.Zero(), err
 		}

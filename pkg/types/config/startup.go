@@ -15,7 +15,7 @@ type StartupConfig struct {
 	ConnectorConfigs map[connector.ExchangeName]connector.Config
 
 	// AssetConfigs maps assets to their required instruments
-	AssetConfigs map[portfolio.Asset][]connector.Instrument
+	AssetConfigs map[portfolio.Pair][]connector.Instrument
 
 	// PluginPath is the path to the .so file (for plugin mode)
 	PluginPath string

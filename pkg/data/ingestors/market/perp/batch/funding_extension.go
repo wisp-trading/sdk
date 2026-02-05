@@ -22,7 +22,7 @@ func NewFundingRateExtension(store perpStore.MarketStore, logger logging.Applica
 	}
 }
 
-func (f *FundingRateExtension) Collect(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Asset) {
+func (f *FundingRateExtension) Collect(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Pair) {
 	pc, ok := conn.(perpConn.Connector)
 	if !ok {
 		f.logger.Debug("Connector %s does not support perp operations", exchangeName)

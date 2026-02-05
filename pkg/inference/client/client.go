@@ -14,7 +14,7 @@ import (
 type InferenceClient interface {
 	// Predict sends features to the inference server and returns the confidence score.
 	// Confidence is typically in range 0-100, where higher values indicate stronger signals.
-	Predict(ctx context.Context, asset portfolio.Asset, features map[string]float64) (float64, error)
+	Predict(ctx context.Context, asset portfolio.Pair, features map[string]float64) (float64, error)
 }
 
 // Client is the default implementation of InferenceClient.
@@ -48,7 +48,7 @@ func NewClientFromGRPC(grpcClient pb.ModelInferenceClient) *Client {
 }
 
 // Predict sends the feature map to the user's inference server and returns the confidence score.
-func (c *Client) Predict(ctx context.Context, asset portfolio.Asset, features map[string]float64) (float64, error) {
+func (c *Client) Predict(ctx context.Context, asset portfolio.Pair, features map[string]float64) (float64, error) {
 	// Convert feature map to protobuf message
 	req := &pb.Features{
 		NamedFeatures: features,

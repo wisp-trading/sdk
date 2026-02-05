@@ -13,7 +13,7 @@ import (
 // Factory creates batch ingestors for all registered spot connectors
 type Factory struct {
 	connectorRegistry registry.ConnectorRegistry
-	assetRegistry     registry.AssetRegistry
+	assetRegistry     registry.PairRegistry
 	store             spotStore.MarketStore
 	timeProvider      temporal.TimeProvider
 	logger            logging.ApplicationLogger
@@ -21,7 +21,7 @@ type Factory struct {
 
 func NewFactory(
 	connectorRegistry registry.ConnectorRegistry,
-	assetRegistry registry.AssetRegistry,
+	assetRegistry registry.PairRegistry,
 	store spotStore.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,

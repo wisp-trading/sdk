@@ -21,26 +21,28 @@ type Price struct {
 
 // Kline represents candlestick data for a trading symbol.
 type Kline struct {
-	Symbol      string    `json:"symbol"`
-	Interval    string    `json:"interval"`
-	OpenTime    time.Time `json:"open_time"`
-	Open        float64   `json:"open"`
-	High        float64   `json:"high"`
-	Low         float64   `json:"low"`
-	Close       float64   `json:"close"`
-	Volume      float64   `json:"volume"`
-	CloseTime   time.Time `json:"close_time"`
-	QuoteVolume float64   `json:"quote_volume,omitempty"`
-	TradeCount  int       `json:"trade_count,omitempty"`
-	TakerVolume float64   `json:"taker_volume,omitempty"`
+	// Deprecated: Use Pair instead.
+	Symbol      string         `json:"symbol"`
+	Pair        portfolio.Pair `json:"pair"`
+	Interval    string         `json:"interval"`
+	OpenTime    time.Time      `json:"open_time"`
+	Open        float64        `json:"open"`
+	High        float64        `json:"high"`
+	Low         float64        `json:"low"`
+	Close       float64        `json:"close"`
+	Volume      float64        `json:"volume"`
+	CloseTime   time.Time      `json:"close_time"`
+	QuoteVolume float64        `json:"quote_volume,omitempty"`
+	TradeCount  int            `json:"trade_count,omitempty"`
+	TakerVolume float64        `json:"taker_volume,omitempty"`
 }
 
 // OrderBook represents the order book with bids and asks.
 type OrderBook struct {
-	Asset     portfolio.Asset `json:"symbol"`
-	Bids      []PriceLevel    `json:"bids"`
-	Asks      []PriceLevel    `json:"asks"`
-	Timestamp time.Time       `json:"timestamp"`
+	Pair      portfolio.Pair `json:"pair"`
+	Bids      []PriceLevel   `json:"bids"`
+	Asks      []PriceLevel   `json:"asks"`
+	Timestamp time.Time      `json:"timestamp"`
 }
 
 // PriceLevel represents a price level in the order book.
@@ -51,8 +53,10 @@ type PriceLevel struct {
 
 // Trade represents a trade executed on the exchange.
 type Trade struct {
-	ID        string            `json:"id"`
-	OrderID   string            `json:"order_id,omitempty"` // Link to the originating order
+	ID      string         `json:"id"`
+	OrderID string         `json:"order_id,omitempty"` // Link to the originating order
+	Pair    portfolio.Pair `json:"pair"`
+	// Deprecated: Use Pair instead.
 	Symbol    string            `json:"symbol"`
 	Exchange  ExchangeName      `json:"exchange"`
 	Price     numerical.Decimal `json:"price"`

@@ -74,7 +74,7 @@ func (_c *SignalBuilder_Build_Call) RunAndReturn(run func() *strategy.Signal) *S
 }
 
 // Buy provides a mock function with given fields: asset, exchange, quantity
-func (_m *SignalBuilder) Buy(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
+func (_m *SignalBuilder) Buy(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
 	ret := _m.Called(asset, exchange, quantity)
 
 	if len(ret) == 0 {
@@ -82,7 +82,7 @@ func (_m *SignalBuilder) Buy(asset portfolio.Asset, exchange connector.ExchangeN
 	}
 
 	var r0 strategy.SignalBuilder
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName, numerical.Decimal) strategy.SignalBuilder); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.ExchangeName, numerical.Decimal) strategy.SignalBuilder); ok {
 		r0 = rf(asset, exchange, quantity)
 	} else {
 		if ret.Get(0) != nil {
@@ -99,16 +99,16 @@ type SignalBuilder_Buy_Call struct {
 }
 
 // Buy is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - exchange connector.ExchangeName
 //   - quantity numerical.Decimal
 func (_e *SignalBuilder_Expecter) Buy(asset interface{}, exchange interface{}, quantity interface{}) *SignalBuilder_Buy_Call {
 	return &SignalBuilder_Buy_Call{Call: _e.mock.On("Buy", asset, exchange, quantity)}
 }
 
-func (_c *SignalBuilder_Buy_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal)) *SignalBuilder_Buy_Call {
+func (_c *SignalBuilder_Buy_Call) Run(run func(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal)) *SignalBuilder_Buy_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(numerical.Decimal))
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName), args[2].(numerical.Decimal))
 	})
 	return _c
 }
@@ -118,13 +118,13 @@ func (_c *SignalBuilder_Buy_Call) Return(_a0 strategy.SignalBuilder) *SignalBuil
 	return _c
 }
 
-func (_c *SignalBuilder_Buy_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, numerical.Decimal) strategy.SignalBuilder) *SignalBuilder_Buy_Call {
+func (_c *SignalBuilder_Buy_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName, numerical.Decimal) strategy.SignalBuilder) *SignalBuilder_Buy_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // BuyLimit provides a mock function with given fields: asset, exchange, quantity, price
-func (_m *SignalBuilder) BuyLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal, price numerical.Decimal) strategy.SignalBuilder {
+func (_m *SignalBuilder) BuyLimit(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal, price numerical.Decimal) strategy.SignalBuilder {
 	ret := _m.Called(asset, exchange, quantity, price)
 
 	if len(ret) == 0 {
@@ -132,7 +132,7 @@ func (_m *SignalBuilder) BuyLimit(asset portfolio.Asset, exchange connector.Exch
 	}
 
 	var r0 strategy.SignalBuilder
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName, numerical.Decimal, numerical.Decimal) strategy.SignalBuilder); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.ExchangeName, numerical.Decimal, numerical.Decimal) strategy.SignalBuilder); ok {
 		r0 = rf(asset, exchange, quantity, price)
 	} else {
 		if ret.Get(0) != nil {
@@ -149,7 +149,7 @@ type SignalBuilder_BuyLimit_Call struct {
 }
 
 // BuyLimit is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - exchange connector.ExchangeName
 //   - quantity numerical.Decimal
 //   - price numerical.Decimal
@@ -157,9 +157,9 @@ func (_e *SignalBuilder_Expecter) BuyLimit(asset interface{}, exchange interface
 	return &SignalBuilder_BuyLimit_Call{Call: _e.mock.On("BuyLimit", asset, exchange, quantity, price)}
 }
 
-func (_c *SignalBuilder_BuyLimit_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal, price numerical.Decimal)) *SignalBuilder_BuyLimit_Call {
+func (_c *SignalBuilder_BuyLimit_Call) Run(run func(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal, price numerical.Decimal)) *SignalBuilder_BuyLimit_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(numerical.Decimal), args[3].(numerical.Decimal))
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName), args[2].(numerical.Decimal), args[3].(numerical.Decimal))
 	})
 	return _c
 }
@@ -169,13 +169,13 @@ func (_c *SignalBuilder_BuyLimit_Call) Return(_a0 strategy.SignalBuilder) *Signa
 	return _c
 }
 
-func (_c *SignalBuilder_BuyLimit_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, numerical.Decimal, numerical.Decimal) strategy.SignalBuilder) *SignalBuilder_BuyLimit_Call {
+func (_c *SignalBuilder_BuyLimit_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName, numerical.Decimal, numerical.Decimal) strategy.SignalBuilder) *SignalBuilder_BuyLimit_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Sell provides a mock function with given fields: asset, exchange, quantity
-func (_m *SignalBuilder) Sell(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
+func (_m *SignalBuilder) Sell(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
 	ret := _m.Called(asset, exchange, quantity)
 
 	if len(ret) == 0 {
@@ -183,7 +183,7 @@ func (_m *SignalBuilder) Sell(asset portfolio.Asset, exchange connector.Exchange
 	}
 
 	var r0 strategy.SignalBuilder
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName, numerical.Decimal) strategy.SignalBuilder); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.ExchangeName, numerical.Decimal) strategy.SignalBuilder); ok {
 		r0 = rf(asset, exchange, quantity)
 	} else {
 		if ret.Get(0) != nil {
@@ -200,16 +200,16 @@ type SignalBuilder_Sell_Call struct {
 }
 
 // Sell is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - exchange connector.ExchangeName
 //   - quantity numerical.Decimal
 func (_e *SignalBuilder_Expecter) Sell(asset interface{}, exchange interface{}, quantity interface{}) *SignalBuilder_Sell_Call {
 	return &SignalBuilder_Sell_Call{Call: _e.mock.On("Sell", asset, exchange, quantity)}
 }
 
-func (_c *SignalBuilder_Sell_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal)) *SignalBuilder_Sell_Call {
+func (_c *SignalBuilder_Sell_Call) Run(run func(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal)) *SignalBuilder_Sell_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(numerical.Decimal))
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName), args[2].(numerical.Decimal))
 	})
 	return _c
 }
@@ -219,13 +219,13 @@ func (_c *SignalBuilder_Sell_Call) Return(_a0 strategy.SignalBuilder) *SignalBui
 	return _c
 }
 
-func (_c *SignalBuilder_Sell_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, numerical.Decimal) strategy.SignalBuilder) *SignalBuilder_Sell_Call {
+func (_c *SignalBuilder_Sell_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName, numerical.Decimal) strategy.SignalBuilder) *SignalBuilder_Sell_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SellLimit provides a mock function with given fields: asset, exchange, quantity, price
-func (_m *SignalBuilder) SellLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal, price numerical.Decimal) strategy.SignalBuilder {
+func (_m *SignalBuilder) SellLimit(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal, price numerical.Decimal) strategy.SignalBuilder {
 	ret := _m.Called(asset, exchange, quantity, price)
 
 	if len(ret) == 0 {
@@ -233,7 +233,7 @@ func (_m *SignalBuilder) SellLimit(asset portfolio.Asset, exchange connector.Exc
 	}
 
 	var r0 strategy.SignalBuilder
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName, numerical.Decimal, numerical.Decimal) strategy.SignalBuilder); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.ExchangeName, numerical.Decimal, numerical.Decimal) strategy.SignalBuilder); ok {
 		r0 = rf(asset, exchange, quantity, price)
 	} else {
 		if ret.Get(0) != nil {
@@ -250,7 +250,7 @@ type SignalBuilder_SellLimit_Call struct {
 }
 
 // SellLimit is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - exchange connector.ExchangeName
 //   - quantity numerical.Decimal
 //   - price numerical.Decimal
@@ -258,9 +258,9 @@ func (_e *SignalBuilder_Expecter) SellLimit(asset interface{}, exchange interfac
 	return &SignalBuilder_SellLimit_Call{Call: _e.mock.On("SellLimit", asset, exchange, quantity, price)}
 }
 
-func (_c *SignalBuilder_SellLimit_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal, price numerical.Decimal)) *SignalBuilder_SellLimit_Call {
+func (_c *SignalBuilder_SellLimit_Call) Run(run func(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal, price numerical.Decimal)) *SignalBuilder_SellLimit_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(numerical.Decimal), args[3].(numerical.Decimal))
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName), args[2].(numerical.Decimal), args[3].(numerical.Decimal))
 	})
 	return _c
 }
@@ -270,13 +270,13 @@ func (_c *SignalBuilder_SellLimit_Call) Return(_a0 strategy.SignalBuilder) *Sign
 	return _c
 }
 
-func (_c *SignalBuilder_SellLimit_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, numerical.Decimal, numerical.Decimal) strategy.SignalBuilder) *SignalBuilder_SellLimit_Call {
+func (_c *SignalBuilder_SellLimit_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName, numerical.Decimal, numerical.Decimal) strategy.SignalBuilder) *SignalBuilder_SellLimit_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SellShort provides a mock function with given fields: asset, exchange, quantity
-func (_m *SignalBuilder) SellShort(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
+func (_m *SignalBuilder) SellShort(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
 	ret := _m.Called(asset, exchange, quantity)
 
 	if len(ret) == 0 {
@@ -284,7 +284,7 @@ func (_m *SignalBuilder) SellShort(asset portfolio.Asset, exchange connector.Exc
 	}
 
 	var r0 strategy.SignalBuilder
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName, numerical.Decimal) strategy.SignalBuilder); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.ExchangeName, numerical.Decimal) strategy.SignalBuilder); ok {
 		r0 = rf(asset, exchange, quantity)
 	} else {
 		if ret.Get(0) != nil {
@@ -301,16 +301,16 @@ type SignalBuilder_SellShort_Call struct {
 }
 
 // SellShort is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - exchange connector.ExchangeName
 //   - quantity numerical.Decimal
 func (_e *SignalBuilder_Expecter) SellShort(asset interface{}, exchange interface{}, quantity interface{}) *SignalBuilder_SellShort_Call {
 	return &SignalBuilder_SellShort_Call{Call: _e.mock.On("SellShort", asset, exchange, quantity)}
 }
 
-func (_c *SignalBuilder_SellShort_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal)) *SignalBuilder_SellShort_Call {
+func (_c *SignalBuilder_SellShort_Call) Run(run func(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal)) *SignalBuilder_SellShort_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(numerical.Decimal))
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName), args[2].(numerical.Decimal))
 	})
 	return _c
 }
@@ -320,13 +320,13 @@ func (_c *SignalBuilder_SellShort_Call) Return(_a0 strategy.SignalBuilder) *Sign
 	return _c
 }
 
-func (_c *SignalBuilder_SellShort_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, numerical.Decimal) strategy.SignalBuilder) *SignalBuilder_SellShort_Call {
+func (_c *SignalBuilder_SellShort_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName, numerical.Decimal) strategy.SignalBuilder) *SignalBuilder_SellShort_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SellShortLimit provides a mock function with given fields: asset, exchange, quantity, price
-func (_m *SignalBuilder) SellShortLimit(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal, price numerical.Decimal) strategy.SignalBuilder {
+func (_m *SignalBuilder) SellShortLimit(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal, price numerical.Decimal) strategy.SignalBuilder {
 	ret := _m.Called(asset, exchange, quantity, price)
 
 	if len(ret) == 0 {
@@ -334,7 +334,7 @@ func (_m *SignalBuilder) SellShortLimit(asset portfolio.Asset, exchange connecto
 	}
 
 	var r0 strategy.SignalBuilder
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName, numerical.Decimal, numerical.Decimal) strategy.SignalBuilder); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.ExchangeName, numerical.Decimal, numerical.Decimal) strategy.SignalBuilder); ok {
 		r0 = rf(asset, exchange, quantity, price)
 	} else {
 		if ret.Get(0) != nil {
@@ -351,7 +351,7 @@ type SignalBuilder_SellShortLimit_Call struct {
 }
 
 // SellShortLimit is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - exchange connector.ExchangeName
 //   - quantity numerical.Decimal
 //   - price numerical.Decimal
@@ -359,9 +359,9 @@ func (_e *SignalBuilder_Expecter) SellShortLimit(asset interface{}, exchange int
 	return &SignalBuilder_SellShortLimit_Call{Call: _e.mock.On("SellShortLimit", asset, exchange, quantity, price)}
 }
 
-func (_c *SignalBuilder_SellShortLimit_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, quantity numerical.Decimal, price numerical.Decimal)) *SignalBuilder_SellShortLimit_Call {
+func (_c *SignalBuilder_SellShortLimit_Call) Run(run func(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal, price numerical.Decimal)) *SignalBuilder_SellShortLimit_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(numerical.Decimal), args[3].(numerical.Decimal))
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName), args[2].(numerical.Decimal), args[3].(numerical.Decimal))
 	})
 	return _c
 }
@@ -371,7 +371,7 @@ func (_c *SignalBuilder_SellShortLimit_Call) Return(_a0 strategy.SignalBuilder) 
 	return _c
 }
 
-func (_c *SignalBuilder_SellShortLimit_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, numerical.Decimal, numerical.Decimal) strategy.SignalBuilder) *SignalBuilder_SellShortLimit_Call {
+func (_c *SignalBuilder_SellShortLimit_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName, numerical.Decimal, numerical.Decimal) strategy.SignalBuilder) *SignalBuilder_SellShortLimit_Call {
 	_c.Call.Return(run)
 	return _c
 }

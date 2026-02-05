@@ -22,9 +22,9 @@ func (_m *MarketDataReader) EXPECT() *MarketDataReader_Expecter {
 	return &MarketDataReader_Expecter{mock: &_m.Mock}
 }
 
-// FetchKlines provides a mock function with given fields: symbol, interval, limit
-func (_m *MarketDataReader) FetchKlines(symbol string, interval string, limit int) ([]connector.Kline, error) {
-	ret := _m.Called(symbol, interval, limit)
+// FetchKlines provides a mock function with given fields: pair, interval, limit
+func (_m *MarketDataReader) FetchKlines(pair portfolio.Pair, interval string, limit int) ([]connector.Kline, error) {
+	ret := _m.Called(pair, interval, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchKlines")
@@ -32,19 +32,19 @@ func (_m *MarketDataReader) FetchKlines(symbol string, interval string, limit in
 
 	var r0 []connector.Kline
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, int) ([]connector.Kline, error)); ok {
-		return rf(symbol, interval, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string, int) ([]connector.Kline, error)); ok {
+		return rf(pair, interval, limit)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, int) []connector.Kline); ok {
-		r0 = rf(symbol, interval, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string, int) []connector.Kline); ok {
+		r0 = rf(pair, interval, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Kline)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, int) error); ok {
-		r1 = rf(symbol, interval, limit)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, string, int) error); ok {
+		r1 = rf(pair, interval, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -58,16 +58,16 @@ type MarketDataReader_FetchKlines_Call struct {
 }
 
 // FetchKlines is a helper method to define mock.On call
-//   - symbol string
+//   - pair portfolio.Pair
 //   - interval string
 //   - limit int
-func (_e *MarketDataReader_Expecter) FetchKlines(symbol interface{}, interval interface{}, limit interface{}) *MarketDataReader_FetchKlines_Call {
-	return &MarketDataReader_FetchKlines_Call{Call: _e.mock.On("FetchKlines", symbol, interval, limit)}
+func (_e *MarketDataReader_Expecter) FetchKlines(pair interface{}, interval interface{}, limit interface{}) *MarketDataReader_FetchKlines_Call {
+	return &MarketDataReader_FetchKlines_Call{Call: _e.mock.On("FetchKlines", pair, interval, limit)}
 }
 
-func (_c *MarketDataReader_FetchKlines_Call) Run(run func(symbol string, interval string, limit int)) *MarketDataReader_FetchKlines_Call {
+func (_c *MarketDataReader_FetchKlines_Call) Run(run func(pair portfolio.Pair, interval string, limit int)) *MarketDataReader_FetchKlines_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(int))
+		run(args[0].(portfolio.Pair), args[1].(string), args[2].(int))
 	})
 	return _c
 }
@@ -77,14 +77,14 @@ func (_c *MarketDataReader_FetchKlines_Call) Return(_a0 []connector.Kline, _a1 e
 	return _c
 }
 
-func (_c *MarketDataReader_FetchKlines_Call) RunAndReturn(run func(string, string, int) ([]connector.Kline, error)) *MarketDataReader_FetchKlines_Call {
+func (_c *MarketDataReader_FetchKlines_Call) RunAndReturn(run func(portfolio.Pair, string, int) ([]connector.Kline, error)) *MarketDataReader_FetchKlines_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// FetchOrderBook provides a mock function with given fields: symbol, depth
-func (_m *MarketDataReader) FetchOrderBook(symbol portfolio.Asset, depth int) (*connector.OrderBook, error) {
-	ret := _m.Called(symbol, depth)
+// FetchOrderBook provides a mock function with given fields: pair, depth
+func (_m *MarketDataReader) FetchOrderBook(pair portfolio.Pair, depth int) (*connector.OrderBook, error) {
+	ret := _m.Called(pair, depth)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchOrderBook")
@@ -92,19 +92,19 @@ func (_m *MarketDataReader) FetchOrderBook(symbol portfolio.Asset, depth int) (*
 
 	var r0 *connector.OrderBook
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int) (*connector.OrderBook, error)); ok {
-		return rf(symbol, depth)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) (*connector.OrderBook, error)); ok {
+		return rf(pair, depth)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int) *connector.OrderBook); ok {
-		r0 = rf(symbol, depth)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) *connector.OrderBook); ok {
+		r0 = rf(pair, depth)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.OrderBook)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int) error); ok {
-		r1 = rf(symbol, depth)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, int) error); ok {
+		r1 = rf(pair, depth)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -118,15 +118,15 @@ type MarketDataReader_FetchOrderBook_Call struct {
 }
 
 // FetchOrderBook is a helper method to define mock.On call
-//   - symbol portfolio.Asset
+//   - pair portfolio.Pair
 //   - depth int
-func (_e *MarketDataReader_Expecter) FetchOrderBook(symbol interface{}, depth interface{}) *MarketDataReader_FetchOrderBook_Call {
-	return &MarketDataReader_FetchOrderBook_Call{Call: _e.mock.On("FetchOrderBook", symbol, depth)}
+func (_e *MarketDataReader_Expecter) FetchOrderBook(pair interface{}, depth interface{}) *MarketDataReader_FetchOrderBook_Call {
+	return &MarketDataReader_FetchOrderBook_Call{Call: _e.mock.On("FetchOrderBook", pair, depth)}
 }
 
-func (_c *MarketDataReader_FetchOrderBook_Call) Run(run func(symbol portfolio.Asset, depth int)) *MarketDataReader_FetchOrderBook_Call {
+func (_c *MarketDataReader_FetchOrderBook_Call) Run(run func(pair portfolio.Pair, depth int)) *MarketDataReader_FetchOrderBook_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(int))
+		run(args[0].(portfolio.Pair), args[1].(int))
 	})
 	return _c
 }
@@ -136,14 +136,14 @@ func (_c *MarketDataReader_FetchOrderBook_Call) Return(_a0 *connector.OrderBook,
 	return _c
 }
 
-func (_c *MarketDataReader_FetchOrderBook_Call) RunAndReturn(run func(portfolio.Asset, int) (*connector.OrderBook, error)) *MarketDataReader_FetchOrderBook_Call {
+func (_c *MarketDataReader_FetchOrderBook_Call) RunAndReturn(run func(portfolio.Pair, int) (*connector.OrderBook, error)) *MarketDataReader_FetchOrderBook_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// FetchPrice provides a mock function with given fields: symbol
-func (_m *MarketDataReader) FetchPrice(symbol string) (*connector.Price, error) {
-	ret := _m.Called(symbol)
+// FetchPrice provides a mock function with given fields: pair
+func (_m *MarketDataReader) FetchPrice(pair portfolio.Pair) (*connector.Price, error) {
+	ret := _m.Called(pair)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchPrice")
@@ -151,19 +151,19 @@ func (_m *MarketDataReader) FetchPrice(symbol string) (*connector.Price, error) 
 
 	var r0 *connector.Price
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*connector.Price, error)); ok {
-		return rf(symbol)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) (*connector.Price, error)); ok {
+		return rf(pair)
 	}
-	if rf, ok := ret.Get(0).(func(string) *connector.Price); ok {
-		r0 = rf(symbol)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) *connector.Price); ok {
+		r0 = rf(pair)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.Price)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(symbol)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
+		r1 = rf(pair)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -177,14 +177,14 @@ type MarketDataReader_FetchPrice_Call struct {
 }
 
 // FetchPrice is a helper method to define mock.On call
-//   - symbol string
-func (_e *MarketDataReader_Expecter) FetchPrice(symbol interface{}) *MarketDataReader_FetchPrice_Call {
-	return &MarketDataReader_FetchPrice_Call{Call: _e.mock.On("FetchPrice", symbol)}
+//   - pair portfolio.Pair
+func (_e *MarketDataReader_Expecter) FetchPrice(pair interface{}) *MarketDataReader_FetchPrice_Call {
+	return &MarketDataReader_FetchPrice_Call{Call: _e.mock.On("FetchPrice", pair)}
 }
 
-func (_c *MarketDataReader_FetchPrice_Call) Run(run func(symbol string)) *MarketDataReader_FetchPrice_Call {
+func (_c *MarketDataReader_FetchPrice_Call) Run(run func(pair portfolio.Pair)) *MarketDataReader_FetchPrice_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -194,14 +194,14 @@ func (_c *MarketDataReader_FetchPrice_Call) Return(_a0 *connector.Price, _a1 err
 	return _c
 }
 
-func (_c *MarketDataReader_FetchPrice_Call) RunAndReturn(run func(string) (*connector.Price, error)) *MarketDataReader_FetchPrice_Call {
+func (_c *MarketDataReader_FetchPrice_Call) RunAndReturn(run func(portfolio.Pair) (*connector.Price, error)) *MarketDataReader_FetchPrice_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// FetchRecentTrades provides a mock function with given fields: symbol, limit
-func (_m *MarketDataReader) FetchRecentTrades(symbol string, limit int) ([]connector.Trade, error) {
-	ret := _m.Called(symbol, limit)
+// FetchRecentTrades provides a mock function with given fields: pair, limit
+func (_m *MarketDataReader) FetchRecentTrades(pair portfolio.Pair, limit int) ([]connector.Trade, error) {
+	ret := _m.Called(pair, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchRecentTrades")
@@ -209,19 +209,19 @@ func (_m *MarketDataReader) FetchRecentTrades(symbol string, limit int) ([]conne
 
 	var r0 []connector.Trade
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, int) ([]connector.Trade, error)); ok {
-		return rf(symbol, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) ([]connector.Trade, error)); ok {
+		return rf(pair, limit)
 	}
-	if rf, ok := ret.Get(0).(func(string, int) []connector.Trade); ok {
-		r0 = rf(symbol, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) []connector.Trade); ok {
+		r0 = rf(pair, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Trade)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, int) error); ok {
-		r1 = rf(symbol, limit)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, int) error); ok {
+		r1 = rf(pair, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -235,15 +235,15 @@ type MarketDataReader_FetchRecentTrades_Call struct {
 }
 
 // FetchRecentTrades is a helper method to define mock.On call
-//   - symbol string
+//   - pair portfolio.Pair
 //   - limit int
-func (_e *MarketDataReader_Expecter) FetchRecentTrades(symbol interface{}, limit interface{}) *MarketDataReader_FetchRecentTrades_Call {
-	return &MarketDataReader_FetchRecentTrades_Call{Call: _e.mock.On("FetchRecentTrades", symbol, limit)}
+func (_e *MarketDataReader_Expecter) FetchRecentTrades(pair interface{}, limit interface{}) *MarketDataReader_FetchRecentTrades_Call {
+	return &MarketDataReader_FetchRecentTrades_Call{Call: _e.mock.On("FetchRecentTrades", pair, limit)}
 }
 
-func (_c *MarketDataReader_FetchRecentTrades_Call) Run(run func(symbol string, limit int)) *MarketDataReader_FetchRecentTrades_Call {
+func (_c *MarketDataReader_FetchRecentTrades_Call) Run(run func(pair portfolio.Pair, limit int)) *MarketDataReader_FetchRecentTrades_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(int))
+		run(args[0].(portfolio.Pair), args[1].(int))
 	})
 	return _c
 }
@@ -253,7 +253,7 @@ func (_c *MarketDataReader_FetchRecentTrades_Call) Return(_a0 []connector.Trade,
 	return _c
 }
 
-func (_c *MarketDataReader_FetchRecentTrades_Call) RunAndReturn(run func(string, int) ([]connector.Trade, error)) *MarketDataReader_FetchRecentTrades_Call {
+func (_c *MarketDataReader_FetchRecentTrades_Call) RunAndReturn(run func(portfolio.Pair, int) ([]connector.Trade, error)) *MarketDataReader_FetchRecentTrades_Call {
 	_c.Call.Return(run)
 	return _c
 }

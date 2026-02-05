@@ -8,7 +8,7 @@ import (
 // Info provides metadata about the exchange's capabilities and limits.
 type Info struct {
 	Name                ExchangeName      `json:"name"`
-	SupportedSymbols    []portfolio.Asset `json:"supported_symbols,omitempty"`
+	SupportedSymbols    []portfolio.Pair  `json:"supported_symbols,omitempty"`
 	TradingEnabled      bool              `json:"trading_enabled"`
 	WebSocketEnabled    bool              `json:"websocket_enabled"`
 	MaxLeverage         numerical.Decimal `json:"max_leverage,omitempty"`

@@ -9,13 +9,13 @@ import (
 )
 
 type Indicators interface {
-	ATR(ctx context.Context, asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
-	SMA(ctx context.Context, asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
-	EMA(ctx context.Context, asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
-	RSI(ctx context.Context, asset portfolio.Asset, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
-	MACD(ctx context.Context, asset portfolio.Asset, fastPeriod, slowPeriod, signalPeriod int, opts ...IndicatorOptions) (*MACDResult, error)
-	BollingerBands(ctx context.Context, asset portfolio.Asset, period int, stdDev float64, opts ...IndicatorOptions) (*BollingerBandsResult, error)
-	Stochastic(ctx context.Context, asset portfolio.Asset, kPeriod, dPeriod int, opts ...IndicatorOptions) (*StochasticResult, error)
+	ATR(ctx context.Context, asset portfolio.Pair, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
+	SMA(ctx context.Context, asset portfolio.Pair, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
+	EMA(ctx context.Context, asset portfolio.Pair, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
+	RSI(ctx context.Context, asset portfolio.Pair, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
+	MACD(ctx context.Context, asset portfolio.Pair, fastPeriod, slowPeriod, signalPeriod int, opts ...IndicatorOptions) (*MACDResult, error)
+	BollingerBands(ctx context.Context, asset portfolio.Pair, period int, stdDev float64, opts ...IndicatorOptions) (*BollingerBandsResult, error)
+	Stochastic(ctx context.Context, asset portfolio.Pair, kPeriod, dPeriod int, opts ...IndicatorOptions) (*StochasticResult, error)
 }
 
 // IndicatorOptions configures indicator calculations.

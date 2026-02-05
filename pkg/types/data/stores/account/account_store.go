@@ -11,11 +11,10 @@ import (
 // Used by both spot and perp - balances are exchange-level, not instrument-level
 type AccountStore interface {
 	// Balance per exchange
-	UpdateBalance(exchange connector.ExchangeName, balance connector.AccountBalance)
-	GetBalance(exchange connector.ExchangeName) *connector.AccountBalance
-	GetAllBalances() map[connector.ExchangeName]connector.AccountBalance
+	UpdateBalance(exchange connector.ExchangeName, balance connector.AssetBalance)
+	GetBalance(exchange connector.ExchangeName) *connector.AssetBalance
+	GetAllBalances() map[connector.ExchangeName]connector.AssetBalance
 
-	// Margin info (primarily for perp exchanges, but can apply to margin spot)
 	UpdateMarginInfo(exchange connector.ExchangeName, margin MarginInfo)
 	GetMarginInfo(exchange connector.ExchangeName) *MarginInfo
 	GetAllMarginInfo() map[connector.ExchangeName]MarginInfo

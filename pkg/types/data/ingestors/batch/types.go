@@ -23,5 +23,5 @@ type BatchIngestor interface {
 
 // CollectionExtension allows market-specific data collection (funding rates, interest rates, etc.)
 type CollectionExtension interface {
-	Collect(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Asset)
+	Collect(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Pair)
 }

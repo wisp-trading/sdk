@@ -25,6 +25,15 @@ var _ = Describe("PNL", func() {
 		positionStore  storeActivity.Positions
 		tradesStore    storeActivity.Trades
 		marketRegistry marketTypes.MarketRegistry
+		btc            = portfolio.NewPair(
+			portfolio.NewAsset("BTC"),
+			portfolio.NewAsset("USDT"),
+		)
+
+		eth = portfolio.NewPair(
+			portfolio.NewAsset("ETH"),
+			portfolio.NewAsset("USDT"),
+		)
 	)
 
 	BeforeEach(func() {
@@ -46,10 +55,10 @@ var _ = Describe("PNL", func() {
 		app.RequireStop()
 	})
 
-	// Helper to set asset price in spot market
-	setAssetPrice := func(asset portfolio.Asset, price float64) {
+	// Helper to set pair price in spot market
+	setAssetPrice := func(asset portfolio.Pair, price float64) {
 		spotStore := marketRegistry.Get(marketTypes.MarketTypeSpot)
-		spotStore.UpdateAssetPrice(asset, "binance", connector.Price{
+		spotStore.UpdatePairPrice(asset, "binance", connector.Price{
 			Price:     numerical.NewFromFloat(price),
 			Timestamp: time.Now(),
 		})
@@ -61,9 +70,9 @@ var _ = Describe("PNL", func() {
 			ctx := strategy.NewStrategyContext(context.Background(), strategyName)
 
 			// Add trades to position store
-			positionStore.AddTradeToStrategy(strategyName, connector.Trade{ID: "t1", Symbol: "BTC", Fee: numerical.NewFromFloat(10)})
-			positionStore.AddTradeToStrategy(strategyName, connector.Trade{ID: "t2", Symbol: "BTC", Fee: numerical.NewFromFloat(15)})
-			positionStore.AddTradeToStrategy(strategyName, connector.Trade{ID: "t3", Symbol: "ETH", Fee: numerical.NewFromFloat(5)})
+			positionStore.AddTradeToStrategy(strategyName, connector.Trade{ID: "t1", Pair: btc, Fee: numerical.NewFromFloat(10)})
+			positionStore.AddTradeToStrategy(strategyName, connector.Trade{ID: "t2", Pair: btc, Fee: numerical.NewFromFloat(15)})
+			positionStore.AddTradeToStrategy(strategyName, connector.Trade{ID: "t3", Pair: eth, Fee: numerical.NewFromFloat(5)})
 
 			result := pnl.GetFeesByStrategy(ctx, strategyName)
 
@@ -353,12 +362,15 @@ var _ = Describe("PNL", func() {
 				strategyName := strategy.StrategyName("test-strategy")
 				ctx := strategy.NewStrategyContext(context.Background(), strategyName)
 
-				btc := portfolio.NewAsset("BTC")
+				btc := portfolio.NewPair(
+					portfolio.NewAsset("BTC"),
+					portfolio.NewAsset("USDT"),
+				)
 
 				// Buy 1 BTC at 50000, current price 55000
 				positionStore.AddTradeToStrategy(strategyName, connector.Trade{
 					ID:       "t1",
-					Symbol:   "BTC",
+					Pair:     btc,
 					Side:     connector.OrderSideBuy,
 					Quantity: numerical.NewFromFloat(1),
 					Price:    numerical.NewFromFloat(50000),
@@ -377,12 +389,14 @@ var _ = Describe("PNL", func() {
 				strategyName := strategy.StrategyName("test-strategy")
 				ctx := strategy.NewStrategyContext(context.Background(), strategyName)
 
-				btc := portfolio.NewAsset("BTC")
-
+				btc := portfolio.NewPair(
+					portfolio.NewAsset("BTC"),
+					portfolio.NewAsset("USDT"),
+				)
 				// Buy 1 BTC at 50000, current price 45000
 				positionStore.AddTradeToStrategy(strategyName, connector.Trade{
 					ID:       "t1",
-					Symbol:   "BTC",
+					Pair:     btc,
 					Side:     connector.OrderSideBuy,
 					Quantity: numerical.NewFromFloat(1),
 					Price:    numerical.NewFromFloat(50000),
@@ -403,12 +417,15 @@ var _ = Describe("PNL", func() {
 				strategyName := strategy.StrategyName("test-strategy")
 				ctx := strategy.NewStrategyContext(context.Background(), strategyName)
 
-				btc := portfolio.NewAsset("BTC")
+				btc := portfolio.NewPair(
+					portfolio.NewAsset("BTC"),
+					portfolio.NewAsset("USDT"),
+				)
 
 				// Sell 1 BTC at 50000, current price 45000
 				positionStore.AddTradeToStrategy(strategyName, connector.Trade{
 					ID:       "t1",
-					Symbol:   "BTC",
+					Pair:     btc,
 					Side:     connector.OrderSideSell,
 					Quantity: numerical.NewFromFloat(1),
 					Price:    numerical.NewFromFloat(50000),
@@ -459,13 +476,16 @@ var _ = Describe("PNL", func() {
 				strategyName := strategy.StrategyName("test-strategy")
 				ctx := strategy.NewStrategyContext(context.Background(), strategyName)
 
-				btc := portfolio.NewAsset("BTC")
+				btc := portfolio.NewPair(
+					portfolio.NewAsset("BTC"),
+					portfolio.NewAsset("USDT"),
+				)
 
 				// Buy 1 BTC at 50000, sell 2 BTC at 55000 (now short 1 at 55000)
 				// Current price 60000 - short is losing 5000
 				positionStore.AddTradeToStrategy(strategyName, connector.Trade{
 					ID:       "t1",
-					Symbol:   "BTC",
+					Pair:     btc,
 					Side:     connector.OrderSideBuy,
 					Quantity: numerical.NewFromFloat(1),
 					Price:    numerical.NewFromFloat(50000),
@@ -473,7 +493,7 @@ var _ = Describe("PNL", func() {
 				})
 				positionStore.AddTradeToStrategy(strategyName, connector.Trade{
 					ID:       "t2",
-					Symbol:   "BTC",
+					Pair:     btc,
 					Side:     connector.OrderSideSell,
 					Quantity: numerical.NewFromFloat(2),
 					Price:    numerical.NewFromFloat(55000),
@@ -493,13 +513,16 @@ var _ = Describe("PNL", func() {
 				strategyName := strategy.StrategyName("test-strategy")
 				ctx := strategy.NewStrategyContext(context.Background(), strategyName)
 
-				btc := portfolio.NewAsset("BTC")
+				btc := portfolio.NewPair(
+					portfolio.NewAsset("BTC"),
+					portfolio.NewAsset("USDT"),
+				)
 
 				// Sell 1 BTC at 50000, buy 2 BTC at 45000 (now long 1 at 45000)
 				// Current price 50000 - long is gaining 5000
 				positionStore.AddTradeToStrategy(strategyName, connector.Trade{
 					ID:       "t1",
-					Symbol:   "BTC",
+					Pair:     btc,
 					Side:     connector.OrderSideSell,
 					Quantity: numerical.NewFromFloat(1),
 					Price:    numerical.NewFromFloat(50000),
@@ -507,7 +530,7 @@ var _ = Describe("PNL", func() {
 				})
 				positionStore.AddTradeToStrategy(strategyName, connector.Trade{
 					ID:       "t2",
-					Symbol:   "BTC",
+					Pair:     btc,
 					Side:     connector.OrderSideBuy,
 					Quantity: numerical.NewFromFloat(2),
 					Price:    numerical.NewFromFloat(45000),
@@ -528,15 +551,43 @@ var _ = Describe("PNL", func() {
 	Describe("GetTotalPNL", func() {
 		It("should sum realized and unrealized PNL", func() {
 			ctx := strategy.NewStrategyContext(context.Background(), "")
-			btc := portfolio.NewAsset("BTC")
-			eth := portfolio.NewAsset("ETH")
+			btc := portfolio.NewPair(
+				portfolio.NewAsset("BTC"),
+				portfolio.NewAsset("USDT"),
+			)
 
+			eth := portfolio.NewPair(
+				portfolio.NewAsset("ETH"),
+				portfolio.NewAsset("USDT"),
+			)
 			// Closed BTC trade: profit of 5000
-			tradesStore.AddTrade(connector.Trade{ID: "t1", Symbol: "BTC", Side: connector.OrderSideBuy, Quantity: numerical.NewFromFloat(1), Price: numerical.NewFromFloat(50000), Fee: numerical.Zero()})
-			tradesStore.AddTrade(connector.Trade{ID: "t2", Symbol: "BTC", Side: connector.OrderSideSell, Quantity: numerical.NewFromFloat(1), Price: numerical.NewFromFloat(55000), Fee: numerical.Zero()})
+			tradesStore.AddTrade(connector.Trade{
+				ID:       "t1",
+				Pair:     btc,
+				Side:     connector.OrderSideBuy,
+				Quantity: numerical.NewFromFloat(1),
+				Price:    numerical.NewFromFloat(50000),
+				Fee:      numerical.Zero(),
+			})
+
+			tradesStore.AddTrade(connector.Trade{
+				ID:       "t2",
+				Pair:     btc,
+				Side:     connector.OrderSideSell,
+				Quantity: numerical.NewFromFloat(1),
+				Price:    numerical.NewFromFloat(55000),
+				Fee:      numerical.Zero(),
+			})
 
 			// Open ETH position
-			tradesStore.AddTrade(connector.Trade{ID: "t3", Symbol: "ETH", Side: connector.OrderSideBuy, Quantity: numerical.NewFromFloat(10), Price: numerical.NewFromFloat(3000), Fee: numerical.Zero()})
+			tradesStore.AddTrade(connector.Trade{
+				ID:       "t3",
+				Pair:     eth,
+				Side:     connector.OrderSideBuy,
+				Quantity: numerical.NewFromFloat(10),
+				Price:    numerical.NewFromFloat(3000),
+				Fee:      numerical.Zero(),
+			})
 
 			// Set prices
 			setAssetPrice(btc, 55000)

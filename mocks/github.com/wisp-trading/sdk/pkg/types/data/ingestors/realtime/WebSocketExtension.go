@@ -61,7 +61,7 @@ func (_c *WebSocketExtension_ProcessChannels_Call) RunAndReturn(run func(interfa
 }
 
 // Subscribe provides a mock function with given fields: wsConn, exchangeName, assets
-func (_m *WebSocketExtension) Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Asset) error {
+func (_m *WebSocketExtension) Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Pair) error {
 	ret := _m.Called(wsConn, exchangeName, assets)
 
 	if len(ret) == 0 {
@@ -69,7 +69,7 @@ func (_m *WebSocketExtension) Subscribe(wsConn interface{}, exchangeName connect
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(interface{}, connector.ExchangeName, []portfolio.Asset) error); ok {
+	if rf, ok := ret.Get(0).(func(interface{}, connector.ExchangeName, []portfolio.Pair) error); ok {
 		r0 = rf(wsConn, exchangeName, assets)
 	} else {
 		r0 = ret.Error(0)
@@ -86,14 +86,14 @@ type WebSocketExtension_Subscribe_Call struct {
 // Subscribe is a helper method to define mock.On call
 //   - wsConn interface{}
 //   - exchangeName connector.ExchangeName
-//   - assets []portfolio.Asset
+//   - assets []portfolio.Pair
 func (_e *WebSocketExtension_Expecter) Subscribe(wsConn interface{}, exchangeName interface{}, assets interface{}) *WebSocketExtension_Subscribe_Call {
 	return &WebSocketExtension_Subscribe_Call{Call: _e.mock.On("Subscribe", wsConn, exchangeName, assets)}
 }
 
-func (_c *WebSocketExtension_Subscribe_Call) Run(run func(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Asset)) *WebSocketExtension_Subscribe_Call {
+func (_c *WebSocketExtension_Subscribe_Call) Run(run func(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Pair)) *WebSocketExtension_Subscribe_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(interface{}), args[1].(connector.ExchangeName), args[2].([]portfolio.Asset))
+		run(args[0].(interface{}), args[1].(connector.ExchangeName), args[2].([]portfolio.Pair))
 	})
 	return _c
 }
@@ -103,7 +103,7 @@ func (_c *WebSocketExtension_Subscribe_Call) Return(_a0 error) *WebSocketExtensi
 	return _c
 }
 
-func (_c *WebSocketExtension_Subscribe_Call) RunAndReturn(run func(interface{}, connector.ExchangeName, []portfolio.Asset) error) *WebSocketExtension_Subscribe_Call {
+func (_c *WebSocketExtension_Subscribe_Call) RunAndReturn(run func(interface{}, connector.ExchangeName, []portfolio.Pair) error) *WebSocketExtension_Subscribe_Call {
 	_c.Call.Return(run)
 	return _c
 }

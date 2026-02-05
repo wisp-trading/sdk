@@ -89,8 +89,8 @@ func (l *startupConfigLoader) LoadForStrategy(
 }
 
 // convertAssets converts strategy config assets to instrument map
-func (l *startupConfigLoader) convertAssets(stratConfig *config.Strategy) map[portfolio.Asset][]connector.Instrument {
-	instrumentMap := make(map[portfolio.Asset][]connector.Instrument)
+func (l *startupConfigLoader) convertAssets(stratConfig *config.Strategy) map[portfolio.Pair][]connector.Instrument {
+	instrumentMap := make(map[portfolio.Pair][]connector.Instrument)
 
 	for _, assets := range stratConfig.Assets {
 		for _, asset := range assets {
@@ -108,7 +108,11 @@ func (l *startupConfigLoader) convertAssets(stratConfig *config.Strategy) map[po
 			}
 
 			if len(instruments) > 0 {
-				instrumentMap[portfolio.NewAsset(asset.Symbol)] = instruments
+				pair := portfolio.NewPair(
+					portfolio.NewAsset(asset.Base),
+					portfolio.NewAsset(asset.Quote),
+				)
+				instrumentMap[pair] = instruments
 			}
 		}
 	}

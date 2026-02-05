@@ -12,8 +12,8 @@ import (
 )
 
 // Type aliases for funding rate storage
-type assetFundingRates map[portfolio.Asset]map[connector.ExchangeName]perp.FundingRate
-type assetHistoricalFunding map[portfolio.Asset]map[connector.ExchangeName][]perp.HistoricalFundingRate
+type assetFundingRates map[portfolio.Pair]map[connector.ExchangeName]perp.FundingRate
+type assetHistoricalFunding map[portfolio.Pair]map[connector.ExchangeName][]perp.HistoricalFundingRate
 
 // FundingRateExtension stores perp-specific funding rate data
 type FundingRateExtension struct {
@@ -55,7 +55,7 @@ func (f *FundingRateExtension) getHistoricalFundingRates() assetHistoricalFundin
 
 // UpdateFundingRate updates a funding rate for a specific asset and exchange
 func (f *FundingRateExtension) UpdateFundingRate(
-	asset portfolio.Asset,
+	asset portfolio.Pair,
 	exchange connector.ExchangeName,
 	rate perp.FundingRate,
 ) {
@@ -82,7 +82,7 @@ func (f *FundingRateExtension) UpdateFundingRate(
 // UpdateFundingRates updates multiple funding rates for a specific exchange
 func (f *FundingRateExtension) UpdateFundingRates(
 	exchange connector.ExchangeName,
-	rates map[portfolio.Asset]perp.FundingRate,
+	rates map[portfolio.Pair]perp.FundingRate,
 ) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -108,7 +108,7 @@ func (f *FundingRateExtension) UpdateFundingRates(
 
 // GetFundingRate retrieves a funding rate for a specific asset and exchange
 func (f *FundingRateExtension) GetFundingRate(
-	asset portfolio.Asset,
+	asset portfolio.Pair,
 	exchange connector.ExchangeName,
 ) *perp.FundingRate {
 	f.mu.RLock()
@@ -125,7 +125,7 @@ func (f *FundingRateExtension) GetFundingRate(
 
 // GetFundingRatesForAsset retrieves all funding rates for a specific asset
 func (f *FundingRateExtension) GetFundingRatesForAsset(
-	asset portfolio.Asset,
+	asset portfolio.Pair,
 ) map[connector.ExchangeName]perp.FundingRate {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
@@ -143,12 +143,12 @@ func (f *FundingRateExtension) GetFundingRatesForAsset(
 }
 
 // GetAllAssetsWithFundingRates returns all assets that have funding rates
-func (f *FundingRateExtension) GetAllAssetsWithFundingRates() []portfolio.Asset {
+func (f *FundingRateExtension) GetAllAssetsWithFundingRates() []portfolio.Pair {
 	f.mu.RLock()
 	defer f.mu.RUnlock()
 
 	rates := f.getFundingRates()
-	assets := make([]portfolio.Asset, 0, len(rates))
+	assets := make([]portfolio.Pair, 0, len(rates))
 	for asset := range rates {
 		assets = append(assets, asset)
 	}
@@ -157,7 +157,7 @@ func (f *FundingRateExtension) GetAllAssetsWithFundingRates() []portfolio.Asset 
 
 // UpdateHistoricalFundingRates updates historical funding rates
 func (f *FundingRateExtension) UpdateHistoricalFundingRates(
-	asset portfolio.Asset,
+	asset portfolio.Pair,
 	exchange connector.ExchangeName,
 	rates []perp.HistoricalFundingRate,
 ) {
@@ -183,7 +183,7 @@ func (f *FundingRateExtension) UpdateHistoricalFundingRates(
 
 // GetHistoricalFundingRates retrieves historical funding rates
 func (f *FundingRateExtension) GetHistoricalFundingRates(
-	asset portfolio.Asset,
+	asset portfolio.Pair,
 	exchange connector.ExchangeName,
 ) []perp.HistoricalFundingRate {
 	f.mu.RLock()
@@ -200,7 +200,7 @@ func (f *FundingRateExtension) GetHistoricalFundingRates(
 
 // GetHistoricalFundingRatesForAsset retrieves all historical funding rates for an asset
 func (f *FundingRateExtension) GetHistoricalFundingRatesForAsset(
-	asset portfolio.Asset,
+	asset portfolio.Pair,
 ) map[connector.ExchangeName][]perp.HistoricalFundingRate {
 	f.mu.RLock()
 	defer f.mu.RUnlock()

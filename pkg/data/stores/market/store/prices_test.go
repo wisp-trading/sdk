@@ -17,19 +17,26 @@ import (
 var _ = Describe("Market Data Store - Prices", func() {
 	var (
 		marketStore marketTypes.MarketStore
-		btc         portfolio.Asset
-		eth         portfolio.Asset
+		btc         portfolio.Pair
+		eth         portfolio.Pair
 		provider    temporal.TimeProvider
 	)
 
 	BeforeEach(func() {
 		provider = timeProvider.NewTimeProvider()
 		marketStore = store.NewStore(provider)
-		btc = portfolio.NewAsset("BTC")
-		eth = portfolio.NewAsset("ETH")
+		btc = portfolio.NewPair(
+			portfolio.NewAsset("BTC"),
+			portfolio.NewAsset("USD"),
+		)
+
+		eth = portfolio.NewPair(
+			portfolio.NewAsset("ETH"),
+			portfolio.NewAsset("USD"),
+		)
 	})
 
-	Describe("UpdateAssetPrice", func() {
+	Describe("UpdatePairPrice", func() {
 		Context("when adding a new price", func() {
 			It("should marketStore the price correctly", func() {
 				now := time.Now()
@@ -44,9 +51,9 @@ var _ = Describe("Market Data Store - Prices", func() {
 					Timestamp: now,
 				}
 
-				marketStore.UpdateAssetPrice(btc, "hyperliquid", price)
+				marketStore.UpdatePairPrice(btc, "hyperliquid", price)
 
-				retrieved := marketStore.GetAssetPrice(btc, "hyperliquid")
+				retrieved := marketStore.GetPairPrice(btc, "hyperliquid")
 				Expect(retrieved).NotTo(BeNil())
 				Expect(retrieved.Price).To(Equal(numerical.NewFromFloat(50000)))
 				Expect(retrieved.BidPrice).To(Equal(numerical.NewFromFloat(49990)))
@@ -72,11 +79,11 @@ var _ = Describe("Market Data Store - Prices", func() {
 					Timestamp: now,
 				}
 
-				marketStore.UpdateAssetPrice(btc, "hyperliquid", hyperPrice)
-				marketStore.UpdateAssetPrice(btc, "bybit", bybitPrice)
+				marketStore.UpdatePairPrice(btc, "hyperliquid", hyperPrice)
+				marketStore.UpdatePairPrice(btc, "bybit", bybitPrice)
 
-				hyperRetrieved := marketStore.GetAssetPrice(btc, "hyperliquid")
-				bybitRetrieved := marketStore.GetAssetPrice(btc, "bybit")
+				hyperRetrieved := marketStore.GetPairPrice(btc, "hyperliquid")
+				bybitRetrieved := marketStore.GetPairPrice(btc, "bybit")
 
 				Expect(hyperRetrieved).NotTo(BeNil())
 				Expect(bybitRetrieved).NotTo(BeNil())
@@ -99,11 +106,11 @@ var _ = Describe("Market Data Store - Prices", func() {
 					Timestamp: now,
 				}
 
-				marketStore.UpdateAssetPrice(btc, "hyperliquid", btcPrice)
-				marketStore.UpdateAssetPrice(eth, "hyperliquid", ethPrice)
+				marketStore.UpdatePairPrice(btc, "hyperliquid", btcPrice)
+				marketStore.UpdatePairPrice(eth, "hyperliquid", ethPrice)
 
-				btcRetrieved := marketStore.GetAssetPrice(btc, "hyperliquid")
-				ethRetrieved := marketStore.GetAssetPrice(eth, "hyperliquid")
+				btcRetrieved := marketStore.GetPairPrice(btc, "hyperliquid")
+				ethRetrieved := marketStore.GetPairPrice(eth, "hyperliquid")
 
 				Expect(btcRetrieved).NotTo(BeNil())
 				Expect(ethRetrieved).NotTo(BeNil())
@@ -120,7 +127,7 @@ var _ = Describe("Market Data Store - Prices", func() {
 					Timestamp: now,
 				}
 
-				marketStore.UpdateAssetPrice(btc, "hyperliquid", initialPrice)
+				marketStore.UpdatePairPrice(btc, "hyperliquid", initialPrice)
 
 				updatedPrice := connector.Price{
 					Symbol:    "BTC",
@@ -128,16 +135,16 @@ var _ = Describe("Market Data Store - Prices", func() {
 					Timestamp: now.Add(time.Minute),
 				}
 
-				marketStore.UpdateAssetPrice(btc, "hyperliquid", updatedPrice)
+				marketStore.UpdatePairPrice(btc, "hyperliquid", updatedPrice)
 
-				retrieved := marketStore.GetAssetPrice(btc, "hyperliquid")
+				retrieved := marketStore.GetPairPrice(btc, "hyperliquid")
 				Expect(retrieved).NotTo(BeNil())
 				Expect(retrieved.Price).To(Equal(numerical.NewFromFloat(51000)))
 			})
 		})
 	})
 
-	Describe("UpdateAssetPrices", func() {
+	Describe("UpdatePairPrices", func() {
 		Context("when adding prices for multiple exchanges at once", func() {
 			It("should marketStore all prices correctly", func() {
 				now := time.Now()
@@ -160,9 +167,9 @@ var _ = Describe("Market Data Store - Prices", func() {
 					},
 				}
 
-				marketStore.UpdateAssetPrices(btc, prices)
+				marketStore.UpdatePairPrices(btc, prices)
 
-				priceMap := marketStore.GetAssetPrices(btc)
+				priceMap := marketStore.GetPairPrices(btc)
 
 				Expect(priceMap).To(HaveLen(3))
 				Expect(priceMap["hyperliquid"].Price).To(Equal(numerical.NewFromFloat(50000)))
@@ -174,7 +181,7 @@ var _ = Describe("Market Data Store - Prices", func() {
 				now := time.Now()
 
 				// Add initial price
-				marketStore.UpdateAssetPrice(btc, "hyperliquid", connector.Price{
+				marketStore.UpdatePairPrice(btc, "hyperliquid", connector.Price{
 					Symbol:    "BTC",
 					Price:     numerical.NewFromFloat(50000),
 					Timestamp: now,
@@ -189,9 +196,9 @@ var _ = Describe("Market Data Store - Prices", func() {
 					},
 				}
 
-				marketStore.UpdateAssetPrices(btc, prices)
+				marketStore.UpdatePairPrices(btc, prices)
 
-				priceMap := marketStore.GetAssetPrices(btc)
+				priceMap := marketStore.GetPairPrices(btc)
 
 				Expect(priceMap).To(HaveLen(2))
 				Expect(priceMap["hyperliquid"].Price).To(Equal(numerical.NewFromFloat(50000)))
@@ -200,43 +207,46 @@ var _ = Describe("Market Data Store - Prices", func() {
 		})
 	})
 
-	Describe("GetAssetPrice", func() {
+	Describe("GetPairPrice", func() {
 		Context("when retrieving a specific price", func() {
 			It("should return nil for unknown asset", func() {
-				unknown := portfolio.NewAsset("UNKNOWN")
-				price := marketStore.GetAssetPrice(unknown, "hyperliquid")
+				unknown := portfolio.NewPair(
+					portfolio.NewAsset("UNKNOWN"),
+					portfolio.NewAsset("USD"),
+				)
+				price := marketStore.GetPairPrice(unknown, "hyperliquid")
 				Expect(price).To(BeNil())
 			})
 
 			It("should return nil for unknown exchange", func() {
-				marketStore.UpdateAssetPrice(btc, "hyperliquid", connector.Price{
+				marketStore.UpdatePairPrice(btc, "hyperliquid", connector.Price{
 					Symbol: "BTC",
 					Price:  numerical.NewFromFloat(50000),
 				})
 
-				price := marketStore.GetAssetPrice(btc, "unknown_exchange")
+				price := marketStore.GetPairPrice(btc, "unknown_exchange")
 				Expect(price).To(BeNil())
 			})
 		})
 	})
 
-	Describe("GetAssetPrices", func() {
+	Describe("GetPairPrices", func() {
 		Context("when retrieving all prices for an asset", func() {
 			It("should return prices from all exchanges", func() {
 				now := time.Now()
 
-				marketStore.UpdateAssetPrice(btc, "hyperliquid", connector.Price{
+				marketStore.UpdatePairPrice(btc, "hyperliquid", connector.Price{
 					Symbol:    "BTC",
 					Price:     numerical.NewFromFloat(50000),
 					Timestamp: now,
 				})
-				marketStore.UpdateAssetPrice(btc, "bybit", connector.Price{
+				marketStore.UpdatePairPrice(btc, "bybit", connector.Price{
 					Symbol:    "BTC",
 					Price:     numerical.NewFromFloat(50020),
 					Timestamp: now,
 				})
 
-				priceMap := marketStore.GetAssetPrices(btc)
+				priceMap := marketStore.GetPairPrices(btc)
 
 				Expect(priceMap).To(HaveLen(2))
 				Expect(priceMap["hyperliquid"].Price).To(Equal(numerical.NewFromFloat(50000)))
@@ -244,8 +254,11 @@ var _ = Describe("Market Data Store - Prices", func() {
 			})
 
 			It("should return empty map for unknown asset", func() {
-				unknown := portfolio.NewAsset("UNKNOWN")
-				priceMap := marketStore.GetAssetPrices(unknown)
+				unknown := portfolio.NewPair(
+					portfolio.NewAsset("UNKNOWN"),
+					portfolio.NewAsset("USD"),
+				)
+				priceMap := marketStore.GetPairPrices(unknown)
 				Expect(priceMap).To(BeEmpty())
 			})
 		})
@@ -263,9 +276,9 @@ var _ = Describe("Market Data Store - Prices", func() {
 					Timestamp: now,
 				}
 
-				marketStore.UpdateAssetPrice(btc, "hyperliquid", price)
+				marketStore.UpdatePairPrice(btc, "hyperliquid", price)
 
-				retrieved := marketStore.GetAssetPrice(btc, "hyperliquid")
+				retrieved := marketStore.GetPairPrice(btc, "hyperliquid")
 				Expect(retrieved).NotTo(BeNil())
 
 				// Spread should be 20 (50010 - 49990)
@@ -284,7 +297,7 @@ var _ = Describe("Market Data Store - Prices", func() {
 				// Writer 1 - updates BTC on hyperliquid
 				go func() {
 					for i := 0; i < iterations; i++ {
-						marketStore.UpdateAssetPrice(btc, "hyperliquid", connector.Price{
+						marketStore.UpdatePairPrice(btc, "hyperliquid", connector.Price{
 							Symbol: "BTC",
 							Price:  numerical.NewFromFloat(float64(50000 + i)),
 						})
@@ -295,7 +308,7 @@ var _ = Describe("Market Data Store - Prices", func() {
 				// Writer 2 - updates BTC on bybit
 				go func() {
 					for i := 0; i < iterations; i++ {
-						marketStore.UpdateAssetPrice(btc, "bybit", connector.Price{
+						marketStore.UpdatePairPrice(btc, "bybit", connector.Price{
 							Symbol: "BTC",
 							Price:  numerical.NewFromFloat(float64(50100 + i)),
 						})
@@ -306,8 +319,8 @@ var _ = Describe("Market Data Store - Prices", func() {
 				// Reader - reads prices continuously
 				go func() {
 					for i := 0; i < iterations; i++ {
-						_ = marketStore.GetAssetPrices(btc)
-						_ = marketStore.GetAssetPrice(btc, "hyperliquid")
+						_ = marketStore.GetPairPrices(btc)
+						_ = marketStore.GetPairPrice(btc, "hyperliquid")
 					}
 					done <- true
 				}()
@@ -318,7 +331,7 @@ var _ = Describe("Market Data Store - Prices", func() {
 				<-done
 
 				// Verify data is consistent
-				priceMap := marketStore.GetAssetPrices(btc)
+				priceMap := marketStore.GetPairPrices(btc)
 				Expect(priceMap).To(HaveLen(2))
 			})
 		})

@@ -102,10 +102,10 @@ func (e *executor) executeAction(signal *strategy.Signal, action strategy.TradeA
 	case strategy.ActionBuy, strategy.ActionSell, strategy.ActionSellShort, strategy.ActionCover:
 		return e.executeTradeAction(signal, action)
 	case strategy.ActionHold:
-		e.logger.Info("📊 Holding position as instructed for %s", action.Asset.Symbol())
+		e.logger.Info("📊 Holding position as instructed for %s", action.Pair.Symbol())
 		return "", nil
 	case strategy.ActionClose:
-		e.logger.Info("🔚 Close action noted for %s", action.Asset.Symbol())
+		e.logger.Info("🔚 Close action noted for %s", action.Pair.Symbol())
 		return "", nil
 	default:
 		e.logger.Warn("Unknown action type: %s for signal %s", action.Action, signal.ID)
@@ -125,7 +125,7 @@ func (e *executor) executeTradeAction(signal *strategy.Signal, action strategy.T
 		"📈 Executing %s order: %s %s at price %s on %s",
 		action.Action,
 		action.Quantity.StringFixed(4),
-		action.Asset.Symbol(),
+		action.Pair.Symbol(),
 		action.Price.StringFixed(2),
 		action.Exchange,
 	)
@@ -146,7 +146,7 @@ func (e *executor) executeTradeAction(signal *strategy.Signal, action strategy.T
 	// Create order record
 	order := connector.Order{
 		ID:        orderResponse.OrderID,
-		Symbol:    action.Asset.Symbol(),
+		Symbol:    action.Pair.Symbol(),
 		Side:      e.getOrderSide(action.Action),
 		Quantity:  action.Quantity,
 		Price:     action.Price,
@@ -167,9 +167,9 @@ func (e *executor) executeTradeAction(signal *strategy.Signal, action strategy.T
 func (e *executor) placeOrder(exchange connector.OrderExecutor, action strategy.TradeAction) (*connector.OrderResponse, error) {
 	switch action.Action {
 	case strategy.ActionBuy, strategy.ActionCover:
-		return exchange.PlaceLimitOrder(action.Asset.Symbol(), connector.OrderSideBuy, action.Quantity, action.Price)
+		return exchange.PlaceLimitOrder(action.Pair, connector.OrderSideBuy, action.Quantity, action.Price)
 	case strategy.ActionSell, strategy.ActionSellShort:
-		return exchange.PlaceLimitOrder(action.Asset.Symbol(), connector.OrderSideSell, action.Quantity, action.Price)
+		return exchange.PlaceLimitOrder(action.Pair, connector.OrderSideSell, action.Quantity, action.Price)
 	default:
 		return nil, fmt.Errorf("unsupported trade action: %s", action.Action)
 	}

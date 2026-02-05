@@ -48,7 +48,7 @@ func (s *marketService) Perp() analytics.PerpMarket {
 // Price returns the current price for an asset from any exchange (spot or perp).
 // If exchange is specified, returns price from that exchange.
 // Otherwise returns first available price.
-func (s *marketService) Price(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (numerical.Decimal, error) {
+func (s *marketService) Price(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (numerical.Decimal, error) {
 	var targetExchange connector.ExchangeName
 	if len(exchange) > 0 {
 		targetExchange = exchange[0]
@@ -56,7 +56,7 @@ func (s *marketService) Price(ctx context.Context, asset portfolio.Asset, exchan
 
 	// Iterate all registered market stores
 	for _, store := range s.registry.GetAll() {
-		prices := store.GetAssetPrices(asset)
+		prices := store.GetPairPrices(asset)
 
 		if targetExchange != "" {
 			if price, exists := prices[targetExchange]; exists {
@@ -77,12 +77,12 @@ func (s *marketService) Price(ctx context.Context, asset portfolio.Asset, exchan
 }
 
 // Prices returns prices for an asset across all exchanges (both spot and perp).
-func (s *marketService) Prices(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]numerical.Decimal {
+func (s *marketService) Prices(ctx context.Context, asset portfolio.Pair) map[connector.ExchangeName]numerical.Decimal {
 	result := make(map[connector.ExchangeName]numerical.Decimal)
 
 	// Iterate all registered market stores
 	for _, store := range s.registry.GetAll() {
-		prices := store.GetAssetPrices(asset)
+		prices := store.GetPairPrices(asset)
 		for exchange, price := range prices {
 			result[exchange] = price.Price
 		}
@@ -94,7 +94,7 @@ func (s *marketService) Prices(ctx context.Context, asset portfolio.Asset) map[c
 // GetKlines returns historical kline data for an asset on the specified exchange.
 // Automatically searches all registered market stores to find which one has this exchange.
 // The user doesn't need to know whether the exchange is spot, perp, futures, etc.
-func (s *marketService) Klines(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int) []connector.Kline {
+func (s *marketService) Klines(asset portfolio.Pair, exchange connector.ExchangeName, interval string, limit int) []connector.Kline {
 	// Iterate all registered stores to find which one has data for this exchange
 	for _, store := range s.registry.GetAll() {
 		klines := store.GetKlines(asset, exchange, interval, limit)
@@ -110,7 +110,7 @@ func (s *marketService) Klines(asset portfolio.Asset, exchange connector.Exchang
 // GetOrderBook returns the order book for an asset on the specified exchange.
 // Automatically searches all registered market stores to find which one has this exchange.
 // If no exchange is specified, returns the first available orderbook.
-func (s *marketService) OrderBook(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (*connector.OrderBook, error) {
+func (s *marketService) OrderBook(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (*connector.OrderBook, error) {
 	var targetExchange connector.ExchangeName
 	if len(exchange) > 0 {
 		targetExchange = exchange[0]
@@ -144,7 +144,7 @@ func (s *marketService) OrderBook(ctx context.Context, asset portfolio.Asset, ex
 // FindArbitrage finds arbitrage opportunities for an asset across exchanges.
 // Returns opportunities sorted by spread (highest first).
 // Searches all registered market types for arbitrage opportunities.
-func (s *marketService) FindArbitrage(ctx context.Context, asset portfolio.Asset, minSpreadBps numerical.Decimal) []analytics.ArbitrageOpportunity {
+func (s *marketService) FindArbitrage(ctx context.Context, asset portfolio.Pair, minSpreadBps numerical.Decimal) []analytics.ArbitrageOpportunity {
 	start := time.Now()
 	defer func() {
 		if profCtx := profiling.FromContext(ctx); profCtx != nil {
@@ -156,7 +156,7 @@ func (s *marketService) FindArbitrage(ctx context.Context, asset portfolio.Asset
 	priceMap := make(map[connector.ExchangeName]connector.Price)
 
 	for _, store := range s.registry.GetAll() {
-		prices := store.GetAssetPrices(asset)
+		prices := store.GetPairPrices(asset)
 		for exchange, price := range prices {
 			priceMap[exchange] = price
 		}

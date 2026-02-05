@@ -15,14 +15,14 @@ type UniverseProvider interface {
 }
 
 type universeProvider struct {
-	assetRegistry     registry.AssetRegistry
+	assetRegistry     registry.PairRegistry
 	connectorRegistry registry.ConnectorRegistry
 	cached            *wispTypes.Universe
 	mu                sync.Once
 }
 
 // NewUniverseProvider creates a new universe provider with caching
-func NewUniverseProvider(assetRegistry registry.AssetRegistry, connectorRegistry registry.ConnectorRegistry) UniverseProvider {
+func NewUniverseProvider(assetRegistry registry.PairRegistry, connectorRegistry registry.ConnectorRegistry) UniverseProvider {
 	return &universeProvider{
 		assetRegistry:     assetRegistry,
 		connectorRegistry: connectorRegistry,
@@ -41,8 +41,8 @@ func (up *universeProvider) Universe() wispTypes.Universe {
 		}
 
 		// Get assets with their instruments
-		assets := make(map[portfolio.Asset][]connector.Instrument)
-		requirements := up.assetRegistry.GetAssetRequirements()
+		assets := make(map[portfolio.Pair][]connector.Instrument)
+		requirements := up.assetRegistry.GetPairRequirements()
 		for _, req := range requirements {
 			assets[req.Asset] = req.Instruments
 		}
