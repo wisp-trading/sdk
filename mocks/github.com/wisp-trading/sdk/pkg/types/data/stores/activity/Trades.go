@@ -171,9 +171,9 @@ func (_c *Trades_GetAllTrades_Call) RunAndReturn(run func() []connector.Trade) *
 	return _c
 }
 
-// GetTotalVolume provides a mock function with given fields: asset
-func (_m *Trades) GetTotalVolume(asset portfolio.Pair) numerical.Decimal {
-	ret := _m.Called(asset)
+// GetTotalVolume provides a mock function with given fields: pair
+func (_m *Trades) GetTotalVolume(pair portfolio.Pair) numerical.Decimal {
+	ret := _m.Called(pair)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTotalVolume")
@@ -181,7 +181,7 @@ func (_m *Trades) GetTotalVolume(asset portfolio.Pair) numerical.Decimal {
 
 	var r0 numerical.Decimal
 	if rf, ok := ret.Get(0).(func(portfolio.Pair) numerical.Decimal); ok {
-		r0 = rf(asset)
+		r0 = rf(pair)
 	} else {
 		r0 = ret.Get(0).(numerical.Decimal)
 	}
@@ -195,12 +195,12 @@ type Trades_GetTotalVolume_Call struct {
 }
 
 // GetTotalVolume is a helper method to define mock.On call
-//   - asset portfolio.Pair
-func (_e *Trades_Expecter) GetTotalVolume(asset interface{}) *Trades_GetTotalVolume_Call {
-	return &Trades_GetTotalVolume_Call{Call: _e.mock.On("GetTotalVolume", asset)}
+//   - pair portfolio.Pair
+func (_e *Trades_Expecter) GetTotalVolume(pair interface{}) *Trades_GetTotalVolume_Call {
+	return &Trades_GetTotalVolume_Call{Call: _e.mock.On("GetTotalVolume", pair)}
 }
 
-func (_c *Trades_GetTotalVolume_Call) Run(run func(asset portfolio.Pair)) *Trades_GetTotalVolume_Call {
+func (_c *Trades_GetTotalVolume_Call) Run(run func(pair portfolio.Pair)) *Trades_GetTotalVolume_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(portfolio.Pair))
 	})

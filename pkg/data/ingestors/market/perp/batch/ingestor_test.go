@@ -39,9 +39,9 @@ var _ = Describe("Perp BatchIngestor", func() {
 		logger            logging.ApplicationLogger
 		timeProviderInst  temporal.TimeProvider
 		factory           batch.BatchIngestorFactory
-		base              = portfolio.NewAsset("USD")
-		btcPair           = portfolio.NewPair(base, portfolio.NewAsset("BTC"))
-		ethPair           = portfolio.NewPair(base, portfolio.NewAsset("ETH"))
+		quote             = portfolio.NewAsset("USD")
+		btcPair           = portfolio.NewPair(portfolio.NewAsset("BTC"), quote)
+		ethPair           = portfolio.NewPair(portfolio.NewAsset("ETH"), quote)
 	)
 
 	BeforeEach(func() {
@@ -104,13 +104,13 @@ var _ = Describe("Perp BatchIngestor", func() {
 					Source:    exchangeName,
 					Timestamp: now,
 				}
-				m.EXPECT().FetchPrice("BTC").Return(btcPrice, nil).Maybe()
-				m.EXPECT().FetchPrice("ETH").Return(ethPrice, nil).Maybe()
+				m.EXPECT().FetchPrice(btcPair).Return(btcPrice, nil).Maybe()
+				m.EXPECT().FetchPrice(ethPair).Return(ethPrice, nil).Maybe()
 
 				// Setup kline expectations for all intervals
 				intervals := []string{"1m", "5m", "15m", "1h", "4h", "1d"}
 				for _, interval := range intervals {
-					m.EXPECT().FetchKlines("BTC", interval, mock.Anything).Return([]connector.Kline{
+					m.EXPECT().FetchKlines(btcPair, interval, mock.Anything).Return([]connector.Kline{
 						{
 							Symbol:    "BTC",
 							Interval:  interval,
@@ -123,7 +123,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 							CloseTime: now,
 						},
 					}, nil).Maybe()
-					m.EXPECT().FetchKlines("ETH", interval, mock.Anything).Return([]connector.Kline{
+					m.EXPECT().FetchKlines(ethPair, interval, mock.Anything).Return([]connector.Kline{
 						{
 							Symbol:    "ETH",
 							Interval:  interval,
