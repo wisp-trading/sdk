@@ -21,6 +21,7 @@ type Price struct {
 
 // Kline represents candlestick data for a trading symbol.
 type Kline struct {
+	// Deprecated: Use Pair instead.
 	Symbol      string         `json:"symbol"`
 	Pair        portfolio.Pair `json:"pair"`
 	Interval    string         `json:"interval"`
