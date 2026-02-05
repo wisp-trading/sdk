@@ -23,7 +23,7 @@ func (_m *AccountReader) EXPECT() *AccountReader_Expecter {
 }
 
 // GetBalance provides a mock function with given fields: asset
-func (_m *AccountReader) GetBalance(asset portfolio.Pair) (*connector.AssetBalance, error) {
+func (_m *AccountReader) GetBalance(asset portfolio.Asset) (*connector.AssetBalance, error) {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -32,10 +32,10 @@ func (_m *AccountReader) GetBalance(asset portfolio.Pair) (*connector.AssetBalan
 
 	var r0 *connector.AssetBalance
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Pair) (*connector.AssetBalance, error)); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Asset) (*connector.AssetBalance, error)); ok {
 		return rf(asset)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Pair) *connector.AssetBalance); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Asset) *connector.AssetBalance); ok {
 		r0 = rf(asset)
 	} else {
 		if ret.Get(0) != nil {
@@ -43,7 +43,7 @@ func (_m *AccountReader) GetBalance(asset portfolio.Pair) (*connector.AssetBalan
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
+	if rf, ok := ret.Get(1).(func(portfolio.Asset) error); ok {
 		r1 = rf(asset)
 	} else {
 		r1 = ret.Error(1)
@@ -58,14 +58,14 @@ type AccountReader_GetBalance_Call struct {
 }
 
 // GetBalance is a helper method to define mock.On call
-//   - asset portfolio.Pair
+//   - asset portfolio.Asset
 func (_e *AccountReader_Expecter) GetBalance(asset interface{}) *AccountReader_GetBalance_Call {
 	return &AccountReader_GetBalance_Call{Call: _e.mock.On("GetBalance", asset)}
 }
 
-func (_c *AccountReader_GetBalance_Call) Run(run func(asset portfolio.Pair)) *AccountReader_GetBalance_Call {
+func (_c *AccountReader_GetBalance_Call) Run(run func(asset portfolio.Asset)) *AccountReader_GetBalance_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Pair))
+		run(args[0].(portfolio.Asset))
 	})
 	return _c
 }
@@ -75,7 +75,7 @@ func (_c *AccountReader_GetBalance_Call) Return(_a0 *connector.AssetBalance, _a1
 	return _c
 }
 
-func (_c *AccountReader_GetBalance_Call) RunAndReturn(run func(portfolio.Pair) (*connector.AssetBalance, error)) *AccountReader_GetBalance_Call {
+func (_c *AccountReader_GetBalance_Call) RunAndReturn(run func(portfolio.Asset) (*connector.AssetBalance, error)) *AccountReader_GetBalance_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -80,78 +80,97 @@ var _ = Describe("Trade Store - Queries", func() {
 		})
 	})
 
-	Describe("GetTradesByAsset", func() {
+	Describe("GetTradesByPair", func() {
 		BeforeEach(func() {
 			trades := []connector.Trade{
-				{ID: "t1", Symbol: "BTC", Exchange: "hyperliquid"},
-				{ID: "t2", Symbol: "BTC", Exchange: "bybit"},
-				{ID: "t3", Symbol: "ETH", Exchange: "hyperliquid"},
-				{ID: "t4", Symbol: "SOL", Exchange: "paradex"},
+				{ID: "t1", Symbol: "BTC-USDT", Exchange: "hyperliquid"},
+				{ID: "t2", Symbol: "BTC-USDT", Exchange: "bybit"},
+				{ID: "t3", Symbol: "ETH-USDT", Exchange: "hyperliquid"},
+				{ID: "t4", Symbol: "SOL-USDT", Exchange: "paradex"},
 			}
 			store.AddTrades(trades)
 		})
 
 		Context("when filtering by asset", func() {
 			It("should return trades for BTC", func() {
-				btc := portfolio.NewAsset("BTC")
-				trades := store.GetTradesByAsset(btc)
+				btc :=
+					portfolio.NewPair(
+						portfolio.NewAsset("BTC"),
+						portfolio.NewAsset("USDT"),
+					)
+				trades := store.GetTradesByPair(btc)
 
 				Expect(trades).To(HaveLen(2))
 				for _, t := range trades {
-					Expect(t.Symbol).To(Equal("BTC"))
+					Expect(t.Symbol).To(Equal("BTC-USDT"))
 				}
 			})
 
 			It("should return trades for ETH", func() {
-				eth := portfolio.NewAsset("ETH")
-				trades := store.GetTradesByAsset(eth)
+				eth := portfolio.NewPair(
+					portfolio.NewAsset("ETH"),
+					portfolio.NewAsset("USDT"),
+				)
+				trades := store.GetTradesByPair(eth)
 
 				Expect(trades).To(HaveLen(1))
 				Expect(trades[0].ID).To(Equal("t3"))
 			})
 
 			It("should return empty for unknown asset", func() {
-				unknown := portfolio.NewAsset("UNKNOWN")
-				trades := store.GetTradesByAsset(unknown)
+				unknown := portfolio.NewPair(
+					portfolio.NewAsset("UNKNOWN"),
+					portfolio.NewAsset("USDT"),
+				)
+				trades := store.GetTradesByPair(unknown)
 				Expect(trades).To(BeEmpty())
 			})
 		})
 	})
 
-	Describe("GetTradesByExchangeAndAsset", func() {
+	Describe("GetTradesByExchangeAndPair", func() {
 		BeforeEach(func() {
 			trades := []connector.Trade{
-				{ID: "t1", Symbol: "BTC", Exchange: "hyperliquid"},
-				{ID: "t2", Symbol: "BTC", Exchange: "bybit"},
-				{ID: "t3", Symbol: "ETH", Exchange: "hyperliquid"},
-				{ID: "t4", Symbol: "BTC", Exchange: "hyperliquid"},
+				{ID: "t1", Symbol: "BTC-USDT", Exchange: "hyperliquid"},
+				{ID: "t2", Symbol: "BTC-USDT", Exchange: "bybit"},
+				{ID: "t3", Symbol: "ETH-USDT", Exchange: "hyperliquid"},
+				{ID: "t4", Symbol: "BTC-USDT", Exchange: "hyperliquid"},
 			}
 			store.AddTrades(trades)
 		})
 
 		Context("when filtering by exchange and asset", func() {
 			It("should return BTC trades on hyperliquid", func() {
-				btc := portfolio.NewAsset("BTC")
-				trades := store.GetTradesByExchangeAndAsset("hyperliquid", btc)
+				btc := portfolio.NewPair(
+					portfolio.NewAsset("BTC"),
+					portfolio.NewAsset("USDT"),
+				)
+				trades := store.GetTradesByExchangeAndPair("hyperliquid", btc)
 
 				Expect(trades).To(HaveLen(2))
 				for _, t := range trades {
-					Expect(t.Symbol).To(Equal("BTC"))
+					Expect(t.Symbol).To(Equal("BTC-USDT"))
 					Expect(t.Exchange).To(Equal(connector.ExchangeName("hyperliquid")))
 				}
 			})
 
 			It("should return BTC trades on bybit", func() {
-				btc := portfolio.NewAsset("BTC")
-				trades := store.GetTradesByExchangeAndAsset("bybit", btc)
+				btc := portfolio.NewPair(
+					portfolio.NewAsset("BTC"),
+					portfolio.NewAsset("USDT"),
+				)
+				trades := store.GetTradesByExchangeAndPair("bybit", btc)
 
 				Expect(trades).To(HaveLen(1))
 				Expect(trades[0].ID).To(Equal("t2"))
 			})
 
 			It("should return empty for non-matching combination", func() {
-				eth := portfolio.NewAsset("ETH")
-				trades := store.GetTradesByExchangeAndAsset("bybit", eth)
+				eth := portfolio.NewPair(
+					portfolio.NewAsset("ETH"),
+					portfolio.NewAsset("USDT"),
+				)
+				trades := store.GetTradesByExchangeAndPair("bybit", eth)
 				Expect(trades).To(BeEmpty())
 			})
 		})
@@ -163,10 +182,10 @@ var _ = Describe("Trade Store - Queries", func() {
 		BeforeEach(func() {
 			baseTime = time.Now().Add(-time.Hour)
 			trades := []connector.Trade{
-				{ID: "t1", Symbol: "BTC", Timestamp: baseTime},
-				{ID: "t2", Symbol: "ETH", Timestamp: baseTime.Add(10 * time.Minute)},
-				{ID: "t3", Symbol: "SOL", Timestamp: baseTime.Add(30 * time.Minute)},
-				{ID: "t4", Symbol: "AVAX", Timestamp: baseTime.Add(50 * time.Minute)},
+				{ID: "t1", Symbol: "BTC-USDT", Timestamp: baseTime},
+				{ID: "t2", Symbol: "ETH-USDT", Timestamp: baseTime.Add(10 * time.Minute)},
+				{ID: "t3", Symbol: "SOL-USDT", Timestamp: baseTime.Add(30 * time.Minute)},
+				{ID: "t4", Symbol: "AVAX-USDT", Timestamp: baseTime.Add(50 * time.Minute)},
 			}
 			store.AddTrades(trades)
 		})
@@ -204,8 +223,8 @@ var _ = Describe("Trade Store - Queries", func() {
 	Describe("GetTradeByID", func() {
 		BeforeEach(func() {
 			store.AddTrades([]connector.Trade{
-				{ID: "t1", Symbol: "BTC", Price: numerical.NewFromFloat(50000)},
-				{ID: "t2", Symbol: "ETH", Price: numerical.NewFromFloat(3000)},
+				{ID: "t1", Symbol: "BTC-USDT", Price: numerical.NewFromFloat(50000)},
+				{ID: "t2", Symbol: "ETH-USDT", Price: numerical.NewFromFloat(3000)},
 			})
 		})
 
@@ -214,7 +233,7 @@ var _ = Describe("Trade Store - Queries", func() {
 				t := store.GetTradeByID("t1")
 
 				Expect(t).NotTo(BeNil())
-				Expect(t.Symbol).To(Equal("BTC"))
+				Expect(t.Symbol).To(Equal("BTC-USDT"))
 				Expect(t.Price.Equal(numerical.NewFromFloat(50000))).To(BeTrue())
 			})
 		})
@@ -268,17 +287,20 @@ var _ = Describe("Trade Store - Queries", func() {
 	Describe("GetTotalVolume", func() {
 		BeforeEach(func() {
 			trades := []connector.Trade{
-				{ID: "t1", Symbol: "BTC", Quantity: numerical.NewFromFloat(1.5)},
-				{ID: "t2", Symbol: "BTC", Quantity: numerical.NewFromFloat(2.0)},
-				{ID: "t3", Symbol: "ETH", Quantity: numerical.NewFromFloat(10.0)},
-				{ID: "t4", Symbol: "BTC", Quantity: numerical.NewFromFloat(0.5)},
+				{ID: "t1", Symbol: "BTC-USDT", Quantity: numerical.NewFromFloat(1.5)},
+				{ID: "t2", Symbol: "BTC-USDT", Quantity: numerical.NewFromFloat(2.0)},
+				{ID: "t3", Symbol: "ETH-USDT", Quantity: numerical.NewFromFloat(10.0)},
+				{ID: "t4", Symbol: "BTC-USDT", Quantity: numerical.NewFromFloat(0.5)},
 			}
 			store.AddTrades(trades)
 		})
 
 		Context("when calculating volume", func() {
 			It("should sum volume for BTC", func() {
-				btc := portfolio.NewAsset("BTC")
+				btc := portfolio.NewPair(
+					portfolio.NewAsset("BTC"),
+					portfolio.NewAsset("USDT"),
+				)
 				volume := store.GetTotalVolume(btc)
 
 				// 1.5 + 2.0 + 0.5 = 4.0
@@ -287,7 +309,10 @@ var _ = Describe("Trade Store - Queries", func() {
 			})
 
 			It("should sum volume for ETH", func() {
-				eth := portfolio.NewAsset("ETH")
+				eth := portfolio.NewPair(
+					portfolio.NewAsset("ETH"),
+					portfolio.NewAsset("USDT"),
+				)
 				volume := store.GetTotalVolume(eth)
 
 				expected := numerical.NewFromFloat(10.0)
@@ -295,7 +320,10 @@ var _ = Describe("Trade Store - Queries", func() {
 			})
 
 			It("should return 0 for unknown asset", func() {
-				unknown := portfolio.NewAsset("UNKNOWN")
+				unknown := portfolio.NewPair(
+					portfolio.NewAsset("UNKNOWN"),
+					portfolio.NewAsset("USDT"),
+				)
 				volume := store.GetTotalVolume(unknown)
 
 				Expect(volume.IsZero()).To(BeTrue())
@@ -308,16 +336,19 @@ var _ = Describe("Trade Store - Queries", func() {
 			It("should allow complex filtering", func() {
 				now := time.Now()
 				trades := []connector.Trade{
-					{ID: "t1", Symbol: "BTC", Exchange: "hyperliquid", Quantity: numerical.NewFromFloat(1.0), Timestamp: now.Add(-2 * time.Hour)},
-					{ID: "t2", Symbol: "BTC", Exchange: "hyperliquid", Quantity: numerical.NewFromFloat(2.0), Timestamp: now.Add(-1 * time.Hour)},
-					{ID: "t3", Symbol: "BTC", Exchange: "bybit", Quantity: numerical.NewFromFloat(3.0), Timestamp: now.Add(-30 * time.Minute)},
-					{ID: "t4", Symbol: "ETH", Exchange: "hyperliquid", Quantity: numerical.NewFromFloat(5.0), Timestamp: now},
+					{ID: "t1", Symbol: "BTC-USDT", Exchange: "hyperliquid", Quantity: numerical.NewFromFloat(1.0), Timestamp: now.Add(-2 * time.Hour)},
+					{ID: "t2", Symbol: "BTC-USDT", Exchange: "hyperliquid", Quantity: numerical.NewFromFloat(2.0), Timestamp: now.Add(-1 * time.Hour)},
+					{ID: "t3", Symbol: "BTC-USDT", Exchange: "bybit", Quantity: numerical.NewFromFloat(3.0), Timestamp: now.Add(-30 * time.Minute)},
+					{ID: "t4", Symbol: "ETH-USDT", Exchange: "hyperliquid", Quantity: numerical.NewFromFloat(5.0), Timestamp: now},
 				}
 				store.AddTrades(trades)
 
 				// Get BTC trades on hyperliquid
-				btc := portfolio.NewAsset("BTC")
-				btcOnHyper := store.GetTradesByExchangeAndAsset("hyperliquid", btc)
+				btc := portfolio.NewPair(
+					portfolio.NewAsset("BTC"),
+					portfolio.NewAsset("USDT"),
+				)
+				btcOnHyper := store.GetTradesByExchangeAndPair("hyperliquid", btc)
 				Expect(btcOnHyper).To(HaveLen(2))
 
 				// Get recent trades (last hour)

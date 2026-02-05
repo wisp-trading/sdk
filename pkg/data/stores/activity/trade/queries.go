@@ -28,7 +28,7 @@ func (ds *dataStore) GetTradesByExchange(exchange connector.ExchangeName) []conn
 }
 
 // GetTradesByAsset retrieves trades for a specific asset
-func (ds *dataStore) GetTradesByAsset(asset portfolio.Pair) []connector.Trade {
+func (ds *dataStore) GetTradesByPair(asset portfolio.Pair) []connector.Trade {
 	trades := ds.getTrades()
 	result := make([]connector.Trade, 0)
 
@@ -42,12 +42,12 @@ func (ds *dataStore) GetTradesByAsset(asset portfolio.Pair) []connector.Trade {
 }
 
 // GetTradesByExchangeAndAsset retrieves trades for a specific exchange and asset
-func (ds *dataStore) GetTradesByExchangeAndAsset(exchange connector.ExchangeName, asset portfolio.Pair) []connector.Trade {
+func (ds *dataStore) GetTradesByExchangeAndPair(exchange connector.ExchangeName, pair portfolio.Pair) []connector.Trade {
 	trades := ds.getTrades()
 	result := make([]connector.Trade, 0)
 
 	for _, trade := range trades {
-		if trade.Exchange == exchange && trade.Symbol == asset.Symbol() {
+		if trade.Exchange == exchange && trade.Symbol == pair.Symbol() {
 			result = append(result, trade)
 		}
 	}

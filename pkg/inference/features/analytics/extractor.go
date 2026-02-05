@@ -137,7 +137,7 @@ func (e *Extractor) Extract(ctx context.Context, asset portfolio.Pair, featureMa
 
 // getTradesInWindow retrieves trades for an asset within a time window
 func (e *Extractor) getTradesInWindow(asset portfolio.Pair, start, end time.Time) []connector.Trade {
-	allTrades := e.trades.GetTradesByAsset(asset)
+	allTrades := e.trades.GetTradesByPair(asset)
 
 	var filtered []connector.Trade
 	for _, trade := range allTrades {

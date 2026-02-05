@@ -98,8 +98,14 @@ func (_c *OrderExecutor_CancelOrder_Call) RunAndReturn(run func(string, ...portf
 }
 
 // GetOpenOrders provides a mock function with given fields: pair
-func (_m *OrderExecutor) GetOpenOrders(pair portfolio.Pair) ([]connector.Order, error) {
-	ret := _m.Called(pair)
+func (_m *OrderExecutor) GetOpenOrders(pair ...portfolio.Pair) ([]connector.Order, error) {
+	_va := make([]interface{}, len(pair))
+	for _i := range pair {
+		_va[_i] = pair[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOpenOrders")
@@ -107,19 +113,19 @@ func (_m *OrderExecutor) GetOpenOrders(pair portfolio.Pair) ([]connector.Order, 
 
 	var r0 []connector.Order
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Pair) ([]connector.Order, error)); ok {
-		return rf(pair)
+	if rf, ok := ret.Get(0).(func(...portfolio.Pair) ([]connector.Order, error)); ok {
+		return rf(pair...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Pair) []connector.Order); ok {
-		r0 = rf(pair)
+	if rf, ok := ret.Get(0).(func(...portfolio.Pair) []connector.Order); ok {
+		r0 = rf(pair...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Order)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
-		r1 = rf(pair)
+	if rf, ok := ret.Get(1).(func(...portfolio.Pair) error); ok {
+		r1 = rf(pair...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -133,14 +139,21 @@ type OrderExecutor_GetOpenOrders_Call struct {
 }
 
 // GetOpenOrders is a helper method to define mock.On call
-//   - pair portfolio.Pair
-func (_e *OrderExecutor_Expecter) GetOpenOrders(pair interface{}) *OrderExecutor_GetOpenOrders_Call {
-	return &OrderExecutor_GetOpenOrders_Call{Call: _e.mock.On("GetOpenOrders", pair)}
+//   - pair ...portfolio.Pair
+func (_e *OrderExecutor_Expecter) GetOpenOrders(pair ...interface{}) *OrderExecutor_GetOpenOrders_Call {
+	return &OrderExecutor_GetOpenOrders_Call{Call: _e.mock.On("GetOpenOrders",
+		append([]interface{}{}, pair...)...)}
 }
 
-func (_c *OrderExecutor_GetOpenOrders_Call) Run(run func(pair portfolio.Pair)) *OrderExecutor_GetOpenOrders_Call {
+func (_c *OrderExecutor_GetOpenOrders_Call) Run(run func(pair ...portfolio.Pair)) *OrderExecutor_GetOpenOrders_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Pair))
+		variadicArgs := make([]portfolio.Pair, len(args)-0)
+		for i, a := range args[0:] {
+			if a != nil {
+				variadicArgs[i] = a.(portfolio.Pair)
+			}
+		}
+		run(variadicArgs...)
 	})
 	return _c
 }
@@ -150,14 +163,21 @@ func (_c *OrderExecutor_GetOpenOrders_Call) Return(_a0 []connector.Order, _a1 er
 	return _c
 }
 
-func (_c *OrderExecutor_GetOpenOrders_Call) RunAndReturn(run func(portfolio.Pair) ([]connector.Order, error)) *OrderExecutor_GetOpenOrders_Call {
+func (_c *OrderExecutor_GetOpenOrders_Call) RunAndReturn(run func(...portfolio.Pair) ([]connector.Order, error)) *OrderExecutor_GetOpenOrders_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetOrderStatus provides a mock function with given fields: pair, orderID
-func (_m *OrderExecutor) GetOrderStatus(pair portfolio.Pair, orderID string) (*connector.Order, error) {
-	ret := _m.Called(pair, orderID)
+// GetOrderStatus provides a mock function with given fields: orderID, pair
+func (_m *OrderExecutor) GetOrderStatus(orderID string, pair ...portfolio.Pair) (*connector.Order, error) {
+	_va := make([]interface{}, len(pair))
+	for _i := range pair {
+		_va[_i] = pair[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, orderID)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOrderStatus")
@@ -165,19 +185,19 @@ func (_m *OrderExecutor) GetOrderStatus(pair portfolio.Pair, orderID string) (*c
 
 	var r0 *connector.Order
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Pair, string) (*connector.Order, error)); ok {
-		return rf(pair, orderID)
+	if rf, ok := ret.Get(0).(func(string, ...portfolio.Pair) (*connector.Order, error)); ok {
+		return rf(orderID, pair...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Pair, string) *connector.Order); ok {
-		r0 = rf(pair, orderID)
+	if rf, ok := ret.Get(0).(func(string, ...portfolio.Pair) *connector.Order); ok {
+		r0 = rf(orderID, pair...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.Order)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Pair, string) error); ok {
-		r1 = rf(pair, orderID)
+	if rf, ok := ret.Get(1).(func(string, ...portfolio.Pair) error); ok {
+		r1 = rf(orderID, pair...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -191,15 +211,22 @@ type OrderExecutor_GetOrderStatus_Call struct {
 }
 
 // GetOrderStatus is a helper method to define mock.On call
-//   - pair portfolio.Pair
 //   - orderID string
-func (_e *OrderExecutor_Expecter) GetOrderStatus(pair interface{}, orderID interface{}) *OrderExecutor_GetOrderStatus_Call {
-	return &OrderExecutor_GetOrderStatus_Call{Call: _e.mock.On("GetOrderStatus", pair, orderID)}
+//   - pair ...portfolio.Pair
+func (_e *OrderExecutor_Expecter) GetOrderStatus(orderID interface{}, pair ...interface{}) *OrderExecutor_GetOrderStatus_Call {
+	return &OrderExecutor_GetOrderStatus_Call{Call: _e.mock.On("GetOrderStatus",
+		append([]interface{}{orderID}, pair...)...)}
 }
 
-func (_c *OrderExecutor_GetOrderStatus_Call) Run(run func(pair portfolio.Pair, orderID string)) *OrderExecutor_GetOrderStatus_Call {
+func (_c *OrderExecutor_GetOrderStatus_Call) Run(run func(orderID string, pair ...portfolio.Pair)) *OrderExecutor_GetOrderStatus_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Pair), args[1].(string))
+		variadicArgs := make([]portfolio.Pair, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(portfolio.Pair)
+			}
+		}
+		run(args[0].(string), variadicArgs...)
 	})
 	return _c
 }
@@ -209,7 +236,7 @@ func (_c *OrderExecutor_GetOrderStatus_Call) Return(_a0 *connector.Order, _a1 er
 	return _c
 }
 
-func (_c *OrderExecutor_GetOrderStatus_Call) RunAndReturn(run func(portfolio.Pair, string) (*connector.Order, error)) *OrderExecutor_GetOrderStatus_Call {
+func (_c *OrderExecutor_GetOrderStatus_Call) RunAndReturn(run func(string, ...portfolio.Pair) (*connector.Order, error)) *OrderExecutor_GetOrderStatus_Call {
 	_c.Call.Return(run)
 	return _c
 }

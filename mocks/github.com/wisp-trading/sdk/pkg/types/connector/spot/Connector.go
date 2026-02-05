@@ -334,7 +334,7 @@ func (_c *Connector_FetchRecentTrades_Call) RunAndReturn(run func(portfolio.Pair
 }
 
 // GetBalance provides a mock function with given fields: asset
-func (_m *Connector) GetBalance(asset portfolio.Pair) (*connector.AssetBalance, error) {
+func (_m *Connector) GetBalance(asset portfolio.Asset) (*connector.AssetBalance, error) {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -343,10 +343,10 @@ func (_m *Connector) GetBalance(asset portfolio.Pair) (*connector.AssetBalance, 
 
 	var r0 *connector.AssetBalance
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Pair) (*connector.AssetBalance, error)); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Asset) (*connector.AssetBalance, error)); ok {
 		return rf(asset)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Pair) *connector.AssetBalance); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Asset) *connector.AssetBalance); ok {
 		r0 = rf(asset)
 	} else {
 		if ret.Get(0) != nil {
@@ -354,7 +354,7 @@ func (_m *Connector) GetBalance(asset portfolio.Pair) (*connector.AssetBalance, 
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
+	if rf, ok := ret.Get(1).(func(portfolio.Asset) error); ok {
 		r1 = rf(asset)
 	} else {
 		r1 = ret.Error(1)
@@ -369,14 +369,14 @@ type Connector_GetBalance_Call struct {
 }
 
 // GetBalance is a helper method to define mock.On call
-//   - asset portfolio.Pair
+//   - asset portfolio.Asset
 func (_e *Connector_Expecter) GetBalance(asset interface{}) *Connector_GetBalance_Call {
 	return &Connector_GetBalance_Call{Call: _e.mock.On("GetBalance", asset)}
 }
 
-func (_c *Connector_GetBalance_Call) Run(run func(asset portfolio.Pair)) *Connector_GetBalance_Call {
+func (_c *Connector_GetBalance_Call) Run(run func(asset portfolio.Asset)) *Connector_GetBalance_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Pair))
+		run(args[0].(portfolio.Asset))
 	})
 	return _c
 }
@@ -386,7 +386,7 @@ func (_c *Connector_GetBalance_Call) Return(_a0 *connector.AssetBalance, _a1 err
 	return _c
 }
 
-func (_c *Connector_GetBalance_Call) RunAndReturn(run func(portfolio.Pair) (*connector.AssetBalance, error)) *Connector_GetBalance_Call {
+func (_c *Connector_GetBalance_Call) RunAndReturn(run func(portfolio.Asset) (*connector.AssetBalance, error)) *Connector_GetBalance_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -496,8 +496,14 @@ func (_c *Connector_GetConnectorInfo_Call) RunAndReturn(run func() *connector.In
 }
 
 // GetOpenOrders provides a mock function with given fields: pair
-func (_m *Connector) GetOpenOrders(pair portfolio.Pair) ([]connector.Order, error) {
-	ret := _m.Called(pair)
+func (_m *Connector) GetOpenOrders(pair ...portfolio.Pair) ([]connector.Order, error) {
+	_va := make([]interface{}, len(pair))
+	for _i := range pair {
+		_va[_i] = pair[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOpenOrders")
@@ -505,19 +511,19 @@ func (_m *Connector) GetOpenOrders(pair portfolio.Pair) ([]connector.Order, erro
 
 	var r0 []connector.Order
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Pair) ([]connector.Order, error)); ok {
-		return rf(pair)
+	if rf, ok := ret.Get(0).(func(...portfolio.Pair) ([]connector.Order, error)); ok {
+		return rf(pair...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Pair) []connector.Order); ok {
-		r0 = rf(pair)
+	if rf, ok := ret.Get(0).(func(...portfolio.Pair) []connector.Order); ok {
+		r0 = rf(pair...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Order)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
-		r1 = rf(pair)
+	if rf, ok := ret.Get(1).(func(...portfolio.Pair) error); ok {
+		r1 = rf(pair...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -531,14 +537,21 @@ type Connector_GetOpenOrders_Call struct {
 }
 
 // GetOpenOrders is a helper method to define mock.On call
-//   - pair portfolio.Pair
-func (_e *Connector_Expecter) GetOpenOrders(pair interface{}) *Connector_GetOpenOrders_Call {
-	return &Connector_GetOpenOrders_Call{Call: _e.mock.On("GetOpenOrders", pair)}
+//   - pair ...portfolio.Pair
+func (_e *Connector_Expecter) GetOpenOrders(pair ...interface{}) *Connector_GetOpenOrders_Call {
+	return &Connector_GetOpenOrders_Call{Call: _e.mock.On("GetOpenOrders",
+		append([]interface{}{}, pair...)...)}
 }
 
-func (_c *Connector_GetOpenOrders_Call) Run(run func(pair portfolio.Pair)) *Connector_GetOpenOrders_Call {
+func (_c *Connector_GetOpenOrders_Call) Run(run func(pair ...portfolio.Pair)) *Connector_GetOpenOrders_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Pair))
+		variadicArgs := make([]portfolio.Pair, len(args)-0)
+		for i, a := range args[0:] {
+			if a != nil {
+				variadicArgs[i] = a.(portfolio.Pair)
+			}
+		}
+		run(variadicArgs...)
 	})
 	return _c
 }
@@ -548,14 +561,21 @@ func (_c *Connector_GetOpenOrders_Call) Return(_a0 []connector.Order, _a1 error)
 	return _c
 }
 
-func (_c *Connector_GetOpenOrders_Call) RunAndReturn(run func(portfolio.Pair) ([]connector.Order, error)) *Connector_GetOpenOrders_Call {
+func (_c *Connector_GetOpenOrders_Call) RunAndReturn(run func(...portfolio.Pair) ([]connector.Order, error)) *Connector_GetOpenOrders_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetOrderStatus provides a mock function with given fields: pair, orderID
-func (_m *Connector) GetOrderStatus(pair portfolio.Pair, orderID string) (*connector.Order, error) {
-	ret := _m.Called(pair, orderID)
+// GetOrderStatus provides a mock function with given fields: orderID, pair
+func (_m *Connector) GetOrderStatus(orderID string, pair ...portfolio.Pair) (*connector.Order, error) {
+	_va := make([]interface{}, len(pair))
+	for _i := range pair {
+		_va[_i] = pair[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, orderID)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOrderStatus")
@@ -563,19 +583,19 @@ func (_m *Connector) GetOrderStatus(pair portfolio.Pair, orderID string) (*conne
 
 	var r0 *connector.Order
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Pair, string) (*connector.Order, error)); ok {
-		return rf(pair, orderID)
+	if rf, ok := ret.Get(0).(func(string, ...portfolio.Pair) (*connector.Order, error)); ok {
+		return rf(orderID, pair...)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Pair, string) *connector.Order); ok {
-		r0 = rf(pair, orderID)
+	if rf, ok := ret.Get(0).(func(string, ...portfolio.Pair) *connector.Order); ok {
+		r0 = rf(orderID, pair...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.Order)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Pair, string) error); ok {
-		r1 = rf(pair, orderID)
+	if rf, ok := ret.Get(1).(func(string, ...portfolio.Pair) error); ok {
+		r1 = rf(orderID, pair...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -589,15 +609,22 @@ type Connector_GetOrderStatus_Call struct {
 }
 
 // GetOrderStatus is a helper method to define mock.On call
-//   - pair portfolio.Pair
 //   - orderID string
-func (_e *Connector_Expecter) GetOrderStatus(pair interface{}, orderID interface{}) *Connector_GetOrderStatus_Call {
-	return &Connector_GetOrderStatus_Call{Call: _e.mock.On("GetOrderStatus", pair, orderID)}
+//   - pair ...portfolio.Pair
+func (_e *Connector_Expecter) GetOrderStatus(orderID interface{}, pair ...interface{}) *Connector_GetOrderStatus_Call {
+	return &Connector_GetOrderStatus_Call{Call: _e.mock.On("GetOrderStatus",
+		append([]interface{}{orderID}, pair...)...)}
 }
 
-func (_c *Connector_GetOrderStatus_Call) Run(run func(pair portfolio.Pair, orderID string)) *Connector_GetOrderStatus_Call {
+func (_c *Connector_GetOrderStatus_Call) Run(run func(orderID string, pair ...portfolio.Pair)) *Connector_GetOrderStatus_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Pair), args[1].(string))
+		variadicArgs := make([]portfolio.Pair, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(portfolio.Pair)
+			}
+		}
+		run(args[0].(string), variadicArgs...)
 	})
 	return _c
 }
@@ -607,7 +634,7 @@ func (_c *Connector_GetOrderStatus_Call) Return(_a0 *connector.Order, _a1 error)
 	return _c
 }
 
-func (_c *Connector_GetOrderStatus_Call) RunAndReturn(run func(portfolio.Pair, string) (*connector.Order, error)) *Connector_GetOrderStatus_Call {
+func (_c *Connector_GetOrderStatus_Call) RunAndReturn(run func(string, ...portfolio.Pair) (*connector.Order, error)) *Connector_GetOrderStatus_Call {
 	_c.Call.Return(run)
 	return _c
 }

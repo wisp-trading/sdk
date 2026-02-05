@@ -33,7 +33,7 @@ func (t *trades) GetTradesByExchange(ctx context.Context, exchange connector.Exc
 
 // GetTradesByAsset retrieves trades for a specific asset
 func (t *trades) GetTradesByAsset(ctx context.Context, asset portfolio.Pair) []connector.Trade {
-	return t.store.GetTradesByAsset(asset)
+	return t.store.GetTradesByPair(asset)
 }
 
 // GetTradesSince retrieves trades since a specific time

@@ -26,7 +26,7 @@ var _ = Describe("Trade Store - Add Trades", func() {
 				t := connector.Trade{
 					ID:        "trade-1",
 					OrderID:   "order-1",
-					Symbol:    "BTC",
+					Symbol:    "BTC-USDT",
 					Exchange:  "hyperliquid",
 					Price:     numerical.NewFromFloat(50000),
 					Quantity:  numerical.NewFromFloat(1.0),
@@ -41,7 +41,7 @@ var _ = Describe("Trade Store - Add Trades", func() {
 				Expect(store.GetTradeCount()).To(Equal(1))
 				retrieved := store.GetTradeByID("trade-1")
 				Expect(retrieved).NotTo(BeNil())
-				Expect(retrieved.Symbol).To(Equal("BTC"))
+				Expect(retrieved.Symbol).To(Equal("BTC-USDT"))
 				Expect(retrieved.Price.Equal(numerical.NewFromFloat(50000))).To(BeTrue())
 			})
 
@@ -49,7 +49,7 @@ var _ = Describe("Trade Store - Add Trades", func() {
 				for i := 1; i <= 5; i++ {
 					t := connector.Trade{
 						ID:       "trade-" + string(rune('0'+i)),
-						Symbol:   "BTC",
+						Symbol:   "BTC-USDT",
 						Exchange: "hyperliquid",
 					}
 					store.AddTrade(t)
@@ -61,7 +61,7 @@ var _ = Describe("Trade Store - Add Trades", func() {
 			It("should skip duplicate trades", func() {
 				t := connector.Trade{
 					ID:     "trade-1",
-					Symbol: "BTC",
+					Symbol: "BTC-USDT",
 				}
 
 				store.AddTrade(t)
@@ -73,9 +73,9 @@ var _ = Describe("Trade Store - Add Trades", func() {
 			It("should preserve insertion order", func() {
 				now := time.Now()
 				trades := []connector.Trade{
-					{ID: "t1", Symbol: "BTC", Timestamp: now},
-					{ID: "t2", Symbol: "ETH", Timestamp: now.Add(time.Second)},
-					{ID: "t3", Symbol: "SOL", Timestamp: now.Add(2 * time.Second)},
+					{ID: "t1", Symbol: "BTC-USDT", Timestamp: now},
+					{ID: "t2", Symbol: "ETH-USDT", Timestamp: now.Add(time.Second)},
+					{ID: "t3", Symbol: "SOL-USDT", Timestamp: now.Add(2 * time.Second)},
 				}
 
 				for _, t := range trades {
@@ -95,9 +95,9 @@ var _ = Describe("Trade Store - Add Trades", func() {
 		Context("when adding multiple trades at once", func() {
 			It("should store all trades correctly", func() {
 				trades := []connector.Trade{
-					{ID: "t1", Symbol: "BTC", Exchange: "hyperliquid"},
-					{ID: "t2", Symbol: "ETH", Exchange: "hyperliquid"},
-					{ID: "t3", Symbol: "SOL", Exchange: "bybit"},
+					{ID: "t1", Symbol: "BTC-USDT", Exchange: "hyperliquid"},
+					{ID: "t2", Symbol: "ETH-USDT", Exchange: "hyperliquid"},
+					{ID: "t3", Symbol: "SOL-USDT", Exchange: "bybit"},
 				}
 
 				store.AddTrades(trades)
@@ -110,12 +110,12 @@ var _ = Describe("Trade Store - Add Trades", func() {
 
 			It("should skip duplicate trades in batch against existing trades", func() {
 				// Add initial trade
-				store.AddTrade(connector.Trade{ID: "t1", Symbol: "BTC"})
+				store.AddTrade(connector.Trade{ID: "t1", Symbol: "BTC-USDT"})
 
 				// Add batch with duplicate of existing trade
 				trades := []connector.Trade{
-					{ID: "t1", Symbol: "BTC"}, // Duplicate of existing
-					{ID: "t2", Symbol: "ETH"},
+					{ID: "t1", Symbol: "BTC-USDT"}, // Duplicate of existing
+					{ID: "t2", Symbol: "ETH-USDT"},
 				}
 
 				store.AddTrades(trades)
@@ -130,13 +130,13 @@ var _ = Describe("Trade Store - Add Trades", func() {
 			})
 
 			It("should handle all duplicates", func() {
-				store.AddTrade(connector.Trade{ID: "t1", Symbol: "BTC"})
-				store.AddTrade(connector.Trade{ID: "t2", Symbol: "ETH"})
+				store.AddTrade(connector.Trade{ID: "t1", Symbol: "BTC-USDT"})
+				store.AddTrade(connector.Trade{ID: "t2", Symbol: "ETH-USDT"})
 
 				// Add batch with all existing trades
 				trades := []connector.Trade{
-					{ID: "t1", Symbol: "BTC"},
-					{ID: "t2", Symbol: "ETH"},
+					{ID: "t1", Symbol: "BTC-USDT"},
+					{ID: "t2", Symbol: "ETH-USDT"},
 				}
 
 				store.AddTrades(trades)
@@ -180,7 +180,7 @@ var _ = Describe("Trade Store - Add Trades", func() {
 					for i := 0; i < iterations; i++ {
 						store.AddTrade(connector.Trade{
 							ID:     "btc-" + string(rune(i)),
-							Symbol: "BTC",
+							Symbol: "BTC-USDT",
 						})
 					}
 					done <- true
@@ -191,7 +191,7 @@ var _ = Describe("Trade Store - Add Trades", func() {
 					for i := 0; i < iterations; i++ {
 						store.AddTrade(connector.Trade{
 							ID:     "eth-" + string(rune(i)),
-							Symbol: "ETH",
+							Symbol: "ETH-USDT",
 						})
 					}
 					done <- true

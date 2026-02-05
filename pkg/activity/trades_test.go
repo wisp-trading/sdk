@@ -93,7 +93,7 @@ var _ = Describe("Trades", func() {
 		})
 	})
 
-	Describe("GetTradesByAsset", func() {
+	Describe("GetTradesByPair", func() {
 		It("should filter trades by asset", func() {
 			ctx := context.Background()
 
