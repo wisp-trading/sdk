@@ -25,8 +25,15 @@ var _ = Describe("Market Data Store - Prices", func() {
 	BeforeEach(func() {
 		provider = timeProvider.NewTimeProvider()
 		marketStore = store.NewStore(provider)
-		btc = portfolio.NewAsset("BTC")
-		eth = portfolio.NewAsset("ETH")
+		btc = portfolio.NewPair(
+			portfolio.NewAsset("BTC"),
+			portfolio.NewAsset("USD"),
+		)
+
+		eth = portfolio.NewPair(
+			portfolio.NewAsset("ETH"),
+			portfolio.NewAsset("USD"),
+		)
 	})
 
 	Describe("UpdateAssetPrice", func() {
@@ -203,7 +210,10 @@ var _ = Describe("Market Data Store - Prices", func() {
 	Describe("GetAssetPrice", func() {
 		Context("when retrieving a specific price", func() {
 			It("should return nil for unknown asset", func() {
-				unknown := portfolio.NewAsset("UNKNOWN")
+				unknown := portfolio.NewPair(
+					portfolio.NewAsset("UNKNOWN"),
+					portfolio.NewAsset("USD"),
+				)
 				price := marketStore.GetAssetPrice(unknown, "hyperliquid")
 				Expect(price).To(BeNil())
 			})
@@ -244,7 +254,10 @@ var _ = Describe("Market Data Store - Prices", func() {
 			})
 
 			It("should return empty map for unknown asset", func() {
-				unknown := portfolio.NewAsset("UNKNOWN")
+				unknown := portfolio.NewPair(
+					portfolio.NewAsset("UNKNOWN"),
+					portfolio.NewAsset("USD"),
+				)
 				priceMap := marketStore.GetAssetPrices(unknown)
 				Expect(priceMap).To(BeEmpty())
 			})

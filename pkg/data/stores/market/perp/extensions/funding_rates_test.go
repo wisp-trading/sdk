@@ -25,8 +25,14 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 	BeforeEach(func() {
 		provider = timeProvider.NewTimeProvider()
 		store = perp.NewStore(provider)
-		btc = portfolio.NewAsset("BTC")
-		eth = portfolio.NewAsset("ETH")
+		btc = portfolio.NewPair(
+			portfolio.NewAsset("BTC"),
+			portfolio.NewAsset("USD"),
+		)
+		eth = portfolio.NewPair(
+			portfolio.NewAsset("ETH"),
+			portfolio.NewAsset("USD"),
+		)
 	})
 
 	Describe("UpdateFundingRate", func() {
@@ -187,7 +193,10 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 			})
 
 			It("should return empty map for unknown asset", func() {
-				unknown := portfolio.NewAsset("UNKNOWN")
+				unknown := portfolio.NewPair(
+					portfolio.NewAsset("UNKNOWN"),
+					portfolio.NewAsset("USD"),
+				)
 				ratesMap := store.GetFundingRatesForAsset(unknown)
 				Expect(ratesMap).To(BeEmpty())
 			})
@@ -197,7 +206,10 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 	Describe("GetFundingRate", func() {
 		Context("when retrieving a specific funding rate", func() {
 			It("should return nil for unknown asset", func() {
-				unknown := portfolio.NewAsset("UNKNOWN")
+				unknown := portfolio.NewPair(
+					portfolio.NewAsset("UNKNOWN"),
+					portfolio.NewAsset("USD"),
+				)
 				rate := store.GetFundingRate(unknown, "hyperliquid")
 				Expect(rate).To(BeNil())
 			})
