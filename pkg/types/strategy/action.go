@@ -8,7 +8,7 @@ import (
 
 type TradeAction struct {
 	Action   Action                 `json:"action"`
-	Asset    portfolio.Pair         `json:"asset"`
+	Pair     portfolio.Pair         `json:"pair"`
 	Exchange connector.ExchangeName `json:"exchange"`
 	Quantity numerical.Decimal      `json:"quantity"`
 	Price    numerical.Decimal      `json:"price"`

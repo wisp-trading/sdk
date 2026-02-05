@@ -17,10 +17,10 @@ type builder struct {
 }
 
 // Buy adds a buy action to the signal.
-func (b *builder) Buy(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
+func (b *builder) Buy(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionBuy,
-		Asset:    asset,
+		Pair:     pair,
 		Exchange: exchange,
 		Quantity: quantity,
 		Price:    numerical.NewFromInt(0),
@@ -29,10 +29,10 @@ func (b *builder) Buy(asset portfolio.Pair, exchange connector.ExchangeName, qua
 }
 
 // BuyLimit adds a limit buy action to the signal.
-func (b *builder) BuyLimit(asset portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.SignalBuilder {
+func (b *builder) BuyLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionBuy,
-		Asset:    asset,
+		Pair:     pair,
 		Exchange: exchange,
 		Quantity: quantity,
 		Price:    price,
@@ -41,10 +41,10 @@ func (b *builder) BuyLimit(asset portfolio.Pair, exchange connector.ExchangeName
 }
 
 // Sell adds a sell action to the signal.
-func (b *builder) Sell(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
+func (b *builder) Sell(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionSell,
-		Asset:    asset,
+		Pair:     pair,
 		Exchange: exchange,
 		Quantity: quantity,
 		Price:    numerical.NewFromInt(0),
@@ -53,10 +53,10 @@ func (b *builder) Sell(asset portfolio.Pair, exchange connector.ExchangeName, qu
 }
 
 // SellLimit adds a limit sell action to the signal.
-func (b *builder) SellLimit(asset portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.SignalBuilder {
+func (b *builder) SellLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionSell,
-		Asset:    asset,
+		Pair:     pair,
 		Exchange: exchange,
 		Quantity: quantity,
 		Price:    price,
@@ -65,10 +65,10 @@ func (b *builder) SellLimit(asset portfolio.Pair, exchange connector.ExchangeNam
 }
 
 // SellShort adds a short sell action to the signal.
-func (b *builder) SellShort(asset portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
+func (b *builder) SellShort(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionSellShort,
-		Asset:    asset,
+		Pair:     pair,
 		Exchange: exchange,
 		Quantity: quantity,
 		Price:    numerical.NewFromInt(0),
@@ -77,10 +77,10 @@ func (b *builder) SellShort(asset portfolio.Pair, exchange connector.ExchangeNam
 }
 
 // SellShortLimit adds a limit short sell action to the signal.
-func (b *builder) SellShortLimit(asset portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.SignalBuilder {
+func (b *builder) SellShortLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.SignalBuilder {
 	b.actions = append(b.actions, strategy.TradeAction{
 		Action:   strategy.ActionSellShort,
-		Asset:    asset,
+		Pair:     pair,
 		Exchange: exchange,
 		Quantity: quantity,
 		Price:    price,

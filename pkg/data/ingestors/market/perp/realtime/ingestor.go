@@ -18,7 +18,7 @@ package realtime
 //	activeConnections map[connector.ExchangeName]connector.WebSocketConnector
 //
 //	// Track which instrument types are subscribed per asset
-//	subscriptions     map[portfolio.Asset][]connector.Instrument
+//	subscriptions     map[portfolio.Pair][]connector.Instrument
 //	subscriptionMutex sync.RWMutex
 //}
 //
@@ -38,7 +38,7 @@ package realtime
 //		healthStore:       healthStore,
 //		notifier:          notifier,
 //		activeConnections: make(map[connector.ExchangeName]connector.WebSocketConnector),
-//		subscriptions:     make(map[portfolio.Asset][]connector.Instrument),
+//		subscriptions:     make(map[portfolio.Pair][]connector.Instrument),
 //	}
 //}
 //
@@ -102,16 +102,16 @@ package realtime
 //	for _, req := range assetRequirements {
 //		// Subscribe to orderbooks for each required instrument type
 //		for _, instrumentType := range req.Instruments {
-//			if err := wsConn.SubscribeOrderBook(req.Asset, instrumentType); err != nil {
+//			if err := wsConn.SubscribeOrderBook(req.Pair, instrumentType); err != nil {
 //				ri.logger.Error("Failed to subscribe to %s orderbook for %s on %s: %v",
-//					instrumentType, req.Asset.Symbol(), exchangeName, err)
+//					instrumentType, req.Pair.Symbol(), exchangeName, err)
 //			} else {
 //				ri.logger.Info("✅ Subscribed to %s orderbook for %s on %s",
-//					instrumentType, req.Asset.Symbol(), exchangeName)
+//					instrumentType, req.Pair.Symbol(), exchangeName)
 //
 //				// Track this subscription
 //				ri.subscriptionMutex.Lock()
-//				ri.subscriptions[req.Asset] = append(ri.subscriptions[req.Asset], instrumentType)
+//				ri.subscriptions[req.Pair] = append(ri.subscriptions[req.Pair], instrumentType)
 //				ri.subscriptionMutex.Unlock()
 //			}
 //		}
@@ -119,9 +119,9 @@ package realtime
 //		// Subscribe to klines for strategy analysis
 //		klineIntervals := []string{"1m", "5m", "15m", "1h"}
 //		for _, interval := range klineIntervals {
-//			if err := wsConn.SubscribeKlines(req.Asset, interval); err != nil {
+//			if err := wsConn.SubscribeKlines(req.Pair, interval); err != nil {
 //				ri.logger.Error("Failed to subscribe to %s klines for %s on %s: %v",
-//					interval, req.Asset.Symbol(), exchangeName, err)
+//					interval, req.Pair.Symbol(), exchangeName, err)
 //			}
 //		}
 //	}
@@ -158,24 +158,24 @@ package realtime
 //	for orderBookUpdate := range orderBookChan {
 //		updateCount++
 //		ri.logger.Debug("📊 Received orderbook update #%d for %s from channel %s",
-//			updateCount, orderBookUpdate.Asset.Symbol(), channelKey)
+//			updateCount, orderBookUpdate.Pair.Symbol(), channelKey)
 //
 //		// Get which instrument types we subscribed to for this asset
 //		ri.subscriptionMutex.RLock()
-//		instrumentTypes := ri.subscriptions[orderBookUpdate.Asset]
+//		instrumentTypes := ri.subscriptions[orderBookUpdate.Pair]
 //		ri.subscriptionMutex.RUnlock()
 //
 //		// Store the orderbook update for each subscribed instrument type
 //		for _, instrumentType := range instrumentTypes {
 //			ri.store.UpdateOrderBook(
-//				orderBookUpdate.Asset,
+//				orderBookUpdate.Pair,
 //				exchangeName,
 //				instrumentType,
 //				orderBookUpdate,
 //			)
 //
 //			ri.logger.Debug("📊 Updated %s orderbook for %s on %s",
-//				instrumentType, orderBookUpdate.Asset.Symbol(), exchangeName)
+//				instrumentType, orderBookUpdate.Pair.Symbol(), exchangeName)
 //		}
 //
 //		// Notify coordinator that data was updated
