@@ -8,7 +8,7 @@ import (
 )
 
 type FundingRate struct {
-	Asset           portfolio.Asset
+	Asset           portfolio.Pair
 	CurrentRate     numerical.Decimal
 	NextFundingTime time.Time
 	Timestamp       time.Time

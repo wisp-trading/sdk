@@ -35,7 +35,7 @@ func NewExtractor(market analytics.Market) *Extractor {
 // Extract computes market data features and adds them to the feature map.
 // Currently supports: mid_price, bid_price, ask_price, last_price,
 // mark_price, index_price, funding_rate.
-func (e *Extractor) Extract(ctx context.Context, asset portfolio.Asset, featureMap map[string]float64) error {
+func (e *Extractor) Extract(ctx context.Context, asset portfolio.Pair, featureMap map[string]float64) error {
 
 	// Get last price
 	price, err := e.market.Price(ctx, asset)

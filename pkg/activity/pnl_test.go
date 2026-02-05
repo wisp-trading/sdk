@@ -47,7 +47,7 @@ var _ = Describe("PNL", func() {
 	})
 
 	// Helper to set asset price in spot market
-	setAssetPrice := func(asset portfolio.Asset, price float64) {
+	setAssetPrice := func(asset portfolio.Pair, price float64) {
 		spotStore := marketRegistry.Get(marketTypes.MarketTypeSpot)
 		spotStore.UpdateAssetPrice(asset, "binance", connector.Price{
 			Price:     numerical.NewFromFloat(price),

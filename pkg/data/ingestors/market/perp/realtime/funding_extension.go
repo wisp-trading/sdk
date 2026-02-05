@@ -25,7 +25,7 @@ func NewFundingRateExtension(store perpStore.MarketStore, logger logging.Applica
 	}
 }
 
-func (f *FundingRateExtension) Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Asset) error {
+func (f *FundingRateExtension) Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Pair) error {
 	// Type-assert to perp WebSocket connector
 	perpWS, ok := wsConn.(perpConn.WebSocketConnector)
 	if !ok {

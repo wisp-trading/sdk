@@ -23,7 +23,7 @@ func newBaseMarketService(store storeTypes.MarketStore) baseMarketService {
 }
 
 // Price returns the current price for an asset
-func (b *baseMarketService) Price(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (numerical.Decimal, error) {
+func (b *baseMarketService) Price(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (numerical.Decimal, error) {
 	priceMap := b.store.GetAssetPrices(asset)
 
 	if len(exchange) > 0 && exchange[0] != "" {
@@ -47,7 +47,7 @@ func (b *baseMarketService) Price(ctx context.Context, asset portfolio.Asset, ex
 }
 
 // Prices returns prices across all exchanges for this market type
-func (b *baseMarketService) Prices(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]numerical.Decimal {
+func (b *baseMarketService) Prices(ctx context.Context, asset portfolio.Pair) map[connector.ExchangeName]numerical.Decimal {
 	result := make(map[connector.ExchangeName]numerical.Decimal)
 	priceMap := b.store.GetAssetPrices(asset)
 	for exchange, price := range priceMap {
@@ -57,7 +57,7 @@ func (b *baseMarketService) Prices(ctx context.Context, asset portfolio.Asset) m
 }
 
 // OrderBook returns the order book for an asset
-func (b *baseMarketService) OrderBook(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (*connector.OrderBook, error) {
+func (b *baseMarketService) OrderBook(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (*connector.OrderBook, error) {
 	if len(exchange) > 0 && exchange[0] != "" {
 		ob := b.store.GetOrderBook(asset, exchange[0])
 		if ob == nil {
@@ -82,12 +82,12 @@ func (b *baseMarketService) OrderBook(ctx context.Context, asset portfolio.Asset
 }
 
 // GetKlines returns historical kline/candlestick data
-func (b *baseMarketService) GetKlines(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int) []connector.Kline {
+func (b *baseMarketService) GetKlines(asset portfolio.Pair, exchange connector.ExchangeName, interval string, limit int) []connector.Kline {
 	return b.store.GetKlines(asset, exchange, interval, limit)
 }
 
 // GetTradableQuantity calculates available liquidity
-func (b *baseMarketService) GetTradableQuantity(ctx context.Context, asset portfolio.Asset, opts ...analytics.LiquidityOptions) numerical.Decimal {
+func (b *baseMarketService) GetTradableQuantity(ctx context.Context, asset portfolio.Pair, opts ...analytics.LiquidityOptions) numerical.Decimal {
 	options := DefaultLiquidityOptions()
 	if len(opts) > 0 {
 		options = opts[0]

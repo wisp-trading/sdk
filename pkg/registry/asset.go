@@ -14,19 +14,19 @@ type assetRegistry struct {
 }
 
 type assetState struct {
-	asset           portfolio.Asset
+	asset           portfolio.Pair
 	instrumentTypes []connector.Instrument
 }
 
 // NewAssetRegistry creates a new asset registry
-func NewAssetRegistry() registry.AssetRegistry {
+func NewAssetRegistry() registry.PairRegistry {
 	return &assetRegistry{
 		assets: make(map[string]*assetState),
 	}
 }
 
 // RegisterAsset registers an asset with its supported instrument types
-func (ar *assetRegistry) RegisterAsset(asset portfolio.Asset, instruments ...connector.Instrument) {
+func (ar *assetRegistry) RegisterPair(asset portfolio.Pair, instruments ...connector.Instrument) {
 	ar.mu.Lock()
 	defer ar.mu.Unlock()
 
@@ -37,11 +37,11 @@ func (ar *assetRegistry) RegisterAsset(asset portfolio.Asset, instruments ...con
 }
 
 // GetRequiredAssets returns all registered assets
-func (ar *assetRegistry) GetRequiredAssets() []portfolio.Asset {
+func (ar *assetRegistry) GetRequiredPairs() []portfolio.Pair {
 	ar.mu.RLock()
 	defer ar.mu.RUnlock()
 
-	assets := make([]portfolio.Asset, 0, len(ar.assets))
+	assets := make([]portfolio.Pair, 0, len(ar.assets))
 	for _, state := range ar.assets {
 		assets = append(assets, state.asset)
 	}
@@ -50,13 +50,13 @@ func (ar *assetRegistry) GetRequiredAssets() []portfolio.Asset {
 }
 
 // GetAssetRequirements returns all registered assets with their instrument types
-func (ar *assetRegistry) GetAssetRequirements() []registry.AssetRequirement {
+func (ar *assetRegistry) GetPairRequirements() []registry.PairRequirement {
 	ar.mu.RLock()
 	defer ar.mu.RUnlock()
 
-	requirements := make([]registry.AssetRequirement, 0, len(ar.assets))
+	requirements := make([]registry.PairRequirement, 0, len(ar.assets))
 	for _, state := range ar.assets {
-		requirements = append(requirements, registry.AssetRequirement{
+		requirements = append(requirements, registry.PairRequirement{
 			Asset:       state.asset,
 			Instruments: state.instrumentTypes,
 		})
@@ -66,7 +66,7 @@ func (ar *assetRegistry) GetAssetRequirements() []registry.AssetRequirement {
 }
 
 // GetInstrumentTypes returns the instrument types supported for an asset
-func (ar *assetRegistry) GetInstrumentTypes(asset portfolio.Asset) []connector.Instrument {
+func (ar *assetRegistry) GetInstrumentTypes(asset portfolio.Pair) []connector.Instrument {
 	ar.mu.RLock()
 	defer ar.mu.RUnlock()
 

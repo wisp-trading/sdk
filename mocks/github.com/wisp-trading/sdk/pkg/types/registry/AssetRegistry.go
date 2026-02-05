@@ -25,33 +25,33 @@ func (_m *AssetRegistry) EXPECT() *AssetRegistry_Expecter {
 }
 
 // GetAssetRequirements provides a mock function with no fields
-func (_m *AssetRegistry) GetAssetRequirements() []registry.AssetRequirement {
+func (_m *AssetRegistry) GetPairRequirements() []registry.PairRequirement {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetAssetRequirements")
+		panic("no return value specified for GetPairRequirements")
 	}
 
-	var r0 []registry.AssetRequirement
-	if rf, ok := ret.Get(0).(func() []registry.AssetRequirement); ok {
+	var r0 []registry.PairRequirement
+	if rf, ok := ret.Get(0).(func() []registry.PairRequirement); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]registry.AssetRequirement)
+			r0 = ret.Get(0).([]registry.PairRequirement)
 		}
 	}
 
 	return r0
 }
 
-// AssetRegistry_GetAssetRequirements_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAssetRequirements'
+// AssetRegistry_GetAssetRequirements_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPairRequirements'
 type AssetRegistry_GetAssetRequirements_Call struct {
 	*mock.Call
 }
 
 // GetAssetRequirements is a helper method to define mock.On call
 func (_e *AssetRegistry_Expecter) GetAssetRequirements() *AssetRegistry_GetAssetRequirements_Call {
-	return &AssetRegistry_GetAssetRequirements_Call{Call: _e.mock.On("GetAssetRequirements")}
+	return &AssetRegistry_GetAssetRequirements_Call{Call: _e.mock.On("GetPairRequirements")}
 }
 
 func (_c *AssetRegistry_GetAssetRequirements_Call) Run(run func()) *AssetRegistry_GetAssetRequirements_Call {
@@ -61,18 +61,18 @@ func (_c *AssetRegistry_GetAssetRequirements_Call) Run(run func()) *AssetRegistr
 	return _c
 }
 
-func (_c *AssetRegistry_GetAssetRequirements_Call) Return(_a0 []registry.AssetRequirement) *AssetRegistry_GetAssetRequirements_Call {
+func (_c *AssetRegistry_GetAssetRequirements_Call) Return(_a0 []registry.PairRequirement) *AssetRegistry_GetAssetRequirements_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *AssetRegistry_GetAssetRequirements_Call) RunAndReturn(run func() []registry.AssetRequirement) *AssetRegistry_GetAssetRequirements_Call {
+func (_c *AssetRegistry_GetAssetRequirements_Call) RunAndReturn(run func() []registry.PairRequirement) *AssetRegistry_GetAssetRequirements_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetInstrumentTypes provides a mock function with given fields: asset
-func (_m *AssetRegistry) GetInstrumentTypes(asset portfolio.Asset) []connector.Instrument {
+func (_m *AssetRegistry) GetInstrumentTypes(asset portfolio.Pair) []connector.Instrument {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -80,7 +80,7 @@ func (_m *AssetRegistry) GetInstrumentTypes(asset portfolio.Asset) []connector.I
 	}
 
 	var r0 []connector.Instrument
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) []connector.Instrument); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) []connector.Instrument); ok {
 		r0 = rf(asset)
 	} else {
 		if ret.Get(0) != nil {
@@ -97,14 +97,14 @@ type AssetRegistry_GetInstrumentTypes_Call struct {
 }
 
 // GetInstrumentTypes is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *AssetRegistry_Expecter) GetInstrumentTypes(asset interface{}) *AssetRegistry_GetInstrumentTypes_Call {
 	return &AssetRegistry_GetInstrumentTypes_Call{Call: _e.mock.On("GetInstrumentTypes", asset)}
 }
 
-func (_c *AssetRegistry_GetInstrumentTypes_Call) Run(run func(asset portfolio.Asset)) *AssetRegistry_GetInstrumentTypes_Call {
+func (_c *AssetRegistry_GetInstrumentTypes_Call) Run(run func(asset portfolio.Pair)) *AssetRegistry_GetInstrumentTypes_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -114,39 +114,39 @@ func (_c *AssetRegistry_GetInstrumentTypes_Call) Return(_a0 []connector.Instrume
 	return _c
 }
 
-func (_c *AssetRegistry_GetInstrumentTypes_Call) RunAndReturn(run func(portfolio.Asset) []connector.Instrument) *AssetRegistry_GetInstrumentTypes_Call {
+func (_c *AssetRegistry_GetInstrumentTypes_Call) RunAndReturn(run func(portfolio.Pair) []connector.Instrument) *AssetRegistry_GetInstrumentTypes_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetRequiredAssets provides a mock function with no fields
-func (_m *AssetRegistry) GetRequiredAssets() []portfolio.Asset {
+func (_m *AssetRegistry) GetRequiredPairs() []portfolio.Pair {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetRequiredAssets")
+		panic("no return value specified for GetRequiredPairs")
 	}
 
-	var r0 []portfolio.Asset
-	if rf, ok := ret.Get(0).(func() []portfolio.Asset); ok {
+	var r0 []portfolio.Pair
+	if rf, ok := ret.Get(0).(func() []portfolio.Pair); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]portfolio.Asset)
+			r0 = ret.Get(0).([]portfolio.Pair)
 		}
 	}
 
 	return r0
 }
 
-// AssetRegistry_GetRequiredAssets_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRequiredAssets'
+// AssetRegistry_GetRequiredAssets_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRequiredPairs'
 type AssetRegistry_GetRequiredAssets_Call struct {
 	*mock.Call
 }
 
 // GetRequiredAssets is a helper method to define mock.On call
 func (_e *AssetRegistry_Expecter) GetRequiredAssets() *AssetRegistry_GetRequiredAssets_Call {
-	return &AssetRegistry_GetRequiredAssets_Call{Call: _e.mock.On("GetRequiredAssets")}
+	return &AssetRegistry_GetRequiredAssets_Call{Call: _e.mock.On("GetRequiredPairs")}
 }
 
 func (_c *AssetRegistry_GetRequiredAssets_Call) Run(run func()) *AssetRegistry_GetRequiredAssets_Call {
@@ -156,18 +156,18 @@ func (_c *AssetRegistry_GetRequiredAssets_Call) Run(run func()) *AssetRegistry_G
 	return _c
 }
 
-func (_c *AssetRegistry_GetRequiredAssets_Call) Return(_a0 []portfolio.Asset) *AssetRegistry_GetRequiredAssets_Call {
+func (_c *AssetRegistry_GetRequiredAssets_Call) Return(_a0 []portfolio.Pair) *AssetRegistry_GetRequiredAssets_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *AssetRegistry_GetRequiredAssets_Call) RunAndReturn(run func() []portfolio.Asset) *AssetRegistry_GetRequiredAssets_Call {
+func (_c *AssetRegistry_GetRequiredAssets_Call) RunAndReturn(run func() []portfolio.Pair) *AssetRegistry_GetRequiredAssets_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // RegisterAsset provides a mock function with given fields: asset, instruments
-func (_m *AssetRegistry) RegisterAsset(asset portfolio.Asset, instruments ...connector.Instrument) {
+func (_m *AssetRegistry) RegisterPair(asset portfolio.Pair, instruments ...connector.Instrument) {
 	_va := make([]interface{}, len(instruments))
 	for _i := range instruments {
 		_va[_i] = instruments[_i]
@@ -178,20 +178,20 @@ func (_m *AssetRegistry) RegisterAsset(asset portfolio.Asset, instruments ...con
 	_m.Called(_ca...)
 }
 
-// AssetRegistry_RegisterAsset_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RegisterAsset'
+// AssetRegistry_RegisterAsset_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RegisterPair'
 type AssetRegistry_RegisterAsset_Call struct {
 	*mock.Call
 }
 
 // RegisterAsset is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - instruments ...connector.Instrument
 func (_e *AssetRegistry_Expecter) RegisterAsset(asset interface{}, instruments ...interface{}) *AssetRegistry_RegisterAsset_Call {
-	return &AssetRegistry_RegisterAsset_Call{Call: _e.mock.On("RegisterAsset",
+	return &AssetRegistry_RegisterAsset_Call{Call: _e.mock.On("RegisterPair",
 		append([]interface{}{asset}, instruments...)...)}
 }
 
-func (_c *AssetRegistry_RegisterAsset_Call) Run(run func(asset portfolio.Asset, instruments ...connector.Instrument)) *AssetRegistry_RegisterAsset_Call {
+func (_c *AssetRegistry_RegisterAsset_Call) Run(run func(asset portfolio.Pair, instruments ...connector.Instrument)) *AssetRegistry_RegisterAsset_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		variadicArgs := make([]connector.Instrument, len(args)-1)
 		for i, a := range args[1:] {
@@ -199,7 +199,7 @@ func (_c *AssetRegistry_RegisterAsset_Call) Run(run func(asset portfolio.Asset, 
 				variadicArgs[i] = a.(connector.Instrument)
 			}
 		}
-		run(args[0].(portfolio.Asset), variadicArgs...)
+		run(args[0].(portfolio.Pair), variadicArgs...)
 	})
 	return _c
 }
@@ -209,7 +209,7 @@ func (_c *AssetRegistry_RegisterAsset_Call) Return() *AssetRegistry_RegisterAsse
 	return _c
 }
 
-func (_c *AssetRegistry_RegisterAsset_Call) RunAndReturn(run func(portfolio.Asset, ...connector.Instrument)) *AssetRegistry_RegisterAsset_Call {
+func (_c *AssetRegistry_RegisterAsset_Call) RunAndReturn(run func(portfolio.Pair, ...connector.Instrument)) *AssetRegistry_RegisterAsset_Call {
 	_c.Run(run)
 	return _c
 }

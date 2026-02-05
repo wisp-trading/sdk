@@ -17,21 +17,21 @@ type MarketStore interface {
 	MarketType() MarketType
 
 	// Order books
-	UpdateOrderBook(asset portfolio.Asset, exchange connector.ExchangeName, orderBook connector.OrderBook)
-	GetOrderBook(asset portfolio.Asset, exchange connector.ExchangeName) *connector.OrderBook
-	GetOrderBooks(asset portfolio.Asset) OrderBookMap
-	GetAllAssetsWithOrderBooks() []portfolio.Asset
+	UpdateOrderBook(asset portfolio.Pair, exchange connector.ExchangeName, orderBook connector.OrderBook)
+	GetOrderBook(asset portfolio.Pair, exchange connector.ExchangeName) *connector.OrderBook
+	GetOrderBooks(asset portfolio.Pair) OrderBookMap
+	GetAllAssetsWithOrderBooks() []portfolio.Pair
 
 	// Prices
-	UpdateAssetPrice(asset portfolio.Asset, exchange connector.ExchangeName, price connector.Price)
-	UpdateAssetPrices(asset portfolio.Asset, prices PriceMap)
-	GetAssetPrice(asset portfolio.Asset, exchange connector.ExchangeName) *connector.Price
-	GetAssetPrices(asset portfolio.Asset) PriceMap
+	UpdateAssetPrice(asset portfolio.Pair, exchange connector.ExchangeName, price connector.Price)
+	UpdateAssetPrices(asset portfolio.Pair, prices PriceMap)
+	GetAssetPrice(asset portfolio.Pair, exchange connector.ExchangeName) *connector.Price
+	GetAssetPrices(asset portfolio.Pair) PriceMap
 
 	// Klines
-	UpdateKline(asset portfolio.Asset, exchange connector.ExchangeName, kline connector.Kline)
-	GetKlines(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int) []connector.Kline
-	GetKlinesSince(asset portfolio.Asset, exchange connector.ExchangeName, interval string, since time.Time) []connector.Kline
+	UpdateKline(asset portfolio.Pair, exchange connector.ExchangeName, kline connector.Kline)
+	GetKlines(asset portfolio.Pair, exchange connector.ExchangeName, interval string, limit int) []connector.Kline
+	GetKlinesSince(asset portfolio.Pair, exchange connector.ExchangeName, interval string, since time.Time) []connector.Kline
 
 	// Metadata
 	GetLastUpdated() LastUpdatedMap
@@ -50,7 +50,7 @@ const (
 // UpdateKey identifies a specific data update (matches old store structure)
 type UpdateKey struct {
 	DataType DataKey
-	Asset    portfolio.Asset
+	Asset    portfolio.Pair
 	Exchange connector.ExchangeName
 }
 

@@ -38,7 +38,7 @@ func NewExtractor(indicators analytics.Indicators) *Extractor {
 
 // Extract computes technical indicator features and adds them to the feature map.
 // Currently supports: RSI, MACD, Bollinger Bands, ATR, EMA, Stochastic.
-func (e *Extractor) Extract(ctx context.Context, asset portfolio.Asset, featureMap map[string]float64) error {
+func (e *Extractor) Extract(ctx context.Context, asset portfolio.Pair, featureMap map[string]float64) error {
 
 	// Extract RSI (14-period)
 	if rsi, err := e.indicators.RSI(ctx, asset, 14); err == nil {

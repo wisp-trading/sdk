@@ -69,10 +69,10 @@ func (k *wisp) Log() logging.TradingLogger {
 	return k.tradingLogger
 }
 
-// Asset creates a new portfolio.Asset from a symbol string.
+// Asset creates a new portfolio.Pair from a symbol string.
 // This is a convenience method to avoid importing portfolio everywhere.
-// Usage: btc := k.Asset("BTC")
-func (k *wisp) Asset(symbol string) portfolio.Asset {
+// Usage: btc := k.Pair("BTC")
+func (k *wisp) Asset(symbol string) portfolio.Pair {
 	return portfolio.NewAsset(symbol)
 }
 

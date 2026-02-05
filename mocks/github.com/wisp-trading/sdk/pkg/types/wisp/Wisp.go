@@ -127,18 +127,18 @@ func (_c *Wisp_Analytics_Call) RunAndReturn(run func() analytics.Analytics) *Wis
 }
 
 // Asset provides a mock function with given fields: symbol
-func (_m *Wisp) Asset(symbol string) portfolio.Asset {
+func (_m *Wisp) Asset(symbol string) portfolio.Pair {
 	ret := _m.Called(symbol)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Asset")
 	}
 
-	var r0 portfolio.Asset
-	if rf, ok := ret.Get(0).(func(string) portfolio.Asset); ok {
+	var r0 portfolio.Pair
+	if rf, ok := ret.Get(0).(func(string) portfolio.Pair); ok {
 		r0 = rf(symbol)
 	} else {
-		r0 = ret.Get(0).(portfolio.Asset)
+		r0 = ret.Get(0).(portfolio.Pair)
 	}
 
 	return r0
@@ -162,12 +162,12 @@ func (_c *Wisp_Asset_Call) Run(run func(symbol string)) *Wisp_Asset_Call {
 	return _c
 }
 
-func (_c *Wisp_Asset_Call) Return(_a0 portfolio.Asset) *Wisp_Asset_Call {
+func (_c *Wisp_Asset_Call) Return(_a0 portfolio.Pair) *Wisp_Asset_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *Wisp_Asset_Call) RunAndReturn(run func(string) portfolio.Asset) *Wisp_Asset_Call {
+func (_c *Wisp_Asset_Call) RunAndReturn(run func(string) portfolio.Pair) *Wisp_Asset_Call {
 	_c.Call.Return(run)
 	return _c
 }

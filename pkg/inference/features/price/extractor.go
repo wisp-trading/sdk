@@ -37,7 +37,7 @@ func NewExtractor(marketData market.MarketStore, timeProvider temporal.TimeProvi
 
 // Extract computes price features and adds them to the feature map.
 // Currently supports: returns (1m, 5m, 1h), high/low (1h), and VWAP (1h).
-func (e *Extractor) Extract(asset portfolio.Asset, featureMap map[string]float64) error {
+func (e *Extractor) Extract(asset portfolio.Pair, featureMap map[string]float64) error {
 	now := e.timeProvider.Now()
 
 	// Get current price (use first available exchange)
@@ -67,7 +67,7 @@ func (e *Extractor) Extract(asset portfolio.Asset, featureMap map[string]float64
 }
 
 // calculateReturn computes percentage return between a past time and current price
-func (e *Extractor) calculateReturn(asset portfolio.Asset, exchange connector.ExchangeName, currentPrice numerical.Decimal, pastTime time.Time, featureName string, featureMap map[string]float64) {
+func (e *Extractor) calculateReturn(asset portfolio.Pair, exchange connector.ExchangeName, currentPrice numerical.Decimal, pastTime time.Time, featureName string, featureMap map[string]float64) {
 	// Get klines since pastTime
 	klines := e.marketData.GetKlinesSince(asset, exchange, "1m", pastTime)
 	if len(klines) == 0 {
@@ -87,7 +87,7 @@ func (e *Extractor) calculateReturn(asset portfolio.Asset, exchange connector.Ex
 }
 
 // calculateHighLowVWAP computes high, low, and VWAP over a time window
-func (e *Extractor) calculateHighLowVWAP(asset portfolio.Asset, exchange connector.ExchangeName, start, end time.Time, featureMap map[string]float64) {
+func (e *Extractor) calculateHighLowVWAP(asset portfolio.Pair, exchange connector.ExchangeName, start, end time.Time, featureMap map[string]float64) {
 	// Get all klines in the time window
 	klines := e.marketData.GetKlinesSince(asset, exchange, "1m", start)
 	if len(klines) == 0 {

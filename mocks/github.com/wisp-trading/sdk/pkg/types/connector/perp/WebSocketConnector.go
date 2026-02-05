@@ -73,9 +73,16 @@ func (_c *WebSocketConnector_AssetBalanceUpdates_Call) RunAndReturn(run func() <
 	return _c
 }
 
-// CancelOrder provides a mock function with given fields: symbol, orderID
-func (_m *WebSocketConnector) CancelOrder(symbol string, orderID string) (*connector.CancelResponse, error) {
-	ret := _m.Called(symbol, orderID)
+// CancelOrder provides a mock function with given fields: orderID, pair
+func (_m *WebSocketConnector) CancelOrder(orderID string, pair ...portfolio.Pair) (*connector.CancelResponse, error) {
+	_va := make([]interface{}, len(pair))
+	for _i := range pair {
+		_va[_i] = pair[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, orderID)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CancelOrder")
@@ -83,19 +90,19 @@ func (_m *WebSocketConnector) CancelOrder(symbol string, orderID string) (*conne
 
 	var r0 *connector.CancelResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string) (*connector.CancelResponse, error)); ok {
-		return rf(symbol, orderID)
+	if rf, ok := ret.Get(0).(func(string, ...portfolio.Pair) (*connector.CancelResponse, error)); ok {
+		return rf(orderID, pair...)
 	}
-	if rf, ok := ret.Get(0).(func(string, string) *connector.CancelResponse); ok {
-		r0 = rf(symbol, orderID)
+	if rf, ok := ret.Get(0).(func(string, ...portfolio.Pair) *connector.CancelResponse); ok {
+		r0 = rf(orderID, pair...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.CancelResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(symbol, orderID)
+	if rf, ok := ret.Get(1).(func(string, ...portfolio.Pair) error); ok {
+		r1 = rf(orderID, pair...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -109,15 +116,22 @@ type WebSocketConnector_CancelOrder_Call struct {
 }
 
 // CancelOrder is a helper method to define mock.On call
-//   - symbol string
 //   - orderID string
-func (_e *WebSocketConnector_Expecter) CancelOrder(symbol interface{}, orderID interface{}) *WebSocketConnector_CancelOrder_Call {
-	return &WebSocketConnector_CancelOrder_Call{Call: _e.mock.On("CancelOrder", symbol, orderID)}
+//   - pair ...portfolio.Pair
+func (_e *WebSocketConnector_Expecter) CancelOrder(orderID interface{}, pair ...interface{}) *WebSocketConnector_CancelOrder_Call {
+	return &WebSocketConnector_CancelOrder_Call{Call: _e.mock.On("CancelOrder",
+		append([]interface{}{orderID}, pair...)...)}
 }
 
-func (_c *WebSocketConnector_CancelOrder_Call) Run(run func(symbol string, orderID string)) *WebSocketConnector_CancelOrder_Call {
+func (_c *WebSocketConnector_CancelOrder_Call) Run(run func(orderID string, pair ...portfolio.Pair)) *WebSocketConnector_CancelOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string))
+		variadicArgs := make([]portfolio.Pair, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(portfolio.Pair)
+			}
+		}
+		run(args[0].(string), variadicArgs...)
 	})
 	return _c
 }
@@ -127,7 +141,7 @@ func (_c *WebSocketConnector_CancelOrder_Call) Return(_a0 *connector.CancelRespo
 	return _c
 }
 
-func (_c *WebSocketConnector_CancelOrder_Call) RunAndReturn(run func(string, string) (*connector.CancelResponse, error)) *WebSocketConnector_CancelOrder_Call {
+func (_c *WebSocketConnector_CancelOrder_Call) RunAndReturn(run func(string, ...portfolio.Pair) (*connector.CancelResponse, error)) *WebSocketConnector_CancelOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -237,23 +251,23 @@ func (_c *WebSocketConnector_FetchContracts_Call) RunAndReturn(run func() ([]con
 }
 
 // FetchCurrentFundingRates provides a mock function with no fields
-func (_m *WebSocketConnector) FetchCurrentFundingRates() (map[portfolio.Asset]perp.FundingRate, error) {
+func (_m *WebSocketConnector) FetchCurrentFundingRates() (map[portfolio.Pair]perp.FundingRate, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchCurrentFundingRates")
 	}
 
-	var r0 map[portfolio.Asset]perp.FundingRate
+	var r0 map[portfolio.Pair]perp.FundingRate
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (map[portfolio.Asset]perp.FundingRate, error)); ok {
+	if rf, ok := ret.Get(0).(func() (map[portfolio.Pair]perp.FundingRate, error)); ok {
 		return rf()
 	}
-	if rf, ok := ret.Get(0).(func() map[portfolio.Asset]perp.FundingRate); ok {
+	if rf, ok := ret.Get(0).(func() map[portfolio.Pair]perp.FundingRate); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[portfolio.Asset]perp.FundingRate)
+			r0 = ret.Get(0).(map[portfolio.Pair]perp.FundingRate)
 		}
 	}
 
@@ -283,18 +297,18 @@ func (_c *WebSocketConnector_FetchCurrentFundingRates_Call) Run(run func()) *Web
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchCurrentFundingRates_Call) Return(_a0 map[portfolio.Asset]perp.FundingRate, _a1 error) *WebSocketConnector_FetchCurrentFundingRates_Call {
+func (_c *WebSocketConnector_FetchCurrentFundingRates_Call) Return(_a0 map[portfolio.Pair]perp.FundingRate, _a1 error) *WebSocketConnector_FetchCurrentFundingRates_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchCurrentFundingRates_Call) RunAndReturn(run func() (map[portfolio.Asset]perp.FundingRate, error)) *WebSocketConnector_FetchCurrentFundingRates_Call {
+func (_c *WebSocketConnector_FetchCurrentFundingRates_Call) RunAndReturn(run func() (map[portfolio.Pair]perp.FundingRate, error)) *WebSocketConnector_FetchCurrentFundingRates_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // FetchFundingRate provides a mock function with given fields: asset
-func (_m *WebSocketConnector) FetchFundingRate(asset portfolio.Asset) (*perp.FundingRate, error) {
+func (_m *WebSocketConnector) FetchFundingRate(asset portfolio.Pair) (*perp.FundingRate, error) {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -303,10 +317,10 @@ func (_m *WebSocketConnector) FetchFundingRate(asset portfolio.Asset) (*perp.Fun
 
 	var r0 *perp.FundingRate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) (*perp.FundingRate, error)); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) (*perp.FundingRate, error)); ok {
 		return rf(asset)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) *perp.FundingRate); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) *perp.FundingRate); ok {
 		r0 = rf(asset)
 	} else {
 		if ret.Get(0) != nil {
@@ -314,7 +328,7 @@ func (_m *WebSocketConnector) FetchFundingRate(asset portfolio.Asset) (*perp.Fun
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset) error); ok {
+	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
 		r1 = rf(asset)
 	} else {
 		r1 = ret.Error(1)
@@ -329,14 +343,14 @@ type WebSocketConnector_FetchFundingRate_Call struct {
 }
 
 // FetchFundingRate is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *WebSocketConnector_Expecter) FetchFundingRate(asset interface{}) *WebSocketConnector_FetchFundingRate_Call {
 	return &WebSocketConnector_FetchFundingRate_Call{Call: _e.mock.On("FetchFundingRate", asset)}
 }
 
-func (_c *WebSocketConnector_FetchFundingRate_Call) Run(run func(asset portfolio.Asset)) *WebSocketConnector_FetchFundingRate_Call {
+func (_c *WebSocketConnector_FetchFundingRate_Call) Run(run func(asset portfolio.Pair)) *WebSocketConnector_FetchFundingRate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -346,13 +360,13 @@ func (_c *WebSocketConnector_FetchFundingRate_Call) Return(_a0 *perp.FundingRate
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchFundingRate_Call) RunAndReturn(run func(portfolio.Asset) (*perp.FundingRate, error)) *WebSocketConnector_FetchFundingRate_Call {
+func (_c *WebSocketConnector_FetchFundingRate_Call) RunAndReturn(run func(portfolio.Pair) (*perp.FundingRate, error)) *WebSocketConnector_FetchFundingRate_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // FetchHistoricalFundingRates provides a mock function with given fields: asset, startTime, endTime
-func (_m *WebSocketConnector) FetchHistoricalFundingRates(asset portfolio.Asset, startTime int64, endTime int64) ([]perp.HistoricalFundingRate, error) {
+func (_m *WebSocketConnector) FetchHistoricalFundingRates(asset portfolio.Pair, startTime int64, endTime int64) ([]perp.HistoricalFundingRate, error) {
 	ret := _m.Called(asset, startTime, endTime)
 
 	if len(ret) == 0 {
@@ -361,10 +375,10 @@ func (_m *WebSocketConnector) FetchHistoricalFundingRates(asset portfolio.Asset,
 
 	var r0 []perp.HistoricalFundingRate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int64, int64) ([]perp.HistoricalFundingRate, error)); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int64, int64) ([]perp.HistoricalFundingRate, error)); ok {
 		return rf(asset, startTime, endTime)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int64, int64) []perp.HistoricalFundingRate); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int64, int64) []perp.HistoricalFundingRate); ok {
 		r0 = rf(asset, startTime, endTime)
 	} else {
 		if ret.Get(0) != nil {
@@ -372,7 +386,7 @@ func (_m *WebSocketConnector) FetchHistoricalFundingRates(asset portfolio.Asset,
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int64, int64) error); ok {
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, int64, int64) error); ok {
 		r1 = rf(asset, startTime, endTime)
 	} else {
 		r1 = ret.Error(1)
@@ -387,16 +401,16 @@ type WebSocketConnector_FetchHistoricalFundingRates_Call struct {
 }
 
 // FetchHistoricalFundingRates is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - startTime int64
 //   - endTime int64
 func (_e *WebSocketConnector_Expecter) FetchHistoricalFundingRates(asset interface{}, startTime interface{}, endTime interface{}) *WebSocketConnector_FetchHistoricalFundingRates_Call {
 	return &WebSocketConnector_FetchHistoricalFundingRates_Call{Call: _e.mock.On("FetchHistoricalFundingRates", asset, startTime, endTime)}
 }
 
-func (_c *WebSocketConnector_FetchHistoricalFundingRates_Call) Run(run func(asset portfolio.Asset, startTime int64, endTime int64)) *WebSocketConnector_FetchHistoricalFundingRates_Call {
+func (_c *WebSocketConnector_FetchHistoricalFundingRates_Call) Run(run func(asset portfolio.Pair, startTime int64, endTime int64)) *WebSocketConnector_FetchHistoricalFundingRates_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(int64), args[2].(int64))
+		run(args[0].(portfolio.Pair), args[1].(int64), args[2].(int64))
 	})
 	return _c
 }
@@ -406,14 +420,14 @@ func (_c *WebSocketConnector_FetchHistoricalFundingRates_Call) Return(_a0 []perp
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchHistoricalFundingRates_Call) RunAndReturn(run func(portfolio.Asset, int64, int64) ([]perp.HistoricalFundingRate, error)) *WebSocketConnector_FetchHistoricalFundingRates_Call {
+func (_c *WebSocketConnector_FetchHistoricalFundingRates_Call) RunAndReturn(run func(portfolio.Pair, int64, int64) ([]perp.HistoricalFundingRate, error)) *WebSocketConnector_FetchHistoricalFundingRates_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// FetchKlines provides a mock function with given fields: symbol, interval, limit
-func (_m *WebSocketConnector) FetchKlines(symbol string, interval string, limit int) ([]connector.Kline, error) {
-	ret := _m.Called(symbol, interval, limit)
+// FetchKlines provides a mock function with given fields: pair, interval, limit
+func (_m *WebSocketConnector) FetchKlines(pair portfolio.Pair, interval string, limit int) ([]connector.Kline, error) {
+	ret := _m.Called(pair, interval, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchKlines")
@@ -421,19 +435,19 @@ func (_m *WebSocketConnector) FetchKlines(symbol string, interval string, limit 
 
 	var r0 []connector.Kline
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, int) ([]connector.Kline, error)); ok {
-		return rf(symbol, interval, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string, int) ([]connector.Kline, error)); ok {
+		return rf(pair, interval, limit)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, int) []connector.Kline); ok {
-		r0 = rf(symbol, interval, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string, int) []connector.Kline); ok {
+		r0 = rf(pair, interval, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Kline)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, int) error); ok {
-		r1 = rf(symbol, interval, limit)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, string, int) error); ok {
+		r1 = rf(pair, interval, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -447,16 +461,16 @@ type WebSocketConnector_FetchKlines_Call struct {
 }
 
 // FetchKlines is a helper method to define mock.On call
-//   - symbol string
+//   - pair portfolio.Pair
 //   - interval string
 //   - limit int
-func (_e *WebSocketConnector_Expecter) FetchKlines(symbol interface{}, interval interface{}, limit interface{}) *WebSocketConnector_FetchKlines_Call {
-	return &WebSocketConnector_FetchKlines_Call{Call: _e.mock.On("FetchKlines", symbol, interval, limit)}
+func (_e *WebSocketConnector_Expecter) FetchKlines(pair interface{}, interval interface{}, limit interface{}) *WebSocketConnector_FetchKlines_Call {
+	return &WebSocketConnector_FetchKlines_Call{Call: _e.mock.On("FetchKlines", pair, interval, limit)}
 }
 
-func (_c *WebSocketConnector_FetchKlines_Call) Run(run func(symbol string, interval string, limit int)) *WebSocketConnector_FetchKlines_Call {
+func (_c *WebSocketConnector_FetchKlines_Call) Run(run func(pair portfolio.Pair, interval string, limit int)) *WebSocketConnector_FetchKlines_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(int))
+		run(args[0].(portfolio.Pair), args[1].(string), args[2].(int))
 	})
 	return _c
 }
@@ -466,14 +480,14 @@ func (_c *WebSocketConnector_FetchKlines_Call) Return(_a0 []connector.Kline, _a1
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchKlines_Call) RunAndReturn(run func(string, string, int) ([]connector.Kline, error)) *WebSocketConnector_FetchKlines_Call {
+func (_c *WebSocketConnector_FetchKlines_Call) RunAndReturn(run func(portfolio.Pair, string, int) ([]connector.Kline, error)) *WebSocketConnector_FetchKlines_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// FetchOrderBook provides a mock function with given fields: symbol, depth
-func (_m *WebSocketConnector) FetchOrderBook(symbol portfolio.Asset, depth int) (*connector.OrderBook, error) {
-	ret := _m.Called(symbol, depth)
+// FetchOrderBook provides a mock function with given fields: pair, depth
+func (_m *WebSocketConnector) FetchOrderBook(pair portfolio.Pair, depth int) (*connector.OrderBook, error) {
+	ret := _m.Called(pair, depth)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchOrderBook")
@@ -481,19 +495,19 @@ func (_m *WebSocketConnector) FetchOrderBook(symbol portfolio.Asset, depth int) 
 
 	var r0 *connector.OrderBook
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int) (*connector.OrderBook, error)); ok {
-		return rf(symbol, depth)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) (*connector.OrderBook, error)); ok {
+		return rf(pair, depth)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int) *connector.OrderBook); ok {
-		r0 = rf(symbol, depth)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) *connector.OrderBook); ok {
+		r0 = rf(pair, depth)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.OrderBook)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int) error); ok {
-		r1 = rf(symbol, depth)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, int) error); ok {
+		r1 = rf(pair, depth)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -507,15 +521,15 @@ type WebSocketConnector_FetchOrderBook_Call struct {
 }
 
 // FetchOrderBook is a helper method to define mock.On call
-//   - symbol portfolio.Asset
+//   - pair portfolio.Pair
 //   - depth int
-func (_e *WebSocketConnector_Expecter) FetchOrderBook(symbol interface{}, depth interface{}) *WebSocketConnector_FetchOrderBook_Call {
-	return &WebSocketConnector_FetchOrderBook_Call{Call: _e.mock.On("FetchOrderBook", symbol, depth)}
+func (_e *WebSocketConnector_Expecter) FetchOrderBook(pair interface{}, depth interface{}) *WebSocketConnector_FetchOrderBook_Call {
+	return &WebSocketConnector_FetchOrderBook_Call{Call: _e.mock.On("FetchOrderBook", pair, depth)}
 }
 
-func (_c *WebSocketConnector_FetchOrderBook_Call) Run(run func(symbol portfolio.Asset, depth int)) *WebSocketConnector_FetchOrderBook_Call {
+func (_c *WebSocketConnector_FetchOrderBook_Call) Run(run func(pair portfolio.Pair, depth int)) *WebSocketConnector_FetchOrderBook_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(int))
+		run(args[0].(portfolio.Pair), args[1].(int))
 	})
 	return _c
 }
@@ -525,14 +539,14 @@ func (_c *WebSocketConnector_FetchOrderBook_Call) Return(_a0 *connector.OrderBoo
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchOrderBook_Call) RunAndReturn(run func(portfolio.Asset, int) (*connector.OrderBook, error)) *WebSocketConnector_FetchOrderBook_Call {
+func (_c *WebSocketConnector_FetchOrderBook_Call) RunAndReturn(run func(portfolio.Pair, int) (*connector.OrderBook, error)) *WebSocketConnector_FetchOrderBook_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// FetchPrice provides a mock function with given fields: symbol
-func (_m *WebSocketConnector) FetchPrice(symbol string) (*connector.Price, error) {
-	ret := _m.Called(symbol)
+// FetchPrice provides a mock function with given fields: pair
+func (_m *WebSocketConnector) FetchPrice(pair portfolio.Pair) (*connector.Price, error) {
+	ret := _m.Called(pair)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchPrice")
@@ -540,19 +554,19 @@ func (_m *WebSocketConnector) FetchPrice(symbol string) (*connector.Price, error
 
 	var r0 *connector.Price
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*connector.Price, error)); ok {
-		return rf(symbol)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) (*connector.Price, error)); ok {
+		return rf(pair)
 	}
-	if rf, ok := ret.Get(0).(func(string) *connector.Price); ok {
-		r0 = rf(symbol)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) *connector.Price); ok {
+		r0 = rf(pair)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.Price)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(symbol)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
+		r1 = rf(pair)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -566,14 +580,14 @@ type WebSocketConnector_FetchPrice_Call struct {
 }
 
 // FetchPrice is a helper method to define mock.On call
-//   - symbol string
-func (_e *WebSocketConnector_Expecter) FetchPrice(symbol interface{}) *WebSocketConnector_FetchPrice_Call {
-	return &WebSocketConnector_FetchPrice_Call{Call: _e.mock.On("FetchPrice", symbol)}
+//   - pair portfolio.Pair
+func (_e *WebSocketConnector_Expecter) FetchPrice(pair interface{}) *WebSocketConnector_FetchPrice_Call {
+	return &WebSocketConnector_FetchPrice_Call{Call: _e.mock.On("FetchPrice", pair)}
 }
 
-func (_c *WebSocketConnector_FetchPrice_Call) Run(run func(symbol string)) *WebSocketConnector_FetchPrice_Call {
+func (_c *WebSocketConnector_FetchPrice_Call) Run(run func(pair portfolio.Pair)) *WebSocketConnector_FetchPrice_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -583,14 +597,14 @@ func (_c *WebSocketConnector_FetchPrice_Call) Return(_a0 *connector.Price, _a1 e
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchPrice_Call) RunAndReturn(run func(string) (*connector.Price, error)) *WebSocketConnector_FetchPrice_Call {
+func (_c *WebSocketConnector_FetchPrice_Call) RunAndReturn(run func(portfolio.Pair) (*connector.Price, error)) *WebSocketConnector_FetchPrice_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// FetchRecentTrades provides a mock function with given fields: symbol, limit
-func (_m *WebSocketConnector) FetchRecentTrades(symbol string, limit int) ([]connector.Trade, error) {
-	ret := _m.Called(symbol, limit)
+// FetchRecentTrades provides a mock function with given fields: pair, limit
+func (_m *WebSocketConnector) FetchRecentTrades(pair portfolio.Pair, limit int) ([]connector.Trade, error) {
+	ret := _m.Called(pair, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchRecentTrades")
@@ -598,19 +612,19 @@ func (_m *WebSocketConnector) FetchRecentTrades(symbol string, limit int) ([]con
 
 	var r0 []connector.Trade
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, int) ([]connector.Trade, error)); ok {
-		return rf(symbol, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) ([]connector.Trade, error)); ok {
+		return rf(pair, limit)
 	}
-	if rf, ok := ret.Get(0).(func(string, int) []connector.Trade); ok {
-		r0 = rf(symbol, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) []connector.Trade); ok {
+		r0 = rf(pair, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Trade)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, int) error); ok {
-		r1 = rf(symbol, limit)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, int) error); ok {
+		r1 = rf(pair, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -624,15 +638,15 @@ type WebSocketConnector_FetchRecentTrades_Call struct {
 }
 
 // FetchRecentTrades is a helper method to define mock.On call
-//   - symbol string
+//   - pair portfolio.Pair
 //   - limit int
-func (_e *WebSocketConnector_Expecter) FetchRecentTrades(symbol interface{}, limit interface{}) *WebSocketConnector_FetchRecentTrades_Call {
-	return &WebSocketConnector_FetchRecentTrades_Call{Call: _e.mock.On("FetchRecentTrades", symbol, limit)}
+func (_e *WebSocketConnector_Expecter) FetchRecentTrades(pair interface{}, limit interface{}) *WebSocketConnector_FetchRecentTrades_Call {
+	return &WebSocketConnector_FetchRecentTrades_Call{Call: _e.mock.On("FetchRecentTrades", pair, limit)}
 }
 
-func (_c *WebSocketConnector_FetchRecentTrades_Call) Run(run func(symbol string, limit int)) *WebSocketConnector_FetchRecentTrades_Call {
+func (_c *WebSocketConnector_FetchRecentTrades_Call) Run(run func(pair portfolio.Pair, limit int)) *WebSocketConnector_FetchRecentTrades_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(int))
+		run(args[0].(portfolio.Pair), args[1].(int))
 	})
 	return _c
 }
@@ -642,7 +656,7 @@ func (_c *WebSocketConnector_FetchRecentTrades_Call) Return(_a0 []connector.Trad
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchRecentTrades_Call) RunAndReturn(run func(string, int) ([]connector.Trade, error)) *WebSocketConnector_FetchRecentTrades_Call {
+func (_c *WebSocketConnector_FetchRecentTrades_Call) RunAndReturn(run func(portfolio.Pair, int) ([]connector.Trade, error)) *WebSocketConnector_FetchRecentTrades_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -748,6 +762,64 @@ func (_c *WebSocketConnector_FundingRateUpdates_Call) Return(_a0 <-chan perp.Fun
 }
 
 func (_c *WebSocketConnector_FundingRateUpdates_Call) RunAndReturn(run func() <-chan perp.FundingRate) *WebSocketConnector_FundingRateUpdates_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetBalance provides a mock function with given fields: asset
+func (_m *WebSocketConnector) GetBalance(asset portfolio.Pair) (*connector.AssetBalance, error) {
+	ret := _m.Called(asset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBalance")
+	}
+
+	var r0 *connector.AssetBalance
+	var r1 error
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) (*connector.AssetBalance, error)); ok {
+		return rf(asset)
+	}
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) *connector.AssetBalance); ok {
+		r0 = rf(asset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*connector.AssetBalance)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
+		r1 = rf(asset)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// WebSocketConnector_GetBalance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBalance'
+type WebSocketConnector_GetBalance_Call struct {
+	*mock.Call
+}
+
+// GetBalance is a helper method to define mock.On call
+//   - asset portfolio.Pair
+func (_e *WebSocketConnector_Expecter) GetBalance(asset interface{}) *WebSocketConnector_GetBalance_Call {
+	return &WebSocketConnector_GetBalance_Call{Call: _e.mock.On("GetBalance", asset)}
+}
+
+func (_c *WebSocketConnector_GetBalance_Call) Run(run func(asset portfolio.Pair)) *WebSocketConnector_GetBalance_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(portfolio.Pair))
+	})
+	return _c
+}
+
+func (_c *WebSocketConnector_GetBalance_Call) Return(_a0 *connector.AssetBalance, _a1 error) *WebSocketConnector_GetBalance_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *WebSocketConnector_GetBalance_Call) RunAndReturn(run func(portfolio.Pair) (*connector.AssetBalance, error)) *WebSocketConnector_GetBalance_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -903,9 +975,9 @@ func (_c *WebSocketConnector_GetKlineChannels_Call) RunAndReturn(run func() map[
 	return _c
 }
 
-// GetOpenOrders provides a mock function with no fields
-func (_m *WebSocketConnector) GetOpenOrders() ([]connector.Order, error) {
-	ret := _m.Called()
+// GetOpenOrders provides a mock function with given fields: pair
+func (_m *WebSocketConnector) GetOpenOrders(pair portfolio.Pair) ([]connector.Order, error) {
+	ret := _m.Called(pair)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOpenOrders")
@@ -913,19 +985,19 @@ func (_m *WebSocketConnector) GetOpenOrders() ([]connector.Order, error) {
 
 	var r0 []connector.Order
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]connector.Order, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) ([]connector.Order, error)); ok {
+		return rf(pair)
 	}
-	if rf, ok := ret.Get(0).(func() []connector.Order); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) []connector.Order); ok {
+		r0 = rf(pair)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Order)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
+		r1 = rf(pair)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -939,13 +1011,14 @@ type WebSocketConnector_GetOpenOrders_Call struct {
 }
 
 // GetOpenOrders is a helper method to define mock.On call
-func (_e *WebSocketConnector_Expecter) GetOpenOrders() *WebSocketConnector_GetOpenOrders_Call {
-	return &WebSocketConnector_GetOpenOrders_Call{Call: _e.mock.On("GetOpenOrders")}
+//   - pair portfolio.Pair
+func (_e *WebSocketConnector_Expecter) GetOpenOrders(pair interface{}) *WebSocketConnector_GetOpenOrders_Call {
+	return &WebSocketConnector_GetOpenOrders_Call{Call: _e.mock.On("GetOpenOrders", pair)}
 }
 
-func (_c *WebSocketConnector_GetOpenOrders_Call) Run(run func()) *WebSocketConnector_GetOpenOrders_Call {
+func (_c *WebSocketConnector_GetOpenOrders_Call) Run(run func(pair portfolio.Pair)) *WebSocketConnector_GetOpenOrders_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -955,7 +1028,7 @@ func (_c *WebSocketConnector_GetOpenOrders_Call) Return(_a0 []connector.Order, _
 	return _c
 }
 
-func (_c *WebSocketConnector_GetOpenOrders_Call) RunAndReturn(run func() ([]connector.Order, error)) *WebSocketConnector_GetOpenOrders_Call {
+func (_c *WebSocketConnector_GetOpenOrders_Call) RunAndReturn(run func(portfolio.Pair) ([]connector.Order, error)) *WebSocketConnector_GetOpenOrders_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1007,9 +1080,9 @@ func (_c *WebSocketConnector_GetOrderBookChannels_Call) RunAndReturn(run func() 
 	return _c
 }
 
-// GetOrderStatus provides a mock function with given fields: orderID
-func (_m *WebSocketConnector) GetOrderStatus(orderID string) (*connector.Order, error) {
-	ret := _m.Called(orderID)
+// GetOrderStatus provides a mock function with given fields: pair, orderID
+func (_m *WebSocketConnector) GetOrderStatus(pair portfolio.Pair, orderID string) (*connector.Order, error) {
+	ret := _m.Called(pair, orderID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOrderStatus")
@@ -1017,19 +1090,19 @@ func (_m *WebSocketConnector) GetOrderStatus(orderID string) (*connector.Order, 
 
 	var r0 *connector.Order
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*connector.Order, error)); ok {
-		return rf(orderID)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string) (*connector.Order, error)); ok {
+		return rf(pair, orderID)
 	}
-	if rf, ok := ret.Get(0).(func(string) *connector.Order); ok {
-		r0 = rf(orderID)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string) *connector.Order); ok {
+		r0 = rf(pair, orderID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.Order)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(orderID)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, string) error); ok {
+		r1 = rf(pair, orderID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1043,14 +1116,15 @@ type WebSocketConnector_GetOrderStatus_Call struct {
 }
 
 // GetOrderStatus is a helper method to define mock.On call
+//   - pair portfolio.Pair
 //   - orderID string
-func (_e *WebSocketConnector_Expecter) GetOrderStatus(orderID interface{}) *WebSocketConnector_GetOrderStatus_Call {
-	return &WebSocketConnector_GetOrderStatus_Call{Call: _e.mock.On("GetOrderStatus", orderID)}
+func (_e *WebSocketConnector_Expecter) GetOrderStatus(pair interface{}, orderID interface{}) *WebSocketConnector_GetOrderStatus_Call {
+	return &WebSocketConnector_GetOrderStatus_Call{Call: _e.mock.On("GetOrderStatus", pair, orderID)}
 }
 
-func (_c *WebSocketConnector_GetOrderStatus_Call) Run(run func(orderID string)) *WebSocketConnector_GetOrderStatus_Call {
+func (_c *WebSocketConnector_GetOrderStatus_Call) Run(run func(pair portfolio.Pair, orderID string)) *WebSocketConnector_GetOrderStatus_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(portfolio.Pair), args[1].(string))
 	})
 	return _c
 }
@@ -1060,13 +1134,13 @@ func (_c *WebSocketConnector_GetOrderStatus_Call) Return(_a0 *connector.Order, _
 	return _c
 }
 
-func (_c *WebSocketConnector_GetOrderStatus_Call) RunAndReturn(run func(string) (*connector.Order, error)) *WebSocketConnector_GetOrderStatus_Call {
+func (_c *WebSocketConnector_GetOrderStatus_Call) RunAndReturn(run func(portfolio.Pair, string) (*connector.Order, error)) *WebSocketConnector_GetOrderStatus_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetPerpSymbol provides a mock function with given fields: symbol
-func (_m *WebSocketConnector) GetPerpSymbol(symbol portfolio.Asset) string {
+func (_m *WebSocketConnector) GetPerpSymbol(symbol portfolio.Pair) string {
 	ret := _m.Called(symbol)
 
 	if len(ret) == 0 {
@@ -1074,7 +1148,7 @@ func (_m *WebSocketConnector) GetPerpSymbol(symbol portfolio.Asset) string {
 	}
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) string); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) string); ok {
 		r0 = rf(symbol)
 	} else {
 		r0 = ret.Get(0).(string)
@@ -1089,14 +1163,14 @@ type WebSocketConnector_GetPerpSymbol_Call struct {
 }
 
 // GetPerpSymbol is a helper method to define mock.On call
-//   - symbol portfolio.Asset
+//   - symbol portfolio.Pair
 func (_e *WebSocketConnector_Expecter) GetPerpSymbol(symbol interface{}) *WebSocketConnector_GetPerpSymbol_Call {
 	return &WebSocketConnector_GetPerpSymbol_Call{Call: _e.mock.On("GetPerpSymbol", symbol)}
 }
 
-func (_c *WebSocketConnector_GetPerpSymbol_Call) Run(run func(symbol portfolio.Asset)) *WebSocketConnector_GetPerpSymbol_Call {
+func (_c *WebSocketConnector_GetPerpSymbol_Call) Run(run func(symbol portfolio.Pair)) *WebSocketConnector_GetPerpSymbol_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -1106,7 +1180,7 @@ func (_c *WebSocketConnector_GetPerpSymbol_Call) Return(_a0 string) *WebSocketCo
 	return _c
 }
 
-func (_c *WebSocketConnector_GetPerpSymbol_Call) RunAndReturn(run func(portfolio.Asset) string) *WebSocketConnector_GetPerpSymbol_Call {
+func (_c *WebSocketConnector_GetPerpSymbol_Call) RunAndReturn(run func(portfolio.Pair) string) *WebSocketConnector_GetPerpSymbol_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1168,9 +1242,9 @@ func (_c *WebSocketConnector_GetPositions_Call) RunAndReturn(run func() ([]perp.
 	return _c
 }
 
-// GetTradingHistory provides a mock function with given fields: symbol, limit
-func (_m *WebSocketConnector) GetTradingHistory(symbol string, limit int) ([]connector.Trade, error) {
-	ret := _m.Called(symbol, limit)
+// GetTradingHistory provides a mock function with given fields: pair, limit
+func (_m *WebSocketConnector) GetTradingHistory(pair portfolio.Pair, limit int) ([]connector.Trade, error) {
+	ret := _m.Called(pair, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTradingHistory")
@@ -1178,19 +1252,19 @@ func (_m *WebSocketConnector) GetTradingHistory(symbol string, limit int) ([]con
 
 	var r0 []connector.Trade
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, int) ([]connector.Trade, error)); ok {
-		return rf(symbol, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) ([]connector.Trade, error)); ok {
+		return rf(pair, limit)
 	}
-	if rf, ok := ret.Get(0).(func(string, int) []connector.Trade); ok {
-		r0 = rf(symbol, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) []connector.Trade); ok {
+		r0 = rf(pair, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Trade)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, int) error); ok {
-		r1 = rf(symbol, limit)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, int) error); ok {
+		r1 = rf(pair, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1204,15 +1278,15 @@ type WebSocketConnector_GetTradingHistory_Call struct {
 }
 
 // GetTradingHistory is a helper method to define mock.On call
-//   - symbol string
+//   - pair portfolio.Pair
 //   - limit int
-func (_e *WebSocketConnector_Expecter) GetTradingHistory(symbol interface{}, limit interface{}) *WebSocketConnector_GetTradingHistory_Call {
-	return &WebSocketConnector_GetTradingHistory_Call{Call: _e.mock.On("GetTradingHistory", symbol, limit)}
+func (_e *WebSocketConnector_Expecter) GetTradingHistory(pair interface{}, limit interface{}) *WebSocketConnector_GetTradingHistory_Call {
+	return &WebSocketConnector_GetTradingHistory_Call{Call: _e.mock.On("GetTradingHistory", pair, limit)}
 }
 
-func (_c *WebSocketConnector_GetTradingHistory_Call) Run(run func(symbol string, limit int)) *WebSocketConnector_GetTradingHistory_Call {
+func (_c *WebSocketConnector_GetTradingHistory_Call) Run(run func(pair portfolio.Pair, limit int)) *WebSocketConnector_GetTradingHistory_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(int))
+		run(args[0].(portfolio.Pair), args[1].(int))
 	})
 	return _c
 }
@@ -1222,7 +1296,7 @@ func (_c *WebSocketConnector_GetTradingHistory_Call) Return(_a0 []connector.Trad
 	return _c
 }
 
-func (_c *WebSocketConnector_GetTradingHistory_Call) RunAndReturn(run func(string, int) ([]connector.Trade, error)) *WebSocketConnector_GetTradingHistory_Call {
+func (_c *WebSocketConnector_GetTradingHistory_Call) RunAndReturn(run func(portfolio.Pair, int) ([]connector.Trade, error)) *WebSocketConnector_GetTradingHistory_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1410,9 +1484,9 @@ func (_c *WebSocketConnector_NewConfig_Call) RunAndReturn(run func() connector.C
 	return _c
 }
 
-// PlaceLimitOrder provides a mock function with given fields: symbol, side, quantity, price
-func (_m *WebSocketConnector) PlaceLimitOrder(symbol string, side connector.OrderSide, quantity numerical.Decimal, price numerical.Decimal) (*connector.OrderResponse, error) {
-	ret := _m.Called(symbol, side, quantity, price)
+// PlaceLimitOrder provides a mock function with given fields: pair, side, quantity, price
+func (_m *WebSocketConnector) PlaceLimitOrder(pair portfolio.Pair, side connector.OrderSide, quantity numerical.Decimal, price numerical.Decimal) (*connector.OrderResponse, error) {
+	ret := _m.Called(pair, side, quantity, price)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PlaceLimitOrder")
@@ -1420,19 +1494,19 @@ func (_m *WebSocketConnector) PlaceLimitOrder(symbol string, side connector.Orde
 
 	var r0 *connector.OrderResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, numerical.Decimal, numerical.Decimal) (*connector.OrderResponse, error)); ok {
-		return rf(symbol, side, quantity, price)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.OrderSide, numerical.Decimal, numerical.Decimal) (*connector.OrderResponse, error)); ok {
+		return rf(pair, side, quantity, price)
 	}
-	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, numerical.Decimal, numerical.Decimal) *connector.OrderResponse); ok {
-		r0 = rf(symbol, side, quantity, price)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.OrderSide, numerical.Decimal, numerical.Decimal) *connector.OrderResponse); ok {
+		r0 = rf(pair, side, quantity, price)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.OrderResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, connector.OrderSide, numerical.Decimal, numerical.Decimal) error); ok {
-		r1 = rf(symbol, side, quantity, price)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, connector.OrderSide, numerical.Decimal, numerical.Decimal) error); ok {
+		r1 = rf(pair, side, quantity, price)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1446,17 +1520,17 @@ type WebSocketConnector_PlaceLimitOrder_Call struct {
 }
 
 // PlaceLimitOrder is a helper method to define mock.On call
-//   - symbol string
+//   - pair portfolio.Pair
 //   - side connector.OrderSide
 //   - quantity numerical.Decimal
 //   - price numerical.Decimal
-func (_e *WebSocketConnector_Expecter) PlaceLimitOrder(symbol interface{}, side interface{}, quantity interface{}, price interface{}) *WebSocketConnector_PlaceLimitOrder_Call {
-	return &WebSocketConnector_PlaceLimitOrder_Call{Call: _e.mock.On("PlaceLimitOrder", symbol, side, quantity, price)}
+func (_e *WebSocketConnector_Expecter) PlaceLimitOrder(pair interface{}, side interface{}, quantity interface{}, price interface{}) *WebSocketConnector_PlaceLimitOrder_Call {
+	return &WebSocketConnector_PlaceLimitOrder_Call{Call: _e.mock.On("PlaceLimitOrder", pair, side, quantity, price)}
 }
 
-func (_c *WebSocketConnector_PlaceLimitOrder_Call) Run(run func(symbol string, side connector.OrderSide, quantity numerical.Decimal, price numerical.Decimal)) *WebSocketConnector_PlaceLimitOrder_Call {
+func (_c *WebSocketConnector_PlaceLimitOrder_Call) Run(run func(pair portfolio.Pair, side connector.OrderSide, quantity numerical.Decimal, price numerical.Decimal)) *WebSocketConnector_PlaceLimitOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(connector.OrderSide), args[2].(numerical.Decimal), args[3].(numerical.Decimal))
+		run(args[0].(portfolio.Pair), args[1].(connector.OrderSide), args[2].(numerical.Decimal), args[3].(numerical.Decimal))
 	})
 	return _c
 }
@@ -1466,14 +1540,14 @@ func (_c *WebSocketConnector_PlaceLimitOrder_Call) Return(_a0 *connector.OrderRe
 	return _c
 }
 
-func (_c *WebSocketConnector_PlaceLimitOrder_Call) RunAndReturn(run func(string, connector.OrderSide, numerical.Decimal, numerical.Decimal) (*connector.OrderResponse, error)) *WebSocketConnector_PlaceLimitOrder_Call {
+func (_c *WebSocketConnector_PlaceLimitOrder_Call) RunAndReturn(run func(portfolio.Pair, connector.OrderSide, numerical.Decimal, numerical.Decimal) (*connector.OrderResponse, error)) *WebSocketConnector_PlaceLimitOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// PlaceMarketOrder provides a mock function with given fields: symbol, side, quantity
-func (_m *WebSocketConnector) PlaceMarketOrder(symbol string, side connector.OrderSide, quantity numerical.Decimal) (*connector.OrderResponse, error) {
-	ret := _m.Called(symbol, side, quantity)
+// PlaceMarketOrder provides a mock function with given fields: pair, side, quantity
+func (_m *WebSocketConnector) PlaceMarketOrder(pair portfolio.Pair, side connector.OrderSide, quantity numerical.Decimal) (*connector.OrderResponse, error) {
+	ret := _m.Called(pair, side, quantity)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PlaceMarketOrder")
@@ -1481,19 +1555,19 @@ func (_m *WebSocketConnector) PlaceMarketOrder(symbol string, side connector.Ord
 
 	var r0 *connector.OrderResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, numerical.Decimal) (*connector.OrderResponse, error)); ok {
-		return rf(symbol, side, quantity)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.OrderSide, numerical.Decimal) (*connector.OrderResponse, error)); ok {
+		return rf(pair, side, quantity)
 	}
-	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, numerical.Decimal) *connector.OrderResponse); ok {
-		r0 = rf(symbol, side, quantity)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.OrderSide, numerical.Decimal) *connector.OrderResponse); ok {
+		r0 = rf(pair, side, quantity)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.OrderResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, connector.OrderSide, numerical.Decimal) error); ok {
-		r1 = rf(symbol, side, quantity)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, connector.OrderSide, numerical.Decimal) error); ok {
+		r1 = rf(pair, side, quantity)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1507,16 +1581,16 @@ type WebSocketConnector_PlaceMarketOrder_Call struct {
 }
 
 // PlaceMarketOrder is a helper method to define mock.On call
-//   - symbol string
+//   - pair portfolio.Pair
 //   - side connector.OrderSide
 //   - quantity numerical.Decimal
-func (_e *WebSocketConnector_Expecter) PlaceMarketOrder(symbol interface{}, side interface{}, quantity interface{}) *WebSocketConnector_PlaceMarketOrder_Call {
-	return &WebSocketConnector_PlaceMarketOrder_Call{Call: _e.mock.On("PlaceMarketOrder", symbol, side, quantity)}
+func (_e *WebSocketConnector_Expecter) PlaceMarketOrder(pair interface{}, side interface{}, quantity interface{}) *WebSocketConnector_PlaceMarketOrder_Call {
+	return &WebSocketConnector_PlaceMarketOrder_Call{Call: _e.mock.On("PlaceMarketOrder", pair, side, quantity)}
 }
 
-func (_c *WebSocketConnector_PlaceMarketOrder_Call) Run(run func(symbol string, side connector.OrderSide, quantity numerical.Decimal)) *WebSocketConnector_PlaceMarketOrder_Call {
+func (_c *WebSocketConnector_PlaceMarketOrder_Call) Run(run func(pair portfolio.Pair, side connector.OrderSide, quantity numerical.Decimal)) *WebSocketConnector_PlaceMarketOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(connector.OrderSide), args[2].(numerical.Decimal))
+		run(args[0].(portfolio.Pair), args[1].(connector.OrderSide), args[2].(numerical.Decimal))
 	})
 	return _c
 }
@@ -1526,7 +1600,7 @@ func (_c *WebSocketConnector_PlaceMarketOrder_Call) Return(_a0 *connector.OrderR
 	return _c
 }
 
-func (_c *WebSocketConnector_PlaceMarketOrder_Call) RunAndReturn(run func(string, connector.OrderSide, numerical.Decimal) (*connector.OrderResponse, error)) *WebSocketConnector_PlaceMarketOrder_Call {
+func (_c *WebSocketConnector_PlaceMarketOrder_Call) RunAndReturn(run func(portfolio.Pair, connector.OrderSide, numerical.Decimal) (*connector.OrderResponse, error)) *WebSocketConnector_PlaceMarketOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1714,7 +1788,7 @@ func (_c *WebSocketConnector_SubscribeAccountBalance_Call) RunAndReturn(run func
 }
 
 // SubscribeFundingRates provides a mock function with given fields: asset
-func (_m *WebSocketConnector) SubscribeFundingRates(asset portfolio.Asset) error {
+func (_m *WebSocketConnector) SubscribeFundingRates(asset portfolio.Pair) error {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -1722,7 +1796,7 @@ func (_m *WebSocketConnector) SubscribeFundingRates(asset portfolio.Asset) error
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) error); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) error); ok {
 		r0 = rf(asset)
 	} else {
 		r0 = ret.Error(0)
@@ -1737,14 +1811,14 @@ type WebSocketConnector_SubscribeFundingRates_Call struct {
 }
 
 // SubscribeFundingRates is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *WebSocketConnector_Expecter) SubscribeFundingRates(asset interface{}) *WebSocketConnector_SubscribeFundingRates_Call {
 	return &WebSocketConnector_SubscribeFundingRates_Call{Call: _e.mock.On("SubscribeFundingRates", asset)}
 }
 
-func (_c *WebSocketConnector_SubscribeFundingRates_Call) Run(run func(asset portfolio.Asset)) *WebSocketConnector_SubscribeFundingRates_Call {
+func (_c *WebSocketConnector_SubscribeFundingRates_Call) Run(run func(asset portfolio.Pair)) *WebSocketConnector_SubscribeFundingRates_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -1754,13 +1828,13 @@ func (_c *WebSocketConnector_SubscribeFundingRates_Call) Return(_a0 error) *WebS
 	return _c
 }
 
-func (_c *WebSocketConnector_SubscribeFundingRates_Call) RunAndReturn(run func(portfolio.Asset) error) *WebSocketConnector_SubscribeFundingRates_Call {
+func (_c *WebSocketConnector_SubscribeFundingRates_Call) RunAndReturn(run func(portfolio.Pair) error) *WebSocketConnector_SubscribeFundingRates_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SubscribeKlines provides a mock function with given fields: asset, interval
-func (_m *WebSocketConnector) SubscribeKlines(asset portfolio.Asset, interval string) error {
+func (_m *WebSocketConnector) SubscribeKlines(asset portfolio.Pair, interval string) error {
 	ret := _m.Called(asset, interval)
 
 	if len(ret) == 0 {
@@ -1768,7 +1842,7 @@ func (_m *WebSocketConnector) SubscribeKlines(asset portfolio.Asset, interval st
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, string) error); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string) error); ok {
 		r0 = rf(asset, interval)
 	} else {
 		r0 = ret.Error(0)
@@ -1783,15 +1857,15 @@ type WebSocketConnector_SubscribeKlines_Call struct {
 }
 
 // SubscribeKlines is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - interval string
 func (_e *WebSocketConnector_Expecter) SubscribeKlines(asset interface{}, interval interface{}) *WebSocketConnector_SubscribeKlines_Call {
 	return &WebSocketConnector_SubscribeKlines_Call{Call: _e.mock.On("SubscribeKlines", asset, interval)}
 }
 
-func (_c *WebSocketConnector_SubscribeKlines_Call) Run(run func(asset portfolio.Asset, interval string)) *WebSocketConnector_SubscribeKlines_Call {
+func (_c *WebSocketConnector_SubscribeKlines_Call) Run(run func(asset portfolio.Pair, interval string)) *WebSocketConnector_SubscribeKlines_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(string))
+		run(args[0].(portfolio.Pair), args[1].(string))
 	})
 	return _c
 }
@@ -1801,13 +1875,13 @@ func (_c *WebSocketConnector_SubscribeKlines_Call) Return(_a0 error) *WebSocketC
 	return _c
 }
 
-func (_c *WebSocketConnector_SubscribeKlines_Call) RunAndReturn(run func(portfolio.Asset, string) error) *WebSocketConnector_SubscribeKlines_Call {
+func (_c *WebSocketConnector_SubscribeKlines_Call) RunAndReturn(run func(portfolio.Pair, string) error) *WebSocketConnector_SubscribeKlines_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SubscribeOrderBook provides a mock function with given fields: asset
-func (_m *WebSocketConnector) SubscribeOrderBook(asset portfolio.Asset) error {
+func (_m *WebSocketConnector) SubscribeOrderBook(asset portfolio.Pair) error {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -1815,7 +1889,7 @@ func (_m *WebSocketConnector) SubscribeOrderBook(asset portfolio.Asset) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) error); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) error); ok {
 		r0 = rf(asset)
 	} else {
 		r0 = ret.Error(0)
@@ -1830,14 +1904,14 @@ type WebSocketConnector_SubscribeOrderBook_Call struct {
 }
 
 // SubscribeOrderBook is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *WebSocketConnector_Expecter) SubscribeOrderBook(asset interface{}) *WebSocketConnector_SubscribeOrderBook_Call {
 	return &WebSocketConnector_SubscribeOrderBook_Call{Call: _e.mock.On("SubscribeOrderBook", asset)}
 }
 
-func (_c *WebSocketConnector_SubscribeOrderBook_Call) Run(run func(asset portfolio.Asset)) *WebSocketConnector_SubscribeOrderBook_Call {
+func (_c *WebSocketConnector_SubscribeOrderBook_Call) Run(run func(asset portfolio.Pair)) *WebSocketConnector_SubscribeOrderBook_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -1847,13 +1921,13 @@ func (_c *WebSocketConnector_SubscribeOrderBook_Call) Return(_a0 error) *WebSock
 	return _c
 }
 
-func (_c *WebSocketConnector_SubscribeOrderBook_Call) RunAndReturn(run func(portfolio.Asset) error) *WebSocketConnector_SubscribeOrderBook_Call {
+func (_c *WebSocketConnector_SubscribeOrderBook_Call) RunAndReturn(run func(portfolio.Pair) error) *WebSocketConnector_SubscribeOrderBook_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SubscribePositions provides a mock function with given fields: asset
-func (_m *WebSocketConnector) SubscribePositions(asset portfolio.Asset) error {
+func (_m *WebSocketConnector) SubscribePositions(asset portfolio.Pair) error {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -1861,7 +1935,7 @@ func (_m *WebSocketConnector) SubscribePositions(asset portfolio.Asset) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) error); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) error); ok {
 		r0 = rf(asset)
 	} else {
 		r0 = ret.Error(0)
@@ -1876,14 +1950,14 @@ type WebSocketConnector_SubscribePositions_Call struct {
 }
 
 // SubscribePositions is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *WebSocketConnector_Expecter) SubscribePositions(asset interface{}) *WebSocketConnector_SubscribePositions_Call {
 	return &WebSocketConnector_SubscribePositions_Call{Call: _e.mock.On("SubscribePositions", asset)}
 }
 
-func (_c *WebSocketConnector_SubscribePositions_Call) Run(run func(asset portfolio.Asset)) *WebSocketConnector_SubscribePositions_Call {
+func (_c *WebSocketConnector_SubscribePositions_Call) Run(run func(asset portfolio.Pair)) *WebSocketConnector_SubscribePositions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -1893,13 +1967,13 @@ func (_c *WebSocketConnector_SubscribePositions_Call) Return(_a0 error) *WebSock
 	return _c
 }
 
-func (_c *WebSocketConnector_SubscribePositions_Call) RunAndReturn(run func(portfolio.Asset) error) *WebSocketConnector_SubscribePositions_Call {
+func (_c *WebSocketConnector_SubscribePositions_Call) RunAndReturn(run func(portfolio.Pair) error) *WebSocketConnector_SubscribePositions_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SubscribeTrades provides a mock function with given fields: asset
-func (_m *WebSocketConnector) SubscribeTrades(asset portfolio.Asset) error {
+func (_m *WebSocketConnector) SubscribeTrades(asset portfolio.Pair) error {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -1907,7 +1981,7 @@ func (_m *WebSocketConnector) SubscribeTrades(asset portfolio.Asset) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) error); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) error); ok {
 		r0 = rf(asset)
 	} else {
 		r0 = ret.Error(0)
@@ -1922,14 +1996,14 @@ type WebSocketConnector_SubscribeTrades_Call struct {
 }
 
 // SubscribeTrades is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *WebSocketConnector_Expecter) SubscribeTrades(asset interface{}) *WebSocketConnector_SubscribeTrades_Call {
 	return &WebSocketConnector_SubscribeTrades_Call{Call: _e.mock.On("SubscribeTrades", asset)}
 }
 
-func (_c *WebSocketConnector_SubscribeTrades_Call) Run(run func(asset portfolio.Asset)) *WebSocketConnector_SubscribeTrades_Call {
+func (_c *WebSocketConnector_SubscribeTrades_Call) Run(run func(asset portfolio.Pair)) *WebSocketConnector_SubscribeTrades_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -1939,7 +2013,7 @@ func (_c *WebSocketConnector_SubscribeTrades_Call) Return(_a0 error) *WebSocketC
 	return _c
 }
 
-func (_c *WebSocketConnector_SubscribeTrades_Call) RunAndReturn(run func(portfolio.Asset) error) *WebSocketConnector_SubscribeTrades_Call {
+func (_c *WebSocketConnector_SubscribeTrades_Call) RunAndReturn(run func(portfolio.Pair) error) *WebSocketConnector_SubscribeTrades_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2127,7 +2201,7 @@ func (_c *WebSocketConnector_UnsubscribeAccountBalance_Call) RunAndReturn(run fu
 }
 
 // UnsubscribeFundingRates provides a mock function with given fields: asset
-func (_m *WebSocketConnector) UnsubscribeFundingRates(asset portfolio.Asset) error {
+func (_m *WebSocketConnector) UnsubscribeFundingRates(asset portfolio.Pair) error {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -2135,7 +2209,7 @@ func (_m *WebSocketConnector) UnsubscribeFundingRates(asset portfolio.Asset) err
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) error); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) error); ok {
 		r0 = rf(asset)
 	} else {
 		r0 = ret.Error(0)
@@ -2150,14 +2224,14 @@ type WebSocketConnector_UnsubscribeFundingRates_Call struct {
 }
 
 // UnsubscribeFundingRates is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *WebSocketConnector_Expecter) UnsubscribeFundingRates(asset interface{}) *WebSocketConnector_UnsubscribeFundingRates_Call {
 	return &WebSocketConnector_UnsubscribeFundingRates_Call{Call: _e.mock.On("UnsubscribeFundingRates", asset)}
 }
 
-func (_c *WebSocketConnector_UnsubscribeFundingRates_Call) Run(run func(asset portfolio.Asset)) *WebSocketConnector_UnsubscribeFundingRates_Call {
+func (_c *WebSocketConnector_UnsubscribeFundingRates_Call) Run(run func(asset portfolio.Pair)) *WebSocketConnector_UnsubscribeFundingRates_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -2167,13 +2241,13 @@ func (_c *WebSocketConnector_UnsubscribeFundingRates_Call) Return(_a0 error) *We
 	return _c
 }
 
-func (_c *WebSocketConnector_UnsubscribeFundingRates_Call) RunAndReturn(run func(portfolio.Asset) error) *WebSocketConnector_UnsubscribeFundingRates_Call {
+func (_c *WebSocketConnector_UnsubscribeFundingRates_Call) RunAndReturn(run func(portfolio.Pair) error) *WebSocketConnector_UnsubscribeFundingRates_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UnsubscribeKlines provides a mock function with given fields: asset, interval
-func (_m *WebSocketConnector) UnsubscribeKlines(asset portfolio.Asset, interval string) error {
+func (_m *WebSocketConnector) UnsubscribeKlines(asset portfolio.Pair, interval string) error {
 	ret := _m.Called(asset, interval)
 
 	if len(ret) == 0 {
@@ -2181,7 +2255,7 @@ func (_m *WebSocketConnector) UnsubscribeKlines(asset portfolio.Asset, interval 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, string) error); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string) error); ok {
 		r0 = rf(asset, interval)
 	} else {
 		r0 = ret.Error(0)
@@ -2196,15 +2270,15 @@ type WebSocketConnector_UnsubscribeKlines_Call struct {
 }
 
 // UnsubscribeKlines is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - interval string
 func (_e *WebSocketConnector_Expecter) UnsubscribeKlines(asset interface{}, interval interface{}) *WebSocketConnector_UnsubscribeKlines_Call {
 	return &WebSocketConnector_UnsubscribeKlines_Call{Call: _e.mock.On("UnsubscribeKlines", asset, interval)}
 }
 
-func (_c *WebSocketConnector_UnsubscribeKlines_Call) Run(run func(asset portfolio.Asset, interval string)) *WebSocketConnector_UnsubscribeKlines_Call {
+func (_c *WebSocketConnector_UnsubscribeKlines_Call) Run(run func(asset portfolio.Pair, interval string)) *WebSocketConnector_UnsubscribeKlines_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(string))
+		run(args[0].(portfolio.Pair), args[1].(string))
 	})
 	return _c
 }
@@ -2214,13 +2288,13 @@ func (_c *WebSocketConnector_UnsubscribeKlines_Call) Return(_a0 error) *WebSocke
 	return _c
 }
 
-func (_c *WebSocketConnector_UnsubscribeKlines_Call) RunAndReturn(run func(portfolio.Asset, string) error) *WebSocketConnector_UnsubscribeKlines_Call {
+func (_c *WebSocketConnector_UnsubscribeKlines_Call) RunAndReturn(run func(portfolio.Pair, string) error) *WebSocketConnector_UnsubscribeKlines_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UnsubscribeOrderBook provides a mock function with given fields: asset
-func (_m *WebSocketConnector) UnsubscribeOrderBook(asset portfolio.Asset) error {
+func (_m *WebSocketConnector) UnsubscribeOrderBook(asset portfolio.Pair) error {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -2228,7 +2302,7 @@ func (_m *WebSocketConnector) UnsubscribeOrderBook(asset portfolio.Asset) error 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) error); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) error); ok {
 		r0 = rf(asset)
 	} else {
 		r0 = ret.Error(0)
@@ -2243,14 +2317,14 @@ type WebSocketConnector_UnsubscribeOrderBook_Call struct {
 }
 
 // UnsubscribeOrderBook is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *WebSocketConnector_Expecter) UnsubscribeOrderBook(asset interface{}) *WebSocketConnector_UnsubscribeOrderBook_Call {
 	return &WebSocketConnector_UnsubscribeOrderBook_Call{Call: _e.mock.On("UnsubscribeOrderBook", asset)}
 }
 
-func (_c *WebSocketConnector_UnsubscribeOrderBook_Call) Run(run func(asset portfolio.Asset)) *WebSocketConnector_UnsubscribeOrderBook_Call {
+func (_c *WebSocketConnector_UnsubscribeOrderBook_Call) Run(run func(asset portfolio.Pair)) *WebSocketConnector_UnsubscribeOrderBook_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -2260,13 +2334,13 @@ func (_c *WebSocketConnector_UnsubscribeOrderBook_Call) Return(_a0 error) *WebSo
 	return _c
 }
 
-func (_c *WebSocketConnector_UnsubscribeOrderBook_Call) RunAndReturn(run func(portfolio.Asset) error) *WebSocketConnector_UnsubscribeOrderBook_Call {
+func (_c *WebSocketConnector_UnsubscribeOrderBook_Call) RunAndReturn(run func(portfolio.Pair) error) *WebSocketConnector_UnsubscribeOrderBook_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UnsubscribePositions provides a mock function with given fields: asset
-func (_m *WebSocketConnector) UnsubscribePositions(asset portfolio.Asset) error {
+func (_m *WebSocketConnector) UnsubscribePositions(asset portfolio.Pair) error {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -2274,7 +2348,7 @@ func (_m *WebSocketConnector) UnsubscribePositions(asset portfolio.Asset) error 
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) error); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) error); ok {
 		r0 = rf(asset)
 	} else {
 		r0 = ret.Error(0)
@@ -2289,14 +2363,14 @@ type WebSocketConnector_UnsubscribePositions_Call struct {
 }
 
 // UnsubscribePositions is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *WebSocketConnector_Expecter) UnsubscribePositions(asset interface{}) *WebSocketConnector_UnsubscribePositions_Call {
 	return &WebSocketConnector_UnsubscribePositions_Call{Call: _e.mock.On("UnsubscribePositions", asset)}
 }
 
-func (_c *WebSocketConnector_UnsubscribePositions_Call) Run(run func(asset portfolio.Asset)) *WebSocketConnector_UnsubscribePositions_Call {
+func (_c *WebSocketConnector_UnsubscribePositions_Call) Run(run func(asset portfolio.Pair)) *WebSocketConnector_UnsubscribePositions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -2306,13 +2380,13 @@ func (_c *WebSocketConnector_UnsubscribePositions_Call) Return(_a0 error) *WebSo
 	return _c
 }
 
-func (_c *WebSocketConnector_UnsubscribePositions_Call) RunAndReturn(run func(portfolio.Asset) error) *WebSocketConnector_UnsubscribePositions_Call {
+func (_c *WebSocketConnector_UnsubscribePositions_Call) RunAndReturn(run func(portfolio.Pair) error) *WebSocketConnector_UnsubscribePositions_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UnsubscribeTrades provides a mock function with given fields: asset
-func (_m *WebSocketConnector) UnsubscribeTrades(asset portfolio.Asset) error {
+func (_m *WebSocketConnector) UnsubscribeTrades(asset portfolio.Pair) error {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -2320,7 +2394,7 @@ func (_m *WebSocketConnector) UnsubscribeTrades(asset portfolio.Asset) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) error); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) error); ok {
 		r0 = rf(asset)
 	} else {
 		r0 = ret.Error(0)
@@ -2335,14 +2409,14 @@ type WebSocketConnector_UnsubscribeTrades_Call struct {
 }
 
 // UnsubscribeTrades is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *WebSocketConnector_Expecter) UnsubscribeTrades(asset interface{}) *WebSocketConnector_UnsubscribeTrades_Call {
 	return &WebSocketConnector_UnsubscribeTrades_Call{Call: _e.mock.On("UnsubscribeTrades", asset)}
 }
 
-func (_c *WebSocketConnector_UnsubscribeTrades_Call) Run(run func(asset portfolio.Asset)) *WebSocketConnector_UnsubscribeTrades_Call {
+func (_c *WebSocketConnector_UnsubscribeTrades_Call) Run(run func(asset portfolio.Pair)) *WebSocketConnector_UnsubscribeTrades_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -2352,7 +2426,7 @@ func (_c *WebSocketConnector_UnsubscribeTrades_Call) Return(_a0 error) *WebSocke
 	return _c
 }
 
-func (_c *WebSocketConnector_UnsubscribeTrades_Call) RunAndReturn(run func(portfolio.Asset) error) *WebSocketConnector_UnsubscribeTrades_Call {
+func (_c *WebSocketConnector_UnsubscribeTrades_Call) RunAndReturn(run func(portfolio.Pair) error) *WebSocketConnector_UnsubscribeTrades_Call {
 	_c.Call.Return(run)
 	return _c
 }

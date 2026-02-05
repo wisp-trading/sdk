@@ -6,7 +6,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-func (ds *dataStore) UpdateAssetPrice(asset portfolio.Asset, exchangeName connector.ExchangeName, price connector.Price) {
+func (ds *dataStore) UpdateAssetPrice(asset portfolio.Pair, exchangeName connector.ExchangeName, price connector.Price) {
 	ds.mutex.Lock()
 
 	current := ds.getPrices()
@@ -37,7 +37,7 @@ func (ds *dataStore) UpdateAssetPrice(asset portfolio.Asset, exchangeName connec
 	})
 }
 
-func (ds *dataStore) UpdateAssetPrices(asset portfolio.Asset, prices marketTypes.PriceMap) {
+func (ds *dataStore) UpdateAssetPrices(asset portfolio.Pair, prices marketTypes.PriceMap) {
 	ds.mutex.Lock()
 
 	current := ds.getPrices()
@@ -77,7 +77,7 @@ func (ds *dataStore) UpdateAssetPrices(asset portfolio.Asset, prices marketTypes
 	}
 }
 
-func (ds *dataStore) GetAssetPrice(asset portfolio.Asset, exchangeName connector.ExchangeName) *connector.Price {
+func (ds *dataStore) GetAssetPrice(asset portfolio.Pair, exchangeName connector.ExchangeName) *connector.Price {
 	current := ds.getPrices()
 	if priceMap, ok := current[asset]; ok {
 		if price, ok := priceMap[exchangeName]; ok {
@@ -87,7 +87,7 @@ func (ds *dataStore) GetAssetPrice(asset portfolio.Asset, exchangeName connector
 	return nil
 }
 
-func (ds *dataStore) GetAssetPrices(asset portfolio.Asset) marketTypes.PriceMap {
+func (ds *dataStore) GetAssetPrices(asset portfolio.Pair) marketTypes.PriceMap {
 	current := ds.getPrices()
 	if prices, ok := current[asset]; ok {
 		return prices

@@ -17,8 +17,8 @@ import (
 var _ = Describe("Market Data Store - Funding Rates", func() {
 	var (
 		store    perpTypes.MarketStore
-		btc      portfolio.Asset
-		eth      portfolio.Asset
+		btc      portfolio.Pair
+		eth      portfolio.Pair
 		provider temporal.TimeProvider
 	)
 
@@ -139,7 +139,7 @@ var _ = Describe("Market Data Store - Funding Rates", func() {
 			It("should store multiple funding rates at once", func() {
 				now := time.Now()
 
-				rates := map[portfolio.Asset]perp2.FundingRate{
+				rates := map[portfolio.Pair]perp2.FundingRate{
 					btc: {
 						CurrentRate: numerical.NewFromFloat(0.0001),
 						Timestamp:   now,

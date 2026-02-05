@@ -118,7 +118,7 @@ func (_c *PNL_GetRealizedPNL_Call) RunAndReturn(run func(strategy.StrategyContex
 }
 
 // GetRealizedPNLByAsset provides a mock function with given fields: ctx, asset
-func (_m *PNL) GetRealizedPNLByAsset(ctx strategy.StrategyContext, asset portfolio.Asset) numerical.Decimal {
+func (_m *PNL) GetRealizedPNLByAsset(ctx strategy.StrategyContext, asset portfolio.Pair) numerical.Decimal {
 	ret := _m.Called(ctx, asset)
 
 	if len(ret) == 0 {
@@ -126,7 +126,7 @@ func (_m *PNL) GetRealizedPNLByAsset(ctx strategy.StrategyContext, asset portfol
 	}
 
 	var r0 numerical.Decimal
-	if rf, ok := ret.Get(0).(func(strategy.StrategyContext, portfolio.Asset) numerical.Decimal); ok {
+	if rf, ok := ret.Get(0).(func(strategy.StrategyContext, portfolio.Pair) numerical.Decimal); ok {
 		r0 = rf(ctx, asset)
 	} else {
 		r0 = ret.Get(0).(numerical.Decimal)
@@ -142,14 +142,14 @@ type PNL_GetRealizedPNLByAsset_Call struct {
 
 // GetRealizedPNLByAsset is a helper method to define mock.On call
 //   - ctx strategy.StrategyContext
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *PNL_Expecter) GetRealizedPNLByAsset(ctx interface{}, asset interface{}) *PNL_GetRealizedPNLByAsset_Call {
 	return &PNL_GetRealizedPNLByAsset_Call{Call: _e.mock.On("GetRealizedPNLByAsset", ctx, asset)}
 }
 
-func (_c *PNL_GetRealizedPNLByAsset_Call) Run(run func(ctx strategy.StrategyContext, asset portfolio.Asset)) *PNL_GetRealizedPNLByAsset_Call {
+func (_c *PNL_GetRealizedPNLByAsset_Call) Run(run func(ctx strategy.StrategyContext, asset portfolio.Pair)) *PNL_GetRealizedPNLByAsset_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyContext), args[1].(portfolio.Asset))
+		run(args[0].(strategy.StrategyContext), args[1].(portfolio.Pair))
 	})
 	return _c
 }
@@ -159,7 +159,7 @@ func (_c *PNL_GetRealizedPNLByAsset_Call) Return(_a0 numerical.Decimal) *PNL_Get
 	return _c
 }
 
-func (_c *PNL_GetRealizedPNLByAsset_Call) RunAndReturn(run func(strategy.StrategyContext, portfolio.Asset) numerical.Decimal) *PNL_GetRealizedPNLByAsset_Call {
+func (_c *PNL_GetRealizedPNLByAsset_Call) RunAndReturn(run func(strategy.StrategyContext, portfolio.Pair) numerical.Decimal) *PNL_GetRealizedPNLByAsset_Call {
 	_c.Call.Return(run)
 	return _c
 }

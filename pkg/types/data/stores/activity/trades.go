@@ -17,8 +17,8 @@ type Trades interface {
 	// Query trades globally (trades contain exchange in their struct)
 	GetAllTrades() []connector.Trade
 	GetTradesByExchange(exchange connector.ExchangeName) []connector.Trade
-	GetTradesByAsset(asset portfolio.Asset) []connector.Trade
-	GetTradesByExchangeAndAsset(exchange connector.ExchangeName, asset portfolio.Asset) []connector.Trade
+	GetTradesByAsset(asset portfolio.Pair) []connector.Trade
+	GetTradesByExchangeAndAsset(exchange connector.ExchangeName, asset portfolio.Pair) []connector.Trade
 	GetTradesSince(since time.Time) []connector.Trade
 
 	// Query by ID
@@ -27,7 +27,7 @@ type Trades interface {
 
 	// Analytics helpers
 	GetTradeCount() int
-	GetTotalVolume(asset portfolio.Asset) numerical.Decimal
+	GetTotalVolume(asset portfolio.Pair) numerical.Decimal
 
 	// Clear for simulation restart
 	Clear()

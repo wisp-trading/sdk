@@ -8,7 +8,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-func (ds *dataStore) UpdateKline(asset portfolio.Asset, exchangeName connector.ExchangeName, kline connector.Kline) {
+func (ds *dataStore) UpdateKline(asset portfolio.Pair, exchangeName connector.ExchangeName, kline connector.Kline) {
 	ds.mutex.Lock()
 
 	current := ds.getKlines()
@@ -67,7 +67,7 @@ func (ds *dataStore) UpdateKline(asset portfolio.Asset, exchangeName connector.E
 	})
 }
 
-func (ds *dataStore) GetKlines(asset portfolio.Asset, exchangeName connector.ExchangeName, interval string, limit int) []connector.Kline {
+func (ds *dataStore) GetKlines(asset portfolio.Pair, exchangeName connector.ExchangeName, interval string, limit int) []connector.Kline {
 	current := ds.getKlines()
 	if klineMap, ok := current[asset]; ok {
 		if exchangeKlines, ok := klineMap[exchangeName]; ok {
@@ -82,7 +82,7 @@ func (ds *dataStore) GetKlines(asset portfolio.Asset, exchangeName connector.Exc
 	return []connector.Kline{}
 }
 
-func (ds *dataStore) GetKlinesSince(asset portfolio.Asset, exchangeName connector.ExchangeName, interval string, since time.Time) []connector.Kline {
+func (ds *dataStore) GetKlinesSince(asset portfolio.Pair, exchangeName connector.ExchangeName, interval string, since time.Time) []connector.Kline {
 	current := ds.getKlines()
 	if klineMap, ok := current[asset]; ok {
 		if exchangeKlines, ok := klineMap[exchangeName]; ok {

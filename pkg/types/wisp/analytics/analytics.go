@@ -9,10 +9,10 @@ import (
 )
 
 type Analytics interface {
-	Volatility(ctx context.Context, asset portfolio.Asset, period int, opts ...AnalyticsOptions) (numerical.Decimal, error)
-	Trend(ctx context.Context, asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*TrendResult, error)
-	VolumeAnalysis(ctx context.Context, asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*VolumeAnalysis, error)
-	GetPriceChange(ctx context.Context, asset portfolio.Asset, period int, opts ...AnalyticsOptions) (*PriceChange, error)
+	Volatility(ctx context.Context, asset portfolio.Pair, period int, opts ...AnalyticsOptions) (numerical.Decimal, error)
+	Trend(ctx context.Context, asset portfolio.Pair, period int, opts ...AnalyticsOptions) (*TrendResult, error)
+	VolumeAnalysis(ctx context.Context, asset portfolio.Pair, period int, opts ...AnalyticsOptions) (*VolumeAnalysis, error)
+	GetPriceChange(ctx context.Context, asset portfolio.Pair, period int, opts ...AnalyticsOptions) (*PriceChange, error)
 }
 
 // AnalyticsOptions configures analytics calculations

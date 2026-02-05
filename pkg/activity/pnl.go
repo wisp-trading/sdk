@@ -11,7 +11,7 @@ import (
 
 // positionTracker tracks open position size and average entry price for an asset
 type positionTracker struct {
-	asset    portfolio.Asset
+	asset    portfolio.Pair
 	size     numerical.Decimal // Positive = long, negative = short
 	avgEntry numerical.Decimal
 }
@@ -153,7 +153,7 @@ func (p *pnl) GetRealizedPNL(ctx strategy.StrategyContext, strategyName strategy
 }
 
 // GetRealizedPNLByAsset returns the realized PNL for a specific asset across all strategies
-func (p *pnl) GetRealizedPNLByAsset(ctx strategy.StrategyContext, asset portfolio.Asset) numerical.Decimal {
+func (p *pnl) GetRealizedPNLByAsset(ctx strategy.StrategyContext, asset portfolio.Pair) numerical.Decimal {
 	trades := p.trades.GetTradesByAsset(ctx, asset)
 	realizedPnl, _ := calculateFromTrades(trades)
 

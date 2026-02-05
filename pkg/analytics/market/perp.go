@@ -26,7 +26,7 @@ func newPerpMarketService(store perpTypes.MarketStore) *perpMarketService {
 }
 
 // ========== Perp-specific methods (not inherited from base) ==========
-func (s *perpMarketService) FundingRate(ctx context.Context, asset portfolio.Asset, exchange connector.ExchangeName) (*perp.FundingRate, error) {
+func (s *perpMarketService) FundingRate(ctx context.Context, asset portfolio.Pair, exchange connector.ExchangeName) (*perp.FundingRate, error) {
 	rate := s.store.GetFundingRate(asset, exchange)
 	if rate == nil {
 		return nil, fmt.Errorf("no funding rate found for %s on %s", asset.Symbol(), exchange)
@@ -35,11 +35,11 @@ func (s *perpMarketService) FundingRate(ctx context.Context, asset portfolio.Ass
 }
 
 // FundingRates returns funding rates across all perp exchanges
-func (s *perpMarketService) FundingRates(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]perp.FundingRate {
+func (s *perpMarketService) FundingRates(ctx context.Context, asset portfolio.Pair) map[connector.ExchangeName]perp.FundingRate {
 	return s.store.GetFundingRatesForAsset(asset)
 }
 
 // GetAllAssetsWithFundingRates returns all assets that have funding rate data
-func (s *perpMarketService) GetAllAssetsWithFundingRates(ctx context.Context) []portfolio.Asset {
+func (s *perpMarketService) GetAllAssetsWithFundingRates(ctx context.Context) []portfolio.Pair {
 	return s.store.GetAllAssetsWithFundingRates()
 }

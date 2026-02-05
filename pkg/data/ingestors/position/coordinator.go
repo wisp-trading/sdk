@@ -151,8 +151,8 @@ func (pc *coordinator) backfillTrades() error {
 }
 
 // getUniqueSymbols extracts all unique symbols from strategy executions
-func (pc *coordinator) getUniqueSymbols(executions map[strategy.StrategyName]*strategy.StrategyExecution) []portfolio.Asset {
-	symbolMap := make(map[string]portfolio.Asset)
+func (pc *coordinator) getUniqueSymbols(executions map[strategy.StrategyName]*strategy.StrategyExecution) []portfolio.Pair {
+	symbolMap := make(map[string]portfolio.Pair)
 
 	for _, execution := range executions {
 		if execution == nil {
@@ -164,7 +164,7 @@ func (pc *coordinator) getUniqueSymbols(executions map[strategy.StrategyName]*st
 		}
 	}
 
-	symbols := make([]portfolio.Asset, 0, len(symbolMap))
+	symbols := make([]portfolio.Pair, 0, len(symbolMap))
 	for _, asset := range symbolMap {
 		symbols = append(symbols, asset)
 	}
@@ -173,7 +173,7 @@ func (pc *coordinator) getUniqueSymbols(executions map[strategy.StrategyName]*st
 }
 
 // findStrategyForSymbol determines which strategy is trading a given symbol
-func (pc *coordinator) findStrategyForSymbol(executions map[strategy.StrategyName]*strategy.StrategyExecution, asset portfolio.Asset) strategy.StrategyName {
+func (pc *coordinator) findStrategyForSymbol(executions map[strategy.StrategyName]*strategy.StrategyExecution, asset portfolio.Pair) strategy.StrategyName {
 	for strategyName, execution := range executions {
 		if execution == nil {
 			continue

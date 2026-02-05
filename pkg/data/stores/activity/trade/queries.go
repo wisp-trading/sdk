@@ -28,7 +28,7 @@ func (ds *dataStore) GetTradesByExchange(exchange connector.ExchangeName) []conn
 }
 
 // GetTradesByAsset retrieves trades for a specific asset
-func (ds *dataStore) GetTradesByAsset(asset portfolio.Asset) []connector.Trade {
+func (ds *dataStore) GetTradesByAsset(asset portfolio.Pair) []connector.Trade {
 	trades := ds.getTrades()
 	result := make([]connector.Trade, 0)
 
@@ -42,7 +42,7 @@ func (ds *dataStore) GetTradesByAsset(asset portfolio.Asset) []connector.Trade {
 }
 
 // GetTradesByExchangeAndAsset retrieves trades for a specific exchange and asset
-func (ds *dataStore) GetTradesByExchangeAndAsset(exchange connector.ExchangeName, asset portfolio.Asset) []connector.Trade {
+func (ds *dataStore) GetTradesByExchangeAndAsset(exchange connector.ExchangeName, asset portfolio.Pair) []connector.Trade {
 	trades := ds.getTrades()
 	result := make([]connector.Trade, 0)
 
@@ -94,7 +94,7 @@ func (ds *dataStore) GetTradeCount() int {
 }
 
 // GetTotalVolume calculates total volume for a specific asset
-func (ds *dataStore) GetTotalVolume(asset portfolio.Asset) numerical.Decimal {
+func (ds *dataStore) GetTotalVolume(asset portfolio.Pair) numerical.Decimal {
 	trades := ds.getTrades()
 	totalVolume := numerical.Zero()
 

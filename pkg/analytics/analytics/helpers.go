@@ -11,7 +11,7 @@ import (
 )
 
 // fetchKlines gets klines from the market service, which automatically searches all stores
-func (s *analytics) fetchKlines(ctx context.Context, asset portfolio.Asset, limit int, options analyticsTypes.AnalyticsOptions) ([]connector.Kline, error) {
+func (s *analytics) fetchKlines(ctx context.Context, asset portfolio.Pair, limit int, options analyticsTypes.AnalyticsOptions) ([]connector.Kline, error) {
 	exchange := options.Exchange
 	interval := options.Interval
 
@@ -32,7 +32,7 @@ func (s *analytics) fetchKlines(ctx context.Context, asset portfolio.Asset, limi
 }
 
 // fetchClosePrices is a helper that fetches klines and extracts close prices as float64
-func (s *analytics) fetchClosePrices(ctx context.Context, asset portfolio.Asset, limit int, options analyticsTypes.AnalyticsOptions) ([]float64, error) {
+func (s *analytics) fetchClosePrices(ctx context.Context, asset portfolio.Pair, limit int, options analyticsTypes.AnalyticsOptions) ([]float64, error) {
 	klines, err := s.fetchKlines(ctx, asset, limit, options)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (s *analytics) fetchClosePrices(ctx context.Context, asset portfolio.Asset,
 }
 
 // getDefaultExchange returns the first available exchange for an asset
-func (s *analytics) getDefaultExchange(ctx context.Context, asset portfolio.Asset) connector.ExchangeName {
+func (s *analytics) getDefaultExchange(ctx context.Context, asset portfolio.Pair) connector.ExchangeName {
 	// Try spot exchanges first
 	priceMap := s.market.Spot().Prices(ctx, asset)
 	for exchange := range priceMap {

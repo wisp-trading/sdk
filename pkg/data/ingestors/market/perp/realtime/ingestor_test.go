@@ -36,7 +36,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 	var (
 		store             perp.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
-		assetRegistry     registryTypes.AssetRegistry
+		assetRegistry     registryTypes.PairRegistry
 		logger            logging.ApplicationLogger
 		timeProviderInst  temporal.TimeProvider
 		factory           realtimeTypes.RealtimeIngestorFactory
@@ -101,7 +101,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				// Register connector and assets
 				connectorRegistry.RegisterPerpConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterAsset(btc, connector.TypePerpetual)
+				assetRegistry.RegisterPair(btc, connector.TypePerpetual)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -173,7 +173,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				// Register connector and assets
 				connectorRegistry.RegisterPerpConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterAsset(btc, connector.TypePerpetual)
+				assetRegistry.RegisterPair(btc, connector.TypePerpetual)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -244,7 +244,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				// Register connector and assets
 				connectorRegistry.RegisterPerpConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterAsset(btc, connector.TypePerpetual)
+				assetRegistry.RegisterPair(btc, connector.TypePerpetual)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -313,7 +313,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				// Register connector and assets
 				connectorRegistry.RegisterPerpConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterAsset(btc, connector.TypePerpetual)
+				assetRegistry.RegisterPair(btc, connector.TypePerpetual)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()

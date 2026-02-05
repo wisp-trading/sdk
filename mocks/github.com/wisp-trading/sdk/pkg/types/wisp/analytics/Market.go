@@ -29,7 +29,7 @@ func (_m *Market) EXPECT() *Market_Expecter {
 }
 
 // FindArbitrage provides a mock function with given fields: ctx, asset, minSpreadBps
-func (_m *Market) FindArbitrage(ctx context.Context, asset portfolio.Asset, minSpreadBps numerical.Decimal) []analytics.ArbitrageOpportunity {
+func (_m *Market) FindArbitrage(ctx context.Context, asset portfolio.Pair, minSpreadBps numerical.Decimal) []analytics.ArbitrageOpportunity {
 	ret := _m.Called(ctx, asset, minSpreadBps)
 
 	if len(ret) == 0 {
@@ -37,7 +37,7 @@ func (_m *Market) FindArbitrage(ctx context.Context, asset portfolio.Asset, minS
 	}
 
 	var r0 []analytics.ArbitrageOpportunity
-	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, numerical.Decimal) []analytics.ArbitrageOpportunity); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Pair, numerical.Decimal) []analytics.ArbitrageOpportunity); ok {
 		r0 = rf(ctx, asset, minSpreadBps)
 	} else {
 		if ret.Get(0) != nil {
@@ -55,15 +55,15 @@ type Market_FindArbitrage_Call struct {
 
 // FindArbitrage is a helper method to define mock.On call
 //   - ctx context.Context
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - minSpreadBps numerical.Decimal
 func (_e *Market_Expecter) FindArbitrage(ctx interface{}, asset interface{}, minSpreadBps interface{}) *Market_FindArbitrage_Call {
 	return &Market_FindArbitrage_Call{Call: _e.mock.On("FindArbitrage", ctx, asset, minSpreadBps)}
 }
 
-func (_c *Market_FindArbitrage_Call) Run(run func(ctx context.Context, asset portfolio.Asset, minSpreadBps numerical.Decimal)) *Market_FindArbitrage_Call {
+func (_c *Market_FindArbitrage_Call) Run(run func(ctx context.Context, asset portfolio.Pair, minSpreadBps numerical.Decimal)) *Market_FindArbitrage_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(portfolio.Asset), args[2].(numerical.Decimal))
+		run(args[0].(context.Context), args[1].(portfolio.Pair), args[2].(numerical.Decimal))
 	})
 	return _c
 }
@@ -73,13 +73,13 @@ func (_c *Market_FindArbitrage_Call) Return(_a0 []analytics.ArbitrageOpportunity
 	return _c
 }
 
-func (_c *Market_FindArbitrage_Call) RunAndReturn(run func(context.Context, portfolio.Asset, numerical.Decimal) []analytics.ArbitrageOpportunity) *Market_FindArbitrage_Call {
+func (_c *Market_FindArbitrage_Call) RunAndReturn(run func(context.Context, portfolio.Pair, numerical.Decimal) []analytics.ArbitrageOpportunity) *Market_FindArbitrage_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Klines provides a mock function with given fields: asset, exchange, interval, limit
-func (_m *Market) Klines(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int) []connector.Kline {
+func (_m *Market) Klines(asset portfolio.Pair, exchange connector.ExchangeName, interval string, limit int) []connector.Kline {
 	ret := _m.Called(asset, exchange, interval, limit)
 
 	if len(ret) == 0 {
@@ -87,7 +87,7 @@ func (_m *Market) Klines(asset portfolio.Asset, exchange connector.ExchangeName,
 	}
 
 	var r0 []connector.Kline
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, connector.ExchangeName, string, int) []connector.Kline); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.ExchangeName, string, int) []connector.Kline); ok {
 		r0 = rf(asset, exchange, interval, limit)
 	} else {
 		if ret.Get(0) != nil {
@@ -104,7 +104,7 @@ type Market_Klines_Call struct {
 }
 
 // Klines is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - exchange connector.ExchangeName
 //   - interval string
 //   - limit int
@@ -112,9 +112,9 @@ func (_e *Market_Expecter) Klines(asset interface{}, exchange interface{}, inter
 	return &Market_Klines_Call{Call: _e.mock.On("Klines", asset, exchange, interval, limit)}
 }
 
-func (_c *Market_Klines_Call) Run(run func(asset portfolio.Asset, exchange connector.ExchangeName, interval string, limit int)) *Market_Klines_Call {
+func (_c *Market_Klines_Call) Run(run func(asset portfolio.Pair, exchange connector.ExchangeName, interval string, limit int)) *Market_Klines_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(connector.ExchangeName), args[2].(string), args[3].(int))
+		run(args[0].(portfolio.Pair), args[1].(connector.ExchangeName), args[2].(string), args[3].(int))
 	})
 	return _c
 }
@@ -124,13 +124,13 @@ func (_c *Market_Klines_Call) Return(_a0 []connector.Kline) *Market_Klines_Call 
 	return _c
 }
 
-func (_c *Market_Klines_Call) RunAndReturn(run func(portfolio.Asset, connector.ExchangeName, string, int) []connector.Kline) *Market_Klines_Call {
+func (_c *Market_Klines_Call) RunAndReturn(run func(portfolio.Pair, connector.ExchangeName, string, int) []connector.Kline) *Market_Klines_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // OrderBook provides a mock function with given fields: ctx, asset, exchange
-func (_m *Market) OrderBook(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (*connector.OrderBook, error) {
+func (_m *Market) OrderBook(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (*connector.OrderBook, error) {
 	_va := make([]interface{}, len(exchange))
 	for _i := range exchange {
 		_va[_i] = exchange[_i]
@@ -146,10 +146,10 @@ func (_m *Market) OrderBook(ctx context.Context, asset portfolio.Asset, exchange
 
 	var r0 *connector.OrderBook
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, ...connector.ExchangeName) (*connector.OrderBook, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Pair, ...connector.ExchangeName) (*connector.OrderBook, error)); ok {
 		return rf(ctx, asset, exchange...)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, ...connector.ExchangeName) *connector.OrderBook); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Pair, ...connector.ExchangeName) *connector.OrderBook); ok {
 		r0 = rf(ctx, asset, exchange...)
 	} else {
 		if ret.Get(0) != nil {
@@ -157,7 +157,7 @@ func (_m *Market) OrderBook(ctx context.Context, asset portfolio.Asset, exchange
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Asset, ...connector.ExchangeName) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Pair, ...connector.ExchangeName) error); ok {
 		r1 = rf(ctx, asset, exchange...)
 	} else {
 		r1 = ret.Error(1)
@@ -173,14 +173,14 @@ type Market_OrderBook_Call struct {
 
 // OrderBook is a helper method to define mock.On call
 //   - ctx context.Context
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - exchange ...connector.ExchangeName
 func (_e *Market_Expecter) OrderBook(ctx interface{}, asset interface{}, exchange ...interface{}) *Market_OrderBook_Call {
 	return &Market_OrderBook_Call{Call: _e.mock.On("OrderBook",
 		append([]interface{}{ctx, asset}, exchange...)...)}
 }
 
-func (_c *Market_OrderBook_Call) Run(run func(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName)) *Market_OrderBook_Call {
+func (_c *Market_OrderBook_Call) Run(run func(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName)) *Market_OrderBook_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		variadicArgs := make([]connector.ExchangeName, len(args)-2)
 		for i, a := range args[2:] {
@@ -188,7 +188,7 @@ func (_c *Market_OrderBook_Call) Run(run func(ctx context.Context, asset portfol
 				variadicArgs[i] = a.(connector.ExchangeName)
 			}
 		}
-		run(args[0].(context.Context), args[1].(portfolio.Asset), variadicArgs...)
+		run(args[0].(context.Context), args[1].(portfolio.Pair), variadicArgs...)
 	})
 	return _c
 }
@@ -198,7 +198,7 @@ func (_c *Market_OrderBook_Call) Return(_a0 *connector.OrderBook, _a1 error) *Ma
 	return _c
 }
 
-func (_c *Market_OrderBook_Call) RunAndReturn(run func(context.Context, portfolio.Asset, ...connector.ExchangeName) (*connector.OrderBook, error)) *Market_OrderBook_Call {
+func (_c *Market_OrderBook_Call) RunAndReturn(run func(context.Context, portfolio.Pair, ...connector.ExchangeName) (*connector.OrderBook, error)) *Market_OrderBook_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -251,7 +251,7 @@ func (_c *Market_Perp_Call) RunAndReturn(run func() analytics.PerpMarket) *Marke
 }
 
 // Price provides a mock function with given fields: ctx, asset, exchange
-func (_m *Market) Price(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName) (numerical.Decimal, error) {
+func (_m *Market) Price(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (numerical.Decimal, error) {
 	_va := make([]interface{}, len(exchange))
 	for _i := range exchange {
 		_va[_i] = exchange[_i]
@@ -267,16 +267,16 @@ func (_m *Market) Price(ctx context.Context, asset portfolio.Asset, exchange ...
 
 	var r0 numerical.Decimal
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, ...connector.ExchangeName) (numerical.Decimal, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Pair, ...connector.ExchangeName) (numerical.Decimal, error)); ok {
 		return rf(ctx, asset, exchange...)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset, ...connector.ExchangeName) numerical.Decimal); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Pair, ...connector.ExchangeName) numerical.Decimal); ok {
 		r0 = rf(ctx, asset, exchange...)
 	} else {
 		r0 = ret.Get(0).(numerical.Decimal)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Asset, ...connector.ExchangeName) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, portfolio.Pair, ...connector.ExchangeName) error); ok {
 		r1 = rf(ctx, asset, exchange...)
 	} else {
 		r1 = ret.Error(1)
@@ -292,14 +292,14 @@ type Market_Price_Call struct {
 
 // Price is a helper method to define mock.On call
 //   - ctx context.Context
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - exchange ...connector.ExchangeName
 func (_e *Market_Expecter) Price(ctx interface{}, asset interface{}, exchange ...interface{}) *Market_Price_Call {
 	return &Market_Price_Call{Call: _e.mock.On("Price",
 		append([]interface{}{ctx, asset}, exchange...)...)}
 }
 
-func (_c *Market_Price_Call) Run(run func(ctx context.Context, asset portfolio.Asset, exchange ...connector.ExchangeName)) *Market_Price_Call {
+func (_c *Market_Price_Call) Run(run func(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName)) *Market_Price_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		variadicArgs := make([]connector.ExchangeName, len(args)-2)
 		for i, a := range args[2:] {
@@ -307,7 +307,7 @@ func (_c *Market_Price_Call) Run(run func(ctx context.Context, asset portfolio.A
 				variadicArgs[i] = a.(connector.ExchangeName)
 			}
 		}
-		run(args[0].(context.Context), args[1].(portfolio.Asset), variadicArgs...)
+		run(args[0].(context.Context), args[1].(portfolio.Pair), variadicArgs...)
 	})
 	return _c
 }
@@ -317,13 +317,13 @@ func (_c *Market_Price_Call) Return(_a0 numerical.Decimal, _a1 error) *Market_Pr
 	return _c
 }
 
-func (_c *Market_Price_Call) RunAndReturn(run func(context.Context, portfolio.Asset, ...connector.ExchangeName) (numerical.Decimal, error)) *Market_Price_Call {
+func (_c *Market_Price_Call) RunAndReturn(run func(context.Context, portfolio.Pair, ...connector.ExchangeName) (numerical.Decimal, error)) *Market_Price_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Prices provides a mock function with given fields: ctx, asset
-func (_m *Market) Prices(ctx context.Context, asset portfolio.Asset) map[connector.ExchangeName]numerical.Decimal {
+func (_m *Market) Prices(ctx context.Context, asset portfolio.Pair) map[connector.ExchangeName]numerical.Decimal {
 	ret := _m.Called(ctx, asset)
 
 	if len(ret) == 0 {
@@ -331,7 +331,7 @@ func (_m *Market) Prices(ctx context.Context, asset portfolio.Asset) map[connect
 	}
 
 	var r0 map[connector.ExchangeName]numerical.Decimal
-	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Asset) map[connector.ExchangeName]numerical.Decimal); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, portfolio.Pair) map[connector.ExchangeName]numerical.Decimal); ok {
 		r0 = rf(ctx, asset)
 	} else {
 		if ret.Get(0) != nil {
@@ -349,14 +349,14 @@ type Market_Prices_Call struct {
 
 // Prices is a helper method to define mock.On call
 //   - ctx context.Context
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *Market_Expecter) Prices(ctx interface{}, asset interface{}) *Market_Prices_Call {
 	return &Market_Prices_Call{Call: _e.mock.On("Prices", ctx, asset)}
 }
 
-func (_c *Market_Prices_Call) Run(run func(ctx context.Context, asset portfolio.Asset)) *Market_Prices_Call {
+func (_c *Market_Prices_Call) Run(run func(ctx context.Context, asset portfolio.Pair)) *Market_Prices_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(portfolio.Asset))
+		run(args[0].(context.Context), args[1].(portfolio.Pair))
 	})
 	return _c
 }
@@ -366,7 +366,7 @@ func (_c *Market_Prices_Call) Return(_a0 map[connector.ExchangeName]numerical.De
 	return _c
 }
 
-func (_c *Market_Prices_Call) RunAndReturn(run func(context.Context, portfolio.Asset) map[connector.ExchangeName]numerical.Decimal) *Market_Prices_Call {
+func (_c *Market_Prices_Call) RunAndReturn(run func(context.Context, portfolio.Pair) map[connector.ExchangeName]numerical.Decimal) *Market_Prices_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -34,7 +34,7 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 		app               *fxtest.App
 		store             spotTypes.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
-		assetRegistry     registryTypes.AssetRegistry
+		assetRegistry     registryTypes.PairRegistry
 		factory           realtime.RealtimeIngestorFactory
 		logger            logging.ApplicationLogger
 		ctx               context.Context
@@ -96,7 +96,7 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 				// Register connector and assets
 				connectorRegistry.RegisterSpotConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterAsset(btc, connector.TypeSpot)
+				assetRegistry.RegisterPair(btc, connector.TypeSpot)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -164,7 +164,7 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 				// Register connector and assets
 				connectorRegistry.RegisterSpotConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterAsset(btc, connector.TypeSpot)
+				assetRegistry.RegisterPair(btc, connector.TypeSpot)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -231,7 +231,7 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 				// Register connector and assets
 				connectorRegistry.RegisterSpotConnector(exchangeName, m)
 				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterAsset(btc, connector.TypeSpot)
+				assetRegistry.RegisterPair(btc, connector.TypeSpot)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()

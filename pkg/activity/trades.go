@@ -32,7 +32,7 @@ func (t *trades) GetTradesByExchange(ctx context.Context, exchange connector.Exc
 }
 
 // GetTradesByAsset retrieves trades for a specific asset
-func (t *trades) GetTradesByAsset(ctx context.Context, asset portfolio.Asset) []connector.Trade {
+func (t *trades) GetTradesByAsset(ctx context.Context, asset portfolio.Pair) []connector.Trade {
 	return t.store.GetTradesByAsset(asset)
 }
 
@@ -52,7 +52,7 @@ func (t *trades) GetTradeCount(ctx context.Context) int {
 }
 
 // GetTotalVolume calculates total volume for a specific asset
-func (t *trades) GetTotalVolume(ctx context.Context, asset portfolio.Asset) numerical.Decimal {
+func (t *trades) GetTotalVolume(ctx context.Context, asset portfolio.Pair) numerical.Decimal {
 	return t.store.GetTotalVolume(asset)
 }
 

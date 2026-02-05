@@ -59,7 +59,7 @@ package realtime
 //	ri.isActive = true
 //
 //	// Get required assets from strategy configs
-//	tradingAssets := ri.assetRegistry.GetRequiredAssets()
+//	tradingAssets := ri.assetRegistry.GetRequiredPairs()
 //	ri.logger.Info("📋 Required trading assets from strategies: %d assets", len(tradingAssets))
 //	for _, asset := range tradingAssets {
 //		ri.logger.Info("  - %s", asset.Symbol())
@@ -96,7 +96,7 @@ package realtime
 //	}
 //
 //	// Get detailed asset requirements (which instrument types per asset)
-//	assetRequirements := ri.assetRegistry.GetAssetRequirements()
+//	assetRequirements := ri.assetRegistry.GetPairRequirements()
 //
 //	// Subscribe to data based on actual requirements
 //	for _, req := range assetRequirements {

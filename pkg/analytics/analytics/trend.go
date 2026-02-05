@@ -13,7 +13,7 @@ import (
 
 // Trend analyzes the price trend for an asset using linear regression.
 // Returns trend direction and strength.
-func (s *analytics) Trend(ctx context.Context, asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.TrendResult, error) {
+func (s *analytics) Trend(ctx context.Context, asset portfolio.Pair, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.TrendResult, error) {
 	start := time.Now()
 	defer func() {
 		if profCtx := profiling.FromContext(ctx); profCtx != nil {

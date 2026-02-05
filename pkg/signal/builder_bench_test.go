@@ -14,7 +14,7 @@ import (
 var (
 	benchFactory      strategy.SignalFactory
 	benchStrategyName strategy.StrategyName
-	benchAsset        portfolio.Asset
+	benchAsset        portfolio.Pair
 	benchExchange     connector.ExchangeName
 	benchQuantity     numerical.Decimal
 	benchPrice        numerical.Decimal
@@ -117,7 +117,7 @@ func BenchmarkSignalBuilder_Build(b *testing.B) {
 
 func BenchmarkSignalBuilder_LargeSignal(b *testing.B) {
 	b.ReportAllocs()
-	assets := []portfolio.Asset{
+	assets := []portfolio.Pair{
 		portfolio.NewAsset("BTC"),
 		portfolio.NewAsset("ETH"),
 		portfolio.NewAsset("SOL"),
@@ -173,7 +173,7 @@ func BenchmarkSignalBuilder_ChainedActions_Parallel(b *testing.B) {
 
 func BenchmarkSignalBuilder_LargeSignal_Parallel(b *testing.B) {
 	b.ReportAllocs()
-	assets := []portfolio.Asset{
+	assets := []portfolio.Pair{
 		portfolio.NewAsset("BTC"),
 		portfolio.NewAsset("ETH"),
 		portfolio.NewAsset("SOL"),

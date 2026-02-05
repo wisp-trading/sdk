@@ -19,7 +19,7 @@ var _ = Describe("SignalBuilder", func() {
 		factory      strategy.SignalFactory
 		timeProvider temporalType.TimeProvider
 		strategyName strategy.StrategyName
-		testAsset    portfolio.Asset
+		testAsset    portfolio.Pair
 		testExchange connector.ExchangeName
 	)
 

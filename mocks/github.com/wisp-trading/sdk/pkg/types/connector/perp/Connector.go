@@ -26,9 +26,16 @@ func (_m *Connector) EXPECT() *Connector_Expecter {
 	return &Connector_Expecter{mock: &_m.Mock}
 }
 
-// CancelOrder provides a mock function with given fields: symbol, orderID
-func (_m *Connector) CancelOrder(symbol string, orderID string) (*connector.CancelResponse, error) {
-	ret := _m.Called(symbol, orderID)
+// CancelOrder provides a mock function with given fields: orderID, pair
+func (_m *Connector) CancelOrder(orderID string, pair ...portfolio.Pair) (*connector.CancelResponse, error) {
+	_va := make([]interface{}, len(pair))
+	for _i := range pair {
+		_va[_i] = pair[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, orderID)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CancelOrder")
@@ -36,19 +43,19 @@ func (_m *Connector) CancelOrder(symbol string, orderID string) (*connector.Canc
 
 	var r0 *connector.CancelResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string) (*connector.CancelResponse, error)); ok {
-		return rf(symbol, orderID)
+	if rf, ok := ret.Get(0).(func(string, ...portfolio.Pair) (*connector.CancelResponse, error)); ok {
+		return rf(orderID, pair...)
 	}
-	if rf, ok := ret.Get(0).(func(string, string) *connector.CancelResponse); ok {
-		r0 = rf(symbol, orderID)
+	if rf, ok := ret.Get(0).(func(string, ...portfolio.Pair) *connector.CancelResponse); ok {
+		r0 = rf(orderID, pair...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.CancelResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(symbol, orderID)
+	if rf, ok := ret.Get(1).(func(string, ...portfolio.Pair) error); ok {
+		r1 = rf(orderID, pair...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -62,15 +69,22 @@ type Connector_CancelOrder_Call struct {
 }
 
 // CancelOrder is a helper method to define mock.On call
-//   - symbol string
 //   - orderID string
-func (_e *Connector_Expecter) CancelOrder(symbol interface{}, orderID interface{}) *Connector_CancelOrder_Call {
-	return &Connector_CancelOrder_Call{Call: _e.mock.On("CancelOrder", symbol, orderID)}
+//   - pair ...portfolio.Pair
+func (_e *Connector_Expecter) CancelOrder(orderID interface{}, pair ...interface{}) *Connector_CancelOrder_Call {
+	return &Connector_CancelOrder_Call{Call: _e.mock.On("CancelOrder",
+		append([]interface{}{orderID}, pair...)...)}
 }
 
-func (_c *Connector_CancelOrder_Call) Run(run func(symbol string, orderID string)) *Connector_CancelOrder_Call {
+func (_c *Connector_CancelOrder_Call) Run(run func(orderID string, pair ...portfolio.Pair)) *Connector_CancelOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string))
+		variadicArgs := make([]portfolio.Pair, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(portfolio.Pair)
+			}
+		}
+		run(args[0].(string), variadicArgs...)
 	})
 	return _c
 }
@@ -80,7 +94,7 @@ func (_c *Connector_CancelOrder_Call) Return(_a0 *connector.CancelResponse, _a1 
 	return _c
 }
 
-func (_c *Connector_CancelOrder_Call) RunAndReturn(run func(string, string) (*connector.CancelResponse, error)) *Connector_CancelOrder_Call {
+func (_c *Connector_CancelOrder_Call) RunAndReturn(run func(string, ...portfolio.Pair) (*connector.CancelResponse, error)) *Connector_CancelOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -143,23 +157,23 @@ func (_c *Connector_FetchContracts_Call) RunAndReturn(run func() ([]connector.Co
 }
 
 // FetchCurrentFundingRates provides a mock function with no fields
-func (_m *Connector) FetchCurrentFundingRates() (map[portfolio.Asset]perp.FundingRate, error) {
+func (_m *Connector) FetchCurrentFundingRates() (map[portfolio.Pair]perp.FundingRate, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchCurrentFundingRates")
 	}
 
-	var r0 map[portfolio.Asset]perp.FundingRate
+	var r0 map[portfolio.Pair]perp.FundingRate
 	var r1 error
-	if rf, ok := ret.Get(0).(func() (map[portfolio.Asset]perp.FundingRate, error)); ok {
+	if rf, ok := ret.Get(0).(func() (map[portfolio.Pair]perp.FundingRate, error)); ok {
 		return rf()
 	}
-	if rf, ok := ret.Get(0).(func() map[portfolio.Asset]perp.FundingRate); ok {
+	if rf, ok := ret.Get(0).(func() map[portfolio.Pair]perp.FundingRate); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[portfolio.Asset]perp.FundingRate)
+			r0 = ret.Get(0).(map[portfolio.Pair]perp.FundingRate)
 		}
 	}
 
@@ -189,18 +203,18 @@ func (_c *Connector_FetchCurrentFundingRates_Call) Run(run func()) *Connector_Fe
 	return _c
 }
 
-func (_c *Connector_FetchCurrentFundingRates_Call) Return(_a0 map[portfolio.Asset]perp.FundingRate, _a1 error) *Connector_FetchCurrentFundingRates_Call {
+func (_c *Connector_FetchCurrentFundingRates_Call) Return(_a0 map[portfolio.Pair]perp.FundingRate, _a1 error) *Connector_FetchCurrentFundingRates_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Connector_FetchCurrentFundingRates_Call) RunAndReturn(run func() (map[portfolio.Asset]perp.FundingRate, error)) *Connector_FetchCurrentFundingRates_Call {
+func (_c *Connector_FetchCurrentFundingRates_Call) RunAndReturn(run func() (map[portfolio.Pair]perp.FundingRate, error)) *Connector_FetchCurrentFundingRates_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // FetchFundingRate provides a mock function with given fields: asset
-func (_m *Connector) FetchFundingRate(asset portfolio.Asset) (*perp.FundingRate, error) {
+func (_m *Connector) FetchFundingRate(asset portfolio.Pair) (*perp.FundingRate, error) {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
@@ -209,10 +223,10 @@ func (_m *Connector) FetchFundingRate(asset portfolio.Asset) (*perp.FundingRate,
 
 	var r0 *perp.FundingRate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) (*perp.FundingRate, error)); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) (*perp.FundingRate, error)); ok {
 		return rf(asset)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) *perp.FundingRate); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) *perp.FundingRate); ok {
 		r0 = rf(asset)
 	} else {
 		if ret.Get(0) != nil {
@@ -220,7 +234,7 @@ func (_m *Connector) FetchFundingRate(asset portfolio.Asset) (*perp.FundingRate,
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset) error); ok {
+	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
 		r1 = rf(asset)
 	} else {
 		r1 = ret.Error(1)
@@ -235,14 +249,14 @@ type Connector_FetchFundingRate_Call struct {
 }
 
 // FetchFundingRate is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 func (_e *Connector_Expecter) FetchFundingRate(asset interface{}) *Connector_FetchFundingRate_Call {
 	return &Connector_FetchFundingRate_Call{Call: _e.mock.On("FetchFundingRate", asset)}
 }
 
-func (_c *Connector_FetchFundingRate_Call) Run(run func(asset portfolio.Asset)) *Connector_FetchFundingRate_Call {
+func (_c *Connector_FetchFundingRate_Call) Run(run func(asset portfolio.Pair)) *Connector_FetchFundingRate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -252,13 +266,13 @@ func (_c *Connector_FetchFundingRate_Call) Return(_a0 *perp.FundingRate, _a1 err
 	return _c
 }
 
-func (_c *Connector_FetchFundingRate_Call) RunAndReturn(run func(portfolio.Asset) (*perp.FundingRate, error)) *Connector_FetchFundingRate_Call {
+func (_c *Connector_FetchFundingRate_Call) RunAndReturn(run func(portfolio.Pair) (*perp.FundingRate, error)) *Connector_FetchFundingRate_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // FetchHistoricalFundingRates provides a mock function with given fields: asset, startTime, endTime
-func (_m *Connector) FetchHistoricalFundingRates(asset portfolio.Asset, startTime int64, endTime int64) ([]perp.HistoricalFundingRate, error) {
+func (_m *Connector) FetchHistoricalFundingRates(asset portfolio.Pair, startTime int64, endTime int64) ([]perp.HistoricalFundingRate, error) {
 	ret := _m.Called(asset, startTime, endTime)
 
 	if len(ret) == 0 {
@@ -267,10 +281,10 @@ func (_m *Connector) FetchHistoricalFundingRates(asset portfolio.Asset, startTim
 
 	var r0 []perp.HistoricalFundingRate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int64, int64) ([]perp.HistoricalFundingRate, error)); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int64, int64) ([]perp.HistoricalFundingRate, error)); ok {
 		return rf(asset, startTime, endTime)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int64, int64) []perp.HistoricalFundingRate); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int64, int64) []perp.HistoricalFundingRate); ok {
 		r0 = rf(asset, startTime, endTime)
 	} else {
 		if ret.Get(0) != nil {
@@ -278,7 +292,7 @@ func (_m *Connector) FetchHistoricalFundingRates(asset portfolio.Asset, startTim
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int64, int64) error); ok {
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, int64, int64) error); ok {
 		r1 = rf(asset, startTime, endTime)
 	} else {
 		r1 = ret.Error(1)
@@ -293,16 +307,16 @@ type Connector_FetchHistoricalFundingRates_Call struct {
 }
 
 // FetchHistoricalFundingRates is a helper method to define mock.On call
-//   - asset portfolio.Asset
+//   - asset portfolio.Pair
 //   - startTime int64
 //   - endTime int64
 func (_e *Connector_Expecter) FetchHistoricalFundingRates(asset interface{}, startTime interface{}, endTime interface{}) *Connector_FetchHistoricalFundingRates_Call {
 	return &Connector_FetchHistoricalFundingRates_Call{Call: _e.mock.On("FetchHistoricalFundingRates", asset, startTime, endTime)}
 }
 
-func (_c *Connector_FetchHistoricalFundingRates_Call) Run(run func(asset portfolio.Asset, startTime int64, endTime int64)) *Connector_FetchHistoricalFundingRates_Call {
+func (_c *Connector_FetchHistoricalFundingRates_Call) Run(run func(asset portfolio.Pair, startTime int64, endTime int64)) *Connector_FetchHistoricalFundingRates_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(int64), args[2].(int64))
+		run(args[0].(portfolio.Pair), args[1].(int64), args[2].(int64))
 	})
 	return _c
 }
@@ -312,14 +326,14 @@ func (_c *Connector_FetchHistoricalFundingRates_Call) Return(_a0 []perp.Historic
 	return _c
 }
 
-func (_c *Connector_FetchHistoricalFundingRates_Call) RunAndReturn(run func(portfolio.Asset, int64, int64) ([]perp.HistoricalFundingRate, error)) *Connector_FetchHistoricalFundingRates_Call {
+func (_c *Connector_FetchHistoricalFundingRates_Call) RunAndReturn(run func(portfolio.Pair, int64, int64) ([]perp.HistoricalFundingRate, error)) *Connector_FetchHistoricalFundingRates_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// FetchKlines provides a mock function with given fields: symbol, interval, limit
-func (_m *Connector) FetchKlines(symbol string, interval string, limit int) ([]connector.Kline, error) {
-	ret := _m.Called(symbol, interval, limit)
+// FetchKlines provides a mock function with given fields: pair, interval, limit
+func (_m *Connector) FetchKlines(pair portfolio.Pair, interval string, limit int) ([]connector.Kline, error) {
+	ret := _m.Called(pair, interval, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchKlines")
@@ -327,19 +341,19 @@ func (_m *Connector) FetchKlines(symbol string, interval string, limit int) ([]c
 
 	var r0 []connector.Kline
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, string, int) ([]connector.Kline, error)); ok {
-		return rf(symbol, interval, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string, int) ([]connector.Kline, error)); ok {
+		return rf(pair, interval, limit)
 	}
-	if rf, ok := ret.Get(0).(func(string, string, int) []connector.Kline); ok {
-		r0 = rf(symbol, interval, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string, int) []connector.Kline); ok {
+		r0 = rf(pair, interval, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Kline)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, string, int) error); ok {
-		r1 = rf(symbol, interval, limit)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, string, int) error); ok {
+		r1 = rf(pair, interval, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -353,16 +367,16 @@ type Connector_FetchKlines_Call struct {
 }
 
 // FetchKlines is a helper method to define mock.On call
-//   - symbol string
+//   - pair portfolio.Pair
 //   - interval string
 //   - limit int
-func (_e *Connector_Expecter) FetchKlines(symbol interface{}, interval interface{}, limit interface{}) *Connector_FetchKlines_Call {
-	return &Connector_FetchKlines_Call{Call: _e.mock.On("FetchKlines", symbol, interval, limit)}
+func (_e *Connector_Expecter) FetchKlines(pair interface{}, interval interface{}, limit interface{}) *Connector_FetchKlines_Call {
+	return &Connector_FetchKlines_Call{Call: _e.mock.On("FetchKlines", pair, interval, limit)}
 }
 
-func (_c *Connector_FetchKlines_Call) Run(run func(symbol string, interval string, limit int)) *Connector_FetchKlines_Call {
+func (_c *Connector_FetchKlines_Call) Run(run func(pair portfolio.Pair, interval string, limit int)) *Connector_FetchKlines_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(string), args[2].(int))
+		run(args[0].(portfolio.Pair), args[1].(string), args[2].(int))
 	})
 	return _c
 }
@@ -372,14 +386,14 @@ func (_c *Connector_FetchKlines_Call) Return(_a0 []connector.Kline, _a1 error) *
 	return _c
 }
 
-func (_c *Connector_FetchKlines_Call) RunAndReturn(run func(string, string, int) ([]connector.Kline, error)) *Connector_FetchKlines_Call {
+func (_c *Connector_FetchKlines_Call) RunAndReturn(run func(portfolio.Pair, string, int) ([]connector.Kline, error)) *Connector_FetchKlines_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// FetchOrderBook provides a mock function with given fields: symbol, depth
-func (_m *Connector) FetchOrderBook(symbol portfolio.Asset, depth int) (*connector.OrderBook, error) {
-	ret := _m.Called(symbol, depth)
+// FetchOrderBook provides a mock function with given fields: pair, depth
+func (_m *Connector) FetchOrderBook(pair portfolio.Pair, depth int) (*connector.OrderBook, error) {
+	ret := _m.Called(pair, depth)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchOrderBook")
@@ -387,19 +401,19 @@ func (_m *Connector) FetchOrderBook(symbol portfolio.Asset, depth int) (*connect
 
 	var r0 *connector.OrderBook
 	var r1 error
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int) (*connector.OrderBook, error)); ok {
-		return rf(symbol, depth)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) (*connector.OrderBook, error)); ok {
+		return rf(pair, depth)
 	}
-	if rf, ok := ret.Get(0).(func(portfolio.Asset, int) *connector.OrderBook); ok {
-		r0 = rf(symbol, depth)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) *connector.OrderBook); ok {
+		r0 = rf(pair, depth)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.OrderBook)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(portfolio.Asset, int) error); ok {
-		r1 = rf(symbol, depth)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, int) error); ok {
+		r1 = rf(pair, depth)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -413,15 +427,15 @@ type Connector_FetchOrderBook_Call struct {
 }
 
 // FetchOrderBook is a helper method to define mock.On call
-//   - symbol portfolio.Asset
+//   - pair portfolio.Pair
 //   - depth int
-func (_e *Connector_Expecter) FetchOrderBook(symbol interface{}, depth interface{}) *Connector_FetchOrderBook_Call {
-	return &Connector_FetchOrderBook_Call{Call: _e.mock.On("FetchOrderBook", symbol, depth)}
+func (_e *Connector_Expecter) FetchOrderBook(pair interface{}, depth interface{}) *Connector_FetchOrderBook_Call {
+	return &Connector_FetchOrderBook_Call{Call: _e.mock.On("FetchOrderBook", pair, depth)}
 }
 
-func (_c *Connector_FetchOrderBook_Call) Run(run func(symbol portfolio.Asset, depth int)) *Connector_FetchOrderBook_Call {
+func (_c *Connector_FetchOrderBook_Call) Run(run func(pair portfolio.Pair, depth int)) *Connector_FetchOrderBook_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset), args[1].(int))
+		run(args[0].(portfolio.Pair), args[1].(int))
 	})
 	return _c
 }
@@ -431,14 +445,14 @@ func (_c *Connector_FetchOrderBook_Call) Return(_a0 *connector.OrderBook, _a1 er
 	return _c
 }
 
-func (_c *Connector_FetchOrderBook_Call) RunAndReturn(run func(portfolio.Asset, int) (*connector.OrderBook, error)) *Connector_FetchOrderBook_Call {
+func (_c *Connector_FetchOrderBook_Call) RunAndReturn(run func(portfolio.Pair, int) (*connector.OrderBook, error)) *Connector_FetchOrderBook_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// FetchPrice provides a mock function with given fields: symbol
-func (_m *Connector) FetchPrice(symbol string) (*connector.Price, error) {
-	ret := _m.Called(symbol)
+// FetchPrice provides a mock function with given fields: pair
+func (_m *Connector) FetchPrice(pair portfolio.Pair) (*connector.Price, error) {
+	ret := _m.Called(pair)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchPrice")
@@ -446,19 +460,19 @@ func (_m *Connector) FetchPrice(symbol string) (*connector.Price, error) {
 
 	var r0 *connector.Price
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*connector.Price, error)); ok {
-		return rf(symbol)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) (*connector.Price, error)); ok {
+		return rf(pair)
 	}
-	if rf, ok := ret.Get(0).(func(string) *connector.Price); ok {
-		r0 = rf(symbol)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) *connector.Price); ok {
+		r0 = rf(pair)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.Price)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(symbol)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
+		r1 = rf(pair)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -472,14 +486,14 @@ type Connector_FetchPrice_Call struct {
 }
 
 // FetchPrice is a helper method to define mock.On call
-//   - symbol string
-func (_e *Connector_Expecter) FetchPrice(symbol interface{}) *Connector_FetchPrice_Call {
-	return &Connector_FetchPrice_Call{Call: _e.mock.On("FetchPrice", symbol)}
+//   - pair portfolio.Pair
+func (_e *Connector_Expecter) FetchPrice(pair interface{}) *Connector_FetchPrice_Call {
+	return &Connector_FetchPrice_Call{Call: _e.mock.On("FetchPrice", pair)}
 }
 
-func (_c *Connector_FetchPrice_Call) Run(run func(symbol string)) *Connector_FetchPrice_Call {
+func (_c *Connector_FetchPrice_Call) Run(run func(pair portfolio.Pair)) *Connector_FetchPrice_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -489,14 +503,14 @@ func (_c *Connector_FetchPrice_Call) Return(_a0 *connector.Price, _a1 error) *Co
 	return _c
 }
 
-func (_c *Connector_FetchPrice_Call) RunAndReturn(run func(string) (*connector.Price, error)) *Connector_FetchPrice_Call {
+func (_c *Connector_FetchPrice_Call) RunAndReturn(run func(portfolio.Pair) (*connector.Price, error)) *Connector_FetchPrice_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// FetchRecentTrades provides a mock function with given fields: symbol, limit
-func (_m *Connector) FetchRecentTrades(symbol string, limit int) ([]connector.Trade, error) {
-	ret := _m.Called(symbol, limit)
+// FetchRecentTrades provides a mock function with given fields: pair, limit
+func (_m *Connector) FetchRecentTrades(pair portfolio.Pair, limit int) ([]connector.Trade, error) {
+	ret := _m.Called(pair, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchRecentTrades")
@@ -504,19 +518,19 @@ func (_m *Connector) FetchRecentTrades(symbol string, limit int) ([]connector.Tr
 
 	var r0 []connector.Trade
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, int) ([]connector.Trade, error)); ok {
-		return rf(symbol, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) ([]connector.Trade, error)); ok {
+		return rf(pair, limit)
 	}
-	if rf, ok := ret.Get(0).(func(string, int) []connector.Trade); ok {
-		r0 = rf(symbol, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) []connector.Trade); ok {
+		r0 = rf(pair, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Trade)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, int) error); ok {
-		r1 = rf(symbol, limit)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, int) error); ok {
+		r1 = rf(pair, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -530,15 +544,15 @@ type Connector_FetchRecentTrades_Call struct {
 }
 
 // FetchRecentTrades is a helper method to define mock.On call
-//   - symbol string
+//   - pair portfolio.Pair
 //   - limit int
-func (_e *Connector_Expecter) FetchRecentTrades(symbol interface{}, limit interface{}) *Connector_FetchRecentTrades_Call {
-	return &Connector_FetchRecentTrades_Call{Call: _e.mock.On("FetchRecentTrades", symbol, limit)}
+func (_e *Connector_Expecter) FetchRecentTrades(pair interface{}, limit interface{}) *Connector_FetchRecentTrades_Call {
+	return &Connector_FetchRecentTrades_Call{Call: _e.mock.On("FetchRecentTrades", pair, limit)}
 }
 
-func (_c *Connector_FetchRecentTrades_Call) Run(run func(symbol string, limit int)) *Connector_FetchRecentTrades_Call {
+func (_c *Connector_FetchRecentTrades_Call) Run(run func(pair portfolio.Pair, limit int)) *Connector_FetchRecentTrades_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(int))
+		run(args[0].(portfolio.Pair), args[1].(int))
 	})
 	return _c
 }
@@ -548,7 +562,7 @@ func (_c *Connector_FetchRecentTrades_Call) Return(_a0 []connector.Trade, _a1 er
 	return _c
 }
 
-func (_c *Connector_FetchRecentTrades_Call) RunAndReturn(run func(string, int) ([]connector.Trade, error)) *Connector_FetchRecentTrades_Call {
+func (_c *Connector_FetchRecentTrades_Call) RunAndReturn(run func(portfolio.Pair, int) ([]connector.Trade, error)) *Connector_FetchRecentTrades_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -607,6 +621,64 @@ func (_c *Connector_FetchRiskFundBalance_Call) Return(_a0 *perp.RiskFundBalance,
 }
 
 func (_c *Connector_FetchRiskFundBalance_Call) RunAndReturn(run func(string) (*perp.RiskFundBalance, error)) *Connector_FetchRiskFundBalance_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetBalance provides a mock function with given fields: asset
+func (_m *Connector) GetBalance(asset portfolio.Pair) (*connector.AssetBalance, error) {
+	ret := _m.Called(asset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBalance")
+	}
+
+	var r0 *connector.AssetBalance
+	var r1 error
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) (*connector.AssetBalance, error)); ok {
+		return rf(asset)
+	}
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) *connector.AssetBalance); ok {
+		r0 = rf(asset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*connector.AssetBalance)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
+		r1 = rf(asset)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Connector_GetBalance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBalance'
+type Connector_GetBalance_Call struct {
+	*mock.Call
+}
+
+// GetBalance is a helper method to define mock.On call
+//   - asset portfolio.Pair
+func (_e *Connector_Expecter) GetBalance(asset interface{}) *Connector_GetBalance_Call {
+	return &Connector_GetBalance_Call{Call: _e.mock.On("GetBalance", asset)}
+}
+
+func (_c *Connector_GetBalance_Call) Run(run func(asset portfolio.Pair)) *Connector_GetBalance_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(portfolio.Pair))
+	})
+	return _c
+}
+
+func (_c *Connector_GetBalance_Call) Return(_a0 *connector.AssetBalance, _a1 error) *Connector_GetBalance_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Connector_GetBalance_Call) RunAndReturn(run func(portfolio.Pair) (*connector.AssetBalance, error)) *Connector_GetBalance_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -715,9 +787,9 @@ func (_c *Connector_GetConnectorInfo_Call) RunAndReturn(run func() *connector.In
 	return _c
 }
 
-// GetOpenOrders provides a mock function with no fields
-func (_m *Connector) GetOpenOrders() ([]connector.Order, error) {
-	ret := _m.Called()
+// GetOpenOrders provides a mock function with given fields: pair
+func (_m *Connector) GetOpenOrders(pair portfolio.Pair) ([]connector.Order, error) {
+	ret := _m.Called(pair)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOpenOrders")
@@ -725,19 +797,19 @@ func (_m *Connector) GetOpenOrders() ([]connector.Order, error) {
 
 	var r0 []connector.Order
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]connector.Order, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) ([]connector.Order, error)); ok {
+		return rf(pair)
 	}
-	if rf, ok := ret.Get(0).(func() []connector.Order); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) []connector.Order); ok {
+		r0 = rf(pair)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Order)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
+		r1 = rf(pair)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -751,13 +823,14 @@ type Connector_GetOpenOrders_Call struct {
 }
 
 // GetOpenOrders is a helper method to define mock.On call
-func (_e *Connector_Expecter) GetOpenOrders() *Connector_GetOpenOrders_Call {
-	return &Connector_GetOpenOrders_Call{Call: _e.mock.On("GetOpenOrders")}
+//   - pair portfolio.Pair
+func (_e *Connector_Expecter) GetOpenOrders(pair interface{}) *Connector_GetOpenOrders_Call {
+	return &Connector_GetOpenOrders_Call{Call: _e.mock.On("GetOpenOrders", pair)}
 }
 
-func (_c *Connector_GetOpenOrders_Call) Run(run func()) *Connector_GetOpenOrders_Call {
+func (_c *Connector_GetOpenOrders_Call) Run(run func(pair portfolio.Pair)) *Connector_GetOpenOrders_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -767,14 +840,14 @@ func (_c *Connector_GetOpenOrders_Call) Return(_a0 []connector.Order, _a1 error)
 	return _c
 }
 
-func (_c *Connector_GetOpenOrders_Call) RunAndReturn(run func() ([]connector.Order, error)) *Connector_GetOpenOrders_Call {
+func (_c *Connector_GetOpenOrders_Call) RunAndReturn(run func(portfolio.Pair) ([]connector.Order, error)) *Connector_GetOpenOrders_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetOrderStatus provides a mock function with given fields: orderID
-func (_m *Connector) GetOrderStatus(orderID string) (*connector.Order, error) {
-	ret := _m.Called(orderID)
+// GetOrderStatus provides a mock function with given fields: pair, orderID
+func (_m *Connector) GetOrderStatus(pair portfolio.Pair, orderID string) (*connector.Order, error) {
+	ret := _m.Called(pair, orderID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOrderStatus")
@@ -782,19 +855,19 @@ func (_m *Connector) GetOrderStatus(orderID string) (*connector.Order, error) {
 
 	var r0 *connector.Order
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*connector.Order, error)); ok {
-		return rf(orderID)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string) (*connector.Order, error)); ok {
+		return rf(pair, orderID)
 	}
-	if rf, ok := ret.Get(0).(func(string) *connector.Order); ok {
-		r0 = rf(orderID)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string) *connector.Order); ok {
+		r0 = rf(pair, orderID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.Order)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(orderID)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, string) error); ok {
+		r1 = rf(pair, orderID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -808,14 +881,15 @@ type Connector_GetOrderStatus_Call struct {
 }
 
 // GetOrderStatus is a helper method to define mock.On call
+//   - pair portfolio.Pair
 //   - orderID string
-func (_e *Connector_Expecter) GetOrderStatus(orderID interface{}) *Connector_GetOrderStatus_Call {
-	return &Connector_GetOrderStatus_Call{Call: _e.mock.On("GetOrderStatus", orderID)}
+func (_e *Connector_Expecter) GetOrderStatus(pair interface{}, orderID interface{}) *Connector_GetOrderStatus_Call {
+	return &Connector_GetOrderStatus_Call{Call: _e.mock.On("GetOrderStatus", pair, orderID)}
 }
 
-func (_c *Connector_GetOrderStatus_Call) Run(run func(orderID string)) *Connector_GetOrderStatus_Call {
+func (_c *Connector_GetOrderStatus_Call) Run(run func(pair portfolio.Pair, orderID string)) *Connector_GetOrderStatus_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(portfolio.Pair), args[1].(string))
 	})
 	return _c
 }
@@ -825,13 +899,13 @@ func (_c *Connector_GetOrderStatus_Call) Return(_a0 *connector.Order, _a1 error)
 	return _c
 }
 
-func (_c *Connector_GetOrderStatus_Call) RunAndReturn(run func(string) (*connector.Order, error)) *Connector_GetOrderStatus_Call {
+func (_c *Connector_GetOrderStatus_Call) RunAndReturn(run func(portfolio.Pair, string) (*connector.Order, error)) *Connector_GetOrderStatus_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetPerpSymbol provides a mock function with given fields: symbol
-func (_m *Connector) GetPerpSymbol(symbol portfolio.Asset) string {
+func (_m *Connector) GetPerpSymbol(symbol portfolio.Pair) string {
 	ret := _m.Called(symbol)
 
 	if len(ret) == 0 {
@@ -839,7 +913,7 @@ func (_m *Connector) GetPerpSymbol(symbol portfolio.Asset) string {
 	}
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(portfolio.Asset) string); ok {
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) string); ok {
 		r0 = rf(symbol)
 	} else {
 		r0 = ret.Get(0).(string)
@@ -854,14 +928,14 @@ type Connector_GetPerpSymbol_Call struct {
 }
 
 // GetPerpSymbol is a helper method to define mock.On call
-//   - symbol portfolio.Asset
+//   - symbol portfolio.Pair
 func (_e *Connector_Expecter) GetPerpSymbol(symbol interface{}) *Connector_GetPerpSymbol_Call {
 	return &Connector_GetPerpSymbol_Call{Call: _e.mock.On("GetPerpSymbol", symbol)}
 }
 
-func (_c *Connector_GetPerpSymbol_Call) Run(run func(symbol portfolio.Asset)) *Connector_GetPerpSymbol_Call {
+func (_c *Connector_GetPerpSymbol_Call) Run(run func(symbol portfolio.Pair)) *Connector_GetPerpSymbol_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Asset))
+		run(args[0].(portfolio.Pair))
 	})
 	return _c
 }
@@ -871,7 +945,7 @@ func (_c *Connector_GetPerpSymbol_Call) Return(_a0 string) *Connector_GetPerpSym
 	return _c
 }
 
-func (_c *Connector_GetPerpSymbol_Call) RunAndReturn(run func(portfolio.Asset) string) *Connector_GetPerpSymbol_Call {
+func (_c *Connector_GetPerpSymbol_Call) RunAndReturn(run func(portfolio.Pair) string) *Connector_GetPerpSymbol_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -933,9 +1007,9 @@ func (_c *Connector_GetPositions_Call) RunAndReturn(run func() ([]perp.Position,
 	return _c
 }
 
-// GetTradingHistory provides a mock function with given fields: symbol, limit
-func (_m *Connector) GetTradingHistory(symbol string, limit int) ([]connector.Trade, error) {
-	ret := _m.Called(symbol, limit)
+// GetTradingHistory provides a mock function with given fields: pair, limit
+func (_m *Connector) GetTradingHistory(pair portfolio.Pair, limit int) ([]connector.Trade, error) {
+	ret := _m.Called(pair, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTradingHistory")
@@ -943,19 +1017,19 @@ func (_m *Connector) GetTradingHistory(symbol string, limit int) ([]connector.Tr
 
 	var r0 []connector.Trade
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, int) ([]connector.Trade, error)); ok {
-		return rf(symbol, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) ([]connector.Trade, error)); ok {
+		return rf(pair, limit)
 	}
-	if rf, ok := ret.Get(0).(func(string, int) []connector.Trade); ok {
-		r0 = rf(symbol, limit)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, int) []connector.Trade); ok {
+		r0 = rf(pair, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Trade)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, int) error); ok {
-		r1 = rf(symbol, limit)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, int) error); ok {
+		r1 = rf(pair, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -969,15 +1043,15 @@ type Connector_GetTradingHistory_Call struct {
 }
 
 // GetTradingHistory is a helper method to define mock.On call
-//   - symbol string
+//   - pair portfolio.Pair
 //   - limit int
-func (_e *Connector_Expecter) GetTradingHistory(symbol interface{}, limit interface{}) *Connector_GetTradingHistory_Call {
-	return &Connector_GetTradingHistory_Call{Call: _e.mock.On("GetTradingHistory", symbol, limit)}
+func (_e *Connector_Expecter) GetTradingHistory(pair interface{}, limit interface{}) *Connector_GetTradingHistory_Call {
+	return &Connector_GetTradingHistory_Call{Call: _e.mock.On("GetTradingHistory", pair, limit)}
 }
 
-func (_c *Connector_GetTradingHistory_Call) Run(run func(symbol string, limit int)) *Connector_GetTradingHistory_Call {
+func (_c *Connector_GetTradingHistory_Call) Run(run func(pair portfolio.Pair, limit int)) *Connector_GetTradingHistory_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(int))
+		run(args[0].(portfolio.Pair), args[1].(int))
 	})
 	return _c
 }
@@ -987,7 +1061,7 @@ func (_c *Connector_GetTradingHistory_Call) Return(_a0 []connector.Trade, _a1 er
 	return _c
 }
 
-func (_c *Connector_GetTradingHistory_Call) RunAndReturn(run func(string, int) ([]connector.Trade, error)) *Connector_GetTradingHistory_Call {
+func (_c *Connector_GetTradingHistory_Call) RunAndReturn(run func(portfolio.Pair, int) ([]connector.Trade, error)) *Connector_GetTradingHistory_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1130,9 +1204,9 @@ func (_c *Connector_NewConfig_Call) RunAndReturn(run func() connector.Config) *C
 	return _c
 }
 
-// PlaceLimitOrder provides a mock function with given fields: symbol, side, quantity, price
-func (_m *Connector) PlaceLimitOrder(symbol string, side connector.OrderSide, quantity numerical.Decimal, price numerical.Decimal) (*connector.OrderResponse, error) {
-	ret := _m.Called(symbol, side, quantity, price)
+// PlaceLimitOrder provides a mock function with given fields: pair, side, quantity, price
+func (_m *Connector) PlaceLimitOrder(pair portfolio.Pair, side connector.OrderSide, quantity numerical.Decimal, price numerical.Decimal) (*connector.OrderResponse, error) {
+	ret := _m.Called(pair, side, quantity, price)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PlaceLimitOrder")
@@ -1140,19 +1214,19 @@ func (_m *Connector) PlaceLimitOrder(symbol string, side connector.OrderSide, qu
 
 	var r0 *connector.OrderResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, numerical.Decimal, numerical.Decimal) (*connector.OrderResponse, error)); ok {
-		return rf(symbol, side, quantity, price)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.OrderSide, numerical.Decimal, numerical.Decimal) (*connector.OrderResponse, error)); ok {
+		return rf(pair, side, quantity, price)
 	}
-	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, numerical.Decimal, numerical.Decimal) *connector.OrderResponse); ok {
-		r0 = rf(symbol, side, quantity, price)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.OrderSide, numerical.Decimal, numerical.Decimal) *connector.OrderResponse); ok {
+		r0 = rf(pair, side, quantity, price)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.OrderResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, connector.OrderSide, numerical.Decimal, numerical.Decimal) error); ok {
-		r1 = rf(symbol, side, quantity, price)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, connector.OrderSide, numerical.Decimal, numerical.Decimal) error); ok {
+		r1 = rf(pair, side, quantity, price)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1166,17 +1240,17 @@ type Connector_PlaceLimitOrder_Call struct {
 }
 
 // PlaceLimitOrder is a helper method to define mock.On call
-//   - symbol string
+//   - pair portfolio.Pair
 //   - side connector.OrderSide
 //   - quantity numerical.Decimal
 //   - price numerical.Decimal
-func (_e *Connector_Expecter) PlaceLimitOrder(symbol interface{}, side interface{}, quantity interface{}, price interface{}) *Connector_PlaceLimitOrder_Call {
-	return &Connector_PlaceLimitOrder_Call{Call: _e.mock.On("PlaceLimitOrder", symbol, side, quantity, price)}
+func (_e *Connector_Expecter) PlaceLimitOrder(pair interface{}, side interface{}, quantity interface{}, price interface{}) *Connector_PlaceLimitOrder_Call {
+	return &Connector_PlaceLimitOrder_Call{Call: _e.mock.On("PlaceLimitOrder", pair, side, quantity, price)}
 }
 
-func (_c *Connector_PlaceLimitOrder_Call) Run(run func(symbol string, side connector.OrderSide, quantity numerical.Decimal, price numerical.Decimal)) *Connector_PlaceLimitOrder_Call {
+func (_c *Connector_PlaceLimitOrder_Call) Run(run func(pair portfolio.Pair, side connector.OrderSide, quantity numerical.Decimal, price numerical.Decimal)) *Connector_PlaceLimitOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(connector.OrderSide), args[2].(numerical.Decimal), args[3].(numerical.Decimal))
+		run(args[0].(portfolio.Pair), args[1].(connector.OrderSide), args[2].(numerical.Decimal), args[3].(numerical.Decimal))
 	})
 	return _c
 }
@@ -1186,14 +1260,14 @@ func (_c *Connector_PlaceLimitOrder_Call) Return(_a0 *connector.OrderResponse, _
 	return _c
 }
 
-func (_c *Connector_PlaceLimitOrder_Call) RunAndReturn(run func(string, connector.OrderSide, numerical.Decimal, numerical.Decimal) (*connector.OrderResponse, error)) *Connector_PlaceLimitOrder_Call {
+func (_c *Connector_PlaceLimitOrder_Call) RunAndReturn(run func(portfolio.Pair, connector.OrderSide, numerical.Decimal, numerical.Decimal) (*connector.OrderResponse, error)) *Connector_PlaceLimitOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// PlaceMarketOrder provides a mock function with given fields: symbol, side, quantity
-func (_m *Connector) PlaceMarketOrder(symbol string, side connector.OrderSide, quantity numerical.Decimal) (*connector.OrderResponse, error) {
-	ret := _m.Called(symbol, side, quantity)
+// PlaceMarketOrder provides a mock function with given fields: pair, side, quantity
+func (_m *Connector) PlaceMarketOrder(pair portfolio.Pair, side connector.OrderSide, quantity numerical.Decimal) (*connector.OrderResponse, error) {
+	ret := _m.Called(pair, side, quantity)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PlaceMarketOrder")
@@ -1201,19 +1275,19 @@ func (_m *Connector) PlaceMarketOrder(symbol string, side connector.OrderSide, q
 
 	var r0 *connector.OrderResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, numerical.Decimal) (*connector.OrderResponse, error)); ok {
-		return rf(symbol, side, quantity)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.OrderSide, numerical.Decimal) (*connector.OrderResponse, error)); ok {
+		return rf(pair, side, quantity)
 	}
-	if rf, ok := ret.Get(0).(func(string, connector.OrderSide, numerical.Decimal) *connector.OrderResponse); ok {
-		r0 = rf(symbol, side, quantity)
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, connector.OrderSide, numerical.Decimal) *connector.OrderResponse); ok {
+		r0 = rf(pair, side, quantity)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.OrderResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string, connector.OrderSide, numerical.Decimal) error); ok {
-		r1 = rf(symbol, side, quantity)
+	if rf, ok := ret.Get(1).(func(portfolio.Pair, connector.OrderSide, numerical.Decimal) error); ok {
+		r1 = rf(pair, side, quantity)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1227,16 +1301,16 @@ type Connector_PlaceMarketOrder_Call struct {
 }
 
 // PlaceMarketOrder is a helper method to define mock.On call
-//   - symbol string
+//   - pair portfolio.Pair
 //   - side connector.OrderSide
 //   - quantity numerical.Decimal
-func (_e *Connector_Expecter) PlaceMarketOrder(symbol interface{}, side interface{}, quantity interface{}) *Connector_PlaceMarketOrder_Call {
-	return &Connector_PlaceMarketOrder_Call{Call: _e.mock.On("PlaceMarketOrder", symbol, side, quantity)}
+func (_e *Connector_Expecter) PlaceMarketOrder(pair interface{}, side interface{}, quantity interface{}) *Connector_PlaceMarketOrder_Call {
+	return &Connector_PlaceMarketOrder_Call{Call: _e.mock.On("PlaceMarketOrder", pair, side, quantity)}
 }
 
-func (_c *Connector_PlaceMarketOrder_Call) Run(run func(symbol string, side connector.OrderSide, quantity numerical.Decimal)) *Connector_PlaceMarketOrder_Call {
+func (_c *Connector_PlaceMarketOrder_Call) Run(run func(pair portfolio.Pair, side connector.OrderSide, quantity numerical.Decimal)) *Connector_PlaceMarketOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(connector.OrderSide), args[2].(numerical.Decimal))
+		run(args[0].(portfolio.Pair), args[1].(connector.OrderSide), args[2].(numerical.Decimal))
 	})
 	return _c
 }
@@ -1246,7 +1320,7 @@ func (_c *Connector_PlaceMarketOrder_Call) Return(_a0 *connector.OrderResponse, 
 	return _c
 }
 
-func (_c *Connector_PlaceMarketOrder_Call) RunAndReturn(run func(string, connector.OrderSide, numerical.Decimal) (*connector.OrderResponse, error)) *Connector_PlaceMarketOrder_Call {
+func (_c *Connector_PlaceMarketOrder_Call) RunAndReturn(run func(portfolio.Pair, connector.OrderSide, numerical.Decimal) (*connector.OrderResponse, error)) *Connector_PlaceMarketOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }

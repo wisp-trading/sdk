@@ -14,7 +14,7 @@ import (
 
 // Volatility calculates the standard deviation of returns for an asset.
 // Returns annualized volatility as a percentage.
-func (s *analytics) Volatility(ctx context.Context, asset portfolio.Asset, period int, opts ...analyticsTypes.AnalyticsOptions) (numerical.Decimal, error) {
+func (s *analytics) Volatility(ctx context.Context, asset portfolio.Pair, period int, opts ...analyticsTypes.AnalyticsOptions) (numerical.Decimal, error) {
 	start := time.Now()
 	defer func() {
 		if profCtx := profiling.FromContext(ctx); profCtx != nil {

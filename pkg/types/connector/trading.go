@@ -3,6 +3,7 @@ package connector
 import (
 	"time"
 
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
@@ -82,6 +83,7 @@ type Order struct {
 	ID            string            `json:"id"`
 	ClientOrderID string            `json:"client_order_id,omitempty"`
 	Symbol        string            `json:"symbol"`
+	Pair          portfolio.Pair    `json:"pair"`
 	Side          OrderSide         `json:"side"`
 	Type          OrderType         `json:"type"`
 	Status        OrderStatus       `json:"status"`
