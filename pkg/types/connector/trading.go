@@ -99,9 +99,11 @@ type Order struct {
 
 // CancelResponse represents the response after canceling an order.
 type CancelResponse struct {
-	OrderID       string      `json:"order_id"`
-	ClientOrderID string      `json:"client_order_id,omitempty"`
-	Symbol        string      `json:"symbol"`
-	Status        OrderStatus `json:"status"`
-	Timestamp     time.Time   `json:"timestamp"`
+	OrderID       string `json:"order_id"`
+	ClientOrderID string `json:"client_order_id,omitempty"`
+	// Deprecated: use Pair instead
+	Symbol    string         `json:"symbol"`
+	Pair      portfolio.Pair `json:"pair"`
+	Status    OrderStatus    `json:"status"`
+	Timestamp time.Time      `json:"timestamp"`
 }

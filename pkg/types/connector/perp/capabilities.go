@@ -5,11 +5,15 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
+type AccountReader interface {
+	GetMarginBalances() ([]AssetBalance, error)
+}
+
 // FundingRateProvider handles funding rate data (perps only)
 type FundingRateProvider interface {
 	FetchCurrentFundingRates() (map[portfolio.Pair]FundingRate, error)
-	FetchFundingRate(asset portfolio.Pair) (*FundingRate, error)
-	FetchHistoricalFundingRates(asset portfolio.Pair, startTime, endTime int64) ([]HistoricalFundingRate, error)
+	FetchFundingRate(pair portfolio.Pair) (*FundingRate, error)
+	FetchHistoricalFundingRates(pair portfolio.Pair, startTime, endTime int64) ([]HistoricalFundingRate, error)
 }
 
 // PositionManager handles leveraged positions (perps only)

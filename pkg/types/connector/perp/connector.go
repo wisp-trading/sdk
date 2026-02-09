@@ -14,6 +14,7 @@ type Connector interface {
 	FundingRateProvider
 	PositionManager
 	ContractProvider
+	AccountReader
 
 	// Perp-specific
 	GetPerpSymbol(symbol portfolio.Pair) string

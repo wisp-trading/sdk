@@ -11,18 +11,18 @@ type WebSocketConnector interface {
 	connector.WebSocketCapable
 
 	// Subscription management
-	SubscribeOrderBook(asset portfolio.Pair) error
-	SubscribeTrades(asset portfolio.Pair) error
-	SubscribePositions(asset portfolio.Pair) error
-	SubscribeFundingRates(asset portfolio.Pair) error
-	SubscribeKlines(asset portfolio.Pair, interval string) error
+	SubscribeOrderBook(pair portfolio.Pair) error
+	SubscribeTrades(pair portfolio.Pair) error
+	SubscribePositions(pair portfolio.Pair) error
+	SubscribeFundingRates(pair portfolio.Pair) error
+	SubscribeKlines(pair portfolio.Pair, interval string) error
 	SubscribeAccountBalance() error
 
-	UnsubscribeOrderBook(asset portfolio.Pair) error
-	UnsubscribeTrades(asset portfolio.Pair) error
-	UnsubscribePositions(asset portfolio.Pair) error
-	UnsubscribeFundingRates(asset portfolio.Pair) error
-	UnsubscribeKlines(asset portfolio.Pair, interval string) error
+	UnsubscribeOrderBook(pair portfolio.Pair) error
+	UnsubscribeTrades(pair portfolio.Pair) error
+	UnsubscribePositions(pair portfolio.Pair) error
+	UnsubscribeFundingRates(pair portfolio.Pair) error
+	UnsubscribeKlines(pair portfolio.Pair, interval string) error
 	UnsubscribeAccountBalance() error
 
 	// Data access channels
@@ -31,5 +31,5 @@ type WebSocketConnector interface {
 	TradeUpdates() <-chan connector.Trade
 	PositionUpdates() <-chan Position
 	FundingRateUpdates() <-chan FundingRate
-	AssetBalanceUpdates() <-chan connector.AssetBalance
+	//AssetBalanceUpdates() <-chan AssetBalance
 }

@@ -76,7 +76,7 @@ func (f *FundingRateExtension) ProcessChannels(wsConn interface{}, exchangeName 
 }
 func (f *FundingRateExtension) handleFundingRateUpdate(exchangeName connector.ExchangeName, update perpConn.FundingRate) {
 	// Get asset from the funding rate update
-	asset := update.Asset
+	asset := update.Pair
 
 	// Store the funding rate update
 	f.store.UpdateFundingRate(asset, exchangeName, update)
