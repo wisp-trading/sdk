@@ -10,7 +10,7 @@ import (
 
 // Position represents a trading position.
 type Position struct {
-	Symbol           portfolio.Pair         `json:"symbol"`
+	Pair             portfolio.Pair         `json:"symbol"`
 	Exchange         connector.ExchangeName `json:"exchange"`
 	Side             connector.OrderSide    `json:"side"`
 	Size             numerical.Decimal      `json:"size"`
