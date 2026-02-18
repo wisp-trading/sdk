@@ -35,39 +35,40 @@ func NewPredict(
 	}
 }
 
-func (p predict) GetMarketBySlug(slug string, exchange *connector.ExchangeName) ([]prediction.Market, error) {
-	var marketList []prediction.Market
+func (p predict) GetMarketBySlug(slug string, exchange connector.ExchangeName) (prediction.Market, error) {
+	marketConnector, exists := p.connectorRegistry.Prediction(exchange)
 
-	if exchange != nil {
-		marketConnector, exists := p.connectorRegistry.Prediction(*exchange)
-
-		if !exists {
-			return []prediction.Market{}, errors.New("connector not found for exchange: " + string(*exchange))
-		}
-
-		market, err := marketConnector.GetMarket(slug)
-
-		if err != nil {
-			return []prediction.Market{}, errors.New("market not found for slug: " + slug + " on exchange: " + string(*exchange))
-		}
-
-		marketList = append(marketList, market)
-		return marketList, nil
+	if !exists {
+		return prediction.Market{}, errors.New("connector not found for exchange: " + string(exchange))
 	}
 
-	connectors := p.connectorRegistry.FilterPrediction(registry.NewFilter().ReadyOnly().WebSocketOnly().Build())
+	market, err := marketConnector.GetMarket(slug)
 
-	for _, conn := range connectors {
-		markets, err := conn.GetMarket(slug)
-
-		if err != nil {
-			continue
-		}
-
-		marketList = append(marketList, markets)
+	if err != nil {
+		return prediction.Market{}, errors.New("market not found for slug: " + slug + " on exchange: " + string(exchange))
 	}
 
-	return marketList, nil
+	return market, nil
+}
+
+func (p predict) GetRecurringMarketBySlug(
+	slug string,
+	recurrenceInterval prediction.RecurrenceInterval,
+	exchange connector.ExchangeName,
+) (prediction.Market, error) {
+	marketConnector, exists := p.connectorRegistry.Prediction(exchange)
+
+	if !exists {
+		return prediction.Market{}, errors.New("connector not found for exchange: " + string(exchange))
+	}
+
+	market, err := marketConnector.GetRecurringMarket(slug, recurrenceInterval)
+
+	if err != nil {
+		return prediction.Market{}, errors.New("market not found for slug: " + slug + " on exchange: " + string(exchange))
+	}
+
+	return market, nil
 }
 
 func (p predict) WatchMarket(market prediction.Market, exchange *connector.ExchangeName) error {

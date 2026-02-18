@@ -28,7 +28,7 @@ func NewConnectorService(
 // GetMatchingConnectors returns user-configured connectors that match registered connectors
 func (c *connectorService) GetMatchingConnectors() (map[connector.ExchangeName]config.Connector, error) {
 	// Get registered connectors from registry
-	registeredConnectors := c.connectorRegistry.Filter(registry.NewFilter().ReadyOnly().Build())
+	registeredConnectors := c.connectorRegistry.Filter(registry.NewFilter().Build())
 
 	// Create a lookup map for quick checking
 	registeredMap := make(map[connector.ExchangeName]bool)

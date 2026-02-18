@@ -165,8 +165,8 @@ func (cr *connectorRegistry) Filter(opts registry.FilterOptions) []connector.Con
 	defer cr.mu.RUnlock()
 
 	var results []connector.Connector
-	for name, state := range cr.connectors {
-		if cr.matchesFilter(name, state, opts, connector.MarketType("")) {
+	for _, state := range cr.connectors {
+		if cr.matchesFilter(state, opts, connector.MarketType("")) {
 			results = append(results, state.connector)
 		}
 	}
@@ -178,11 +178,11 @@ func (cr *connectorRegistry) FilterSpot(opts registry.FilterOptions) []spot.Conn
 	defer cr.mu.RUnlock()
 
 	var results []spot.Connector
-	for name, state := range cr.connectors {
+	for _, state := range cr.connectors {
 		if state.connectorType != connector.MarketTypeSpot {
 			continue
 		}
-		if cr.matchesFilter(name, state, opts, connector.MarketTypeSpot) {
+		if cr.matchesFilter(state, opts, connector.MarketTypeSpot) {
 			if spotConn, ok := state.connector.(spot.Connector); ok {
 				results = append(results, spotConn)
 			}
@@ -196,11 +196,11 @@ func (cr *connectorRegistry) FilterPerp(opts registry.FilterOptions) []perp.Conn
 	defer cr.mu.RUnlock()
 
 	var results []perp.Connector
-	for name, state := range cr.connectors {
+	for _, state := range cr.connectors {
 		if state.connectorType != connector.MarketTypePerp {
 			continue
 		}
-		if cr.matchesFilter(name, state, opts, connector.MarketTypePerp) {
+		if cr.matchesFilter(state, opts, connector.MarketTypePerp) {
 			if perpConn, ok := state.connector.(perp.Connector); ok {
 				results = append(results, perpConn)
 			}
@@ -214,11 +214,11 @@ func (cr *connectorRegistry) FilterPrediction(opts registry.FilterOptions) []pre
 	defer cr.mu.RUnlock()
 
 	var results []prediction.Connector
-	for name, state := range cr.connectors {
+	for _, state := range cr.connectors {
 		if state.connectorType != connector.MarketTypePrediction {
 			continue
 		}
-		if cr.matchesFilter(name, state, opts, connector.MarketTypePrediction) {
+		if cr.matchesFilter(state, opts, connector.MarketTypePrediction) {
 			if predConn, ok := state.connector.(prediction.Connector); ok {
 				results = append(results, predConn)
 			}
@@ -229,7 +229,7 @@ func (cr *connectorRegistry) FilterPrediction(opts registry.FilterOptions) []pre
 
 // ===== Filter Helper =====
 
-func (cr *connectorRegistry) matchesFilter(name connector.ExchangeName, state *connectorState, opts registry.FilterOptions, marketType connector.MarketType) bool {
+func (cr *connectorRegistry) matchesFilter(state *connectorState, opts registry.FilterOptions, marketType connector.MarketType) bool {
 	// Check ready state
 	if opts.IsReadyOnly() && !state.ready {
 		return false

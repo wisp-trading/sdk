@@ -7,7 +7,8 @@ import (
 )
 
 type Predict interface {
-	GetMarketBySlug(slug string, exchange *connector.ExchangeName) ([]prediction.Market, error)
+	GetMarketBySlug(slug string, exchange connector.ExchangeName) (prediction.Market, error)
+	GetRecurringMarketBySlug(slug string, recurrenceInterval prediction.RecurrenceInterval, exchange connector.ExchangeName) (prediction.Market, error)
 	WatchMarket(market prediction.Market, exchange *connector.ExchangeName) error
 
 	Markets() []prediction.Market
