@@ -7,6 +7,15 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
+// OrderExecutor handles order placement and management
+type OrderExecutor interface {
+	PlaceLimitOrder(pair portfolio.Pair, side OrderSide, quantity, price numerical.Decimal) (*OrderResponse, error)
+	PlaceMarketOrder(pair portfolio.Pair, side OrderSide, quantity numerical.Decimal) (*OrderResponse, error)
+	CancelOrder(orderID string, pair ...portfolio.Pair) (*CancelResponse, error)
+	GetOpenOrders(pair ...portfolio.Pair) ([]Order, error)
+	GetOrderStatus(orderID string, pair ...portfolio.Pair) (*Order, error)
+}
+
 // OrderSide represents the side of an order (buy or sell).
 type OrderSide string
 
@@ -29,6 +38,10 @@ func FromString(side string) OrderSide {
 
 func (s OrderSide) IsValid() bool {
 	return s == OrderSideBuy || s == OrderSideSell
+}
+
+func (s OrderSide) ToString() string {
+	return string(s)
 }
 
 // OrderType represents the type of an order.

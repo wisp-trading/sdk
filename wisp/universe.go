@@ -33,7 +33,7 @@ func NewUniverseProvider(assetRegistry registry.PairRegistry, connectorRegistry 
 func (up *universeProvider) Universe() wispTypes.Universe {
 	up.mu.Do(func() {
 		// Get ready exchanges
-		readyConnectors := up.connectorRegistry.GetAllReadyConnectors()
+		readyConnectors := up.connectorRegistry.Filter(registry.NewFilter().ReadyOnly().Build())
 		exchanges := make([]connector.Exchange, 0, len(readyConnectors))
 		for _, conn := range readyConnectors {
 			info := conn.GetConnectorInfo()
@@ -44,7 +44,7 @@ func (up *universeProvider) Universe() wispTypes.Universe {
 		assets := make(map[portfolio.Pair][]connector.Instrument)
 		requirements := up.assetRegistry.GetPairRequirements()
 		for _, req := range requirements {
-			assets[req.Asset] = req.Instruments
+			assets[req.Pair] = req.Instruments
 		}
 
 		up.cached = &wispTypes.Universe{

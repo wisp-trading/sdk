@@ -7,20 +7,14 @@ import (
 
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	"github.com/wisp-trading/sdk/pkg/types/connector/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/connector/spot"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
 
-type connectorType string
-
-const (
-	connectorTypeSpot connectorType = "spot"
-	connectorTypePerp connectorType = "perp"
-)
-
 type connectorState struct {
 	connector     connector.Connector
-	connectorType connectorType
+	connectorType connector.MarketType
 	ready         bool
 	readyAt       time.Time
 }
@@ -30,260 +24,243 @@ type connectorRegistry struct {
 	mu         sync.RWMutex
 }
 
-// NewConnectorRegistry creates a new connector registry
 func NewConnectorRegistry() registry.ConnectorRegistry {
 	return &connectorRegistry{
 		connectors: make(map[connector.ExchangeName]*connectorState),
 	}
 }
 
-// ===== Spot Connector Methods =====
+// ===== Registration =====
 
-func (cr *connectorRegistry) GetSpotConnector(name connector.ExchangeName) (spot.Connector, bool) {
+func (cr *connectorRegistry) RegisterSpot(name connector.ExchangeName, conn spot.Connector) {
+	cr.mu.Lock()
+	defer cr.mu.Unlock()
+	cr.connectors[name] = &connectorState{
+		connector:     conn,
+		connectorType: connector.MarketTypeSpot,
+		ready:         false,
+	}
+}
+
+func (cr *connectorRegistry) RegisterPerp(name connector.ExchangeName, conn perp.Connector) {
+	cr.mu.Lock()
+	defer cr.mu.Unlock()
+	cr.connectors[name] = &connectorState{
+		connector:     conn,
+		connectorType: connector.MarketTypePerp,
+		ready:         false,
+	}
+}
+
+func (cr *connectorRegistry) RegisterPrediction(name connector.ExchangeName, conn prediction.Connector) {
+	cr.mu.Lock()
+	defer cr.mu.Unlock()
+	cr.connectors[name] = &connectorState{
+		connector:     conn,
+		connectorType: connector.MarketTypePrediction,
+		ready:         false,
+	}
+}
+
+// ===== Direct Getters =====
+
+func (cr *connectorRegistry) Connector(name connector.ExchangeName) (connector.Connector, bool) {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 
 	state, exists := cr.connectors[name]
 	if !exists {
+		return nil, false
+	}
+	return state.connector, true
+}
+
+func (cr *connectorRegistry) Spot(name connector.ExchangeName) (spot.Connector, bool) {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	state, exists := cr.connectors[name]
+	if !exists || state.connectorType != connector.MarketTypeSpot {
 		return nil, false
 	}
 
 	if spotConn, ok := state.connector.(spot.Connector); ok {
 		return spotConn, true
 	}
-
 	return nil, false
 }
 
-func (cr *connectorRegistry) RegisterSpotConnector(name connector.ExchangeName, conn spot.Connector) {
-	cr.mu.Lock()
-	defer cr.mu.Unlock()
-
-	cr.connectors[name] = &connectorState{
-		connector:     conn,
-		connectorType: connectorTypeSpot,
-		ready:         false,
-	}
-}
-
-func (cr *connectorRegistry) GetSpotConnectors() []spot.Connector {
-	cr.mu.RLock()
-	defer cr.mu.RUnlock()
-
-	var spotConnectors []spot.Connector
-	for _, state := range cr.connectors {
-		if state.connectorType == connectorTypeSpot {
-			if spotConn, ok := state.connector.(spot.Connector); ok {
-				spotConnectors = append(spotConnectors, spotConn)
-			}
-		}
-	}
-
-	return spotConnectors
-}
-
-func (cr *connectorRegistry) GetReadySpotConnectors() []spot.Connector {
-	cr.mu.RLock()
-	defer cr.mu.RUnlock()
-
-	var spotConnectors []spot.Connector
-	for _, state := range cr.connectors {
-		if state.ready && state.connectorType == connectorTypeSpot {
-			if spotConn, ok := state.connector.(spot.Connector); ok {
-				spotConnectors = append(spotConnectors, spotConn)
-			}
-		}
-	}
-
-	return spotConnectors
-}
-
-func (cr *connectorRegistry) GetSpotWebSocketConnectors() []spot.WebSocketConnector {
-	cr.mu.RLock()
-	defer cr.mu.RUnlock()
-
-	var wsConnectors []spot.WebSocketConnector
-	for _, state := range cr.connectors {
-		if state.connectorType == connectorTypeSpot {
-			if wsConn, ok := state.connector.(spot.WebSocketConnector); ok {
-				wsConnectors = append(wsConnectors, wsConn)
-			}
-		}
-	}
-
-	return wsConnectors
-}
-
-func (cr *connectorRegistry) GetReadySpotWebSocketConnectors() []spot.WebSocketConnector {
-	cr.mu.RLock()
-	defer cr.mu.RUnlock()
-
-	var wsConnectors []spot.WebSocketConnector
-	for _, state := range cr.connectors {
-		if state.ready && state.connectorType == connectorTypeSpot {
-			if wsConn, ok := state.connector.(spot.WebSocketConnector); ok {
-				wsConnectors = append(wsConnectors, wsConn)
-			}
-		}
-	}
-
-	return wsConnectors
-}
-
-// ===== Perpetual Connector Methods =====
-
-func (cr *connectorRegistry) GetPerpConnector(name connector.ExchangeName) (perp.Connector, bool) {
+func (cr *connectorRegistry) Perp(name connector.ExchangeName) (perp.Connector, bool) {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 
 	state, exists := cr.connectors[name]
-	if !exists {
+	if !exists || state.connectorType != connector.MarketTypePerp {
 		return nil, false
 	}
 
 	if perpConn, ok := state.connector.(perp.Connector); ok {
 		return perpConn, true
 	}
-
 	return nil, false
 }
 
-func (cr *connectorRegistry) RegisterPerpConnector(name connector.ExchangeName, conn perp.Connector) {
-	cr.mu.Lock()
-	defer cr.mu.Unlock()
-
-	cr.connectors[name] = &connectorState{
-		connector:     conn,
-		connectorType: connectorTypePerp,
-		ready:         false,
-	}
-}
-
-func (cr *connectorRegistry) GetPerpConnectors() []perp.Connector {
-	cr.mu.RLock()
-	defer cr.mu.RUnlock()
-
-	var perpConnectors []perp.Connector
-	for _, state := range cr.connectors {
-		if state.connectorType == connectorTypePerp {
-			if perpConn, ok := state.connector.(perp.Connector); ok {
-				perpConnectors = append(perpConnectors, perpConn)
-			}
-		}
-	}
-
-	return perpConnectors
-}
-
-func (cr *connectorRegistry) GetReadyPerpConnectors() []perp.Connector {
-	cr.mu.RLock()
-	defer cr.mu.RUnlock()
-
-	var perpConnectors []perp.Connector
-	for _, state := range cr.connectors {
-		if state.ready && state.connectorType == connectorTypePerp {
-			if perpConn, ok := state.connector.(perp.Connector); ok {
-				perpConnectors = append(perpConnectors, perpConn)
-			}
-		}
-	}
-
-	return perpConnectors
-}
-
-func (cr *connectorRegistry) GetPerpWebSocketConnectors() []perp.WebSocketConnector {
-	cr.mu.RLock()
-	defer cr.mu.RUnlock()
-
-	var wsConnectors []perp.WebSocketConnector
-	for _, state := range cr.connectors {
-		if state.connectorType == connectorTypePerp {
-			if wsConn, ok := state.connector.(perp.WebSocketConnector); ok {
-				wsConnectors = append(wsConnectors, wsConn)
-			}
-		}
-	}
-
-	return wsConnectors
-}
-
-func (cr *connectorRegistry) GetReadyPerpWebSocketConnectors() []perp.WebSocketConnector {
-	cr.mu.RLock()
-	defer cr.mu.RUnlock()
-
-	var wsConnectors []perp.WebSocketConnector
-	for _, state := range cr.connectors {
-		if state.ready && state.connectorType == connectorTypePerp {
-			if wsConn, ok := state.connector.(perp.WebSocketConnector); ok {
-				wsConnectors = append(wsConnectors, wsConn)
-			}
-		}
-	}
-
-	return wsConnectors
-}
-
-// ===== Generic Base Connector Methods =====
-
-func (cr *connectorRegistry) GetConnector(name connector.ExchangeName) (connector.Connector, bool) {
+func (cr *connectorRegistry) Prediction(name connector.ExchangeName) (prediction.Connector, bool) {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 
 	state, exists := cr.connectors[name]
-	if !exists {
+	if !exists || state.connectorType != connector.MarketTypePrediction {
 		return nil, false
 	}
 
-	// Try spot first
-	if spotConn, ok := state.connector.(spot.Connector); ok {
-		return spotConn, true
+	if predConn, ok := state.connector.(prediction.Connector); ok {
+		return predConn, true
 	}
-
-	// Try perp
-	if perpConn, ok := state.connector.(perp.Connector); ok {
-		return perpConn, true
-	}
-
 	return nil, false
 }
 
-func (cr *connectorRegistry) GetAllBaseConnectors() []connector.Connector {
+// ===== WebSocket Getters =====
+
+func (cr *connectorRegistry) SpotWebSocket(name connector.ExchangeName) (spot.WebSocketConnector, bool) {
+	conn, ok := cr.Spot(name)
+	if !ok {
+		return nil, false
+	}
+
+	if ws, ok := conn.(spot.WebSocketConnector); ok {
+		return ws, true
+	}
+	return nil, false
+}
+
+func (cr *connectorRegistry) PerpWebSocket(name connector.ExchangeName) (perp.WebSocketConnector, bool) {
+	conn, ok := cr.Perp(name)
+	if !ok {
+		return nil, false
+	}
+
+	if ws, ok := conn.(perp.WebSocketConnector); ok {
+		return ws, true
+	}
+	return nil, false
+}
+
+func (cr *connectorRegistry) PredictionWebSocket(name connector.ExchangeName) (prediction.WebSocketConnector, bool) {
+	conn, ok := cr.Prediction(name)
+	if !ok {
+		return nil, false
+	}
+
+	if ws, ok := conn.(prediction.WebSocketConnector); ok {
+		return ws, true
+	}
+	return nil, false
+}
+
+// ===== Filter-based Queries =====
+
+func (cr *connectorRegistry) Filter(opts registry.FilterOptions) []connector.Connector {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 
-	var baseConnectors []connector.Connector
-	for _, state := range cr.connectors {
-		if spotConn, ok := state.connector.(spot.Connector); ok {
-			baseConnectors = append(baseConnectors, spotConn)
-		} else if perpConn, ok := state.connector.(perp.Connector); ok {
-			baseConnectors = append(baseConnectors, perpConn)
+	var results []connector.Connector
+	for name, state := range cr.connectors {
+		if cr.matchesFilter(name, state, opts, connector.MarketType("")) {
+			results = append(results, state.connector)
+		}
+	}
+	return results
+}
+
+func (cr *connectorRegistry) FilterSpot(opts registry.FilterOptions) []spot.Connector {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	var results []spot.Connector
+	for name, state := range cr.connectors {
+		if state.connectorType != connector.MarketTypeSpot {
+			continue
+		}
+		if cr.matchesFilter(name, state, opts, connector.MarketTypeSpot) {
+			if spotConn, ok := state.connector.(spot.Connector); ok {
+				results = append(results, spotConn)
+			}
+		}
+	}
+	return results
+}
+
+func (cr *connectorRegistry) FilterPerp(opts registry.FilterOptions) []perp.Connector {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	var results []perp.Connector
+	for name, state := range cr.connectors {
+		if state.connectorType != connector.MarketTypePerp {
+			continue
+		}
+		if cr.matchesFilter(name, state, opts, connector.MarketTypePerp) {
+			if perpConn, ok := state.connector.(perp.Connector); ok {
+				results = append(results, perpConn)
+			}
+		}
+	}
+	return results
+}
+
+func (cr *connectorRegistry) FilterPrediction(opts registry.FilterOptions) []prediction.Connector {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	var results []prediction.Connector
+	for name, state := range cr.connectors {
+		if state.connectorType != connector.MarketTypePrediction {
+			continue
+		}
+		if cr.matchesFilter(name, state, opts, connector.MarketTypePrediction) {
+			if predConn, ok := state.connector.(prediction.Connector); ok {
+				results = append(results, predConn)
+			}
+		}
+	}
+	return results
+}
+
+// ===== Filter Helper =====
+
+func (cr *connectorRegistry) matchesFilter(name connector.ExchangeName, state *connectorState, opts registry.FilterOptions, marketType connector.MarketType) bool {
+	// Check ready state
+	if opts.IsReadyOnly() && !state.ready {
+		return false
+	}
+
+	// Check websocket capability
+	if opts.IsWebSocketOnly() {
+		switch marketType {
+		case connector.MarketTypeSpot:
+			_, ok := state.connector.(spot.WebSocketConnector)
+			return ok
+		case connector.MarketTypePerp:
+			_, ok := state.connector.(perp.WebSocketConnector)
+			return ok
+		case connector.MarketTypePrediction:
+			_, ok := state.connector.(prediction.WebSocketConnector)
+			return ok
+		default:
+			// For generic queries, check any websocket interface
+			_, spotWS := state.connector.(spot.WebSocketConnector)
+			_, perpWS := state.connector.(perp.WebSocketConnector)
+			return spotWS || perpWS
 		}
 	}
 
-	return baseConnectors
-}
-
-func (cr *connectorRegistry) GetAllReadyConnectors() []connector.Connector {
-	var readyConnectors []connector.Connector
-
-	// Convert perp connectors to Connector
-	perpConnectors := cr.GetReadyPerpConnectors()
-	for _, conn := range perpConnectors {
-		readyConnectors = append(readyConnectors, conn)
-	}
-
-	// Convert spot connectors to Connector
-	spotConnectors := cr.GetReadySpotConnectors()
-	for _, conn := range spotConnectors {
-		readyConnectors = append(readyConnectors, conn)
-	}
-
-	return readyConnectors
+	return true
 }
 
 // ===== Ready State Management =====
 
-func (cr *connectorRegistry) MarkConnectorReady(name connector.ExchangeName) error {
+func (cr *connectorRegistry) MarkReady(name connector.ExchangeName) error {
 	cr.mu.Lock()
 	defer cr.mu.Unlock()
 
@@ -297,7 +274,7 @@ func (cr *connectorRegistry) MarkConnectorReady(name connector.ExchangeName) err
 	return nil
 }
 
-func (cr *connectorRegistry) IsConnectorReady(name connector.ExchangeName) bool {
+func (cr *connectorRegistry) IsReady(name connector.ExchangeName) bool {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 

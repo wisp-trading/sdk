@@ -143,8 +143,8 @@ var _ = Describe("Spot BatchIngestor", func() {
 				}
 
 				// Register connector and pairs
-				connectorRegistry.RegisterSpotConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterSpot(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
 				assetRegistry.RegisterPair(ethPair, connector.TypeSpot)
 
@@ -189,8 +189,8 @@ var _ = Describe("Spot BatchIngestor", func() {
 				exchangeName := connector.ExchangeName("test-spot-exchange")
 				m := setupMockSpotConnector(GinkgoT(), exchangeName)
 
-				connectorRegistry.RegisterSpotConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterSpot(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 
 				// Create ingestors without registering any pairs
 				ingestors := factory.CreateIngestors()
@@ -212,8 +212,8 @@ var _ = Describe("Spot BatchIngestor", func() {
 			exchangeName := connector.ExchangeName("test-spot-exchange")
 			m := setupMockSpotConnector(GinkgoT(), exchangeName)
 
-			connectorRegistry.RegisterSpotConnector(exchangeName, m)
-			Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+			connectorRegistry.RegisterSpot(exchangeName, m)
+			Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 
 			// Create ingestor
 			ingestors := factory.CreateIngestors()

@@ -37,7 +37,7 @@ func NewFactory(
 
 // CreateIngestors creates one batch ingestor per registered spot connector
 func (f *Factory) CreateIngestors() []batch.BatchIngestor {
-	spotConnectors := f.connectorRegistry.GetReadySpotConnectors()
+	spotConnectors := f.connectorRegistry.FilterSpot(registry.NewFilter().ReadyOnly().Build())
 
 	ingestorList := make([]batch.BatchIngestor, 0, len(spotConnectors))
 

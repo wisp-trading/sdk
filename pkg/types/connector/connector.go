@@ -9,8 +9,9 @@ type ExchangeName string
 type Instrument string
 
 const (
-	TypeSpot      Instrument = "spot"
-	TypePerpetual Instrument = "perpetual"
+	TypeSpot       Instrument = "spot"
+	TypePerpetual  Instrument = "perpetual"
+	TypePrediction Instrument = "prediction"
 )
 
 // MarketType identifies the type of market for generic components (ingestors, stores, etc.)

@@ -4,17 +4,17 @@ import (
 	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
-	perpStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
+	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
-// Factory creates batch ingestors for all registered perp connectors
+// Factory creates batch ingestors for all registered prediction connectors
 type Factory struct {
 	connectorRegistry registry.ConnectorRegistry
 	assetRegistry     registry.PairRegistry
-	store             perpStore.MarketStore
+	store             prediction.MarketStore
 	timeProvider      temporal.TimeProvider
 	logger            logging.ApplicationLogger
 }
@@ -22,7 +22,7 @@ type Factory struct {
 func NewFactory(
 	connectorRegistry registry.ConnectorRegistry,
 	assetRegistry registry.PairRegistry,
-	store perpStore.MarketStore,
+	store prediction.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
 ) batch.BatchIngestorFactory {
@@ -37,27 +37,23 @@ func NewFactory(
 
 // CreateIngestors creates one batch ingestor per registered perp connector
 func (f *Factory) CreateIngestors() []batch.BatchIngestor {
-	perpConnectors := f.connectorRegistry.FilterPerp(registry.NewFilter().ReadyOnly().Build())
+	predictionConnectors := f.connectorRegistry.FilterPrediction(registry.NewFilter().ReadyOnly().Build())
 
-	ingestorList := make([]batch.BatchIngestor, 0, len(perpConnectors))
+	ingestorList := make([]batch.BatchIngestor, 0, len(predictionConnectors))
 
-	for _, conn := range perpConnectors {
+	for _, conn := range predictionConnectors {
 		info := conn.GetConnectorInfo()
 		exchangeName := info.Name
-
-		// Create perp-specific extensions
-		fundingExt := NewFundingRateExtension(f.store, f.logger)
 
 		// Base ingestor + perp extensions
 		ingestor := ingestors.NewBatchIngestor(
 			conn,
 			exchangeName,
-			connector.MarketTypePerp,
+			connector.MarketTypePrediction,
 			f.assetRegistry,
 			f.store,
 			f.timeProvider,
 			f.logger,
-			fundingExt, // Add funding rate collection
 		)
 
 		ingestorList = append(ingestorList, ingestor)

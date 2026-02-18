@@ -28,7 +28,7 @@ func NewConnectorService(
 // GetMatchingConnectors returns user-configured connectors that match registered connectors
 func (c *connectorService) GetMatchingConnectors() (map[connector.ExchangeName]config.Connector, error) {
 	// Get registered connectors from registry
-	registeredConnectors := c.connectorRegistry.GetAllBaseConnectors()
+	registeredConnectors := c.connectorRegistry.Filter(registry.NewFilter().ReadyOnly().Build())
 
 	// Create a lookup map for quick checking
 	registeredMap := make(map[connector.ExchangeName]bool)
@@ -63,7 +63,7 @@ func (c *connectorService) ValidateConnectorConfig(exchangeName connector.Exchan
 	}
 
 	// Check if the connector is registered
-	_, exists := c.connectorRegistry.GetConnector(exchangeName)
+	_, exists := c.connectorRegistry.Connector(exchangeName)
 	if !exists {
 		ve.ExchangeNotFound = true
 		return ve
@@ -102,7 +102,7 @@ func (c *connectorService) MapToSDKConfig(userConnector config.Connector) (conne
 	exchangeName := connector.ExchangeName(userConnector.Name)
 
 	// Get the connector from registry
-	conn, exists := c.connectorRegistry.GetConnector(exchangeName)
+	conn, exists := c.connectorRegistry.Connector(exchangeName)
 	if !exists {
 		return nil, fmt.Errorf("connector '%s' not registered", exchangeName)
 	}
@@ -158,7 +158,7 @@ func (c *connectorService) GetConnectorConfigsForStrategy(exchangeNames []string
 		exchangeName := connector.ExchangeName(stratExchangeName)
 
 		// Check if this exchange is registered
-		_, exists := c.connectorRegistry.GetConnector(exchangeName)
+		_, exists := c.connectorRegistry.Connector(exchangeName)
 		if !exists {
 			ve := &ValidationError{
 				Exchange:         stratExchangeName,
@@ -225,7 +225,7 @@ func (c *connectorService) GetConnectorConfigsForStrategy(exchangeNames []string
 
 // GetRequiredCredentialFields returns the credential field names required by an exchange
 func (c *connectorService) GetRequiredCredentialFields(exchangeName string) []string {
-	conn, exists := c.connectorRegistry.GetConnector(connector.ExchangeName(exchangeName))
+	conn, exists := c.connectorRegistry.Connector(connector.ExchangeName(exchangeName))
 	if !exists {
 		return []string{}
 	}

@@ -7,7 +7,7 @@ import (
 
 // PairRequirement defines which instrument types are needed for an asset
 type PairRequirement struct {
-	Asset       portfolio.Pair
+	Pair        portfolio.Pair
 	Instruments []connector.Instrument
 }
 

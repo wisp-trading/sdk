@@ -7,6 +7,14 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
+// MarketDataReader provides read-only market data access
+type MarketDataReader interface {
+	FetchPrice(pair portfolio.Pair) (*Price, error)
+	FetchKlines(pair portfolio.Pair, interval string, limit int) ([]Kline, error)
+	FetchOrderBook(pair portfolio.Pair, depth int) (*OrderBook, error)
+	FetchRecentTrades(pair portfolio.Pair, limit int) ([]Trade, error)
+}
+
 // Price represents the market price data for a symbol.
 type Price struct {
 	Symbol    string            `json:"symbol"`

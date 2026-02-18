@@ -94,8 +94,8 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 				m.EXPECT().SubscribeOrderBook(mock.Anything).Return(nil).Maybe()
 				m.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 
-				connectorRegistry.RegisterSpotConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterSpot(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
 
 				ingestors := factory.CreateIngestors()
@@ -159,8 +159,8 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 				m.EXPECT().SubscribeOrderBook(mock.Anything).Return(nil).Maybe()
 				m.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 
-				connectorRegistry.RegisterSpotConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterSpot(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
 
 				ingestors := factory.CreateIngestors()
@@ -223,8 +223,8 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 				m.EXPECT().SubscribeOrderBook(mock.Anything).Return(nil).Maybe()
 				m.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 
-				connectorRegistry.RegisterSpotConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterSpot(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
 
 				ingestors := factory.CreateIngestors()

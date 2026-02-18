@@ -2,6 +2,7 @@ package wisp
 
 import (
 	packages "github.com/wisp-trading/sdk/pkg"
+	"github.com/wisp-trading/sdk/wisp/predict"
 	"go.uber.org/fx"
 )
 
@@ -15,4 +16,6 @@ var Module = fx.Module("wisp",
 
 	// Provide the main Wisp context
 	fx.Provide(NewWisp),
+
+	fx.Provide(predict.NewPredict),
 )

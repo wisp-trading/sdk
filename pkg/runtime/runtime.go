@@ -130,7 +130,7 @@ func (r *rt) initializeConnectors(connectors map[connector.ExchangeName]connecto
 	names := make([]connector.ExchangeName, 0, len(connectors))
 
 	for name, cfg := range connectors {
-		conn, exists := r.connectorRegistry.GetConnector(name)
+		conn, exists := r.connectorRegistry.Connector(name)
 		if !exists {
 			r.logger.Warn(fmt.Sprintf("connector %s not registered", name))
 			continue
@@ -142,7 +142,7 @@ func (r *rt) initializeConnectors(connectors map[connector.ExchangeName]connecto
 		}
 
 		names = append(names, name)
-		if err := r.connectorRegistry.MarkConnectorReady(name); err != nil {
+		if err := r.connectorRegistry.MarkReady(name); err != nil {
 			return nil, err
 		}
 	}

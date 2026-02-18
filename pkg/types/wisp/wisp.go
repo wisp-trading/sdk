@@ -1,7 +1,6 @@
 package wisp
 
 import (
-	"github.com/wisp-trading/sdk/pkg/inference/features"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
@@ -61,7 +60,7 @@ type Wisp interface {
 	// Provides access to 41+ features including market data, orderbook, technical indicators,
 	// volatility, volume, price metrics, and time-based features.
 	// Example: featureMap, err := k.Features().Extract(asset)
-	Features() features.FeatureAggregator
+	//Features() features.FeatureAggregator
 }
 
 // Universe holds the tradeable assets and exchanges available to the strategy.

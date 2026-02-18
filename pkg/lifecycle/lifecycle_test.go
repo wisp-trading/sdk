@@ -73,8 +73,8 @@ var _ = Describe("LifecycleController", func() {
 				// Register a connector so validation passes
 				exchangeName := connector.ExchangeName("test-exchange")
 				m := setupMockSpotConnector(GinkgoT(), exchangeName)
-				connectorRegistry.RegisterSpotConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterSpot(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
 
 				// Start
@@ -99,8 +99,8 @@ var _ = Describe("LifecycleController", func() {
 				// Register connector and start
 				exchangeName := connector.ExchangeName("test-exchange")
 				m := setupMockSpotConnector(GinkgoT(), exchangeName)
-				connectorRegistry.RegisterSpotConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterSpot(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
 
 				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))
@@ -137,8 +137,8 @@ var _ = Describe("LifecycleController", func() {
 			// Register connector
 			exchangeName := connector.ExchangeName("test-exchange")
 			m := setupMockSpotConnector(GinkgoT(), exchangeName)
-			connectorRegistry.RegisterSpotConnector(exchangeName, m)
-			Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+			connectorRegistry.RegisterSpot(exchangeName, m)
+			Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 			assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
 
 			// Start in background
@@ -172,8 +172,8 @@ var _ = Describe("LifecycleController", func() {
 				// Register connector and start
 				exchangeName := connector.ExchangeName("test-exchange")
 				m := setupMockSpotConnector(GinkgoT(), exchangeName)
-				connectorRegistry.RegisterSpotConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterSpot(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
 
 				// First start

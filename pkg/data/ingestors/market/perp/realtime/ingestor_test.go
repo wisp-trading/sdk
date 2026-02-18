@@ -50,7 +50,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 		timeProviderInst = timeProvider.NewTimeProvider()
 		store = perpStore.NewStore(timeProviderInst)
 		connectorRegistry = registry.NewConnectorRegistry()
-		pairRegistry = registry.NewAssetRegistry()
+		pairRegistry = registry.NewPairRegistry()
 
 		// Create factory
 		factory = realtime.NewFactory(
@@ -102,8 +102,8 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				m.EXPECT().SubscribeFundingRates(mock.Anything).Return(nil).Maybe()
 
 				// Register connector and pairs
-				connectorRegistry.RegisterPerpConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterPerp(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 				pairRegistry.RegisterPair(btc, connector.TypePerpetual)
 
 				// Create ingestors from factory
@@ -177,8 +177,8 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				m.EXPECT().SubscribeFundingRates(mock.Anything).Return(nil).Maybe()
 
 				// Register connector and pairs
-				connectorRegistry.RegisterPerpConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterPerp(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 				pairRegistry.RegisterPair(btc, connector.TypePerpetual)
 
 				// Create ingestors from factory
@@ -251,8 +251,8 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				m.EXPECT().SubscribeFundingRates(mock.Anything).Return(nil).Maybe()
 
 				// Register connector and pairs
-				connectorRegistry.RegisterPerpConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterPerp(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 				pairRegistry.RegisterPair(btc, connector.TypePerpetual)
 
 				// Create ingestors from factory
@@ -268,7 +268,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				// Send funding rate update
 				now := time.Now()
 				fundingRate := perpConn.FundingRate{
-					Asset:           btc,
+					Pair:            btc,
 					CurrentRate:     numerical.NewFromFloat(0.0001),
 					NextFundingTime: now.Add(8 * time.Hour),
 					MarkPrice:       numerical.NewFromFloat(50050),
@@ -323,8 +323,8 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				m.EXPECT().SubscribeFundingRates(mock.Anything).Return(nil).Maybe()
 
 				// Register connector and pairs
-				connectorRegistry.RegisterPerpConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterPerp(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 				pairRegistry.RegisterPair(btc, connector.TypePerpetual)
 
 				// Create ingestors from factory

@@ -33,7 +33,7 @@ func NewCoordinatorHealthStore(
 	}
 
 	// Initialize from registry - self-contained, no external registration
-	connectors := connectorRegistry.GetAllReadyConnectors()
+	connectors := connectorRegistry.Filter(registry.NewFilter().ReadyOnly().Build())
 	for _, socketConnector := range connectors {
 		name := socketConnector.GetConnectorInfo().Name
 		store.connectors[name] = &coordinatorConnectorHealth{

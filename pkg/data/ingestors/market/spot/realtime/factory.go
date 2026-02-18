@@ -33,7 +33,7 @@ func NewFactory(
 
 // CreateIngestors creates one realtime ingestor per registered spot WebSocket connector
 func (f *Factory) CreateIngestors() []realtime.RealtimeIngestor {
-	spotWSConnectors := f.connectorRegistry.GetReadySpotWebSocketConnectors()
+	spotWSConnectors := f.connectorRegistry.FilterSpot(registry.NewFilter().ReadyOnly().WebSocketOnly().Build())
 
 	realtimeIngestors := make([]realtime.RealtimeIngestor, 0, len(spotWSConnectors))
 

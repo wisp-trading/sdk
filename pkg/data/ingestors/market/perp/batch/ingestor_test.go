@@ -50,7 +50,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 		timeProviderInst = timeProvider.NewTimeProvider()
 		store = perpStore.NewStore(timeProviderInst)
 		connectorRegistry = registry.NewConnectorRegistry()
-		assetRegistry = registry.NewAssetRegistry()
+		assetRegistry = registry.NewPairRegistry()
 
 		// Create factory
 		factory = perpBatch.NewFactory(
@@ -140,7 +140,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 
 				// Setup funding rate expectations (perp-specific)
 				btcFundingRate := perpConn.FundingRate{
-					Asset:           btcPair,
+					Pair:            btcPair,
 					CurrentRate:     numerical.NewFromFloat(0.0001),
 					NextFundingTime: now.Add(8 * time.Hour),
 					MarkPrice:       numerical.NewFromFloat(50050),
@@ -148,7 +148,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 					Timestamp:       now,
 				}
 				ethFundingRate := perpConn.FundingRate{
-					Asset:           ethPair,
+					Pair:            ethPair,
 					CurrentRate:     numerical.NewFromFloat(0.00005),
 					NextFundingTime: now.Add(8 * time.Hour),
 					MarkPrice:       numerical.NewFromFloat(3005),
@@ -167,8 +167,8 @@ var _ = Describe("Perp BatchIngestor", func() {
 				m.EXPECT().FetchCurrentFundingRates().Return(allFundingRates, nil).Maybe()
 
 				// Register connector and pairs
-				connectorRegistry.RegisterPerpConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterPerp(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 				assetRegistry.RegisterPair(btcPair, connector.TypePerpetual)
 				assetRegistry.RegisterPair(ethPair, connector.TypePerpetual)
 
@@ -222,8 +222,8 @@ var _ = Describe("Perp BatchIngestor", func() {
 				exchangeName := connector.ExchangeName("test-perp-exchange")
 				m := setupMockPerpConnector(GinkgoT(), exchangeName)
 
-				connectorRegistry.RegisterPerpConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterPerp(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 
 				// Create ingestors without registering any assets
 				ingestors := factory.CreateIngestors()
@@ -245,8 +245,8 @@ var _ = Describe("Perp BatchIngestor", func() {
 			exchangeName := connector.ExchangeName("test-perp-exchange")
 			m := setupMockPerpConnector(GinkgoT(), exchangeName)
 
-			connectorRegistry.RegisterPerpConnector(exchangeName, m)
-			Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+			connectorRegistry.RegisterPerp(exchangeName, m)
+			Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 
 			// Create ingestor
 			ingestors := factory.CreateIngestors()
