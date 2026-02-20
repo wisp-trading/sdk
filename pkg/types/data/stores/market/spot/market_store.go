@@ -8,4 +8,6 @@ import (
 // Extends base MarketStore and implements BaseMarketStore for registry compatibility
 type MarketStore interface {
 	market.MarketStore
+	market.OrderBookStoreExtension
+	market.KlineStoreExtension
 }

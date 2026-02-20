@@ -13,12 +13,12 @@ import (
 
 // klineExtension handles WebSocket subscriptions for kline (candlestick) updates
 type klineExtension struct {
-	store     market.MarketStore
+	store     market.KlineStoreExtension
 	logger    logging.ApplicationLogger
 	intervals []string
 }
 
-func NewKlineExtension(store market.MarketStore, logger logging.ApplicationLogger, intervals []string) realtime.WebSocketExtension {
+func NewKlineExtension(store market.KlineStoreExtension, logger logging.ApplicationLogger, intervals []string) realtime.WebSocketExtension {
 	return &klineExtension{
 		store:     store,
 		logger:    logger,

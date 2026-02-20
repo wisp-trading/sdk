@@ -41,9 +41,6 @@ func (f *factory) CreateIngestors() []realtime.RealtimeIngestor {
 		info := wsConn.GetConnectorInfo()
 		exchangeName := info.Name
 
-		// Create extensions for prediction markets
-		obExt := real_time.NewOrderBookExtension(f.store, f.logger)
-
 		ingestor := real_time.NewRealtimeIngestor(
 			wsConn,
 			exchangeName,
@@ -51,7 +48,6 @@ func (f *factory) CreateIngestors() []realtime.RealtimeIngestor {
 			f.assetRegistry,
 			f.store,
 			f.logger,
-			obExt,
 		)
 
 		realtimeIngestors = append(realtimeIngestors, ingestor)

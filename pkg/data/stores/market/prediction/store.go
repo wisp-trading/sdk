@@ -13,6 +13,7 @@ type predictionStore struct {
 
 func NewStore(timeProvider temporal.TimeProvider) predictionTypes.MarketStore {
 	baseStore := store.NewStore(timeProvider)
+
 	return &predictionStore{
 		MarketStore: baseStore,
 	}

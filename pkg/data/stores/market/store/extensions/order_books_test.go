@@ -1,4 +1,4 @@
-package store_test
+package extensions_test
 
 import (
 	"time"
@@ -6,6 +6,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/wisp-trading/sdk/pkg/data/stores/market/store"
+	"github.com/wisp-trading/sdk/pkg/data/stores/market/store/extensions"
 	timeProvider "github.com/wisp-trading/sdk/pkg/runtime/time"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
@@ -24,7 +25,9 @@ var _ = Describe("Market Data Store - OrderBooks", func() {
 
 	BeforeEach(func() {
 		provider = timeProvider.NewTimeProvider()
-		marketStore = store.NewStore(provider)
+		// Create store with order book extension
+		orderBookExt := extensions.NewOrderBookExtension()
+		marketStore = store.NewStore(provider, orderBookExt)
 		btc = portfolio.NewPair(
 			portfolio.NewAsset("BTC"),
 			portfolio.NewAsset("USD"),

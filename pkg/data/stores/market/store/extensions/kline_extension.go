@@ -1,6 +1,8 @@
-package store
+package extensions
 
 import (
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/wisp-trading/sdk/pkg/types/connector"
@@ -8,10 +10,41 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-func (ds *dataStore) UpdateKline(asset portfolio.Pair, exchangeName connector.ExchangeName, kline connector.Kline) {
-	ds.mutex.Lock()
+// Type alias for kline storage
+type assetKlines map[portfolio.Pair]marketTypes.KlineMap
 
-	current := ds.getKlines()
+// klineExtension stores kline data
+type klineExtension struct {
+	klines *atomic.Value // assetKlines
+	mu     sync.RWMutex
+
+	// Dependency injected at construction
+	onUpdateMetadata func(marketTypes.UpdateKey)
+}
+
+// NewKlineExtension creates a new kline extension
+// Optional metadata updater can be provided for tracking updates
+func NewKlineExtension(metadataUpdater func(marketTypes.UpdateKey)) marketTypes.KlineStoreExtension {
+	ext := &klineExtension{
+		klines:           &atomic.Value{},
+		onUpdateMetadata: metadataUpdater,
+	}
+	ext.klines.Store(make(assetKlines))
+	return ext
+}
+
+// Helper methods to get typed data
+func (e *klineExtension) getKlines() assetKlines {
+	if v := e.klines.Load(); v != nil {
+		return v.(assetKlines)
+	}
+	return make(assetKlines)
+}
+
+func (e *klineExtension) UpdateKline(asset portfolio.Pair, exchangeName connector.ExchangeName, kline connector.Kline) {
+	e.mu.Lock()
+
+	current := e.getKlines()
 	updated := make(assetKlines, len(current))
 	for k, v := range current {
 		updated[k] = v
@@ -57,18 +90,21 @@ func (ds *dataStore) UpdateKline(asset portfolio.Pair, exchangeName connector.Ex
 	assetKlineMap[exchangeName] = exchangeKlines
 	updated[asset] = assetKlineMap
 
-	ds.klines.Store(updated)
-	ds.mutex.Unlock()
+	e.klines.Store(updated)
+	e.mu.Unlock()
 
-	ds.UpdateLastUpdated(marketTypes.UpdateKey{
-		DataType: marketTypes.DataKeyKlines,
-		Pair:     asset,
-		Exchange: exchangeName,
-	})
+	// Trigger metadata update callback
+	if e.onUpdateMetadata != nil {
+		e.onUpdateMetadata(marketTypes.UpdateKey{
+			DataType: marketTypes.DataKeyKlines,
+			Pair:     asset,
+			Exchange: exchangeName,
+		})
+	}
 }
 
-func (ds *dataStore) GetKlines(asset portfolio.Pair, exchangeName connector.ExchangeName, interval string, limit int) []connector.Kline {
-	current := ds.getKlines()
+func (e *klineExtension) GetKlines(asset portfolio.Pair, exchangeName connector.ExchangeName, interval string, limit int) []connector.Kline {
+	current := e.getKlines()
 	if klineMap, ok := current[asset]; ok {
 		if exchangeKlines, ok := klineMap[exchangeName]; ok {
 			if klines, ok := exchangeKlines[interval]; ok {
@@ -82,8 +118,8 @@ func (ds *dataStore) GetKlines(asset portfolio.Pair, exchangeName connector.Exch
 	return []connector.Kline{}
 }
 
-func (ds *dataStore) GetKlinesSince(asset portfolio.Pair, exchangeName connector.ExchangeName, interval string, since time.Time) []connector.Kline {
-	current := ds.getKlines()
+func (e *klineExtension) GetKlinesSince(asset portfolio.Pair, exchangeName connector.ExchangeName, interval string, since time.Time) []connector.Kline {
+	current := e.getKlines()
 	if klineMap, ok := current[asset]; ok {
 		if exchangeKlines, ok := klineMap[exchangeName]; ok {
 			if klines, ok := exchangeKlines[interval]; ok {

@@ -13,11 +13,11 @@ import (
 
 // orderBookExtension handles WebSocket subscriptions for order book updates
 type orderBookExtension struct {
-	store  market.MarketStore
+	store  market.OrderBookStoreExtension
 	logger logging.ApplicationLogger
 }
 
-func NewOrderBookExtension(store market.MarketStore, logger logging.ApplicationLogger) realtime.WebSocketExtension {
+func NewOrderBookExtension(store market.OrderBookStoreExtension, logger logging.ApplicationLogger) realtime.WebSocketExtension {
 	return &orderBookExtension{
 		store:  store,
 		logger: logger,
@@ -85,11 +85,6 @@ func (o *orderBookExtension) processOrderBookChannel(ctx context.Context, exchan
 
 			// Write to store
 			o.store.UpdateOrderBook(update.Pair, exchangeName, update)
-			o.store.UpdateLastUpdated(market.UpdateKey{
-				DataType: market.DataKeyOrderBooks,
-				Pair:     update.Pair,
-				Exchange: exchangeName,
-			})
 
 			if len(update.Bids) > 0 && len(update.Asks) > 0 {
 				o.logger.Debug(

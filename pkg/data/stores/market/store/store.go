@@ -5,14 +5,14 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
-func NewStore(timeProvider temporal.TimeProvider, extensions ...marketTypes.StoreExtension) marketTypes.MarketStore {
+// NewStore creates a minimal, market-agnostic base store
+func NewStore(timeProvider temporal.TimeProvider, storeExtensions ...marketTypes.StoreExtension) marketTypes.MarketStore {
 	ds := &dataStore{
 		timeProvider: timeProvider,
-		extensions:   extensions,
+		extensions:   storeExtensions,
 	}
-	ds.orderBooks.Store(make(assetOrderBooks))
+
 	ds.prices.Store(make(assetPrices))
-	ds.klines.Store(make(assetKlines))
 	ds.lastUpdated.Store(make(marketTypes.LastUpdatedMap))
 
 	return ds
@@ -20,25 +20,11 @@ func NewStore(timeProvider temporal.TimeProvider, extensions ...marketTypes.Stor
 
 // Helper methods to get typed data from atomic.Value
 
-func (ds *dataStore) getOrderBooks() assetOrderBooks {
-	if v := ds.orderBooks.Load(); v != nil {
-		return v.(assetOrderBooks)
-	}
-	return make(assetOrderBooks)
-}
-
 func (ds *dataStore) getPrices() assetPrices {
 	if v := ds.prices.Load(); v != nil {
 		return v.(assetPrices)
 	}
 	return make(assetPrices)
-}
-
-func (ds *dataStore) getKlines() assetKlines {
-	if v := ds.klines.Load(); v != nil {
-		return v.(assetKlines)
-	}
-	return make(assetKlines)
 }
 
 func (ds *dataStore) getLastUpdated() marketTypes.LastUpdatedMap {
