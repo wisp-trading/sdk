@@ -6,12 +6,14 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	mockPerpConnector "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	data2 "github.com/wisp-trading/sdk/pkg/data"
 	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/perp/realtime"
 	perpStore "github.com/wisp-trading/sdk/pkg/data/stores/market/perp"
 	"github.com/wisp-trading/sdk/pkg/registry"
 	timeProvider "github.com/wisp-trading/sdk/pkg/runtime/time"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	"github.com/wisp-trading/sdk/pkg/types/data"
 	realtimeTypes "github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
@@ -36,7 +38,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 	var (
 		store             perp.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
-		pairRegistry      registryTypes.PairRegistry
+		pairRegistry      data.MarketWatchlist
 		logger            logging.ApplicationLogger
 		timeProviderInst  temporal.TimeProvider
 		factory           realtimeTypes.RealtimeIngestorFactory
@@ -50,7 +52,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 		timeProviderInst = timeProvider.NewTimeProvider()
 		store = perpStore.NewStore(timeProviderInst)
 		connectorRegistry = registry.NewConnectorRegistry()
-		pairRegistry = registry.NewPairRegistry()
+		pairRegistry = data2.NewMarketWatchlist()
 
 		// Create factory
 		factory = realtime.NewFactory(
@@ -104,7 +106,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				// Register connector and pairs
 				connectorRegistry.RegisterPerp(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
-				pairRegistry.RegisterPair(btc, connector.TypePerpetual)
+				pairRegistry.RequirePair(exchangeName, btc)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -179,7 +181,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				// Register connector and pairs
 				connectorRegistry.RegisterPerp(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
-				pairRegistry.RegisterPair(btc, connector.TypePerpetual)
+				pairRegistry.RequirePair(exchangeName, btc)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -253,7 +255,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				// Register connector and pairs
 				connectorRegistry.RegisterPerp(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
-				pairRegistry.RegisterPair(btc, connector.TypePerpetual)
+				pairRegistry.RequirePair(exchangeName, btc)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -325,7 +327,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				// Register connector and pairs
 				connectorRegistry.RegisterPerp(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
-				pairRegistry.RegisterPair(btc, connector.TypePerpetual)
+				pairRegistry.RequirePair(exchangeName, btc)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()

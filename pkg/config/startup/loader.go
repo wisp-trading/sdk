@@ -89,35 +89,27 @@ func (l *startupConfigLoader) LoadForStrategy(
 }
 
 // convertAssets converts strategy config assets to instrument map
-func (l *startupConfigLoader) convertAssets(stratConfig *config.Strategy) map[portfolio.Pair][]connector.Instrument {
-	instrumentMap := make(map[portfolio.Pair][]connector.Instrument)
+func (l *startupConfigLoader) convertAssets(
+	stratConfig *config.Strategy,
+) map[connector.ExchangeName][]portfolio.Pair {
 
-	for _, assets := range stratConfig.Assets {
+	exchangeAssets := make(map[connector.ExchangeName][]portfolio.Pair)
+
+	// stratConfig.Assets is map[string][]Asset, where key is exchange name.
+	for exName, assets := range stratConfig.Assets {
+		exchange := connector.ExchangeName(exName)
+
 		for _, asset := range assets {
-			instruments := make([]connector.Instrument, 0, len(asset.Instruments))
+			pair := portfolio.NewPair(
+				portfolio.NewAsset(asset.Base),
+				portfolio.NewAsset(asset.Quote),
+			)
 
-			for _, instStr := range asset.Instruments {
-				switch instStr {
-				case "spot":
-					instruments = append(instruments, connector.TypeSpot)
-				case "perpetual":
-					instruments = append(instruments, connector.TypePerpetual)
-				default:
-					l.logger.Warn("Unknown instrument type", "instrument", instStr)
-				}
-			}
-
-			if len(instruments) > 0 {
-				pair := portfolio.NewPair(
-					portfolio.NewAsset(asset.Base),
-					portfolio.NewAsset(asset.Quote),
-				)
-				instrumentMap[pair] = instruments
-			}
+			exchangeAssets[exchange] = append(exchangeAssets[exchange], pair)
 		}
 	}
 
-	return instrumentMap
+	return exchangeAssets
 }
 
 // extractExecutionConfig extracts and converts execution config from strategy config

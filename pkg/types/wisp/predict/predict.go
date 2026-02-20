@@ -12,8 +12,8 @@ type Predict interface {
 	WatchMarket(market prediction.Market, exchange *connector.ExchangeName) error
 
 	Markets() []prediction.Market
-	Orderbooks(market prediction.Market) (map[prediction.Outcome]prediction.OrderBook, error)
-	Orderbook(outcome prediction.Outcome, exchange connector.ExchangeName) (*connector.OrderBook, error)
+	//Orderbooks(market prediction.Market) (map[prediction.Outcome]prediction.OrderBook, error)
+	//Orderbook(outcome prediction.Outcome, exchange connector.ExchangeName) (*connector.OrderBook, error)
 
 	// Log returns the trading logger for strategy-specific logging.
 	// Use for recording trading decisions and strategy events.

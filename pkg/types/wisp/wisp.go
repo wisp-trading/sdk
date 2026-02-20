@@ -68,7 +68,6 @@ type Universe struct {
 	// Exchanges are the ready/initialized exchanges available for trading
 	Exchanges []connector.Exchange
 
-	// Assets maps each tradeable asset to its supported instruments on registered exchanges
-	// Example: {BTC: [Spot, Perpetual], ETH: [Spot]}
-	Assets map[portfolio.Pair][]connector.Instrument
+	// Assets maps each tradeable pair to the list of exchanges
+	Assets map[connector.ExchangeName][]portfolio.Pair
 }

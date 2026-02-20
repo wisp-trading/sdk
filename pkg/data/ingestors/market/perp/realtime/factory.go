@@ -3,6 +3,7 @@ package realtime
 import (
 	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/real_time"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
 	perpStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
@@ -12,20 +13,20 @@ import (
 // factory creates realtime ingestors for all registered perp WebSocket connectors
 type factory struct {
 	connectorRegistry registry.ConnectorRegistry
-	assetRegistry     registry.PairRegistry
+	marketWatchlist   data.MarketWatchlist
 	store             perpStore.MarketStore
 	logger            logging.ApplicationLogger
 }
 
 func NewFactory(
 	connectorRegistry registry.ConnectorRegistry,
-	assetRegistry registry.PairRegistry,
+	marketWatchlist data.MarketWatchlist,
 	store perpStore.MarketStore,
 	logger logging.ApplicationLogger,
 ) realtime.RealtimeIngestorFactory {
 	return &factory{
 		connectorRegistry: connectorRegistry,
-		assetRegistry:     assetRegistry,
+		marketWatchlist:   marketWatchlist,
 		store:             store,
 		logger:            logger,
 	}
@@ -51,8 +52,7 @@ func (f *factory) CreateIngestors() []realtime.RealtimeIngestor {
 			wsConn, // Perp WebSocket connector
 			exchangeName,
 			connector.MarketTypePerp,
-			f.assetRegistry,
-			f.store, // Perp store
+			f.marketWatchlist,
 			f.logger,
 			obExt,      // Order book subscriptions
 			klineExt,   // Kline subscriptions

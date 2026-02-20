@@ -10,6 +10,7 @@ import (
 	mockSpotConnector "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/spot"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/data"
 	lifecycleTypes "github.com/wisp-trading/sdk/pkg/types/lifecycle"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	registryTypes "github.com/wisp-trading/sdk/pkg/types/registry"
@@ -37,7 +38,7 @@ var _ = Describe("LifecycleController", func() {
 		app               *fxtest.App
 		controller        lifecycleTypes.Controller
 		connectorRegistry registryTypes.ConnectorRegistry
-		assetRegistry     registryTypes.PairRegistry
+		marketWatchlist   data.MarketWatchlist
 		ctx               context.Context
 		cancel            context.CancelFunc
 		btcPair           portfolio.Pair
@@ -46,7 +47,7 @@ var _ = Describe("LifecycleController", func() {
 	BeforeEach(func() {
 		app = fxtest.New(GinkgoT(),
 			sdkTesting.Module,
-			fx.Populate(&controller, &connectorRegistry, &assetRegistry),
+			fx.Populate(&controller, &connectorRegistry, &marketWatchlist),
 			fx.NopLogger,
 		)
 		Expect(app.Start(context.Background())).To(Succeed())
@@ -75,7 +76,7 @@ var _ = Describe("LifecycleController", func() {
 				m := setupMockSpotConnector(GinkgoT(), exchangeName)
 				connectorRegistry.RegisterSpot(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
+				marketWatchlist.RequirePair(exchangeName, btcPair)
 
 				// Start
 				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))
@@ -101,7 +102,7 @@ var _ = Describe("LifecycleController", func() {
 				m := setupMockSpotConnector(GinkgoT(), exchangeName)
 				connectorRegistry.RegisterSpot(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
+				marketWatchlist.RequirePair(exchangeName, btcPair)
 
 				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))
 				Expect(err).ToNot(HaveOccurred())
@@ -139,7 +140,7 @@ var _ = Describe("LifecycleController", func() {
 			m := setupMockSpotConnector(GinkgoT(), exchangeName)
 			connectorRegistry.RegisterSpot(exchangeName, m)
 			Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
-			assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
+			marketWatchlist.RequirePair(exchangeName, btcPair)
 
 			// Start in background
 			go func() {
@@ -174,7 +175,7 @@ var _ = Describe("LifecycleController", func() {
 				m := setupMockSpotConnector(GinkgoT(), exchangeName)
 				connectorRegistry.RegisterSpot(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
+				marketWatchlist.RequirePair(exchangeName, btcPair)
 
 				// First start
 				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))

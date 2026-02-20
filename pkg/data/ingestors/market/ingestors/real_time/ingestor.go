@@ -6,19 +6,19 @@ import (
 	"sync"
 
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
-	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
 
 // realtimeIngestor is a generic base implementation for WebSocket data collection
 type realtimeIngestor struct {
-	conn          interface{}
-	wsCapable     connector.WebSocketCapable
-	exchangeName  connector.ExchangeName
-	marketType    connector.MarketType
-	assetRegistry registry.PairRegistry
-	logger        logging.ApplicationLogger
+	conn            interface{}
+	wsCapable       connector.WebSocketCapable
+	exchangeName    connector.ExchangeName
+	marketType      connector.MarketType
+	marketWatchlist data.MarketWatchlist
+	logger          logging.ApplicationLogger
 
 	// State
 	ctx      context.Context
@@ -34,8 +34,7 @@ func NewRealtimeIngestor(
 	conn interface{},
 	exchangeName connector.ExchangeName,
 	marketType connector.MarketType,
-	assetRegistry registry.PairRegistry,
-	store interface{},
+	marketWatchlist data.MarketWatchlist,
 	logger logging.ApplicationLogger,
 	extensions ...realtime.WebSocketExtension,
 ) realtime.RealtimeIngestor {
@@ -47,13 +46,13 @@ func NewRealtimeIngestor(
 	}
 
 	return &realtimeIngestor{
-		conn:          conn,
-		wsCapable:     wsCapable,
-		exchangeName:  exchangeName,
-		marketType:    marketType,
-		assetRegistry: assetRegistry,
-		logger:        logger,
-		extensions:    extensions,
+		conn:            conn,
+		wsCapable:       wsCapable,
+		exchangeName:    exchangeName,
+		marketType:      marketType,
+		marketWatchlist: marketWatchlist,
+		logger:          logger,
+		extensions:      extensions,
 	}
 }
 
@@ -65,7 +64,7 @@ func (ri *realtimeIngestor) Start(ctx context.Context) error {
 		return fmt.Errorf("realtime ingestor for %s already active", ri.exchangeName)
 	}
 
-	pairs := ri.assetRegistry.GetRequiredPairs()
+	pairs := ri.marketWatchlist.GetRequiredPairs(ri.exchangeName)
 	if len(pairs) == 0 {
 		ri.logger.Warn("No pairs registered for %s realtime ingestion", ri.exchangeName)
 		return nil

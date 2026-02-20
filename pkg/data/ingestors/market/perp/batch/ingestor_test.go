@@ -4,8 +4,10 @@ import (
 	"time"
 
 	mockPerpConnector "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	data2 "github.com/wisp-trading/sdk/pkg/data"
 	perpBatch "github.com/wisp-trading/sdk/pkg/data/ingestors/market/perp/batch"
 	perpStore "github.com/wisp-trading/sdk/pkg/data/stores/market/perp"
+	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
 	registryTypes "github.com/wisp-trading/sdk/pkg/types/registry"
@@ -35,7 +37,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 	var (
 		store             perp.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
-		assetRegistry     registryTypes.PairRegistry
+		marketWatchlist   data.MarketWatchlist
 		logger            logging.ApplicationLogger
 		timeProviderInst  temporal.TimeProvider
 		factory           batch.BatchIngestorFactory
@@ -50,12 +52,12 @@ var _ = Describe("Perp BatchIngestor", func() {
 		timeProviderInst = timeProvider.NewTimeProvider()
 		store = perpStore.NewStore(timeProviderInst)
 		connectorRegistry = registry.NewConnectorRegistry()
-		assetRegistry = registry.NewPairRegistry()
+		marketWatchlist = data2.NewMarketWatchlist()
 
 		// Create factory
 		factory = perpBatch.NewFactory(
 			connectorRegistry,
-			assetRegistry,
+			marketWatchlist,
 			store,
 			timeProviderInst,
 			logger,
@@ -169,8 +171,8 @@ var _ = Describe("Perp BatchIngestor", func() {
 				// Register connector and pairs
 				connectorRegistry.RegisterPerp(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterPair(btcPair, connector.TypePerpetual)
-				assetRegistry.RegisterPair(ethPair, connector.TypePerpetual)
+				marketWatchlist.RequirePair(exchangeName, btcPair)
+				marketWatchlist.RequirePair(exchangeName, ethPair)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()

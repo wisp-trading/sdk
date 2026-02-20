@@ -9,6 +9,7 @@ import (
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/spot"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
@@ -49,8 +50,11 @@ var _ = Describe("Indicators with Market Registry", func() {
 		spotStore := registry.Get(marketTypes.MarketTypeSpot)
 		Expect(spotStore).ToNot(BeNil())
 
+		spotStoreTyped, ok := spotStore.(spot.MarketStore)
+		Expect(ok).To(BeTrue(), "Expected spot store to implement spot.MarketStore")
+
 		// Populate test data - add klines to the store
-		populateTestKlines(spotStore, btc, exchangeName, 100)
+		populateTestKlines(spotStoreTyped, btc, exchangeName, 100)
 	})
 
 	AfterEach(func() {
@@ -106,7 +110,7 @@ var _ = Describe("Indicators with Market Registry", func() {
 })
 
 // populateTestKlines adds test klines to the store
-func populateTestKlines(store marketTypes.MarketStore, asset portfolio.Pair, exchange connector.ExchangeName, count int) {
+func populateTestKlines(store spot.MarketStore, asset portfolio.Pair, exchange connector.ExchangeName, count int) {
 	now := time.Now()
 	// Use the default interval that matches what indicators use
 	interval := analytics.DefaultInterval

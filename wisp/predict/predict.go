@@ -115,15 +115,15 @@ func (p predict) Orderbooks(market prediction.Market) (map[prediction.Outcome]pr
 	panic("implement me")
 }
 
-func (p predict) Orderbook(outcome prediction.Outcome, exchange connector.ExchangeName) (*connector.OrderBook, error) {
-	book := p.store.GetOrderBook(outcome.Pair.Pair, exchange)
-
-	if book == nil {
-		return nil, errors.New("order book not found for outcome: " + string(outcome.OutcomeId) + " on exchange: " + string(exchange))
-	}
-
-	return book, nil
-}
+//func (p predict) Orderbook(outcome prediction.Outcome, exchange connector.ExchangeName) (*connector.OrderBook, error) {
+//	book := p.store.GetOrderBook(outcome.Pair.Pair, exchange)
+//
+//	if book == nil {
+//		return nil, errors.New("order book not found for outcome: " + string(outcome.OutcomeId) + " on exchange: " + string(exchange))
+//	}
+//
+//	return book, nil
+//}
 
 func (p predict) Log() logging.TradingLogger {
 	return p.tradingLogger

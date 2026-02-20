@@ -114,18 +114,21 @@ func (r *viewRegistry) GetHealth() *health.SystemHealthReport {
 
 func (r *viewRegistry) GetAvailableAssets() []monitoring.AssetExchange {
 	universe := r.wisp.Universe()
-	assets := universe.Assets
+	assetsByExchange := universe.Assets
 	exchanges := universe.Exchanges
 
 	var result []monitoring.AssetExchange
-	for asset, _ := range assets {
-		for _, exchange := range exchanges {
+
+	for _, ex := range exchanges {
+		pairs := assetsByExchange[ex.Name]
+		for _, pair := range pairs {
 			result = append(result, monitoring.AssetExchange{
-				Asset:    asset.Symbol(),
-				Exchange: string(exchange.Name),
+				Asset:    pair.Symbol(),
+				Exchange: string(ex.Name),
 			})
 		}
 	}
+
 	return result
 }
 

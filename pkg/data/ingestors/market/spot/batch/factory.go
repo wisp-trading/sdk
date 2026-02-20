@@ -3,6 +3,7 @@ package batch
 import (
 	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/data"
 	batchTypes "github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
 	spotStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/spot"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
@@ -13,7 +14,7 @@ import (
 // factory creates batch ingestors for all registered spot connectors
 type factory struct {
 	connectorRegistry registry.ConnectorRegistry
-	assetRegistry     registry.PairRegistry
+	marketWatchlist   data.MarketWatchlist
 	store             spotStore.MarketStore
 	timeProvider      temporal.TimeProvider
 	logger            logging.ApplicationLogger
@@ -21,14 +22,14 @@ type factory struct {
 
 func NewFactory(
 	connectorRegistry registry.ConnectorRegistry,
-	assetRegistry registry.PairRegistry,
+	marketWatchlist data.MarketWatchlist,
 	store spotStore.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
 ) batchTypes.BatchIngestorFactory {
 	return &factory{
 		connectorRegistry: connectorRegistry,
-		assetRegistry:     assetRegistry,
+		marketWatchlist:   marketWatchlist,
 		store:             store,
 		timeProvider:      timeProvider,
 		logger:            logger,
@@ -70,7 +71,7 @@ func (f *factory) CreateIngestors() []batchTypes.BatchIngestor {
 			conn,
 			exchangeName,
 			connector.MarketTypeSpot,
-			f.assetRegistry,
+			f.marketWatchlist,
 			f.store,
 			f.timeProvider,
 			f.logger,

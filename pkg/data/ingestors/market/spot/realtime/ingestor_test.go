@@ -11,6 +11,7 @@ import (
 	spotRealtime "github.com/wisp-trading/sdk/pkg/data/ingestors/market/spot/realtime"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
 	spotTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/spot"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
@@ -34,7 +35,7 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 		app               *fxtest.App
 		store             spotTypes.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
-		assetRegistry     registryTypes.PairRegistry
+		marketWatchlist   data.MarketWatchlist
 		factory           realtime.RealtimeIngestorFactory
 		logger            logging.ApplicationLogger
 		ctx               context.Context
@@ -47,14 +48,14 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 			fx.Populate(
 				&store,
 				&connectorRegistry,
-				&assetRegistry,
+				&marketWatchlist,
 				&logger,
 			),
 			fx.NopLogger,
 		)
 		Expect(app.Start(context.Background())).To(Succeed())
 
-		factory = spotRealtime.NewFactory(connectorRegistry, assetRegistry, store, logger)
+		factory = spotRealtime.NewFactory(connectorRegistry, marketWatchlist, store, logger)
 
 		ctx, cancel = context.WithCancel(context.Background())
 	})
@@ -96,7 +97,7 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 
 				connectorRegistry.RegisterSpot(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
+				marketWatchlist.RequirePair(exchangeName, btcPair)
 
 				ingestors := factory.CreateIngestors()
 				Expect(ingestors).To(HaveLen(1))
@@ -161,7 +162,7 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 
 				connectorRegistry.RegisterSpot(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
+				marketWatchlist.RequirePair(exchangeName, btcPair)
 
 				ingestors := factory.CreateIngestors()
 				Expect(ingestors).To(HaveLen(1))
@@ -225,7 +226,7 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 
 				connectorRegistry.RegisterSpot(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
+				marketWatchlist.RequirePair(exchangeName, btcPair)
 
 				ingestors := factory.CreateIngestors()
 				Expect(ingestors).To(HaveLen(1))
