@@ -5,18 +5,20 @@ import (
 )
 
 func (ds *dataStore) GetLastUpdated() marketTypes.LastUpdatedMap {
-	return ds.getLastUpdated()
+	ds.mu.RLock()
+	defer ds.mu.RUnlock()
+
+	// Return shallow copy to prevent external mutation
+	result := make(marketTypes.LastUpdatedMap, len(ds.lastUpdated))
+	for k, v := range ds.lastUpdated {
+		result[k] = v
+	}
+	return result
 }
 
 func (ds *dataStore) UpdateLastUpdated(key marketTypes.UpdateKey) {
-	ds.mutex.Lock()
-	defer ds.mutex.Unlock()
+	ds.mu.Lock()
+	defer ds.mu.Unlock()
 
-	current := ds.getLastUpdated()
-	updated := make(marketTypes.LastUpdatedMap, len(current)+1)
-	for k, v := range current {
-		updated[k] = v
-	}
-	updated[key] = ds.timeProvider.Now()
-	ds.lastUpdated.Store(updated)
+	ds.lastUpdated[key] = ds.timeProvider.Now()
 }
