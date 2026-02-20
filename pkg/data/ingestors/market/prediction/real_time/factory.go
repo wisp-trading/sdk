@@ -42,7 +42,6 @@ func (f *Factory) CreateIngestors() []realtime.RealtimeIngestor {
 		exchangeName := info.Name
 
 		// Create extensions for prediction markets
-		// Note: Prediction markets only use order books, not klines
 		obExt := real_time.NewOrderBookExtension(f.store, f.logger)
 
 		ingestor := real_time.NewRealtimeIngestor(
@@ -52,7 +51,7 @@ func (f *Factory) CreateIngestors() []realtime.RealtimeIngestor {
 			f.assetRegistry,
 			f.store,
 			f.logger,
-			obExt, // Only order book subscriptions for prediction markets
+			obExt,
 		)
 
 		realtimeIngestors = append(realtimeIngestors, ingestor)

@@ -9,6 +9,7 @@ import (
 // Uses standard connector.OrderExecutor and connector.AccountReader for trading
 type Connector interface {
 	connector.Connector
+
 	OrderExecutor
 	AccountReader
 

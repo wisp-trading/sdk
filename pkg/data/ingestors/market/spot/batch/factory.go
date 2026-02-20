@@ -64,6 +64,7 @@ func (f *Factory) CreateIngestors() []batchTypes.BatchIngestor {
 			},
 		)
 		priceExt := batch.NewPriceExtension(marketDataReader, f.store, f.logger)
+		orderbookExt := batch.NewOrderBookExtension(marketDataReader, f.store, f.logger, 20)
 
 		ingestor := batch.NewBatchIngestor(
 			conn,
@@ -75,6 +76,7 @@ func (f *Factory) CreateIngestors() []batchTypes.BatchIngestor {
 			f.logger,
 			klineExt,
 			priceExt,
+			orderbookExt,
 		)
 
 		ingestorList = append(ingestorList, ingestor)

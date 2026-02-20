@@ -47,11 +47,12 @@ var _ = Describe("Spot BatchIngestor", func() {
 		app = fxtest.New(GinkgoT(),
 			sdkTesting.Module,
 			fx.Populate(
-				fx.Annotate(&store, fx.ParamTags(`name:"spot_market_store"`)),
+				&store,
 				&connectorRegistry,
 				&assetRegistry,
 				&timeProvider,
-				&logger),
+				&logger,
+			),
 			fx.NopLogger,
 		)
 		Expect(app.Start(context.Background())).To(Succeed())

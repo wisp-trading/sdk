@@ -7,7 +7,6 @@ import (
 
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
-	"github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
@@ -19,7 +18,6 @@ type RealtimeIngestor struct {
 	exchangeName  connector.ExchangeName
 	marketType    connector.MarketType
 	assetRegistry registry.PairRegistry
-	store         market.MarketStore
 	logger        logging.ApplicationLogger
 
 	// State
@@ -48,20 +46,12 @@ func NewRealtimeIngestor(
 		return nil
 	}
 
-	// Cast store to MarketStore for writing data
-	marketStore, ok := store.(market.MarketStore)
-	if !ok {
-		logger.Error("Store does not implement MarketStore interface")
-		return nil
-	}
-
 	return &RealtimeIngestor{
 		conn:          conn,
 		wsCapable:     wsCapable,
 		exchangeName:  exchangeName,
 		marketType:    marketType,
 		assetRegistry: assetRegistry,
-		store:         marketStore,
 		logger:        logger,
 		extensions:    extensions,
 	}

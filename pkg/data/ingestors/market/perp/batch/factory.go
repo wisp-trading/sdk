@@ -66,6 +66,7 @@ func (f *factory) CreateIngestors() []batchTypes.BatchIngestor {
 			},
 		)
 		priceExt := batch.NewPriceExtension(marketDataReader, f.store, f.logger)
+		orderbookExt := batch.NewOrderBookExtension(marketDataReader, f.store, f.logger, 20)
 
 		// Base ingestor + perp extensions
 		ingestor := batch.NewBatchIngestor(
@@ -79,6 +80,7 @@ func (f *factory) CreateIngestors() []batchTypes.BatchIngestor {
 			klineExt,
 			priceExt,
 			fundingExt,
+			orderbookExt,
 		)
 
 		ingestorList = append(ingestorList, ingestor)

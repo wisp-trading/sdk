@@ -45,7 +45,7 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 		app = fxtest.New(GinkgoT(),
 			sdkTesting.Module,
 			fx.Populate(
-				fx.Annotate(&store, fx.ParamTags(`name:"spot_market_store"`)),
+				&store,
 				&connectorRegistry,
 				&assetRegistry,
 				&logger,
