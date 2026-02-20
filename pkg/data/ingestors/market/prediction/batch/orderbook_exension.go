@@ -12,14 +12,14 @@ import (
 
 type orderBookExtension struct {
 	marketData connector.MarketDataReader
-	store      marketTypes.MarketStore
+	store      marketTypes.OrderBookStoreExtension
 	logger     logging.ApplicationLogger
 	depth      int
 }
 
 func NewOrderBookExtension(
 	marketData connector.MarketDataReader,
-	store marketTypes.MarketStore,
+	store marketTypes.OrderBookStoreExtension,
 	logger logging.ApplicationLogger,
 	depth int,
 ) batchTypes.CollectionExtension {
@@ -68,11 +68,6 @@ func (e *orderBookExtension) Collect(
 			}
 
 			e.store.UpdateOrderBook(a, exchangeName, *orderBook)
-			e.store.UpdateLastUpdated(marketTypes.UpdateKey{
-				DataType: marketTypes.DataKeyOrderBooks,
-				Pair:     a,
-				Exchange: exchangeName,
-			})
 
 			e.logger.Debug("Updated order book for %s on %s - bid: %s, ask: %s",
 				a.Symbol(), exchangeName,

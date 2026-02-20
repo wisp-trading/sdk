@@ -12,7 +12,7 @@ import (
 
 type klineExtension struct {
 	marketData connector.MarketDataReader
-	store      marketTypes.MarketStore
+	store      marketTypes.KlineStoreExtension
 	logger     logging.ApplicationLogger
 
 	intervals   []string
@@ -21,7 +21,7 @@ type klineExtension struct {
 
 func NewKlineExtension(
 	marketData connector.MarketDataReader,
-	store marketTypes.MarketStore,
+	store marketTypes.KlineStoreExtension,
 	logger logging.ApplicationLogger,
 	intervals []string,
 	limits map[string]int,

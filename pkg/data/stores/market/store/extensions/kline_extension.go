@@ -24,10 +24,9 @@ type klineExtension struct {
 
 // NewKlineExtension creates a new kline extension
 // Optional metadata updater can be provided for tracking updates
-func NewKlineExtension(metadataUpdater func(marketTypes.UpdateKey)) marketTypes.KlineStoreExtension {
+func NewKlineExtension() marketTypes.KlineStoreExtension {
 	ext := &klineExtension{
-		klines:           &atomic.Value{},
-		onUpdateMetadata: metadataUpdater,
+		klines: &atomic.Value{},
 	}
 	ext.klines.Store(make(assetKlines))
 	return ext

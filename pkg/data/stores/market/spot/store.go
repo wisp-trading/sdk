@@ -25,9 +25,7 @@ func NewStore(timeProvider temporal.TimeProvider) spotTypes.MarketStore {
 			baseStore.UpdatePairPrice,
 			baseStore.UpdateLastUpdated,
 		),
-		KlineStoreExtension: storeExtensions.NewKlineExtension(
-			baseStore.UpdateLastUpdated,
-		),
+		KlineStoreExtension: storeExtensions.NewKlineExtension(),
 	}
 }
 
