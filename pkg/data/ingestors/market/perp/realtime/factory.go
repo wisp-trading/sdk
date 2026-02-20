@@ -9,8 +9,8 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
 
-// Factory creates realtime ingestors for all registered perp WebSocket connectors
-type Factory struct {
+// factory creates realtime ingestors for all registered perp WebSocket connectors
+type factory struct {
 	connectorRegistry registry.ConnectorRegistry
 	assetRegistry     registry.PairRegistry
 	store             perpStore.MarketStore
@@ -23,7 +23,7 @@ func NewFactory(
 	store perpStore.MarketStore,
 	logger logging.ApplicationLogger,
 ) realtime.RealtimeIngestorFactory {
-	return &Factory{
+	return &factory{
 		connectorRegistry: connectorRegistry,
 		assetRegistry:     assetRegistry,
 		store:             store,
@@ -32,7 +32,7 @@ func NewFactory(
 }
 
 // CreateIngestors creates one realtime ingestor per registered perp WebSocket connector
-func (f *Factory) CreateIngestors() []realtime.RealtimeIngestor {
+func (f *factory) CreateIngestors() []realtime.RealtimeIngestor {
 	perpWSConnectors := f.connectorRegistry.FilterPerp(registry.NewFilter().ReadyOnly().WebSocketOnly().Build())
 
 	realtimeIngestors := make([]realtime.RealtimeIngestor, 0, len(perpWSConnectors))

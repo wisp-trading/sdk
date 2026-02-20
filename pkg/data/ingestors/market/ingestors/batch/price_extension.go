@@ -10,7 +10,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-type PriceExtension struct {
+type priceExtension struct {
 	marketData connector.MarketDataReader
 	store      marketTypes.MarketStore
 	logger     logging.ApplicationLogger
@@ -21,7 +21,7 @@ func NewPriceExtension(
 	store marketTypes.MarketStore,
 	logger logging.ApplicationLogger,
 ) batch.CollectionExtension {
-	return &PriceExtension{
+	return &priceExtension{
 		marketData: marketData,
 		store:      store,
 		logger:     logger,
@@ -29,7 +29,7 @@ func NewPriceExtension(
 }
 
 // Collect implements batch.CollectionExtension.
-func (e *PriceExtension) Collect(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Pair) {
+func (e *priceExtension) Collect(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Pair) {
 	if e.marketData == nil {
 		return
 	}
@@ -66,4 +66,4 @@ func (e *PriceExtension) Collect(conn connector.Connector, exchangeName connecto
 	wg.Wait()
 }
 
-var _ batch.CollectionExtension = (*PriceExtension)(nil)
+var _ batch.CollectionExtension = (*priceExtension)(nil)

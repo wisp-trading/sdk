@@ -1,17 +1,17 @@
 package batch
 
 import (
-	batch2 "github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/batch"
+	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
+	batchTypes "github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
-// Factory creates batch ingestors for all registered prediction connectors
-type Factory struct {
+// factory creates batch ingestors for all registered prediction connectors
+type factory struct {
 	connectorRegistry registry.ConnectorRegistry
 	assetRegistry     registry.PairRegistry
 	store             prediction.MarketStore
@@ -25,8 +25,8 @@ func NewFactory(
 	store prediction.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
-) batch.BatchIngestorFactory {
-	return &Factory{
+) batchTypes.BatchIngestorFactory {
+	return &factory{
 		connectorRegistry: connectorRegistry,
 		assetRegistry:     assetRegistry,
 		store:             store,
@@ -36,17 +36,17 @@ func NewFactory(
 }
 
 // CreateIngestors creates one batch ingestor per registered perp connector
-func (f *Factory) CreateIngestors() []batch.BatchIngestor {
+func (f *factory) CreateIngestors() []batchTypes.BatchIngestor {
 	predictionConnectors := f.connectorRegistry.FilterPrediction(registry.NewFilter().ReadyOnly().Build())
 
-	ingestorList := make([]batch.BatchIngestor, 0, len(predictionConnectors))
+	ingestorList := make([]batchTypes.BatchIngestor, 0, len(predictionConnectors))
 
 	for _, conn := range predictionConnectors {
 		info := conn.GetConnectorInfo()
 		exchangeName := info.Name
 
 		// Base ingestor + prediction extensions
-		ingestor := batch2.NewBatchIngestor(
+		ingestor := batch.NewBatchIngestor(
 			conn,
 			exchangeName,
 			connector.MarketTypePrediction,

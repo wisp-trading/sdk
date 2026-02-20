@@ -9,20 +9,20 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-// FundingRateExtension collects perp-specific funding rate data
-type FundingRateExtension struct {
+// fundingRateExtension collects perp-specific funding rate data
+type fundingRateExtension struct {
 	store  perpStore.MarketStore
 	logger logging.ApplicationLogger
 }
 
 func NewFundingRateExtension(store perpStore.MarketStore, logger logging.ApplicationLogger) batch.CollectionExtension {
-	return &FundingRateExtension{
+	return &fundingRateExtension{
 		store:  store,
 		logger: logger,
 	}
 }
 
-func (f *FundingRateExtension) Collect(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Pair) {
+func (f *fundingRateExtension) Collect(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Pair) {
 	pc, ok := conn.(perpConn.Connector)
 	if !ok {
 		f.logger.Debug("Connector %s does not support perp operations", exchangeName)
@@ -45,4 +45,4 @@ func (f *FundingRateExtension) Collect(conn connector.Connector, exchangeName co
 	}
 }
 
-var _ batch.CollectionExtension = (*FundingRateExtension)(nil)
+var _ batch.CollectionExtension = (*fundingRateExtension)(nil)

@@ -9,8 +9,8 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
 
-// Factory creates realtime ingestors for all registered spot WebSocket connectors
-type Factory struct {
+// factory creates realtime ingestors for all registered spot WebSocket connectors
+type factory struct {
 	connectorRegistry registry.ConnectorRegistry
 	assetRegistry     registry.PairRegistry
 	store             spotStore.MarketStore
@@ -23,7 +23,7 @@ func NewFactory(
 	store spotStore.MarketStore,
 	logger logging.ApplicationLogger,
 ) realtime.RealtimeIngestorFactory {
-	return &Factory{
+	return &factory{
 		connectorRegistry: connectorRegistry,
 		assetRegistry:     assetRegistry,
 		store:             store,
@@ -32,7 +32,7 @@ func NewFactory(
 }
 
 // CreateIngestors creates one realtime ingestor per registered spot WebSocket connector
-func (f *Factory) CreateIngestors() []realtime.RealtimeIngestor {
+func (f *factory) CreateIngestors() []realtime.RealtimeIngestor {
 	spotWSConnectors := f.connectorRegistry.FilterSpot(registry.NewFilter().ReadyOnly().WebSocketOnly().Build())
 
 	realtimeIngestors := make([]realtime.RealtimeIngestor, 0, len(spotWSConnectors))

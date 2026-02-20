@@ -11,22 +11,22 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-// KlineExtension handles WebSocket subscriptions for kline (candlestick) updates
-type KlineExtension struct {
+// klineExtension handles WebSocket subscriptions for kline (candlestick) updates
+type klineExtension struct {
 	store     market.MarketStore
 	logger    logging.ApplicationLogger
 	intervals []string
 }
 
 func NewKlineExtension(store market.MarketStore, logger logging.ApplicationLogger, intervals []string) realtime.WebSocketExtension {
-	return &KlineExtension{
+	return &klineExtension{
 		store:     store,
 		logger:    logger,
 		intervals: intervals,
 	}
 }
 
-func (k *KlineExtension) Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Pair) error {
+func (k *klineExtension) Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Pair) error {
 	// Type-assert to WebSocketSubscriber
 	wsSubscriber, ok := wsConn.(realtime.WebSocketSubscriber)
 	if !ok {
@@ -47,7 +47,7 @@ func (k *KlineExtension) Subscribe(wsConn interface{}, exchangeName connector.Ex
 	return nil
 }
 
-func (k *KlineExtension) ProcessChannels(wsConn interface{}, exchangeName connector.ExchangeName, ctx context.Context) {
+func (k *klineExtension) ProcessChannels(wsConn interface{}, exchangeName connector.ExchangeName, ctx context.Context) {
 	// Type-assert to WebSocketSubscriber
 	wsSubscriber, ok := wsConn.(realtime.WebSocketSubscriber)
 	if !ok {
@@ -70,7 +70,7 @@ func (k *KlineExtension) ProcessChannels(wsConn interface{}, exchangeName connec
 	k.logger.Info("All kline channels closed for %s", exchangeName)
 }
 
-func (k *KlineExtension) processKlineChannel(ctx context.Context, exchangeName connector.ExchangeName, channelKey string, klineChan <-chan connector.Kline) {
+func (k *klineExtension) processKlineChannel(ctx context.Context, exchangeName connector.ExchangeName, channelKey string, klineChan <-chan connector.Kline) {
 	k.logger.Debug("Starting kline channel processor for %s on %s", channelKey, exchangeName)
 
 	for {
@@ -96,10 +96,10 @@ func (k *KlineExtension) processKlineChannel(ctx context.Context, exchangeName c
 	}
 }
 
-func (k *KlineExtension) Unsubscribe(wsConn interface{}, exchangeName connector.ExchangeName) error {
+func (k *klineExtension) Unsubscribe(wsConn interface{}, exchangeName connector.ExchangeName) error {
 	// Note: The connector should handle cleanup of subscriptions on disconnect
 	k.logger.Info("Unsubscribing from kline updates for %s", exchangeName)
 	return nil
 }
 
-var _ realtime.WebSocketExtension = (*KlineExtension)(nil)
+var _ realtime.WebSocketExtension = (*klineExtension)(nil)

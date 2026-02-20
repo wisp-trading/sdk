@@ -11,8 +11,8 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
 
-// RealtimeIngestor is a generic base implementation for WebSocket data collection
-type RealtimeIngestor struct {
+// realtimeIngestor is a generic base implementation for WebSocket data collection
+type realtimeIngestor struct {
 	conn          interface{}
 	wsCapable     connector.WebSocketCapable
 	exchangeName  connector.ExchangeName
@@ -46,7 +46,7 @@ func NewRealtimeIngestor(
 		return nil
 	}
 
-	return &RealtimeIngestor{
+	return &realtimeIngestor{
 		conn:          conn,
 		wsCapable:     wsCapable,
 		exchangeName:  exchangeName,
@@ -57,7 +57,7 @@ func NewRealtimeIngestor(
 	}
 }
 
-func (ri *RealtimeIngestor) Start(ctx context.Context) error {
+func (ri *realtimeIngestor) Start(ctx context.Context) error {
 	ri.mu.Lock()
 	defer ri.mu.Unlock()
 
@@ -96,7 +96,7 @@ func (ri *RealtimeIngestor) Start(ctx context.Context) error {
 	return nil
 }
 
-func (ri *RealtimeIngestor) Stop() error {
+func (ri *realtimeIngestor) Stop() error {
 	ri.mu.Lock()
 	defer ri.mu.Unlock()
 
@@ -127,17 +127,17 @@ func (ri *RealtimeIngestor) Stop() error {
 	return nil
 }
 
-func (ri *RealtimeIngestor) IsActive() bool {
+func (ri *realtimeIngestor) IsActive() bool {
 	ri.mu.RLock()
 	defer ri.mu.RUnlock()
 	return ri.isActive
 }
 
-func (ri *RealtimeIngestor) GetMarketType() connector.MarketType {
+func (ri *realtimeIngestor) GetMarketType() connector.MarketType {
 	return ri.marketType
 }
 
-func (ri *RealtimeIngestor) GetActiveConnections() map[connector.ExchangeName]interface{} {
+func (ri *realtimeIngestor) GetActiveConnections() map[connector.ExchangeName]interface{} {
 	ri.mu.RLock()
 	defer ri.mu.RUnlock()
 
@@ -150,4 +150,4 @@ func (ri *RealtimeIngestor) GetActiveConnections() map[connector.ExchangeName]in
 	return make(map[connector.ExchangeName]interface{})
 }
 
-var _ realtime.RealtimeIngestor = (*RealtimeIngestor)(nil)
+var _ realtime.RealtimeIngestor = (*realtimeIngestor)(nil)

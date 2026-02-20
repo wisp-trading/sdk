@@ -11,20 +11,20 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-// OrderBookExtension handles WebSocket subscriptions for order book updates
-type OrderBookExtension struct {
+// orderBookExtension handles WebSocket subscriptions for order book updates
+type orderBookExtension struct {
 	store  market.MarketStore
 	logger logging.ApplicationLogger
 }
 
 func NewOrderBookExtension(store market.MarketStore, logger logging.ApplicationLogger) realtime.WebSocketExtension {
-	return &OrderBookExtension{
+	return &orderBookExtension{
 		store:  store,
 		logger: logger,
 	}
 }
 
-func (o *OrderBookExtension) Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Pair) error {
+func (o *orderBookExtension) Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Pair) error {
 	// Type-assert to WebSocketSubscriber
 	wsSubscriber, ok := wsConn.(realtime.WebSocketSubscriber)
 	if !ok {
@@ -45,7 +45,7 @@ func (o *OrderBookExtension) Subscribe(wsConn interface{}, exchangeName connecto
 	return nil
 }
 
-func (o *OrderBookExtension) ProcessChannels(wsConn interface{}, exchangeName connector.ExchangeName, ctx context.Context) {
+func (o *orderBookExtension) ProcessChannels(wsConn interface{}, exchangeName connector.ExchangeName, ctx context.Context) {
 	// Type-assert to WebSocketSubscriber
 	wsSubscriber, ok := wsConn.(realtime.WebSocketSubscriber)
 	if !ok {
@@ -68,7 +68,7 @@ func (o *OrderBookExtension) ProcessChannels(wsConn interface{}, exchangeName co
 	o.logger.Info("All order book channels closed for %s", exchangeName)
 }
 
-func (o *OrderBookExtension) processOrderBookChannel(ctx context.Context, exchangeName connector.ExchangeName, channelKey string, orderBookChan <-chan connector.OrderBook) {
+func (o *orderBookExtension) processOrderBookChannel(ctx context.Context, exchangeName connector.ExchangeName, channelKey string, orderBookChan <-chan connector.OrderBook) {
 	o.logger.Debug("Starting order book channel processor for %s on %s", channelKey, exchangeName)
 
 	for {
@@ -104,10 +104,10 @@ func (o *OrderBookExtension) processOrderBookChannel(ctx context.Context, exchan
 	}
 }
 
-func (o *OrderBookExtension) Unsubscribe(wsConn interface{}, exchangeName connector.ExchangeName) error {
+func (o *orderBookExtension) Unsubscribe(wsConn interface{}, exchangeName connector.ExchangeName) error {
 	// Note: The connector should handle cleanup of subscriptions on disconnect
 	o.logger.Info("Unsubscribing from order book updates for %s", exchangeName)
 	return nil
 }
 
-var _ realtime.WebSocketExtension = (*OrderBookExtension)(nil)
+var _ realtime.WebSocketExtension = (*orderBookExtension)(nil)

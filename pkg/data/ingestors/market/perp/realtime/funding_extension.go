@@ -12,20 +12,20 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-// FundingRateExtension handles WebSocket subscriptions for perp funding rate updates
-type FundingRateExtension struct {
+// fundingRateExtension handles WebSocket subscriptions for perp funding rate updates
+type fundingRateExtension struct {
 	store  perpStore.MarketStore
 	logger logging.ApplicationLogger
 }
 
 func NewFundingRateExtension(store perpStore.MarketStore, logger logging.ApplicationLogger) realtime.WebSocketExtension {
-	return &FundingRateExtension{
+	return &fundingRateExtension{
 		store:  store,
 		logger: logger,
 	}
 }
 
-func (f *FundingRateExtension) Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Pair) error {
+func (f *fundingRateExtension) Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, assets []portfolio.Pair) error {
 	// Type-assert to perp WebSocket connector
 	perpWS, ok := wsConn.(perpConn.WebSocketConnector)
 	if !ok {
@@ -48,7 +48,7 @@ func (f *FundingRateExtension) Subscribe(wsConn interface{}, exchangeName connec
 	return nil
 }
 
-func (f *FundingRateExtension) ProcessChannels(wsConn interface{}, exchangeName connector.ExchangeName, ctx context.Context) {
+func (f *fundingRateExtension) ProcessChannels(wsConn interface{}, exchangeName connector.ExchangeName, ctx context.Context) {
 	// Type-assert to perp WebSocket connector
 	perpWS, ok := wsConn.(perpConn.WebSocketConnector)
 	if !ok {
@@ -74,7 +74,7 @@ func (f *FundingRateExtension) ProcessChannels(wsConn interface{}, exchangeName 
 		}
 	}
 }
-func (f *FundingRateExtension) handleFundingRateUpdate(exchangeName connector.ExchangeName, update perpConn.FundingRate) {
+func (f *fundingRateExtension) handleFundingRateUpdate(exchangeName connector.ExchangeName, update perpConn.FundingRate) {
 	// Get asset from the funding rate update
 	asset := update.Pair
 
@@ -92,7 +92,7 @@ func (f *FundingRateExtension) handleFundingRateUpdate(exchangeName connector.Ex
 		asset.Symbol(), exchangeName, update.CurrentRate.String())
 }
 
-func (f *FundingRateExtension) Unsubscribe(wsConn interface{}, exchangeName connector.ExchangeName) error {
+func (f *fundingRateExtension) Unsubscribe(wsConn interface{}, exchangeName connector.ExchangeName) error {
 	// Type-assert to perp WebSocket connector
 	perpWS, ok := wsConn.(perpConn.WebSocketConnector)
 	if !ok {
@@ -108,4 +108,4 @@ func (f *FundingRateExtension) Unsubscribe(wsConn interface{}, exchangeName conn
 	return nil
 }
 
-var _ realtime.WebSocketExtension = (*FundingRateExtension)(nil)
+var _ realtime.WebSocketExtension = (*fundingRateExtension)(nil)

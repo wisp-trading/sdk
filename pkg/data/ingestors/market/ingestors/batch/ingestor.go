@@ -13,8 +13,8 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
-// BatchIngestor is a generic base implementation for REST batch data collection
-type BatchIngestor struct {
+// batchIngestor is a generic base implementation for REST batch data collection
+type batchIngestor struct {
 	conn          connector.Connector
 	exchangeName  connector.ExchangeName
 	marketType    connector.MarketType
@@ -46,7 +46,7 @@ func NewBatchIngestor(
 	logger logging.ApplicationLogger,
 	extensions ...batch.CollectionExtension,
 ) batch.BatchIngestor {
-	return &BatchIngestor{
+	return &batchIngestor{
 		conn:          conn,
 		exchangeName:  exchangeName,
 		marketType:    marketType,
@@ -59,7 +59,7 @@ func NewBatchIngestor(
 	}
 }
 
-func (bi *BatchIngestor) Start(interval time.Duration) error {
+func (bi *batchIngestor) Start(interval time.Duration) error {
 	bi.mu.Lock()
 	defer bi.mu.Unlock()
 
@@ -76,7 +76,7 @@ func (bi *BatchIngestor) Start(interval time.Duration) error {
 	return nil
 }
 
-func (bi *BatchIngestor) CollectNow() {
+func (bi *batchIngestor) CollectNow() {
 	bi.logger.Debug("Starting %s market data collection for %s", bi.marketType, bi.exchangeName)
 
 	assets := bi.assetRegistry.GetRequiredPairs()
@@ -93,7 +93,7 @@ func (bi *BatchIngestor) CollectNow() {
 	bi.logger.Debug("Completed %s market data collection for %s", bi.marketType, bi.exchangeName)
 }
 
-func (bi *BatchIngestor) collectLoop() {
+func (bi *batchIngestor) collectLoop() {
 	// Run initial collection immediately
 	bi.CollectNow()
 
@@ -107,7 +107,7 @@ func (bi *BatchIngestor) collectLoop() {
 	}
 }
 
-func (bi *BatchIngestor) Stop() error {
+func (bi *batchIngestor) Stop() error {
 	bi.mu.Lock()
 	defer bi.mu.Unlock()
 
@@ -126,14 +126,14 @@ func (bi *BatchIngestor) Stop() error {
 	return nil
 }
 
-func (bi *BatchIngestor) IsActive() bool {
+func (bi *batchIngestor) IsActive() bool {
 	bi.mu.RLock()
 	defer bi.mu.RUnlock()
 	return bi.isActive
 }
 
-func (bi *BatchIngestor) GetMarketType() connector.MarketType {
+func (bi *batchIngestor) GetMarketType() connector.MarketType {
 	return bi.marketType
 }
 
-var _ batch.BatchIngestor = (*BatchIngestor)(nil)
+var _ batch.BatchIngestor = (*batchIngestor)(nil)

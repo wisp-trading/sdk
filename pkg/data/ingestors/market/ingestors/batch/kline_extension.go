@@ -10,7 +10,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-type KlineExtension struct {
+type klineExtension struct {
 	marketData connector.MarketDataReader
 	store      marketTypes.MarketStore
 	logger     logging.ApplicationLogger
@@ -40,7 +40,7 @@ func NewKlineExtension(
 		}
 	}
 
-	return &KlineExtension{
+	return &klineExtension{
 		marketData:  marketData,
 		store:       store,
 		logger:      logger,
@@ -50,7 +50,7 @@ func NewKlineExtension(
 }
 
 // Collect implements batch.CollectionExtension.
-func (e *KlineExtension) Collect(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Pair) {
+func (e *klineExtension) Collect(conn connector.Connector, exchangeName connector.ExchangeName, assets []portfolio.Pair) {
 	if e.marketData == nil {
 		return
 	}
@@ -90,4 +90,4 @@ func (e *KlineExtension) Collect(conn connector.Connector, exchangeName connecto
 	wg.Wait()
 }
 
-var _ batch.CollectionExtension = (*KlineExtension)(nil)
+var _ batch.CollectionExtension = (*klineExtension)(nil)

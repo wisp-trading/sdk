@@ -10,8 +10,8 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
-// Factory creates batch ingestors for all registered spot connectors
-type Factory struct {
+// factory creates batch ingestors for all registered spot connectors
+type factory struct {
 	connectorRegistry registry.ConnectorRegistry
 	assetRegistry     registry.PairRegistry
 	store             spotStore.MarketStore
@@ -26,7 +26,7 @@ func NewFactory(
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
 ) batchTypes.BatchIngestorFactory {
-	return &Factory{
+	return &factory{
 		connectorRegistry: connectorRegistry,
 		assetRegistry:     assetRegistry,
 		store:             store,
@@ -36,7 +36,7 @@ func NewFactory(
 }
 
 // CreateIngestors creates one batch ingestor per registered spot connector
-func (f *Factory) CreateIngestors() []batchTypes.BatchIngestor {
+func (f *factory) CreateIngestors() []batchTypes.BatchIngestor {
 	spotConnectors := f.connectorRegistry.FilterSpot(registry.NewFilter().ReadyOnly().Build())
 
 	ingestorList := make([]batchTypes.BatchIngestor, 0, len(spotConnectors))
