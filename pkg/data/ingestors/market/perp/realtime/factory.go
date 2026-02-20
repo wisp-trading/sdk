@@ -1,7 +1,7 @@
 package realtime
 
 import (
-	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors"
+	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/real_time"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
 	perpStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
@@ -41,17 +41,22 @@ func (f *Factory) CreateIngestors() []realtime.RealtimeIngestor {
 		info := wsConn.GetConnectorInfo()
 		exchangeName := info.Name
 
+		// Create extensions for perp markets
+		obExt := real_time.NewOrderBookExtension(f.store, f.logger)
+		klineExt := real_time.NewKlineExtension(f.store, f.logger, []string{"1m", "5m", "15m", "1h"})
 		fundingExt := NewFundingRateExtension(f.store, f.logger)
 
 		// Base ingestor + perp extensions
-		ingestor := ingestors.NewRealtimeIngestor(
+		ingestor := real_time.NewRealtimeIngestor(
 			wsConn, // Perp WebSocket connector
 			exchangeName,
 			connector.MarketTypePerp,
 			f.assetRegistry,
 			f.store, // Perp store
 			f.logger,
-			fundingExt, // Add funding rate WebSocket subscriptions
+			obExt,      // Order book subscriptions
+			klineExt,   // Kline subscriptions
+			fundingExt, // Funding rate subscriptions
 		)
 
 		realtimeIngestors = append(realtimeIngestors, ingestor)

@@ -1,4 +1,4 @@
-package ingestors
+package batch
 
 import (
 	"fmt"
@@ -18,7 +18,6 @@ import (
 type BatchIngestor struct {
 	conn          connector.Connector
 	marketData    connector.MarketDataReader
-	orderExecutor connector.OrderExecutor
 	exchangeName  connector.ExchangeName
 	marketType    connector.MarketType
 	assetRegistry registry.PairRegistry
@@ -51,12 +50,10 @@ func NewBatchIngestor(
 ) batch.BatchIngestor {
 	// Type assert to get market data capabilities
 	marketData, _ := conn.(connector.MarketDataReader)
-	orderExecutor, _ := conn.(connector.OrderExecutor)
 
 	return &BatchIngestor{
 		conn:          conn,
 		marketData:    marketData,
-		orderExecutor: orderExecutor,
 		exchangeName:  exchangeName,
 		marketType:    marketType,
 		assetRegistry: assetRegistry,
@@ -65,14 +62,6 @@ func NewBatchIngestor(
 		logger:        logger,
 		stopChan:      make(chan struct{}),
 		extensions:    extensions,
-		klineLimits: map[string]int{
-			"1m":  500,
-			"5m":  300,
-			"15m": 200,
-			"1h":  168,
-			"4h":  180,
-			"1d":  90,
-		},
 	}
 }
 
@@ -118,8 +107,6 @@ func (bi *BatchIngestor) CollectNow() {
 
 	// Collect general market data
 	bi.collectOrderBooks(assets)
-	bi.collectPrices(assets)
-	bi.collectKlines(assets)
 
 	// Run any market-specific collection extensions
 	for _, ext := range bi.extensions {
@@ -164,85 +151,6 @@ func (bi *BatchIngestor) collectOrderBooks(assets []portfolio.Pair) {
 				orderBook.Bids[0].Price.StringFixed(2),
 				orderBook.Asks[0].Price.StringFixed(2))
 		}(asset)
-	}
-
-	wg.Wait()
-}
-
-func (bi *BatchIngestor) collectPrices(pairs []portfolio.Pair) {
-	if bi.marketData == nil {
-		return
-	}
-
-	var wg sync.WaitGroup
-
-	for _, pair := range pairs {
-		wg.Add(1)
-		go func(p portfolio.Pair) {
-			defer wg.Done()
-
-			price, err := bi.marketData.FetchPrice(p)
-			if err != nil {
-				bi.logger.Debug("Failed to fetch price for %s on %s: %v", p.Symbol(), bi.exchangeName, err)
-				return
-			}
-
-			bi.store.UpdatePairPrice(p, bi.exchangeName, *price)
-			bi.store.UpdateLastUpdated(marketTypes.UpdateKey{
-				DataType: marketTypes.DataKeyPairPrice,
-				Pair:     p,
-				Exchange: bi.exchangeName,
-			})
-
-			bi.logger.Debug(
-				"Updated price for %s on %s = %s",
-				p.Symbol(),
-				bi.exchangeName,
-				price.Price.String(),
-			)
-		}(pair)
-	}
-
-	wg.Wait()
-}
-
-func (bi *BatchIngestor) collectKlines(pairs []portfolio.Pair) {
-	if bi.marketData == nil {
-		return
-	}
-
-	intervals := []string{"1m", "5m", "15m", "1h", "4h", "1d"}
-	var wg sync.WaitGroup
-
-	for _, pair := range pairs {
-		for _, interval := range intervals {
-			wg.Add(1)
-			go func(p portfolio.Pair, iv string) {
-				defer wg.Done()
-
-				limit := bi.klineLimits[iv]
-				if limit == 0 {
-					limit = 100
-				}
-
-				klines, err := bi.marketData.FetchKlines(p, iv, limit)
-				if err != nil {
-					bi.logger.Debug("Failed to fetch %s klines for %s on %s: %v", iv, p.Symbol(), bi.exchangeName, err)
-					return
-				}
-
-				if len(klines) == 0 {
-					return
-				}
-
-				// Store all klines
-				for _, kline := range klines {
-					bi.store.UpdateKline(p, bi.exchangeName, kline)
-				}
-
-				bi.logger.Debug("Updated %d %s klines for %s on %s", len(klines), iv, p.Symbol(), bi.exchangeName)
-			}(pair, interval)
-		}
 	}
 
 	wg.Wait()

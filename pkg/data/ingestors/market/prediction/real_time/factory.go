@@ -1,7 +1,7 @@
 package realtime
 
 import (
-	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors"
+	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/real_time"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
@@ -31,7 +31,7 @@ func NewFactory(
 	}
 }
 
-// CreateIngestors creates one realtime ingestor per registered spot WebSocket connector
+// CreateIngestors creates one realtime ingestor per registered prediction WebSocket connector
 func (f *Factory) CreateIngestors() []realtime.RealtimeIngestor {
 	predictionWSConnectors := f.connectorRegistry.FilterPrediction(registry.NewFilter().ReadyOnly().WebSocketOnly().Build())
 
@@ -41,18 +41,23 @@ func (f *Factory) CreateIngestors() []realtime.RealtimeIngestor {
 		info := wsConn.GetConnectorInfo()
 		exchangeName := info.Name
 
-		ingestor := ingestors.NewRealtimeIngestor(
+		// Create extensions for prediction markets
+		// Note: Prediction markets only use order books, not klines
+		obExt := real_time.NewOrderBookExtension(f.store, f.logger)
+
+		ingestor := real_time.NewRealtimeIngestor(
 			wsConn,
 			exchangeName,
 			connector.MarketTypePrediction,
 			f.assetRegistry,
 			f.store,
 			f.logger,
+			obExt, // Only order book subscriptions for prediction markets
 		)
 
 		realtimeIngestors = append(realtimeIngestors, ingestor)
 
-		f.logger.Info("Created spot realtime ingestor for %s", exchangeName)
+		f.logger.Info("Created prediction realtime ingestor for %s", exchangeName)
 	}
 
 	return realtimeIngestors

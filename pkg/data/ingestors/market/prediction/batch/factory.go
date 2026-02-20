@@ -1,7 +1,7 @@
 package batch
 
 import (
-	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors"
+	batch2 "github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
@@ -45,8 +45,8 @@ func (f *Factory) CreateIngestors() []batch.BatchIngestor {
 		info := conn.GetConnectorInfo()
 		exchangeName := info.Name
 
-		// Base ingestor + perp extensions
-		ingestor := ingestors.NewBatchIngestor(
+		// Base ingestor + prediction extensions
+		ingestor := batch2.NewBatchIngestor(
 			conn,
 			exchangeName,
 			connector.MarketTypePrediction,

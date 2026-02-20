@@ -13,7 +13,7 @@ type Predict interface {
 
 	Markets() []prediction.Market
 	Orderbooks(market prediction.Market) (map[prediction.Outcome]prediction.OrderBook, error)
-	Orderbook(market prediction.Market, outcome prediction.Outcome) (*prediction.OrderBook, error)
+	Orderbook(outcome prediction.Outcome, exchange connector.ExchangeName) (*connector.OrderBook, error)
 
 	// Log returns the trading logger for strategy-specific logging.
 	// Use for recording trading decisions and strategy events.
