@@ -9,9 +9,10 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-// realtimeIngestor is a generic base implementation for WebSocket data collection
+// realtimeIngestor is a generic base implementation for WebSocket data collection.
 type realtimeIngestor struct {
 	conn            interface{}
 	wsCapable       connector.WebSocketCapable
@@ -26,6 +27,9 @@ type realtimeIngestor struct {
 	isActive bool
 	mu       sync.RWMutex
 
+	// Watchlist subscription
+	eventsChan <-chan data.MarketWatchEvent
+
 	// Extension point for market-specific WebSocket subscriptions
 	extensions []realtime.WebSocketExtension
 }
@@ -38,7 +42,6 @@ func NewRealtimeIngestor(
 	logger logging.ApplicationLogger,
 	extensions ...realtime.WebSocketExtension,
 ) realtime.RealtimeIngestor {
-	// Cast to WebSocketCapable for lifecycle management
 	wsCapable, ok := conn.(connector.WebSocketCapable)
 	if !ok {
 		logger.Error("Connector does not implement WebSocketCapable interface")
@@ -64,12 +67,6 @@ func (ri *realtimeIngestor) Start(ctx context.Context) error {
 		return fmt.Errorf("realtime ingestor for %s already active", ri.exchangeName)
 	}
 
-	pairs := ri.marketWatchlist.GetRequiredPairs(ri.exchangeName)
-	if len(pairs) == 0 {
-		ri.logger.Warn("No pairs registered for %s realtime ingestion", ri.exchangeName)
-		return nil
-	}
-
 	ri.ctx, ri.cancel = context.WithCancel(ctx)
 
 	// Start WebSocket connection
@@ -77,13 +74,22 @@ func (ri *realtimeIngestor) Start(ctx context.Context) error {
 		return fmt.Errorf("failed to start WebSocket for %s: %w", ri.exchangeName, err)
 	}
 
-	// All WebSocket subscriptions now handled via extensions
-	for _, ext := range ri.extensions {
-		if err := ext.Subscribe(ri.conn, ri.exchangeName, pairs); err != nil {
-			ri.logger.Error("Failed to subscribe to extension data for %s: %v",
-				ri.exchangeName, err)
+	// Initial snapshot of required pairs from the watchlist
+	pairs := ri.marketWatchlist.GetRequiredPairs(ri.exchangeName)
+	if len(pairs) == 0 {
+		ri.logger.Warn("No pairs registered for %s realtime ingestion", ri.exchangeName)
+	} else {
+		for _, ext := range ri.extensions {
+			if err := ext.Subscribe(ri.conn, ri.exchangeName, pairs); err != nil {
+				ri.logger.Error("Failed initial subscribe for %s: %v", ri.exchangeName, err)
+			}
 		}
 	}
+
+	// Subscribe to dynamic watchlist events for this exchange
+	ch := ri.marketWatchlist.Subscribe(ri.exchangeName)
+	ri.eventsChan = ch
+	go ri.runWatchlistLoop(ch)
 
 	// Start extension channel processing
 	for _, ext := range ri.extensions {
@@ -95,6 +101,46 @@ func (ri *realtimeIngestor) Start(ctx context.Context) error {
 	return nil
 }
 
+func (ri *realtimeIngestor) runWatchlistLoop(events <-chan data.MarketWatchEvent) {
+	defer ri.marketWatchlist.Unsubscribe(ri.exchangeName)
+
+	for {
+		select {
+		case <-ri.ctx.Done():
+			return
+		case ev, ok := <-events:
+			if !ok {
+				return
+			}
+
+			switch ev.Type {
+			case data.PairAdded:
+				for _, ext := range ri.extensions {
+					if err := ext.Subscribe(ri.conn, ri.exchangeName, []portfolio.Pair{ev.Requirement.Pair}); err != nil {
+						ri.logger.Error(
+							"Failed dynamic subscribe %s %s: %v",
+							ri.exchangeName,
+							ev.Requirement.Pair.Symbol(),
+							err,
+						)
+					}
+				}
+			case data.PairRemoved:
+				for _, ext := range ri.extensions {
+					if err := ext.Unsubscribe(ri.conn, ri.exchangeName); err != nil {
+						ri.logger.Warn(
+							"Failed dynamic unsubscribe %s %s: %v",
+							ri.exchangeName,
+							ev.Requirement.Pair.Symbol(),
+							err,
+						)
+					}
+				}
+			}
+		}
+	}
+}
+
 func (ri *realtimeIngestor) Stop() error {
 	ri.mu.Lock()
 	defer ri.mu.Unlock()
@@ -103,17 +149,14 @@ func (ri *realtimeIngestor) Stop() error {
 		return nil
 	}
 
-	// Cancel context to stop all extension goroutines
+	// Cancel context to stop extension goroutines and watchlist loop
 	if ri.cancel != nil {
 		ri.cancel()
 	}
 
-	// Call unsubscribe on all extensions for cleanup
-	for _, ext := range ri.extensions {
-		if err := ext.Unsubscribe(ri.conn, ri.exchangeName); err != nil {
-			ri.logger.Warn("Failed to unsubscribe extension for %s: %v",
-				ri.exchangeName, err)
-		}
+	if ri.eventsChan != nil {
+		ri.marketWatchlist.Unsubscribe(ri.exchangeName)
+		ri.eventsChan = nil
 	}
 
 	// Stop WebSocket connection

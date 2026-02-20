@@ -20,14 +20,14 @@ type marketWatchlist struct {
 
 	pairs map[pairKey]portfolio.Pair
 
-	// watchers are keyed by exchange, each with its own set of channels
-	watchers map[connector.ExchangeName]map[chan data.MarketWatchEvent]struct{}
+	// exactly one channel per exchange
+	watchers map[connector.ExchangeName]chan data.MarketWatchEvent
 }
 
 func NewMarketWatchlist() data.MarketWatchlist {
 	return &marketWatchlist{
 		pairs:    make(map[pairKey]portfolio.Pair),
-		watchers: make(map[connector.ExchangeName]map[chan data.MarketWatchEvent]struct{}),
+		watchers: make(map[connector.ExchangeName]chan data.MarketWatchEvent),
 	}
 }
 
@@ -95,52 +95,44 @@ func (w *marketWatchlist) GetRequiredPairs(exchange connector.ExchangeName) []po
 	return out
 }
 
-func (w *marketWatchlist) Subscribe(exchange connector.ExchangeName) <-chan data.MarketWatchEvent {
-	ch := make(chan data.MarketWatchEvent, 128)
-
+func (w *marketWatchlist) Subscribe(exchange connector.ExchangeName) chan data.MarketWatchEvent {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	if w.watchers[exchange] == nil {
-		w.watchers[exchange] = make(map[chan data.MarketWatchEvent]struct{})
+	// If a channel already exists for this exchange, reuse it.
+	if ch, ok := w.watchers[exchange]; ok {
+		return ch
 	}
-	w.watchers[exchange][ch] = struct{}{}
 
+	ch := make(chan data.MarketWatchEvent, 128)
+	w.watchers[exchange] = ch
 	return ch
 }
 
-func (w *marketWatchlist) Unsubscribe(exchange connector.ExchangeName, ch chan data.MarketWatchEvent) {
+func (w *marketWatchlist) Unsubscribe(exchange connector.ExchangeName) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	watchersForEx, ok := w.watchers[exchange]
+	ch, ok := w.watchers[exchange]
 	if !ok {
 		return
 	}
 
-	if _, ok := watchersForEx[ch]; ok {
-		delete(watchersForEx, ch)
-		close(ch)
-	}
-
-	if len(watchersForEx) == 0 {
-		delete(w.watchers, exchange)
-	}
+	delete(w.watchers, exchange)
+	close(ch)
 }
 
 func (w *marketWatchlist) emitEventLocked(ev data.MarketWatchEvent) {
 	ex := ev.Requirement.Exchange
 
-	watchersForEx, ok := w.watchers[ex]
+	ch, ok := w.watchers[ex]
 	if !ok {
 		return
 	}
 
-	for ch := range watchersForEx {
-		select {
-		case ch <- ev:
-		default:
-			// drop or log slow watcher
-		}
+	select {
+	case ch <- ev:
+	default:
+		// drop or log slow watcher
 	}
 }

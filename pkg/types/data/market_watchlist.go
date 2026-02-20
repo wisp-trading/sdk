@@ -33,8 +33,8 @@ type MarketWatchlist interface {
 	GetRequiredPairs(exchange connector.ExchangeName) []portfolio.Pair
 
 	// Subscribe returns a channel that will receive events whenever pairs are added or removed from the watchlist for the specified exchange.
-	Subscribe(exchange connector.ExchangeName) <-chan MarketWatchEvent
+	Subscribe(exchange connector.ExchangeName) chan MarketWatchEvent
 
 	// Unsubscribe stops sending events to the provided channel for the specified exchange. The channel will be closed after this call.
-	Unsubscribe(exchange connector.ExchangeName, ch chan MarketWatchEvent)
+	Unsubscribe(exchange connector.ExchangeName)
 }
