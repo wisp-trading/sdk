@@ -25,27 +25,25 @@ func (_m *Predict) EXPECT() *Predict_Expecter {
 }
 
 // GetMarketBySlug provides a mock function with given fields: slug, exchange
-func (_m *Predict) GetMarketBySlug(slug string, exchange *connector.ExchangeName) ([]prediction.Market, error) {
+func (_m *Predict) GetMarketBySlug(slug string, exchange connector.ExchangeName) (prediction.Market, error) {
 	ret := _m.Called(slug, exchange)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetMarketBySlug")
 	}
 
-	var r0 []prediction.Market
+	var r0 prediction.Market
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string, *connector.ExchangeName) ([]prediction.Market, error)); ok {
+	if rf, ok := ret.Get(0).(func(string, connector.ExchangeName) (prediction.Market, error)); ok {
 		return rf(slug, exchange)
 	}
-	if rf, ok := ret.Get(0).(func(string, *connector.ExchangeName) []prediction.Market); ok {
+	if rf, ok := ret.Get(0).(func(string, connector.ExchangeName) prediction.Market); ok {
 		r0 = rf(slug, exchange)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]prediction.Market)
-		}
+		r0 = ret.Get(0).(prediction.Market)
 	}
 
-	if rf, ok := ret.Get(1).(func(string, *connector.ExchangeName) error); ok {
+	if rf, ok := ret.Get(1).(func(string, connector.ExchangeName) error); ok {
 		r1 = rf(slug, exchange)
 	} else {
 		r1 = ret.Error(1)
@@ -61,24 +59,82 @@ type Predict_GetMarketBySlug_Call struct {
 
 // GetMarketBySlug is a helper method to define mock.On call
 //   - slug string
-//   - exchange *connector.ExchangeName
+//   - exchange connector.ExchangeName
 func (_e *Predict_Expecter) GetMarketBySlug(slug interface{}, exchange interface{}) *Predict_GetMarketBySlug_Call {
 	return &Predict_GetMarketBySlug_Call{Call: _e.mock.On("GetMarketBySlug", slug, exchange)}
 }
 
-func (_c *Predict_GetMarketBySlug_Call) Run(run func(slug string, exchange *connector.ExchangeName)) *Predict_GetMarketBySlug_Call {
+func (_c *Predict_GetMarketBySlug_Call) Run(run func(slug string, exchange connector.ExchangeName)) *Predict_GetMarketBySlug_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string), args[1].(*connector.ExchangeName))
+		run(args[0].(string), args[1].(connector.ExchangeName))
 	})
 	return _c
 }
 
-func (_c *Predict_GetMarketBySlug_Call) Return(_a0 []prediction.Market, _a1 error) *Predict_GetMarketBySlug_Call {
+func (_c *Predict_GetMarketBySlug_Call) Return(_a0 prediction.Market, _a1 error) *Predict_GetMarketBySlug_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Predict_GetMarketBySlug_Call) RunAndReturn(run func(string, *connector.ExchangeName) ([]prediction.Market, error)) *Predict_GetMarketBySlug_Call {
+func (_c *Predict_GetMarketBySlug_Call) RunAndReturn(run func(string, connector.ExchangeName) (prediction.Market, error)) *Predict_GetMarketBySlug_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetRecurringMarketBySlug provides a mock function with given fields: slug, recurrenceInterval, exchange
+func (_m *Predict) GetRecurringMarketBySlug(slug string, recurrenceInterval prediction.RecurrenceInterval, exchange connector.ExchangeName) (prediction.Market, error) {
+	ret := _m.Called(slug, recurrenceInterval, exchange)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetRecurringMarketBySlug")
+	}
+
+	var r0 prediction.Market
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, prediction.RecurrenceInterval, connector.ExchangeName) (prediction.Market, error)); ok {
+		return rf(slug, recurrenceInterval, exchange)
+	}
+	if rf, ok := ret.Get(0).(func(string, prediction.RecurrenceInterval, connector.ExchangeName) prediction.Market); ok {
+		r0 = rf(slug, recurrenceInterval, exchange)
+	} else {
+		r0 = ret.Get(0).(prediction.Market)
+	}
+
+	if rf, ok := ret.Get(1).(func(string, prediction.RecurrenceInterval, connector.ExchangeName) error); ok {
+		r1 = rf(slug, recurrenceInterval, exchange)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Predict_GetRecurringMarketBySlug_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRecurringMarketBySlug'
+type Predict_GetRecurringMarketBySlug_Call struct {
+	*mock.Call
+}
+
+// GetRecurringMarketBySlug is a helper method to define mock.On call
+//   - slug string
+//   - recurrenceInterval prediction.RecurrenceInterval
+//   - exchange connector.ExchangeName
+func (_e *Predict_Expecter) GetRecurringMarketBySlug(slug interface{}, recurrenceInterval interface{}, exchange interface{}) *Predict_GetRecurringMarketBySlug_Call {
+	return &Predict_GetRecurringMarketBySlug_Call{Call: _e.mock.On("GetRecurringMarketBySlug", slug, recurrenceInterval, exchange)}
+}
+
+func (_c *Predict_GetRecurringMarketBySlug_Call) Run(run func(slug string, recurrenceInterval prediction.RecurrenceInterval, exchange connector.ExchangeName)) *Predict_GetRecurringMarketBySlug_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(prediction.RecurrenceInterval), args[2].(connector.ExchangeName))
+	})
+	return _c
+}
+
+func (_c *Predict_GetRecurringMarketBySlug_Call) Return(_a0 prediction.Market, _a1 error) *Predict_GetRecurringMarketBySlug_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Predict_GetRecurringMarketBySlug_Call) RunAndReturn(run func(string, prediction.RecurrenceInterval, connector.ExchangeName) (prediction.Market, error)) *Predict_GetRecurringMarketBySlug_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -177,29 +233,29 @@ func (_c *Predict_Markets_Call) RunAndReturn(run func() []prediction.Market) *Pr
 	return _c
 }
 
-// Orderbook provides a mock function with given fields: market, outcome
-func (_m *Predict) Orderbook(market prediction.Market, outcome prediction.Outcome) (*prediction.OrderBook, error) {
-	ret := _m.Called(market, outcome)
+// Orderbook provides a mock function with given fields: outcome, exchange
+func (_m *Predict) Orderbook(outcome prediction.Outcome, exchange connector.ExchangeName) (*connector.OrderBook, error) {
+	ret := _m.Called(outcome, exchange)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Orderbook")
 	}
 
-	var r0 *prediction.OrderBook
+	var r0 *connector.OrderBook
 	var r1 error
-	if rf, ok := ret.Get(0).(func(prediction.Market, prediction.Outcome) (*prediction.OrderBook, error)); ok {
-		return rf(market, outcome)
+	if rf, ok := ret.Get(0).(func(prediction.Outcome, connector.ExchangeName) (*connector.OrderBook, error)); ok {
+		return rf(outcome, exchange)
 	}
-	if rf, ok := ret.Get(0).(func(prediction.Market, prediction.Outcome) *prediction.OrderBook); ok {
-		r0 = rf(market, outcome)
+	if rf, ok := ret.Get(0).(func(prediction.Outcome, connector.ExchangeName) *connector.OrderBook); ok {
+		r0 = rf(outcome, exchange)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*prediction.OrderBook)
+			r0 = ret.Get(0).(*connector.OrderBook)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(prediction.Market, prediction.Outcome) error); ok {
-		r1 = rf(market, outcome)
+	if rf, ok := ret.Get(1).(func(prediction.Outcome, connector.ExchangeName) error); ok {
+		r1 = rf(outcome, exchange)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -213,25 +269,25 @@ type Predict_Orderbook_Call struct {
 }
 
 // Orderbook is a helper method to define mock.On call
-//   - market prediction.Market
 //   - outcome prediction.Outcome
-func (_e *Predict_Expecter) Orderbook(market interface{}, outcome interface{}) *Predict_Orderbook_Call {
-	return &Predict_Orderbook_Call{Call: _e.mock.On("Orderbook", market, outcome)}
+//   - exchange connector.ExchangeName
+func (_e *Predict_Expecter) Orderbook(outcome interface{}, exchange interface{}) *Predict_Orderbook_Call {
+	return &Predict_Orderbook_Call{Call: _e.mock.On("Orderbook", outcome, exchange)}
 }
 
-func (_c *Predict_Orderbook_Call) Run(run func(market prediction.Market, outcome prediction.Outcome)) *Predict_Orderbook_Call {
+func (_c *Predict_Orderbook_Call) Run(run func(outcome prediction.Outcome, exchange connector.ExchangeName)) *Predict_Orderbook_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(prediction.Market), args[1].(prediction.Outcome))
+		run(args[0].(prediction.Outcome), args[1].(connector.ExchangeName))
 	})
 	return _c
 }
 
-func (_c *Predict_Orderbook_Call) Return(_a0 *prediction.OrderBook, _a1 error) *Predict_Orderbook_Call {
+func (_c *Predict_Orderbook_Call) Return(_a0 *connector.OrderBook, _a1 error) *Predict_Orderbook_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Predict_Orderbook_Call) RunAndReturn(run func(prediction.Market, prediction.Outcome) (*prediction.OrderBook, error)) *Predict_Orderbook_Call {
+func (_c *Predict_Orderbook_Call) RunAndReturn(run func(prediction.Outcome, connector.ExchangeName) (*connector.OrderBook, error)) *Predict_Orderbook_Call {
 	_c.Call.Return(run)
 	return _c
 }
