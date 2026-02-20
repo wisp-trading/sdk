@@ -25,9 +25,7 @@ func NewStore(timeProvider temporal.TimeProvider) perpTypes.MarketStore {
 			baseStore.UpdatePairPrice,
 			baseStore.UpdateLastUpdated,
 		),
-		KlineStoreExtension: storeExtensions.NewKlineExtension(
-			baseStore.UpdateLastUpdated,
-		),
+		KlineStoreExtension:       storeExtensions.NewKlineExtension(),
 		FundingRateStoreExtension: extensions.NewFundingRateExtension(),
 	}
 }
