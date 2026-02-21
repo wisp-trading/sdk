@@ -2,16 +2,17 @@ package data
 
 import (
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/connector/prediction"
+	prediction "github.com/wisp-trading/sdk/pkg/types/connector/prediction"
 )
 
 type PredictionWatchlist interface {
 	RequireMarket(exchange connector.ExchangeName, market prediction.Market)
-	ReleaseMarket(exchange connector.ExchangeName, marketID string)
+	ReleaseMarket(exchange connector.ExchangeName, marketID prediction.MarketID)
 
 	GetRequiredMarkets(exchange connector.ExchangeName) []prediction.Market
 
-	Events() <-chan PredictionWatchEvent
+	Subscribe(exchange connector.ExchangeName) chan PredictionWatchEvent
+	Unsubscribe(exchange connector.ExchangeName)
 }
 
 type PredictionWatchEventType int

@@ -9,11 +9,15 @@ import (
 type Predict interface {
 	GetMarketBySlug(slug string, exchange connector.ExchangeName) (prediction.Market, error)
 	GetRecurringMarketBySlug(slug string, recurrenceInterval prediction.RecurrenceInterval, exchange connector.ExchangeName) (prediction.Market, error)
-	WatchMarket(market prediction.Market, exchange *connector.ExchangeName) error
+	WatchMarket(exchange connector.ExchangeName, market prediction.Market)
 
 	Markets() []prediction.Market
 	//Orderbooks(market prediction.Market) (map[prediction.Outcome]prediction.OrderBook, error)
-	//Orderbook(outcome prediction.Outcome, exchange connector.ExchangeName) (*connector.OrderBook, error)
+	Orderbook(
+		exchange connector.ExchangeName,
+		market prediction.Market,
+		outcome prediction.Outcome,
+	) (*connector.OrderBook, error)
 
 	// Log returns the trading logger for strategy-specific logging.
 	// Use for recording trading decisions and strategy events.

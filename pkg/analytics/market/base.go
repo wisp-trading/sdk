@@ -7,13 +7,12 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	storeTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
-	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-// baseMarketService implements common market operations that work identically
-// across all market types (spot, perp, futures, options, etc.)
-// Market-specific services embed this to inherit common functionality.
+// baseMarketService implements ONLY operations that use the core MarketStore interface
+// It does NOT use extensions (OrderBook, Klines, etc.) to maintain true separation.
+// Market-specific services embed this to inherit price functionality only.
 type baseMarketService struct {
 	store storeTypes.MarketStore
 }
@@ -22,7 +21,7 @@ func newBaseMarketService(store storeTypes.MarketStore) baseMarketService {
 	return baseMarketService{store: store}
 }
 
-// Price returns the current price for an asset
+// Price returns the current price for an asset (uses only core MarketStore.GetPairPrices)
 func (b *baseMarketService) Price(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (numerical.Decimal, error) {
 	priceMap := b.store.GetPairPrices(asset)
 
@@ -46,7 +45,7 @@ func (b *baseMarketService) Price(ctx context.Context, asset portfolio.Pair, exc
 	return numerical.Zero(), fmt.Errorf("no price found for %s", asset.Symbol())
 }
 
-// Prices returns prices across all exchanges for this market type
+// Prices returns prices across all exchanges (uses only core MarketStore.GetPairPrices)
 func (b *baseMarketService) Prices(ctx context.Context, asset portfolio.Pair) map[connector.ExchangeName]numerical.Decimal {
 	result := make(map[connector.ExchangeName]numerical.Decimal)
 	priceMap := b.store.GetPairPrices(asset)
@@ -54,49 +53,4 @@ func (b *baseMarketService) Prices(ctx context.Context, asset portfolio.Pair) ma
 		result[exchange] = price.Price
 	}
 	return result
-}
-
-// OrderBook returns the order book for an asset
-func (b *baseMarketService) OrderBook(ctx context.Context, asset portfolio.Pair, exchange ...connector.ExchangeName) (*connector.OrderBook, error) {
-	if len(exchange) > 0 && exchange[0] != "" {
-		ob := b.store.GetOrderBook(asset, exchange[0])
-		if ob == nil {
-			return nil, fmt.Errorf("no order book found for %s on %s", asset.Symbol(), exchange[0])
-		}
-		return ob, nil
-	}
-
-	// Return first available
-	orderBooks := b.store.GetOrderBooks(asset)
-	if len(orderBooks) == 0 {
-		return nil, fmt.Errorf("no order book data available for %s", asset.Symbol())
-	}
-
-	for _, ob := range orderBooks {
-		if ob != nil {
-			return ob, nil
-		}
-	}
-
-	return nil, fmt.Errorf("no order book found for %s", asset.Symbol())
-}
-
-// GetKlines returns historical kline/candlestick data
-func (b *baseMarketService) GetKlines(asset portfolio.Pair, exchange connector.ExchangeName, interval string, limit int) []connector.Kline {
-	return b.store.GetKlines(asset, exchange, interval, limit)
-}
-
-// GetTradableQuantity calculates available liquidity
-func (b *baseMarketService) GetTradableQuantity(ctx context.Context, asset portfolio.Pair, opts ...analytics.LiquidityOptions) numerical.Decimal {
-	options := DefaultLiquidityOptions()
-	if len(opts) > 0 {
-		options = opts[0]
-	}
-
-	orderBook, err := b.OrderBook(ctx, asset)
-	if err != nil {
-		return numerical.Zero()
-	}
-
-	return getTradableQuantity(ctx, orderBook, options)
 }

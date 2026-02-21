@@ -10,7 +10,7 @@ import (
 // Market represents a tradeable prediction market
 type Market struct {
 	// Polymarket: this is the condition id
-	MarketId string                 `json:"market_id,omitempty"`
+	MarketID MarketID               `json:"market_id,omitempty"`
 	Slug     string                 `json:"slug"`
 	Exchange connector.ExchangeName `json:"exchange"`
 
@@ -46,14 +46,14 @@ func (m *Market) Validate() error {
 	return nil
 }
 
-func (m *Market) FindOutcomeById(assetId string) (*Outcome, error) {
+func (m *Market) FindOutcomeById(outcomeId OutcomeID) (*Outcome, error) {
 	for _, outcome := range m.Outcomes {
-		if outcome.OutcomeId == assetId {
+		if outcome.OutcomeID == outcomeId {
 			return &outcome, nil
 		}
 	}
 
-	return nil, fmt.Errorf("no outcome found for asset id %s", assetId)
+	return nil, fmt.Errorf("no outcome found for outcome id %s", outcomeId)
 }
 
 // Outcome represents a tradeable outcome (YES or NO for binary)
@@ -61,7 +61,7 @@ type Outcome struct {
 	Pair PredictionPair
 
 	// Polymarket: this is the orderbook id
-	OutcomeId string              `json:"outcome_id,omitempty"`
+	OutcomeID OutcomeID           `json:"outcome_id,omitempty"`
 	Side      connector.OrderSide `json:"side,omitempty"`
 }
 

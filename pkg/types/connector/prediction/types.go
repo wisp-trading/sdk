@@ -7,6 +7,26 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
+type MarketID string
+
+func (m MarketID) String() string {
+	return string(m)
+}
+
+func MarketIDFromString(s string) MarketID {
+	return MarketID(s)
+}
+
+type OutcomeID string
+
+func (o OutcomeID) String() string {
+	return string(o)
+}
+
+func OutcomeIDFromString(s string) OutcomeID {
+	return OutcomeID(s)
+}
+
 // Position represents a position in a prediction market outcome
 type Position struct {
 	Market        Market                 `json:"market"`

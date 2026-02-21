@@ -1,59 +1,193 @@
 package realtime
 
 import (
-	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/real_time"
+	"context"
+	"fmt"
+	"sync"
+
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
-	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
-	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
 
-// factory creates realtime ingestors for all registered prediction WebSocket connectors
-type factory struct {
-	connectorRegistry registry.ConnectorRegistry
-	marketWatchlist   data.MarketWatchlist
-	store             prediction.MarketStore
-	logger            logging.ApplicationLogger
+// predictionRealtimeIngestor is a WebSocket ingestor for prediction markets.
+type predictionRealtimeIngestor struct {
+	conn         interface{}
+	wsCapable    connector.WebSocketCapable
+	exchangeName connector.ExchangeName
+	marketType   connector.MarketType
+	watchlist    data.PredictionWatchlist
+	logger       logging.ApplicationLogger
+
+	// State
+	ctx      context.Context
+	cancel   context.CancelFunc
+	isActive bool
+	mu       sync.RWMutex
+
+	// Watchlist subscription
+	eventsChan chan data.PredictionWatchEvent
+
+	// Extension point for prediction-specific WS handling
+	extensions []realtime.PredictionExtension
 }
 
 func NewFactory(
-	connectorRegistry registry.ConnectorRegistry,
-	marketWatchlist data.MarketWatchlist,
-	store prediction.MarketStore,
+	conn interface{},
+	exchangeName connector.ExchangeName,
+	marketType connector.MarketType,
+	watchlist data.PredictionWatchlist,
 	logger logging.ApplicationLogger,
-) realtime.RealtimeIngestorFactory {
-	return &factory{
-		connectorRegistry: connectorRegistry,
-		marketWatchlist:   marketWatchlist,
-		store:             store,
-		logger:            logger,
+	extensions ...realtime.PredictionExtension,
+) realtime.RealtimeIngestor {
+	wsCapable, ok := conn.(connector.WebSocketCapable)
+	if !ok {
+		logger.Error("Connector does not implement WebSocketCapable interface")
+		return nil
+	}
+
+	return &predictionRealtimeIngestor{
+		conn:         conn,
+		wsCapable:    wsCapable,
+		exchangeName: exchangeName,
+		marketType:   marketType,
+		watchlist:    watchlist,
+		logger:       logger,
+		extensions:   extensions,
 	}
 }
 
-// CreateIngestors creates one realtime ingestor per registered prediction WebSocket connector
-func (f *factory) CreateIngestors() []realtime.RealtimeIngestor {
-	predictionWSConnectors := f.connectorRegistry.FilterPrediction(registry.NewFilter().ReadyOnly().WebSocketOnly().Build())
+func (ri *predictionRealtimeIngestor) Start(ctx context.Context) error {
+	ri.mu.Lock()
+	defer ri.mu.Unlock()
 
-	realtimeIngestors := make([]realtime.RealtimeIngestor, 0, len(predictionWSConnectors))
-
-	for _, wsConn := range predictionWSConnectors {
-		info := wsConn.GetConnectorInfo()
-		exchangeName := info.Name
-
-		ingestor := real_time.NewRealtimeIngestor(
-			wsConn,
-			exchangeName,
-			connector.MarketTypePrediction,
-			f.marketWatchlist,
-			f.logger,
-		)
-
-		realtimeIngestors = append(realtimeIngestors, ingestor)
-
-		f.logger.Info("Created prediction realtime ingestor for %s", exchangeName)
+	if ri.isActive {
+		return fmt.Errorf("prediction realtime ingestor for %s already active", ri.exchangeName)
 	}
 
-	return realtimeIngestors
+	ri.ctx, ri.cancel = context.WithCancel(ctx)
+
+	if err := ri.wsCapable.StartWebSocket(); err != nil {
+		return fmt.Errorf("failed to start WebSocket for %s: %w", ri.exchangeName, err)
+	}
+
+	// Initial snapshot: markets to watch for this exchange
+	markets := ri.watchlist.GetRequiredMarkets(ri.exchangeName)
+	if len(markets) == 0 {
+		ri.logger.Warn("No prediction markets registered for %s realtime ingestion", ri.exchangeName)
+	} else {
+		for _, ext := range ri.extensions {
+			for _, market := range markets {
+				if err := ext.Subscribe(ri.conn, ri.exchangeName, market); err != nil {
+					ri.logger.Error("Failed initial prediction subscribe for %s: %v", ri.exchangeName, err)
+				}
+			}
+		}
+	}
+
+	ch := ri.watchlist.Subscribe(ri.exchangeName)
+	ri.eventsChan = ch
+	go ri.runWatchlistLoop(ch)
+
+	for _, ext := range ri.extensions {
+		go ext.ProcessChannels(ri.conn, ri.exchangeName, ri.ctx)
+	}
+
+	ri.isActive = true
+	ri.logger.Info("Started %s prediction realtime ingestion for %s", ri.marketType, ri.exchangeName)
+	return nil
 }
+
+func (ri *predictionRealtimeIngestor) runWatchlistLoop(events chan data.PredictionWatchEvent) {
+	defer ri.watchlist.Unsubscribe(ri.exchangeName)
+
+	for {
+		select {
+		case <-ri.ctx.Done():
+			return
+		case ev, ok := <-events:
+			if !ok {
+				return
+			}
+
+			switch ev.Type {
+			case data.PredictionMarketAdded:
+				for _, ext := range ri.extensions {
+					if err := ext.Subscribe(ri.conn, ri.exchangeName, ev.Market); err != nil {
+						ri.logger.Error(
+							"Failed dynamic prediction subscribe %s %s: %v",
+							ri.exchangeName,
+							ev.Market.MarketID,
+							err,
+						)
+					}
+				}
+
+			case data.PredictionMarketRemoved:
+				for _, ext := range ri.extensions {
+					// later you can add a per-market unsubscribe; for now you might only have a coarse UnsubscribePrediction
+					if err := ext.Unsubscribe(ri.conn, ri.exchangeName, ev.Market); err != nil {
+						ri.logger.Warn(
+							"Failed dynamic prediction unsubscribe %s %s: %v",
+							ri.exchangeName,
+							ev.Market.MarketID,
+							err,
+						)
+					}
+				}
+			}
+		}
+	}
+}
+
+func (ri *predictionRealtimeIngestor) Stop() error {
+	ri.mu.Lock()
+	defer ri.mu.Unlock()
+
+	if !ri.isActive {
+		return nil
+	}
+
+	if ri.cancel != nil {
+		ri.cancel()
+	}
+
+	if ri.eventsChan != nil {
+		ri.watchlist.Unsubscribe(ri.exchangeName)
+		ri.eventsChan = nil
+	}
+
+	if err := ri.wsCapable.StopWebSocket(); err != nil {
+		ri.logger.Error("Error stopping WebSocket for %s: %v", ri.exchangeName, err)
+	}
+
+	ri.isActive = false
+	ri.logger.Info("Stopped %s prediction realtime ingestion for %s", ri.marketType, ri.exchangeName)
+	return nil
+}
+
+func (ri *predictionRealtimeIngestor) IsActive() bool {
+	ri.mu.RLock()
+	defer ri.mu.RUnlock()
+	return ri.isActive
+}
+
+func (ri *predictionRealtimeIngestor) GetMarketType() connector.MarketType {
+	return ri.marketType
+}
+
+func (ri *predictionRealtimeIngestor) GetActiveConnections() map[connector.ExchangeName]interface{} {
+	ri.mu.RLock()
+	defer ri.mu.RUnlock()
+
+	if ri.isActive {
+		return map[connector.ExchangeName]interface{}{
+			ri.exchangeName: ri.conn,
+		}
+	}
+
+	return make(map[connector.ExchangeName]interface{})
+}
+
+var _ realtime.RealtimeIngestor = (*predictionRealtimeIngestor)(nil)
