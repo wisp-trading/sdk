@@ -39,14 +39,6 @@ type Position struct {
 	UpdatedAt     time.Time              `json:"updated_at"`
 }
 
-// OrderBook represents an order book for a specific market outcome
-type OrderBook struct {
-	Outcome   Market                 `json:"outcome"`
-	Bids      []connector.PriceLevel `json:"bids"`
-	Asks      []connector.PriceLevel `json:"asks"`
-	Timestamp time.Time              `json:"timestamp"`
-}
-
 type PriceChange struct {
 	Outcome   Outcome           `json:"outcome"`
 	Timestamp string            `json:"timestamp"`

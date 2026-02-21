@@ -29,8 +29,8 @@ type OrderBookStoreExtension interface {
 	// UpdateOrderBook Update the order book for a specific market outcome on a specific exchange
 	UpdateOrderBook(
 		exchange connector.ExchangeName,
-		market prediction.Market,
-		outcome prediction.Outcome,
+		marketID prediction.MarketID,
+		outcomeID prediction.OutcomeID,
 		orderBook connector.OrderBook,
 	)
 

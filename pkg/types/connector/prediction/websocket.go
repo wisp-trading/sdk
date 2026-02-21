@@ -19,9 +19,9 @@ type WebSocketConnector interface {
 
 	CancelOrder(orderID string, outcome ...Outcome) (*connector.CancelResponse, error)
 
-	FetchOrderBooks(market Market, outcome Outcome) (*connector.OrderBook, error)
+	FetchOrderBooks(market Market, outcome Outcome) (*OrderBook, error)
 
-	GetOrderbookChannels() map[string]<-chan connector.OrderBook
+	GetOrderbookChannels() map[MarketID]<-chan OrderBook
 	GetPriceChangeChannels() map[string]<-chan PriceChange
 	GetTradesChannel() <-chan connector.Trade
 	GetOrdersChannel() <-chan connector.Order

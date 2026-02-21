@@ -1,0 +1,142 @@
+package realtime
+
+import (
+	"context"
+	"sync"
+
+	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/connector/prediction"
+	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
+	predictionStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
+	"github.com/wisp-trading/sdk/pkg/types/logging"
+)
+
+// orderBookExtension handles WebSocket subscriptions for prediction order book updates.
+type predictionOrderBookExtension struct {
+	store  predictionStore.OrderBookStoreExtension
+	logger logging.ApplicationLogger
+}
+
+func NewPredictionOrderBookExtension(
+	store predictionStore.OrderBookStoreExtension,
+	logger logging.ApplicationLogger,
+) realtime.PredictionExtension {
+	return &predictionOrderBookExtension{
+		store:  store,
+		logger: logger,
+	}
+}
+
+// Subscribe is called by the prediction realtime ingestor for each market it wants to watch.
+func (e *predictionOrderBookExtension) Subscribe(
+	wsConn interface{},
+	exchangeName connector.ExchangeName,
+	market prediction.Market,
+) error {
+	wsConnector, ok := wsConn.(prediction.WebSocketConnector)
+	if !ok {
+		e.logger.Debug("WebSocket connector %s does not support prediction order book subscriptions", exchangeName)
+		return nil
+	}
+
+	if err := wsConnector.SubscribeOrderBook(market); err != nil {
+		e.logger.Error("Failed to subscribe prediction order books for market %s on %s: %v",
+			market.MarketID, exchangeName, err)
+		return err
+	}
+
+	e.logger.Info("Subscribed prediction order books for market %s on %s", market.MarketID, exchangeName)
+	return nil
+}
+
+func (e *predictionOrderBookExtension) ProcessChannels(
+	wsConn interface{},
+	exchangeName connector.ExchangeName,
+	ctx context.Context,
+) {
+	wsConnector, ok := wsConn.(prediction.WebSocketConnector)
+	if !ok {
+		return
+	}
+
+	channels := wsConnector.GetOrderbookChannels()
+	e.logger.Info("Processing %d prediction order book channels for %s", len(channels), exchangeName)
+
+	var wg sync.WaitGroup
+	for key, ch := range channels {
+		wg.Add(1)
+		go func(chKey prediction.MarketID, obCh <-chan prediction.OrderBook) {
+			defer wg.Done()
+			e.processOrderBookChannel(ctx, exchangeName, chKey, obCh)
+		}(key, ch)
+	}
+
+	wg.Wait()
+	e.logger.Info("All prediction order book channels closed for %s", exchangeName)
+}
+
+func (e *predictionOrderBookExtension) processOrderBookChannel(
+	ctx context.Context,
+	exchangeName connector.ExchangeName,
+	channelKey prediction.MarketID,
+	orderBookChan <-chan prediction.OrderBook,
+) {
+	e.logger.Debug("Starting prediction order book channel processor for %s on %s", channelKey, exchangeName)
+
+	for {
+		select {
+		case <-ctx.Done():
+			e.logger.Debug("Context cancelled, stopping prediction order book channel %s", channelKey)
+			return
+
+		case update, ok := <-orderBookChan:
+			if !ok {
+				e.logger.Debug("Prediction order book channel %s closed", channelKey)
+				return
+			}
+
+			// You need a way to map this update back to (marketID, outcomeID).
+			// Option A: fields on OrderBook (preferred).
+			//   mID := prediction.MarketID(update.MarketID)
+			//   oID := prediction.OutcomeID(update.OutcomeID)
+			// Option B: parse from channelKey (e.g. "marketID:outcomeID").
+
+			mID := update.MarketID
+			oID := update.OutcomeID
+
+			e.store.UpdateOrderBook(exchangeName, mID, oID, update.OrderBook)
+
+			if len(update.Bids) > 0 && len(update.Asks) > 0 {
+				e.logger.Debug(
+					"WS updated prediction order book %s (market %s / outcome %s) on %s - bid: %s, ask: %s",
+					channelKey,
+					mID,
+					oID,
+					exchangeName,
+					update.Bids[0].Price.StringFixed(2),
+					update.Asks[0].Price.StringFixed(2),
+				)
+			}
+		}
+	}
+}
+
+func (e *predictionOrderBookExtension) Unsubscribe(
+	wsConn interface{},
+	exchangeName connector.ExchangeName,
+	market prediction.Market,
+) error {
+	wsConnector, ok := wsConn.(prediction.WebSocketConnector)
+	if !ok {
+		return nil
+	}
+
+	if err := wsConnector.UnsubscribeMarket(market); err != nil {
+		e.logger.Warn("Failed to unsubscribe prediction market %s on %s: %v",
+			market.MarketID, exchangeName, err)
+		return err
+	}
+
+	e.logger.Info("Unsubscribed prediction market %s on %s", market.MarketID, exchangeName)
+	return nil
+}

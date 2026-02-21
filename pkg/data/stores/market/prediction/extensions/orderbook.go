@@ -21,8 +21,8 @@ func NewPredictionOrderBookExtension() prediction.OrderBookStoreExtension {
 
 func (e *predictionOrderBookExtension) UpdateOrderBook(
 	exchange connector.ExchangeName,
-	market predictionTypes.Market,
-	outcome predictionTypes.Outcome,
+	marketID predictionTypes.MarketID,
+	outcomeID predictionTypes.OutcomeID,
 	orderBook connector.OrderBook,
 ) {
 	e.mu.Lock()
@@ -30,11 +30,11 @@ func (e *predictionOrderBookExtension) UpdateOrderBook(
 	if e.orderBooks[exchange] == nil {
 		e.orderBooks[exchange] = make(map[predictionTypes.MarketID]prediction.OutcomeOrderBookMap)
 	}
-	if e.orderBooks[exchange][market.MarketID] == nil {
-		e.orderBooks[exchange][market.MarketID] = make(prediction.OutcomeOrderBookMap)
+	if e.orderBooks[exchange][marketID] == nil {
+		e.orderBooks[exchange][marketID] = make(prediction.OutcomeOrderBookMap)
 	}
 
-	e.orderBooks[exchange][market.MarketID][outcome.OutcomeID] = &orderBook
+	e.orderBooks[exchange][marketID][outcomeID] = &orderBook
 
 	e.mu.Unlock()
 }
