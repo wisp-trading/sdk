@@ -42,7 +42,7 @@ func (f *factory) CreateIngestors() []realtime.RealtimeIngestor {
 		info := wsConn.GetConnectorInfo()
 		exchangeName := info.Name
 
-		ingestor := newPredictionRealtimeIngestor(
+		ingestor := NewPredictionRealtimeIngestor(
 			wsConn,
 			exchangeName,
 			connector.MarketTypePrediction,

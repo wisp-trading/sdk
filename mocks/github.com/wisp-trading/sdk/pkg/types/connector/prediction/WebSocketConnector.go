@@ -143,23 +143,23 @@ func (_c *WebSocketConnector_ErrorChannel_Call) RunAndReturn(run func() <-chan e
 }
 
 // FetchOrderBooks provides a mock function with given fields: market, outcome
-func (_m *WebSocketConnector) FetchOrderBooks(market prediction.Market, outcome prediction.Outcome) (*connector.OrderBook, error) {
+func (_m *WebSocketConnector) FetchOrderBooks(market prediction.Market, outcome prediction.Outcome) (*prediction.OrderBook, error) {
 	ret := _m.Called(market, outcome)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchOrderBooks")
 	}
 
-	var r0 *connector.OrderBook
+	var r0 *prediction.OrderBook
 	var r1 error
-	if rf, ok := ret.Get(0).(func(prediction.Market, prediction.Outcome) (*connector.OrderBook, error)); ok {
+	if rf, ok := ret.Get(0).(func(prediction.Market, prediction.Outcome) (*prediction.OrderBook, error)); ok {
 		return rf(market, outcome)
 	}
-	if rf, ok := ret.Get(0).(func(prediction.Market, prediction.Outcome) *connector.OrderBook); ok {
+	if rf, ok := ret.Get(0).(func(prediction.Market, prediction.Outcome) *prediction.OrderBook); ok {
 		r0 = rf(market, outcome)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*connector.OrderBook)
+			r0 = ret.Get(0).(*prediction.OrderBook)
 		}
 	}
 
@@ -191,12 +191,12 @@ func (_c *WebSocketConnector_FetchOrderBooks_Call) Run(run func(market predictio
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchOrderBooks_Call) Return(_a0 *connector.OrderBook, _a1 error) *WebSocketConnector_FetchOrderBooks_Call {
+func (_c *WebSocketConnector_FetchOrderBooks_Call) Return(_a0 *prediction.OrderBook, _a1 error) *WebSocketConnector_FetchOrderBooks_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *WebSocketConnector_FetchOrderBooks_Call) RunAndReturn(run func(prediction.Market, prediction.Outcome) (*connector.OrderBook, error)) *WebSocketConnector_FetchOrderBooks_Call {
+func (_c *WebSocketConnector_FetchOrderBooks_Call) RunAndReturn(run func(prediction.Market, prediction.Outcome) (*prediction.OrderBook, error)) *WebSocketConnector_FetchOrderBooks_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -305,19 +305,19 @@ func (_c *WebSocketConnector_GetMarket_Call) RunAndReturn(run func(string) (pred
 }
 
 // GetOrderbookChannels provides a mock function with no fields
-func (_m *WebSocketConnector) GetOrderbookChannels() map[string]<-chan connector.OrderBook {
+func (_m *WebSocketConnector) GetOrderbookChannels() map[prediction.MarketID]<-chan prediction.OrderBook {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetOrderbookChannels")
 	}
 
-	var r0 map[string]<-chan connector.OrderBook
-	if rf, ok := ret.Get(0).(func() map[string]<-chan connector.OrderBook); ok {
+	var r0 map[prediction.MarketID]<-chan prediction.OrderBook
+	if rf, ok := ret.Get(0).(func() map[prediction.MarketID]<-chan prediction.OrderBook); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[string]<-chan connector.OrderBook)
+			r0 = ret.Get(0).(map[prediction.MarketID]<-chan prediction.OrderBook)
 		}
 	}
 
@@ -341,12 +341,12 @@ func (_c *WebSocketConnector_GetOrderbookChannels_Call) Run(run func()) *WebSock
 	return _c
 }
 
-func (_c *WebSocketConnector_GetOrderbookChannels_Call) Return(_a0 map[string]<-chan connector.OrderBook) *WebSocketConnector_GetOrderbookChannels_Call {
+func (_c *WebSocketConnector_GetOrderbookChannels_Call) Return(_a0 map[prediction.MarketID]<-chan prediction.OrderBook) *WebSocketConnector_GetOrderbookChannels_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *WebSocketConnector_GetOrderbookChannels_Call) RunAndReturn(run func() map[string]<-chan connector.OrderBook) *WebSocketConnector_GetOrderbookChannels_Call {
+func (_c *WebSocketConnector_GetOrderbookChannels_Call) RunAndReturn(run func() map[prediction.MarketID]<-chan prediction.OrderBook) *WebSocketConnector_GetOrderbookChannels_Call {
 	_c.Call.Return(run)
 	return _c
 }

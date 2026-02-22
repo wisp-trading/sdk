@@ -33,7 +33,7 @@ type predictionRealtimeIngestor struct {
 	extensions []realtime.PredictionExtension
 }
 
-func newPredictionRealtimeIngestor(
+func NewPredictionRealtimeIngestor(
 	conn interface{},
 	exchangeName connector.ExchangeName,
 	marketType connector.MarketType,
@@ -100,8 +100,6 @@ func (ri *predictionRealtimeIngestor) Start(ctx context.Context) error {
 }
 
 func (ri *predictionRealtimeIngestor) runWatchlistLoop(events chan data.PredictionWatchEvent) {
-	defer ri.watchlist.Unsubscribe(ri.exchangeName)
-
 	for {
 		select {
 		case <-ri.ctx.Done():

@@ -95,23 +95,14 @@ func (e *predictionOrderBookExtension) processOrderBookChannel(
 				return
 			}
 
-			// You need a way to map this update back to (marketID, outcomeID).
-			// Option A: fields on OrderBook (preferred).
-			//   mID := prediction.MarketID(update.MarketID)
-			//   oID := prediction.OutcomeID(update.OutcomeID)
-			// Option B: parse from channelKey (e.g. "marketID:outcomeID").
-
-			mID := update.MarketID
-			oID := update.OutcomeID
-
-			e.store.UpdateOrderBook(exchangeName, mID, oID, update.OrderBook)
+			e.store.UpdateOrderBook(exchangeName, update.MarketID, update.OutcomeID, update.OrderBook)
 
 			if len(update.Bids) > 0 && len(update.Asks) > 0 {
 				e.logger.Debug(
 					"WS updated prediction order book %s (market %s / outcome %s) on %s - bid: %s, ask: %s",
 					channelKey,
-					mID,
-					oID,
+					update.MarketID,
+					update.OutcomeID,
 					exchangeName,
 					update.Bids[0].Price.StringFixed(2),
 					update.Asks[0].Price.StringFixed(2),

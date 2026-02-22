@@ -233,9 +233,9 @@ func (_c *Predict_Markets_Call) RunAndReturn(run func() []prediction.Market) *Pr
 	return _c
 }
 
-// Orderbook provides a mock function with given fields: outcome, exchange
-func (_m *Predict) Orderbook(outcome prediction.Outcome, exchange connector.ExchangeName) (*connector.OrderBook, error) {
-	ret := _m.Called(outcome, exchange)
+// Orderbook provides a mock function with given fields: exchange, market, outcome
+func (_m *Predict) Orderbook(exchange connector.ExchangeName, market prediction.Market, outcome prediction.Outcome) (*connector.OrderBook, error) {
+	ret := _m.Called(exchange, market, outcome)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Orderbook")
@@ -243,19 +243,19 @@ func (_m *Predict) Orderbook(outcome prediction.Outcome, exchange connector.Exch
 
 	var r0 *connector.OrderBook
 	var r1 error
-	if rf, ok := ret.Get(0).(func(prediction.Outcome, connector.ExchangeName) (*connector.OrderBook, error)); ok {
-		return rf(outcome, exchange)
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName, prediction.Market, prediction.Outcome) (*connector.OrderBook, error)); ok {
+		return rf(exchange, market, outcome)
 	}
-	if rf, ok := ret.Get(0).(func(prediction.Outcome, connector.ExchangeName) *connector.OrderBook); ok {
-		r0 = rf(outcome, exchange)
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName, prediction.Market, prediction.Outcome) *connector.OrderBook); ok {
+		r0 = rf(exchange, market, outcome)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.OrderBook)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(prediction.Outcome, connector.ExchangeName) error); ok {
-		r1 = rf(outcome, exchange)
+	if rf, ok := ret.Get(1).(func(connector.ExchangeName, prediction.Market, prediction.Outcome) error); ok {
+		r1 = rf(exchange, market, outcome)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -269,15 +269,16 @@ type Predict_Orderbook_Call struct {
 }
 
 // Orderbook is a helper method to define mock.On call
-//   - outcome prediction.Outcome
 //   - exchange connector.ExchangeName
-func (_e *Predict_Expecter) Orderbook(outcome interface{}, exchange interface{}) *Predict_Orderbook_Call {
-	return &Predict_Orderbook_Call{Call: _e.mock.On("Orderbook", outcome, exchange)}
+//   - market prediction.Market
+//   - outcome prediction.Outcome
+func (_e *Predict_Expecter) Orderbook(exchange interface{}, market interface{}, outcome interface{}) *Predict_Orderbook_Call {
+	return &Predict_Orderbook_Call{Call: _e.mock.On("Orderbook", exchange, market, outcome)}
 }
 
-func (_c *Predict_Orderbook_Call) Run(run func(outcome prediction.Outcome, exchange connector.ExchangeName)) *Predict_Orderbook_Call {
+func (_c *Predict_Orderbook_Call) Run(run func(exchange connector.ExchangeName, market prediction.Market, outcome prediction.Outcome)) *Predict_Orderbook_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(prediction.Outcome), args[1].(connector.ExchangeName))
+		run(args[0].(connector.ExchangeName), args[1].(prediction.Market), args[2].(prediction.Outcome))
 	})
 	return _c
 }
@@ -287,85 +288,14 @@ func (_c *Predict_Orderbook_Call) Return(_a0 *connector.OrderBook, _a1 error) *P
 	return _c
 }
 
-func (_c *Predict_Orderbook_Call) RunAndReturn(run func(prediction.Outcome, connector.ExchangeName) (*connector.OrderBook, error)) *Predict_Orderbook_Call {
+func (_c *Predict_Orderbook_Call) RunAndReturn(run func(connector.ExchangeName, prediction.Market, prediction.Outcome) (*connector.OrderBook, error)) *Predict_Orderbook_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Orderbooks provides a mock function with given fields: market
-func (_m *Predict) Orderbooks(market prediction.Market) (map[prediction.Outcome]prediction.OrderBook, error) {
-	ret := _m.Called(market)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Orderbooks")
-	}
-
-	var r0 map[prediction.Outcome]prediction.OrderBook
-	var r1 error
-	if rf, ok := ret.Get(0).(func(prediction.Market) (map[prediction.Outcome]prediction.OrderBook, error)); ok {
-		return rf(market)
-	}
-	if rf, ok := ret.Get(0).(func(prediction.Market) map[prediction.Outcome]prediction.OrderBook); ok {
-		r0 = rf(market)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[prediction.Outcome]prediction.OrderBook)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(prediction.Market) error); ok {
-		r1 = rf(market)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// Predict_Orderbooks_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Orderbooks'
-type Predict_Orderbooks_Call struct {
-	*mock.Call
-}
-
-// Orderbooks is a helper method to define mock.On call
-//   - market prediction.Market
-func (_e *Predict_Expecter) Orderbooks(market interface{}) *Predict_Orderbooks_Call {
-	return &Predict_Orderbooks_Call{Call: _e.mock.On("Orderbooks", market)}
-}
-
-func (_c *Predict_Orderbooks_Call) Run(run func(market prediction.Market)) *Predict_Orderbooks_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(prediction.Market))
-	})
-	return _c
-}
-
-func (_c *Predict_Orderbooks_Call) Return(_a0 map[prediction.Outcome]prediction.OrderBook, _a1 error) *Predict_Orderbooks_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *Predict_Orderbooks_Call) RunAndReturn(run func(prediction.Market) (map[prediction.Outcome]prediction.OrderBook, error)) *Predict_Orderbooks_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// WatchMarket provides a mock function with given fields: market, exchange
-func (_m *Predict) WatchMarket(market prediction.Market, exchange *connector.ExchangeName) error {
-	ret := _m.Called(market, exchange)
-
-	if len(ret) == 0 {
-		panic("no return value specified for WatchMarket")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(prediction.Market, *connector.ExchangeName) error); ok {
-		r0 = rf(market, exchange)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
+// WatchMarket provides a mock function with given fields: exchange, market
+func (_m *Predict) WatchMarket(exchange connector.ExchangeName, market prediction.Market) {
+	_m.Called(exchange, market)
 }
 
 // Predict_WatchMarket_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WatchMarket'
@@ -374,26 +304,26 @@ type Predict_WatchMarket_Call struct {
 }
 
 // WatchMarket is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
 //   - market prediction.Market
-//   - exchange *connector.ExchangeName
-func (_e *Predict_Expecter) WatchMarket(market interface{}, exchange interface{}) *Predict_WatchMarket_Call {
-	return &Predict_WatchMarket_Call{Call: _e.mock.On("WatchMarket", market, exchange)}
+func (_e *Predict_Expecter) WatchMarket(exchange interface{}, market interface{}) *Predict_WatchMarket_Call {
+	return &Predict_WatchMarket_Call{Call: _e.mock.On("WatchMarket", exchange, market)}
 }
 
-func (_c *Predict_WatchMarket_Call) Run(run func(market prediction.Market, exchange *connector.ExchangeName)) *Predict_WatchMarket_Call {
+func (_c *Predict_WatchMarket_Call) Run(run func(exchange connector.ExchangeName, market prediction.Market)) *Predict_WatchMarket_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(prediction.Market), args[1].(*connector.ExchangeName))
+		run(args[0].(connector.ExchangeName), args[1].(prediction.Market))
 	})
 	return _c
 }
 
-func (_c *Predict_WatchMarket_Call) Return(_a0 error) *Predict_WatchMarket_Call {
-	_c.Call.Return(_a0)
+func (_c *Predict_WatchMarket_Call) Return() *Predict_WatchMarket_Call {
+	_c.Call.Return()
 	return _c
 }
 
-func (_c *Predict_WatchMarket_Call) RunAndReturn(run func(prediction.Market, *connector.ExchangeName) error) *Predict_WatchMarket_Call {
-	_c.Call.Return(run)
+func (_c *Predict_WatchMarket_Call) RunAndReturn(run func(connector.ExchangeName, prediction.Market)) *Predict_WatchMarket_Call {
+	_c.Run(run)
 	return _c
 }
 
