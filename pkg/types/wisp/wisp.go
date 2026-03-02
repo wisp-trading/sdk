@@ -51,10 +51,17 @@ type Wisp interface {
 	// Example: btc := k.Pair(base, quote)
 	Pair(base, quote portfolio.Asset) portfolio.Pair
 
-	// Signal creates a new signal builder for constructing trading signals.
-	// Returns a fluent API for building buy/sell signals with price targets.
-	// Example: k.Signal(strategyName).Buy(asset, exchange, qty).Build()
-	Signal(strategyName strategy.StrategyName) strategy.SignalBuilder
+	// SpotSignal creates a new signal builder for spot market trading signals.
+	// Example: k.SpotSignal(strategyName).Buy(pair, exchange, qty).Build()
+	SpotSignal(strategyName strategy.StrategyName) strategy.SpotSignalBuilder
+
+	// PerpSignal creates a new signal builder for perpetual futures trading signals.
+	// Example: k.PerpSignal(strategyName).BuyLimitWithLeverage(pair, exchange, qty, price, leverage).Build()
+	PerpSignal(strategyName strategy.StrategyName) strategy.PerpSignalBuilder
+
+	// PredictionSignal creates a new signal builder for prediction market trading signals.
+	// Example: k.PredictionSignal(strategyName).Buy(market, outcome, exchange, shares, maxPrice, expiry).Build()
+	PredictionSignal(strategyName strategy.StrategyName) strategy.PredictionSignalBuilder
 
 	// Features returns the ML feature aggregator for extracting market features.
 	// Provides access to 41+ features including market data, orderbook, technical indicators,

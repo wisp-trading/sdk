@@ -2,7 +2,6 @@ package lifecycle
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/wisp-trading/sdk/pkg/monitoring"
@@ -51,8 +50,6 @@ func (c *controller) monitorHealth(ctx context.Context) {
 			return
 		case <-ticker.C:
 			report := c.healthStore.GetSystemHealth()
-
-			fmt.Println("Starting system health monitoring...")
 
 			if report.HasErrors {
 				c.logger.Warn("System health report:")

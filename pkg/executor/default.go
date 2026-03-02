@@ -43,14 +43,14 @@ func NewExecutor(
 }
 
 // ExecuteSignal processes a signal and executes the associated actions
-func (e *executor) ExecuteSignal(signal *strategy.Signal) error {
+func (e *executor) ExecuteSignal(signal strategy.Signal) error {
 	ctx := &execution.ExecutionContext{
 		Signal:    signal,
 		Timestamp: e.timeProvider.Now(),
 		Metadata:  make(map[string]interface{}),
 	}
 
-	e.logger.Info("🎯 Executing signal %s with %d actions", signal.ID, len(signal.Actions))
+	e.logger.Info("🎯 Executing signal %s with strategy %s", signal.GetID(), signal.GetStrategy())
 
 	// Get hooks from registry at execution time
 	hooks := e.hookRegistry.GetHooks()
@@ -64,58 +64,91 @@ func (e *executor) ExecuteSignal(signal *strategy.Signal) error {
 		}
 	}
 
-	// Execute core logic
+	// Execute core logic, dispatching on concrete signal type
 	result := &execution.ExecutionResult{
 		OrderIDs: make([]string, 0),
 		Success:  true,
 	}
 
-	for i, action := range signal.Actions {
-		orderID, err := e.executeAction(signal, action)
-		if err != nil {
-			e.logger.Error("Failed to execute action %d for signal %s: %v", i, signal.ID, err)
-			result.Error = err
-			result.Success = false
-			e.handleError(ctx, err, hooks)
-			return err
-		}
-		if orderID != "" {
-			result.OrderIDs = append(result.OrderIDs, orderID)
-		}
+	var execErr error
+	switch s := signal.(type) {
+	case *strategy.SpotSignal:
+		execErr = e.executeSpotSignal(ctx, s, result)
+	case *strategy.PerpSignal:
+		execErr = e.executePerpSignal(ctx, s, result)
+	case *strategy.PredictionSignal:
+		execErr = e.executePredictionSignal(ctx, s, result)
+	default:
+		execErr = fmt.Errorf("unsupported signal type: %T", signal)
+	}
+
+	if execErr != nil {
+		result.Error = execErr
+		result.Success = false
+		e.handleError(ctx, execErr, hooks)
+		return execErr
 	}
 
 	// Run AfterExecute hooks
 	for _, hook := range hooks {
 		if err := hook.AfterExecute(ctx, result); err != nil {
 			e.logger.Error("Hook AfterExecute failed: %v", err)
-			// Don't fail the execution if post-execution hooks fail
 		}
 	}
 
-	e.logger.Info("✅ Successfully executed all actions for signal %s", signal.ID)
+	e.logger.Info("✅ Successfully executed all actions for signal %s", signal.GetID())
 	return nil
 }
 
-// executeAction executes a single trade action
-func (e *executor) executeAction(signal *strategy.Signal, action strategy.TradeAction) (string, error) {
-	switch action.Action {
-	case strategy.ActionBuy, strategy.ActionSell, strategy.ActionSellShort, strategy.ActionCover:
-		return e.executeTradeAction(signal, action)
+// executeSpotSignal executes all actions in a spot signal
+func (e *executor) executeSpotSignal(ctx *execution.ExecutionContext, signal *strategy.SpotSignal, result *execution.ExecutionResult) error {
+	for i, action := range signal.Actions {
+		orderID, err := e.executeSpotAction(signal.Strategy, action)
+		if err != nil {
+			e.logger.Error("Failed to execute spot action %d for signal %s: %v", i, signal.ID, err)
+			return err
+		}
+		if orderID != "" {
+			result.OrderIDs = append(result.OrderIDs, orderID)
+		}
+	}
+	return nil
+}
+
+// executePerpSignal executes all actions in a perp signal
+func (e *executor) executePerpSignal(ctx *execution.ExecutionContext, signal *strategy.PerpSignal, result *execution.ExecutionResult) error {
+	for i, action := range signal.Actions {
+		orderID, err := e.executePerpAction(signal.Strategy, action)
+		if err != nil {
+			e.logger.Error("Failed to execute perp action %d for signal %s: %v", i, signal.ID, err)
+			return err
+		}
+		if orderID != "" {
+			result.OrderIDs = append(result.OrderIDs, orderID)
+		}
+	}
+	return nil
+}
+
+// executePredictionSignal logs prediction actions (exchange execution is handled separately)
+func (e *executor) executePredictionSignal(ctx *execution.ExecutionContext, signal *strategy.PredictionSignal, result *execution.ExecutionResult) error {
+	for i, action := range signal.Actions {
+		e.logger.Info("🔮 Prediction action %d: %s on market %s", i, action.ActionType, action.Market.MarketID.String())
+	}
+	return nil
+}
+
+// executeSpotAction executes a single spot action
+func (e *executor) executeSpotAction(strategyName strategy.StrategyName, action *strategy.SpotAction) (string, error) {
+	switch action.ActionType {
 	case strategy.ActionHold:
 		e.logger.Info("📊 Holding position as instructed for %s", action.Pair.Symbol())
 		return "", nil
 	case strategy.ActionClose:
 		e.logger.Info("🔚 Close action noted for %s", action.Pair.Symbol())
 		return "", nil
-	default:
-		e.logger.Warn("Unknown action type: %s for signal %s", action.Action, signal.ID)
-		return "", nil
 	}
-}
 
-// executeTradeAction executes a buy/sell trade action
-func (e *executor) executeTradeAction(signal *strategy.Signal, action strategy.TradeAction) (string, error) {
-	// Get exchange connector
 	exchange, exists := e.connectors.Connector(action.Exchange)
 	if !exists {
 		return "", fmt.Errorf("exchange %s not available", action.Exchange)
@@ -123,31 +156,27 @@ func (e *executor) executeTradeAction(signal *strategy.Signal, action strategy.T
 
 	e.logger.Info(
 		"📈 Executing %s order: %s %s at price %s on %s",
-		action.Action,
+		action.ActionType,
 		action.Quantity.StringFixed(4),
 		action.Pair.Symbol(),
 		action.Price.StringFixed(2),
 		action.Exchange,
 	)
 
-	executor, ok := exchange.(connector.OrderExecutor)
-
+	exec, ok := exchange.(connector.OrderExecutor)
 	if !ok {
-		e.logger.Error("Exchange %s does not support order execution", action.Exchange)
 		return "", fmt.Errorf("exchange %s does not support order execution", action.Exchange)
 	}
 
-	// Place order on exchange
-	orderResponse, err := e.placeOrder(executor, action)
+	orderResponse, err := e.placeSpotOrder(exec, action)
 	if err != nil {
 		return "", fmt.Errorf("failed to place order: %w", err)
 	}
 
-	// Create order record
 	order := connector.Order{
+		Pair:      action.Pair,
 		ID:        orderResponse.OrderID,
-		Symbol:    action.Pair.Symbol(),
-		Side:      e.getOrderSide(action.Action),
+		Side:      e.getOrderSide(action.ActionType),
 		Quantity:  action.Quantity,
 		Price:     action.Price,
 		Status:    connector.OrderStatusPending,
@@ -156,28 +185,80 @@ func (e *executor) executeTradeAction(signal *strategy.Signal, action strategy.T
 		UpdatedAt: e.timeProvider.Now(),
 	}
 
-	// Add order to strategy execution
-	e.positions.AddOrderToStrategy(signal.Strategy, order)
-
-	e.logger.Info("✅ Order recorded for strategy %s: %s", signal.Strategy, orderResponse.OrderID)
+	e.positions.AddOrderToStrategy(strategyName, order)
+	e.logger.Info("✅ Order recorded for strategy %s: %s", strategyName, orderResponse.OrderID)
 	return orderResponse.OrderID, nil
 }
 
-// placeOrder places an order on the exchange
-func (e *executor) placeOrder(exchange connector.OrderExecutor, action strategy.TradeAction) (*connector.OrderResponse, error) {
-	switch action.Action {
+// executePerpAction executes a single perp action
+func (e *executor) executePerpAction(strategyName strategy.StrategyName, action *strategy.PerpAction) (string, error) {
+	switch action.ActionType {
+	case strategy.ActionHold:
+		e.logger.Info("📊 Holding perp position for %s", action.Pair.Symbol())
+		return "", nil
+	case strategy.ActionClose:
+		e.logger.Info("🔚 Close perp action noted for %s", action.Pair.Symbol())
+		return "", nil
+	}
+
+	exchange, exists := e.connectors.Connector(action.Exchange)
+	if !exists {
+		return "", fmt.Errorf("exchange %s not available", action.Exchange)
+	}
+
+	e.logger.Info(
+		"📈 Executing perp %s order: %s %s at price %s (leverage: %s) on %s",
+		action.ActionType,
+		action.Quantity.StringFixed(4),
+		action.Pair.Symbol(),
+		action.Price.StringFixed(2),
+		action.Leverage.StringFixed(1),
+		action.Exchange,
+	)
+
+	exec, ok := exchange.(connector.OrderExecutor)
+	if !ok {
+		return "", fmt.Errorf("exchange %s does not support order execution", action.Exchange)
+	}
+
+	side := e.getOrderSide(action.ActionType)
+	orderResponse, err := exec.PlaceLimitOrder(action.Pair, side, action.Quantity, action.Price)
+	if err != nil {
+		return "", fmt.Errorf("failed to place perp order: %w", err)
+	}
+
+	order := connector.Order{
+		Pair:      action.Pair,
+		ID:        orderResponse.OrderID,
+		Side:      side,
+		Quantity:  action.Quantity,
+		Price:     action.Price,
+		Status:    connector.OrderStatusPending,
+		Type:      connector.OrderTypeLimit,
+		CreatedAt: e.timeProvider.Now(),
+		UpdatedAt: e.timeProvider.Now(),
+	}
+
+	e.positions.AddOrderToStrategy(strategyName, order)
+	e.logger.Info("✅ Perp order recorded for strategy %s: %s", strategyName, orderResponse.OrderID)
+	return orderResponse.OrderID, nil
+}
+
+// placeSpotOrder places a spot order on the exchange
+func (e *executor) placeSpotOrder(exchange connector.OrderExecutor, action *strategy.SpotAction) (*connector.OrderResponse, error) {
+	switch action.ActionType {
 	case strategy.ActionBuy, strategy.ActionCover:
 		return exchange.PlaceLimitOrder(action.Pair, connector.OrderSideBuy, action.Quantity, action.Price)
 	case strategy.ActionSell, strategy.ActionSellShort:
 		return exchange.PlaceLimitOrder(action.Pair, connector.OrderSideSell, action.Quantity, action.Price)
 	default:
-		return nil, fmt.Errorf("unsupported trade action: %s", action.Action)
+		return nil, fmt.Errorf("unsupported action type: %s", action.ActionType)
 	}
 }
 
 // getOrderSide converts an action to an order side
-func (e *executor) getOrderSide(action strategy.Action) connector.OrderSide {
-	switch action {
+func (e *executor) getOrderSide(actionType strategy.ActionType) connector.OrderSide {
+	switch actionType {
 	case strategy.ActionBuy, strategy.ActionCover:
 		return connector.OrderSideBuy
 	case strategy.ActionSell, strategy.ActionSellShort:

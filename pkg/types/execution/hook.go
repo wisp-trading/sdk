@@ -20,7 +20,7 @@ type HookPlugin interface {
 // Executor is the core interface for executing trading signals
 type Executor interface {
 	// ExecuteSignal processes a trading signal and executes the associated actions
-	ExecuteSignal(signal *strategy.Signal) error
+	ExecuteSignal(signal strategy.Signal) error
 
 	// HandleTradeExecution is called when a trade executes on the exchange
 	HandleTradeExecution(trade connector.Trade) error
