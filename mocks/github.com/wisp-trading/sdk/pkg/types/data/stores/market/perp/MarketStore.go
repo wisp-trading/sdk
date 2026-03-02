@@ -10,8 +10,6 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
-	perp "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
-
 	portfolio "github.com/wisp-trading/sdk/pkg/types/portfolio"
 
 	time "time"
@@ -174,19 +172,19 @@ func (_c *MarketStore_GetFundingRate_Call) RunAndReturn(run func(portfolio.Pair,
 }
 
 // GetFundingRatesForAsset provides a mock function with given fields: asset
-func (_m *MarketStore) GetFundingRatesForAsset(asset portfolio.Pair) perp.FundingRateMap {
+func (_m *MarketStore) GetFundingRatesForAsset(asset portfolio.Pair) map[connector.ExchangeName]connectorperp.FundingRate {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetFundingRatesForAsset")
 	}
 
-	var r0 perp.FundingRateMap
-	if rf, ok := ret.Get(0).(func(portfolio.Pair) perp.FundingRateMap); ok {
+	var r0 map[connector.ExchangeName]connectorperp.FundingRate
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) map[connector.ExchangeName]connectorperp.FundingRate); ok {
 		r0 = rf(asset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(perp.FundingRateMap)
+			r0 = ret.Get(0).(map[connector.ExchangeName]connectorperp.FundingRate)
 		}
 	}
 
@@ -211,12 +209,12 @@ func (_c *MarketStore_GetFundingRatesForAsset_Call) Run(run func(asset portfolio
 	return _c
 }
 
-func (_c *MarketStore_GetFundingRatesForAsset_Call) Return(_a0 perp.FundingRateMap) *MarketStore_GetFundingRatesForAsset_Call {
+func (_c *MarketStore_GetFundingRatesForAsset_Call) Return(_a0 map[connector.ExchangeName]connectorperp.FundingRate) *MarketStore_GetFundingRatesForAsset_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MarketStore_GetFundingRatesForAsset_Call) RunAndReturn(run func(portfolio.Pair) perp.FundingRateMap) *MarketStore_GetFundingRatesForAsset_Call {
+func (_c *MarketStore_GetFundingRatesForAsset_Call) RunAndReturn(run func(portfolio.Pair) map[connector.ExchangeName]connectorperp.FundingRate) *MarketStore_GetFundingRatesForAsset_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -271,19 +269,19 @@ func (_c *MarketStore_GetHistoricalFundingRates_Call) RunAndReturn(run func(port
 }
 
 // GetHistoricalFundingRatesForAsset provides a mock function with given fields: asset
-func (_m *MarketStore) GetHistoricalFundingRatesForAsset(asset portfolio.Pair) perp.HistoricalFundingMap {
+func (_m *MarketStore) GetHistoricalFundingRatesForAsset(asset portfolio.Pair) map[connector.ExchangeName][]connectorperp.HistoricalFundingRate {
 	ret := _m.Called(asset)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetHistoricalFundingRatesForAsset")
 	}
 
-	var r0 perp.HistoricalFundingMap
-	if rf, ok := ret.Get(0).(func(portfolio.Pair) perp.HistoricalFundingMap); ok {
+	var r0 map[connector.ExchangeName][]connectorperp.HistoricalFundingRate
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) map[connector.ExchangeName][]connectorperp.HistoricalFundingRate); ok {
 		r0 = rf(asset)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(perp.HistoricalFundingMap)
+			r0 = ret.Get(0).(map[connector.ExchangeName][]connectorperp.HistoricalFundingRate)
 		}
 	}
 
@@ -308,12 +306,12 @@ func (_c *MarketStore_GetHistoricalFundingRatesForAsset_Call) Run(run func(asset
 	return _c
 }
 
-func (_c *MarketStore_GetHistoricalFundingRatesForAsset_Call) Return(_a0 perp.HistoricalFundingMap) *MarketStore_GetHistoricalFundingRatesForAsset_Call {
+func (_c *MarketStore_GetHistoricalFundingRatesForAsset_Call) Return(_a0 map[connector.ExchangeName][]connectorperp.HistoricalFundingRate) *MarketStore_GetHistoricalFundingRatesForAsset_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MarketStore_GetHistoricalFundingRatesForAsset_Call) RunAndReturn(run func(portfolio.Pair) perp.HistoricalFundingMap) *MarketStore_GetHistoricalFundingRatesForAsset_Call {
+func (_c *MarketStore_GetHistoricalFundingRatesForAsset_Call) RunAndReturn(run func(portfolio.Pair) map[connector.ExchangeName][]connectorperp.HistoricalFundingRate) *MarketStore_GetHistoricalFundingRatesForAsset_Call {
 	_c.Call.Return(run)
 	return _c
 }

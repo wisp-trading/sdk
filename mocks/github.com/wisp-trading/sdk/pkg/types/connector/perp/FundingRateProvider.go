@@ -78,9 +78,9 @@ func (_c *FundingRateProvider_FetchCurrentFundingRates_Call) RunAndReturn(run fu
 	return _c
 }
 
-// FetchFundingRate provides a mock function with given fields: asset
-func (_m *FundingRateProvider) FetchFundingRate(asset portfolio.Pair) (*perp.FundingRate, error) {
-	ret := _m.Called(asset)
+// FetchFundingRate provides a mock function with given fields: pair
+func (_m *FundingRateProvider) FetchFundingRate(pair portfolio.Pair) (*perp.FundingRate, error) {
+	ret := _m.Called(pair)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchFundingRate")
@@ -89,10 +89,10 @@ func (_m *FundingRateProvider) FetchFundingRate(asset portfolio.Pair) (*perp.Fun
 	var r0 *perp.FundingRate
 	var r1 error
 	if rf, ok := ret.Get(0).(func(portfolio.Pair) (*perp.FundingRate, error)); ok {
-		return rf(asset)
+		return rf(pair)
 	}
 	if rf, ok := ret.Get(0).(func(portfolio.Pair) *perp.FundingRate); ok {
-		r0 = rf(asset)
+		r0 = rf(pair)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*perp.FundingRate)
@@ -100,7 +100,7 @@ func (_m *FundingRateProvider) FetchFundingRate(asset portfolio.Pair) (*perp.Fun
 	}
 
 	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
-		r1 = rf(asset)
+		r1 = rf(pair)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -114,12 +114,12 @@ type FundingRateProvider_FetchFundingRate_Call struct {
 }
 
 // FetchFundingRate is a helper method to define mock.On call
-//   - asset portfolio.Pair
-func (_e *FundingRateProvider_Expecter) FetchFundingRate(asset interface{}) *FundingRateProvider_FetchFundingRate_Call {
-	return &FundingRateProvider_FetchFundingRate_Call{Call: _e.mock.On("FetchFundingRate", asset)}
+//   - pair portfolio.Pair
+func (_e *FundingRateProvider_Expecter) FetchFundingRate(pair interface{}) *FundingRateProvider_FetchFundingRate_Call {
+	return &FundingRateProvider_FetchFundingRate_Call{Call: _e.mock.On("FetchFundingRate", pair)}
 }
 
-func (_c *FundingRateProvider_FetchFundingRate_Call) Run(run func(asset portfolio.Pair)) *FundingRateProvider_FetchFundingRate_Call {
+func (_c *FundingRateProvider_FetchFundingRate_Call) Run(run func(pair portfolio.Pair)) *FundingRateProvider_FetchFundingRate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(portfolio.Pair))
 	})
@@ -136,9 +136,9 @@ func (_c *FundingRateProvider_FetchFundingRate_Call) RunAndReturn(run func(portf
 	return _c
 }
 
-// FetchHistoricalFundingRates provides a mock function with given fields: asset, startTime, endTime
-func (_m *FundingRateProvider) FetchHistoricalFundingRates(asset portfolio.Pair, startTime int64, endTime int64) ([]perp.HistoricalFundingRate, error) {
-	ret := _m.Called(asset, startTime, endTime)
+// FetchHistoricalFundingRates provides a mock function with given fields: pair, startTime, endTime
+func (_m *FundingRateProvider) FetchHistoricalFundingRates(pair portfolio.Pair, startTime int64, endTime int64) ([]perp.HistoricalFundingRate, error) {
+	ret := _m.Called(pair, startTime, endTime)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchHistoricalFundingRates")
@@ -147,10 +147,10 @@ func (_m *FundingRateProvider) FetchHistoricalFundingRates(asset portfolio.Pair,
 	var r0 []perp.HistoricalFundingRate
 	var r1 error
 	if rf, ok := ret.Get(0).(func(portfolio.Pair, int64, int64) ([]perp.HistoricalFundingRate, error)); ok {
-		return rf(asset, startTime, endTime)
+		return rf(pair, startTime, endTime)
 	}
 	if rf, ok := ret.Get(0).(func(portfolio.Pair, int64, int64) []perp.HistoricalFundingRate); ok {
-		r0 = rf(asset, startTime, endTime)
+		r0 = rf(pair, startTime, endTime)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]perp.HistoricalFundingRate)
@@ -158,7 +158,7 @@ func (_m *FundingRateProvider) FetchHistoricalFundingRates(asset portfolio.Pair,
 	}
 
 	if rf, ok := ret.Get(1).(func(portfolio.Pair, int64, int64) error); ok {
-		r1 = rf(asset, startTime, endTime)
+		r1 = rf(pair, startTime, endTime)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -172,14 +172,14 @@ type FundingRateProvider_FetchHistoricalFundingRates_Call struct {
 }
 
 // FetchHistoricalFundingRates is a helper method to define mock.On call
-//   - asset portfolio.Pair
+//   - pair portfolio.Pair
 //   - startTime int64
 //   - endTime int64
-func (_e *FundingRateProvider_Expecter) FetchHistoricalFundingRates(asset interface{}, startTime interface{}, endTime interface{}) *FundingRateProvider_FetchHistoricalFundingRates_Call {
-	return &FundingRateProvider_FetchHistoricalFundingRates_Call{Call: _e.mock.On("FetchHistoricalFundingRates", asset, startTime, endTime)}
+func (_e *FundingRateProvider_Expecter) FetchHistoricalFundingRates(pair interface{}, startTime interface{}, endTime interface{}) *FundingRateProvider_FetchHistoricalFundingRates_Call {
+	return &FundingRateProvider_FetchHistoricalFundingRates_Call{Call: _e.mock.On("FetchHistoricalFundingRates", pair, startTime, endTime)}
 }
 
-func (_c *FundingRateProvider_FetchHistoricalFundingRates_Call) Run(run func(asset portfolio.Pair, startTime int64, endTime int64)) *FundingRateProvider_FetchHistoricalFundingRates_Call {
+func (_c *FundingRateProvider_FetchHistoricalFundingRates_Call) Run(run func(pair portfolio.Pair, startTime int64, endTime int64)) *FundingRateProvider_FetchHistoricalFundingRates_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(portfolio.Pair), args[1].(int64), args[2].(int64))
 	})

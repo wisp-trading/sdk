@@ -92,7 +92,7 @@ func (pc *coordinator) backfillTrades() error {
 	totalBackfilled := 0
 
 	// Get all available connectors from registry
-	connectors := pc.connectorRegistry.GetAllReadyConnectors()
+	connectors := pc.connectorRegistry.Filter(registry.NewFilter().ReadyOnly().Build())
 	if len(connectors) == 0 {
 		pc.logger.Warn("⚠️  No connectors available for trade backfill")
 		return nil

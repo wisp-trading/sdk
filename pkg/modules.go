@@ -5,10 +5,8 @@ import (
 	"github.com/wisp-trading/sdk/pkg/adapters"
 	"github.com/wisp-trading/sdk/pkg/analytics"
 	"github.com/wisp-trading/sdk/pkg/config"
-	"github.com/wisp-trading/sdk/pkg/data/ingestors"
-	"github.com/wisp-trading/sdk/pkg/data/stores"
+	"github.com/wisp-trading/sdk/pkg/data"
 	"github.com/wisp-trading/sdk/pkg/executor"
-	"github.com/wisp-trading/sdk/pkg/inference/features"
 	"github.com/wisp-trading/sdk/pkg/lifecycle"
 	"github.com/wisp-trading/sdk/pkg/monitoring"
 	"github.com/wisp-trading/sdk/pkg/plugin"
@@ -24,13 +22,11 @@ var Module = fx.Options(
 	analytics.Module,
 	config.Module,
 	monitoring.Module,
-	features.Module,
-	ingestors.Module,
 	lifecycle.Module,
 	plugin.Module,
 	registry.Module,
 	runtime.Module,
 	signal.Module,
-	stores.Module,
 	executor.Module,
+	data.Module,
 )

@@ -4,8 +4,6 @@ package perp
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	connector "github.com/wisp-trading/sdk/pkg/types/connector"
-
 	perp "github.com/wisp-trading/sdk/pkg/types/connector/perp"
 )
 
@@ -23,23 +21,23 @@ func (_m *ContractProvider) EXPECT() *ContractProvider_Expecter {
 }
 
 // FetchContracts provides a mock function with no fields
-func (_m *ContractProvider) FetchContracts() ([]connector.ContractInfo, error) {
+func (_m *ContractProvider) FetchContracts() ([]perp.ContractInfo, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchContracts")
 	}
 
-	var r0 []connector.ContractInfo
+	var r0 []perp.ContractInfo
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]connector.ContractInfo, error)); ok {
+	if rf, ok := ret.Get(0).(func() ([]perp.ContractInfo, error)); ok {
 		return rf()
 	}
-	if rf, ok := ret.Get(0).(func() []connector.ContractInfo); ok {
+	if rf, ok := ret.Get(0).(func() []perp.ContractInfo); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]connector.ContractInfo)
+			r0 = ret.Get(0).([]perp.ContractInfo)
 		}
 	}
 
@@ -69,12 +67,12 @@ func (_c *ContractProvider_FetchContracts_Call) Run(run func()) *ContractProvide
 	return _c
 }
 
-func (_c *ContractProvider_FetchContracts_Call) Return(_a0 []connector.ContractInfo, _a1 error) *ContractProvider_FetchContracts_Call {
+func (_c *ContractProvider_FetchContracts_Call) Return(_a0 []perp.ContractInfo, _a1 error) *ContractProvider_FetchContracts_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ContractProvider_FetchContracts_Call) RunAndReturn(run func() ([]connector.ContractInfo, error)) *ContractProvider_FetchContracts_Call {
+func (_c *ContractProvider_FetchContracts_Call) RunAndReturn(run func() ([]perp.ContractInfo, error)) *ContractProvider_FetchContracts_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -7,28 +7,14 @@ import (
 )
 
 func (ds *dataStore) UpdatePairPrice(asset portfolio.Pair, exchangeName connector.ExchangeName, price connector.Price) {
-	ds.mutex.Lock()
+	ds.mu.Lock()
 
-	current := ds.getPrices()
-	updated := make(assetPrices, len(current))
-	for k, v := range current {
-		updated[k] = v
+	if ds.prices[asset] == nil {
+		ds.prices[asset] = make(marketTypes.PriceMap)
 	}
+	ds.prices[asset][exchangeName] = price
 
-	if updated[asset] == nil {
-		updated[asset] = make(marketTypes.PriceMap)
-	}
-
-	assetPriceMap := make(marketTypes.PriceMap, len(updated[asset]))
-	for k, v := range updated[asset] {
-		assetPriceMap[k] = v
-	}
-	assetPriceMap[exchangeName] = price
-	updated[asset] = assetPriceMap
-
-	ds.prices.Store(updated)
-
-	ds.mutex.Unlock()
+	ds.mu.Unlock()
 
 	ds.UpdateLastUpdated(marketTypes.UpdateKey{
 		DataType: marketTypes.DataKeyPairPrice,
@@ -38,34 +24,21 @@ func (ds *dataStore) UpdatePairPrice(asset portfolio.Pair, exchangeName connecto
 }
 
 func (ds *dataStore) UpdatePairPrices(asset portfolio.Pair, prices marketTypes.PriceMap) {
-	ds.mutex.Lock()
+	ds.mu.Lock()
 
-	current := ds.getPrices()
-	updated := make(assetPrices, len(current))
-	for k, v := range current {
-		updated[k] = v
-	}
-
-	if updated[asset] == nil {
-		updated[asset] = make(marketTypes.PriceMap)
-	}
-
-	assetPriceMap := make(marketTypes.PriceMap, len(updated[asset]))
-	for k, v := range updated[asset] {
-		assetPriceMap[k] = v
+	if ds.prices[asset] == nil {
+		ds.prices[asset] = make(marketTypes.PriceMap)
 	}
 
 	// Collect exchanges to update after releasing the lock
 	exchangesToUpdate := make([]connector.ExchangeName, 0, len(prices))
 
 	for exchangeName, price := range prices {
-		assetPriceMap[exchangeName] = price
+		ds.prices[asset][exchangeName] = price
 		exchangesToUpdate = append(exchangesToUpdate, exchangeName)
 	}
 
-	updated[asset] = assetPriceMap
-	ds.prices.Store(updated)
-	ds.mutex.Unlock()
+	ds.mu.Unlock()
 
 	// Update timestamps after releasing the lock to avoid deadlock
 	for _, exchangeName := range exchangesToUpdate {
@@ -78,19 +51,29 @@ func (ds *dataStore) UpdatePairPrices(asset portfolio.Pair, prices marketTypes.P
 }
 
 func (ds *dataStore) GetPairPrice(asset portfolio.Pair, exchangeName connector.ExchangeName) *connector.Price {
-	current := ds.getPrices()
-	if priceMap, ok := current[asset]; ok {
+	ds.mu.RLock()
+	defer ds.mu.RUnlock()
+
+	if priceMap, ok := ds.prices[asset]; ok {
 		if price, ok := priceMap[exchangeName]; ok {
-			return &price
+			priceCopy := price
+			return &priceCopy
 		}
 	}
 	return nil
 }
 
 func (ds *dataStore) GetPairPrices(asset portfolio.Pair) marketTypes.PriceMap {
-	current := ds.getPrices()
-	if prices, ok := current[asset]; ok {
-		return prices
+	ds.mu.RLock()
+	defer ds.mu.RUnlock()
+
+	if prices, ok := ds.prices[asset]; ok {
+		// Return shallow copy to prevent external mutation
+		result := make(marketTypes.PriceMap, len(prices))
+		for k, v := range prices {
+			result[k] = v
+		}
+		return result
 	}
 	return make(marketTypes.PriceMap)
 }

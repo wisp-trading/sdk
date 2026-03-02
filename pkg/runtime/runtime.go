@@ -6,6 +6,7 @@ import (
 
 	configTypes "github.com/wisp-trading/sdk/pkg/types/config"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/lifecycle"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/plugin"
@@ -18,7 +19,7 @@ import (
 type rt struct {
 	pluginManager     plugin.Manager
 	connectorRegistry registry.ConnectorRegistry
-	assetRegistry     registry.PairRegistry
+	marketWatchlist   data.MarketWatchlist
 	strategyRegistry  registry.StrategyRegistry
 	configLoader      configTypes.StartupConfigLoader
 	controller        lifecycle.Controller
@@ -31,7 +32,7 @@ type rt struct {
 func NewRuntime(
 	pluginManager plugin.Manager,
 	connectorRegistry registry.ConnectorRegistry,
-	assetRegistry registry.PairRegistry,
+	marketWatchlist data.MarketWatchlist,
 	strategyRegistry registry.StrategyRegistry,
 	configLoader configTypes.StartupConfigLoader,
 	controller lifecycle.Controller,
@@ -40,7 +41,7 @@ func NewRuntime(
 	return &rt{
 		pluginManager:     pluginManager,
 		connectorRegistry: connectorRegistry,
-		assetRegistry:     assetRegistry,
+		marketWatchlist:   marketWatchlist,
 		strategyRegistry:  strategyRegistry,
 		configLoader:      configLoader,
 		controller:        controller,
@@ -130,7 +131,7 @@ func (r *rt) initializeConnectors(connectors map[connector.ExchangeName]connecto
 	names := make([]connector.ExchangeName, 0, len(connectors))
 
 	for name, cfg := range connectors {
-		conn, exists := r.connectorRegistry.GetConnector(name)
+		conn, exists := r.connectorRegistry.Connector(name)
 		if !exists {
 			r.logger.Warn(fmt.Sprintf("connector %s not registered", name))
 			continue
@@ -142,7 +143,7 @@ func (r *rt) initializeConnectors(connectors map[connector.ExchangeName]connecto
 		}
 
 		names = append(names, name)
-		if err := r.connectorRegistry.MarkConnectorReady(name); err != nil {
+		if err := r.connectorRegistry.MarkReady(name); err != nil {
 			return nil, err
 		}
 	}
@@ -152,13 +153,12 @@ func (r *rt) initializeConnectors(connectors map[connector.ExchangeName]connecto
 }
 
 // registerAssets registers all assets with their instruments
-func (r *rt) registerAssets(assets map[portfolio.Pair][]connector.Instrument) {
-	for asset, instruments := range assets {
-		for _, instr := range instruments {
-			r.assetRegistry.RegisterPair(asset, instr)
+func (r *rt) registerAssets(exchangeAssets map[connector.ExchangeName][]portfolio.Pair) {
+	for exchange, pairs := range exchangeAssets {
+		for _, pair := range pairs {
+			r.marketWatchlist.RequirePair(exchange, pair)
 		}
 	}
-	r.logger.Info("Registered assets", "count", len(assets))
 }
 
 // boot executes the core boot sequence

@@ -4,9 +4,10 @@ package market
 type MarketType string
 
 const (
-	MarketTypeUnknown MarketType = "unknown"
-	MarketTypeSpot    MarketType = "spot"
-	MarketTypePerp    MarketType = "perp"
+	MarketTypeUnknown    MarketType = "unknown"
+	MarketTypeSpot       MarketType = "spot"
+	MarketTypePerp       MarketType = "perp"
+	MarketTypePrediction MarketType = "prediction"
 )
 
 // MarketRegistry provides access to all registered market stores

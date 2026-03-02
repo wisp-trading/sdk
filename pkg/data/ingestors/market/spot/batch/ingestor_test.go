@@ -11,6 +11,7 @@ import (
 	spotBatch "github.com/wisp-trading/sdk/pkg/data/ingestors/market/spot/batch"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
 	spotTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/spot"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
@@ -35,7 +36,7 @@ var _ = Describe("Spot BatchIngestor", func() {
 		app               *fxtest.App
 		store             spotTypes.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
-		assetRegistry     registryTypes.PairRegistry
+		marketWatchlist   data.MarketWatchlist
 		factory           batch.BatchIngestorFactory
 		timeProvider      temporal.TimeProvider
 		logger            logging.ApplicationLogger
@@ -47,16 +48,17 @@ var _ = Describe("Spot BatchIngestor", func() {
 		app = fxtest.New(GinkgoT(),
 			sdkTesting.Module,
 			fx.Populate(
-				fx.Annotate(&store, fx.ParamTags(`name:"spot_market_store"`)),
+				&store,
 				&connectorRegistry,
-				&assetRegistry,
+				&marketWatchlist,
 				&timeProvider,
-				&logger),
+				&logger,
+			),
 			fx.NopLogger,
 		)
 		Expect(app.Start(context.Background())).To(Succeed())
 
-		factory = spotBatch.NewFactory(connectorRegistry, assetRegistry, store, timeProvider, logger)
+		factory = spotBatch.NewFactory(connectorRegistry, marketWatchlist, store, timeProvider, logger)
 
 		btcPair = portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))
 		ethPair = portfolio.NewPair(portfolio.NewAsset("ETH"), portfolio.NewAsset("USDT"))
@@ -143,10 +145,10 @@ var _ = Describe("Spot BatchIngestor", func() {
 				}
 
 				// Register connector and pairs
-				connectorRegistry.RegisterSpotConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterPair(btcPair, connector.TypeSpot)
-				assetRegistry.RegisterPair(ethPair, connector.TypeSpot)
+				connectorRegistry.RegisterSpot(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
+				marketWatchlist.RequirePair(exchangeName, btcPair)
+				marketWatchlist.RequirePair(exchangeName, ethPair)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -189,8 +191,8 @@ var _ = Describe("Spot BatchIngestor", func() {
 				exchangeName := connector.ExchangeName("test-spot-exchange")
 				m := setupMockSpotConnector(GinkgoT(), exchangeName)
 
-				connectorRegistry.RegisterSpotConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterSpot(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 
 				// Create ingestors without registering any pairs
 				ingestors := factory.CreateIngestors()
@@ -212,8 +214,8 @@ var _ = Describe("Spot BatchIngestor", func() {
 			exchangeName := connector.ExchangeName("test-spot-exchange")
 			m := setupMockSpotConnector(GinkgoT(), exchangeName)
 
-			connectorRegistry.RegisterSpotConnector(exchangeName, m)
-			Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+			connectorRegistry.RegisterSpot(exchangeName, m)
+			Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 
 			// Create ingestor
 			ingestors := factory.CreateIngestors()

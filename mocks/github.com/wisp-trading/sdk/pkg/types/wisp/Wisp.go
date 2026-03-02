@@ -6,8 +6,6 @@ import (
 	activity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
 	analytics "github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 
-	features "github.com/wisp-trading/sdk/pkg/inference/features"
-
 	logging "github.com/wisp-trading/sdk/pkg/types/logging"
 
 	mock "github.com/stretchr/testify/mock"
@@ -168,53 +166,6 @@ func (_c *Wisp_Asset_Call) Return(_a0 portfolio.Asset) *Wisp_Asset_Call {
 }
 
 func (_c *Wisp_Asset_Call) RunAndReturn(run func(string) portfolio.Asset) *Wisp_Asset_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Features provides a mock function with no fields
-func (_m *Wisp) Features() features.FeatureAggregator {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for Features")
-	}
-
-	var r0 features.FeatureAggregator
-	if rf, ok := ret.Get(0).(func() features.FeatureAggregator); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(features.FeatureAggregator)
-		}
-	}
-
-	return r0
-}
-
-// Wisp_Features_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Features'
-type Wisp_Features_Call struct {
-	*mock.Call
-}
-
-// Features is a helper method to define mock.On call
-func (_e *Wisp_Expecter) Features() *Wisp_Features_Call {
-	return &Wisp_Features_Call{Call: _e.mock.On("Features")}
-}
-
-func (_c *Wisp_Features_Call) Run(run func()) *Wisp_Features_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *Wisp_Features_Call) Return(_a0 features.FeatureAggregator) *Wisp_Features_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Wisp_Features_Call) RunAndReturn(run func() features.FeatureAggregator) *Wisp_Features_Call {
 	_c.Call.Return(run)
 	return _c
 }

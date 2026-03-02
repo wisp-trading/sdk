@@ -3,7 +3,7 @@ package logging
 // NoOpLogger is a logger that does nothing, useful for testing
 type NoOpLogger struct{}
 
-func NewNoOpLogger() *NoOpLogger {
+func NewNoOpLogger() ApplicationLogger {
 	return &NoOpLogger{}
 }
 
@@ -13,3 +13,5 @@ func (l *NoOpLogger) Error(format string, args ...interface{})                  
 func (l *NoOpLogger) Debug(format string, args ...interface{})                              {}
 func (l *NoOpLogger) Fatal(format string, args ...interface{})                              {}
 func (l *NoOpLogger) ErrorWithDebug(format string, rawResponse []byte, args ...interface{}) {}
+
+var _ ApplicationLogger = (*NoOpLogger)(nil)

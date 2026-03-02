@@ -34,10 +34,6 @@ func NewFundingRateExtension() *FundingRateExtension {
 	return ext
 }
 
-func (f *FundingRateExtension) GetName() string {
-	return "funding_rates"
-}
-
 // Helper methods to get typed data
 func (f *FundingRateExtension) getFundingRates() assetFundingRates {
 	if v := f.fundingRates.Load(); v != nil {
@@ -215,15 +211,6 @@ func (f *FundingRateExtension) GetHistoricalFundingRatesForAsset(
 		return result
 	}
 	return make(map[connector.ExchangeName][]perp.HistoricalFundingRate)
-}
-
-// Clear resets all funding rate data
-func (f *FundingRateExtension) Clear() {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-
-	f.fundingRates.Store(make(assetFundingRates))
-	f.historicalFundingRates.Store(make(assetHistoricalFunding))
 }
 
 var _ marketTypes.StoreExtension = (*FundingRateExtension)(nil)

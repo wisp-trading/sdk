@@ -100,23 +100,23 @@ func (_c *Connector_CancelOrder_Call) RunAndReturn(run func(string, ...portfolio
 }
 
 // FetchContracts provides a mock function with no fields
-func (_m *Connector) FetchContracts() ([]connector.ContractInfo, error) {
+func (_m *Connector) FetchContracts() ([]perp.ContractInfo, error) {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchContracts")
 	}
 
-	var r0 []connector.ContractInfo
+	var r0 []perp.ContractInfo
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]connector.ContractInfo, error)); ok {
+	if rf, ok := ret.Get(0).(func() ([]perp.ContractInfo, error)); ok {
 		return rf()
 	}
-	if rf, ok := ret.Get(0).(func() []connector.ContractInfo); ok {
+	if rf, ok := ret.Get(0).(func() []perp.ContractInfo); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]connector.ContractInfo)
+			r0 = ret.Get(0).([]perp.ContractInfo)
 		}
 	}
 
@@ -146,12 +146,12 @@ func (_c *Connector_FetchContracts_Call) Run(run func()) *Connector_FetchContrac
 	return _c
 }
 
-func (_c *Connector_FetchContracts_Call) Return(_a0 []connector.ContractInfo, _a1 error) *Connector_FetchContracts_Call {
+func (_c *Connector_FetchContracts_Call) Return(_a0 []perp.ContractInfo, _a1 error) *Connector_FetchContracts_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Connector_FetchContracts_Call) RunAndReturn(run func() ([]connector.ContractInfo, error)) *Connector_FetchContracts_Call {
+func (_c *Connector_FetchContracts_Call) RunAndReturn(run func() ([]perp.ContractInfo, error)) *Connector_FetchContracts_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -213,9 +213,9 @@ func (_c *Connector_FetchCurrentFundingRates_Call) RunAndReturn(run func() (map[
 	return _c
 }
 
-// FetchFundingRate provides a mock function with given fields: asset
-func (_m *Connector) FetchFundingRate(asset portfolio.Pair) (*perp.FundingRate, error) {
-	ret := _m.Called(asset)
+// FetchFundingRate provides a mock function with given fields: pair
+func (_m *Connector) FetchFundingRate(pair portfolio.Pair) (*perp.FundingRate, error) {
+	ret := _m.Called(pair)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchFundingRate")
@@ -224,10 +224,10 @@ func (_m *Connector) FetchFundingRate(asset portfolio.Pair) (*perp.FundingRate, 
 	var r0 *perp.FundingRate
 	var r1 error
 	if rf, ok := ret.Get(0).(func(portfolio.Pair) (*perp.FundingRate, error)); ok {
-		return rf(asset)
+		return rf(pair)
 	}
 	if rf, ok := ret.Get(0).(func(portfolio.Pair) *perp.FundingRate); ok {
-		r0 = rf(asset)
+		r0 = rf(pair)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*perp.FundingRate)
@@ -235,7 +235,7 @@ func (_m *Connector) FetchFundingRate(asset portfolio.Pair) (*perp.FundingRate, 
 	}
 
 	if rf, ok := ret.Get(1).(func(portfolio.Pair) error); ok {
-		r1 = rf(asset)
+		r1 = rf(pair)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -249,12 +249,12 @@ type Connector_FetchFundingRate_Call struct {
 }
 
 // FetchFundingRate is a helper method to define mock.On call
-//   - asset portfolio.Pair
-func (_e *Connector_Expecter) FetchFundingRate(asset interface{}) *Connector_FetchFundingRate_Call {
-	return &Connector_FetchFundingRate_Call{Call: _e.mock.On("FetchFundingRate", asset)}
+//   - pair portfolio.Pair
+func (_e *Connector_Expecter) FetchFundingRate(pair interface{}) *Connector_FetchFundingRate_Call {
+	return &Connector_FetchFundingRate_Call{Call: _e.mock.On("FetchFundingRate", pair)}
 }
 
-func (_c *Connector_FetchFundingRate_Call) Run(run func(asset portfolio.Pair)) *Connector_FetchFundingRate_Call {
+func (_c *Connector_FetchFundingRate_Call) Run(run func(pair portfolio.Pair)) *Connector_FetchFundingRate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(portfolio.Pair))
 	})
@@ -271,9 +271,9 @@ func (_c *Connector_FetchFundingRate_Call) RunAndReturn(run func(portfolio.Pair)
 	return _c
 }
 
-// FetchHistoricalFundingRates provides a mock function with given fields: asset, startTime, endTime
-func (_m *Connector) FetchHistoricalFundingRates(asset portfolio.Pair, startTime int64, endTime int64) ([]perp.HistoricalFundingRate, error) {
-	ret := _m.Called(asset, startTime, endTime)
+// FetchHistoricalFundingRates provides a mock function with given fields: pair, startTime, endTime
+func (_m *Connector) FetchHistoricalFundingRates(pair portfolio.Pair, startTime int64, endTime int64) ([]perp.HistoricalFundingRate, error) {
+	ret := _m.Called(pair, startTime, endTime)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FetchHistoricalFundingRates")
@@ -282,10 +282,10 @@ func (_m *Connector) FetchHistoricalFundingRates(asset portfolio.Pair, startTime
 	var r0 []perp.HistoricalFundingRate
 	var r1 error
 	if rf, ok := ret.Get(0).(func(portfolio.Pair, int64, int64) ([]perp.HistoricalFundingRate, error)); ok {
-		return rf(asset, startTime, endTime)
+		return rf(pair, startTime, endTime)
 	}
 	if rf, ok := ret.Get(0).(func(portfolio.Pair, int64, int64) []perp.HistoricalFundingRate); ok {
-		r0 = rf(asset, startTime, endTime)
+		r0 = rf(pair, startTime, endTime)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]perp.HistoricalFundingRate)
@@ -293,7 +293,7 @@ func (_m *Connector) FetchHistoricalFundingRates(asset portfolio.Pair, startTime
 	}
 
 	if rf, ok := ret.Get(1).(func(portfolio.Pair, int64, int64) error); ok {
-		r1 = rf(asset, startTime, endTime)
+		r1 = rf(pair, startTime, endTime)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -307,14 +307,14 @@ type Connector_FetchHistoricalFundingRates_Call struct {
 }
 
 // FetchHistoricalFundingRates is a helper method to define mock.On call
-//   - asset portfolio.Pair
+//   - pair portfolio.Pair
 //   - startTime int64
 //   - endTime int64
-func (_e *Connector_Expecter) FetchHistoricalFundingRates(asset interface{}, startTime interface{}, endTime interface{}) *Connector_FetchHistoricalFundingRates_Call {
-	return &Connector_FetchHistoricalFundingRates_Call{Call: _e.mock.On("FetchHistoricalFundingRates", asset, startTime, endTime)}
+func (_e *Connector_Expecter) FetchHistoricalFundingRates(pair interface{}, startTime interface{}, endTime interface{}) *Connector_FetchHistoricalFundingRates_Call {
+	return &Connector_FetchHistoricalFundingRates_Call{Call: _e.mock.On("FetchHistoricalFundingRates", pair, startTime, endTime)}
 }
 
-func (_c *Connector_FetchHistoricalFundingRates_Call) Run(run func(asset portfolio.Pair, startTime int64, endTime int64)) *Connector_FetchHistoricalFundingRates_Call {
+func (_c *Connector_FetchHistoricalFundingRates_Call) Run(run func(pair portfolio.Pair, startTime int64, endTime int64)) *Connector_FetchHistoricalFundingRates_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(portfolio.Pair), args[1].(int64), args[2].(int64))
 	})
@@ -783,6 +783,63 @@ func (_c *Connector_GetConnectorInfo_Call) Return(_a0 *connector.Info) *Connecto
 }
 
 func (_c *Connector_GetConnectorInfo_Call) RunAndReturn(run func() *connector.Info) *Connector_GetConnectorInfo_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMarginBalances provides a mock function with no fields
+func (_m *Connector) GetMarginBalances() ([]perp.AssetBalance, error) {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMarginBalances")
+	}
+
+	var r0 []perp.AssetBalance
+	var r1 error
+	if rf, ok := ret.Get(0).(func() ([]perp.AssetBalance, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() []perp.AssetBalance); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]perp.AssetBalance)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Connector_GetMarginBalances_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMarginBalances'
+type Connector_GetMarginBalances_Call struct {
+	*mock.Call
+}
+
+// GetMarginBalances is a helper method to define mock.On call
+func (_e *Connector_Expecter) GetMarginBalances() *Connector_GetMarginBalances_Call {
+	return &Connector_GetMarginBalances_Call{Call: _e.mock.On("GetMarginBalances")}
+}
+
+func (_c *Connector_GetMarginBalances_Call) Run(run func()) *Connector_GetMarginBalances_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Connector_GetMarginBalances_Call) Return(_a0 []perp.AssetBalance, _a1 error) *Connector_GetMarginBalances_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Connector_GetMarginBalances_Call) RunAndReturn(run func() ([]perp.AssetBalance, error)) *Connector_GetMarginBalances_Call {
 	_c.Call.Return(run)
 	return _c
 }

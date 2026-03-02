@@ -36,7 +36,7 @@ func NewConnectorHealthStore(
 		stopChan:          make(chan struct{}),
 	}
 
-	connectors := connectorRegistry.GetAllReadyConnectors()
+	connectors := connectorRegistry.Filter(registry.NewFilter().WebSocketOnly().ReadyOnly().Build())
 
 	for _, socketConnector := range connectors {
 		name := socketConnector.GetConnectorInfo().Name

@@ -43,7 +43,7 @@ func (a *Asset) Scan(value interface{}) error {
 		a.symbol = string(v)
 		return nil
 	default:
-		return fmt.Errorf("cannot scan %T into Asset", value)
+		return fmt.Errorf("cannot scan %T into Pair", value)
 	}
 }
 

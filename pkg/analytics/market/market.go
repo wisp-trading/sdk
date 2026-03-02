@@ -9,7 +9,6 @@ import (
 	"github.com/wisp-trading/sdk/pkg/monitoring/profiling"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
-	perpTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
@@ -25,13 +24,23 @@ type marketService struct {
 
 // NewMarketService creates a new market service using the market registry.
 func NewMarketService(registry marketTypes.MarketRegistry) analytics.Market {
-	spotStore := registry.Get(marketTypes.MarketTypeSpot)
-	perpStore := registry.Get(marketTypes.MarketTypePerp)
+	var spot *spotMarketService
+	var perp *perpMarketService
+
+	// Get spot store and create service if available
+	if spotStore := registry.Get(marketTypes.MarketTypeSpot); spotStore != nil {
+		spot = newSpotMarketService(spotStore)
+	}
+
+	// Get perp store and create service if available
+	if perpStore := registry.Get(marketTypes.MarketTypePerp); perpStore != nil {
+		perp = newPerpMarketService(perpStore)
+	}
 
 	return &marketService{
 		registry: registry,
-		spot:     newSpotMarketService(spotStore),
-		perp:     newPerpMarketService(perpStore.(perpTypes.MarketStore)),
+		spot:     spot,
+		perp:     perp,
 	}
 }
 
@@ -97,9 +106,12 @@ func (s *marketService) Prices(ctx context.Context, asset portfolio.Pair) map[co
 func (s *marketService) Klines(asset portfolio.Pair, exchange connector.ExchangeName, interval string, limit int) []connector.Kline {
 	// Iterate all registered stores to find which one has data for this exchange
 	for _, store := range s.registry.GetAll() {
-		klines := store.GetKlines(asset, exchange, interval, limit)
-		if len(klines) > 0 {
-			return klines
+		// Check if this store has kline extension
+		if klineStore, ok := store.(marketTypes.KlineStoreExtension); ok {
+			klines := klineStore.GetKlines(asset, exchange, interval, limit)
+			if len(klines) > 0 {
+				return klines
+			}
 		}
 	}
 
@@ -118,15 +130,21 @@ func (s *marketService) OrderBook(ctx context.Context, asset portfolio.Pair, exc
 
 	// Iterate all registered stores to find which one has data for this exchange/asset
 	for _, store := range s.registry.GetAll() {
+		// Check if this store has order book extension
+		orderBookStore, ok := store.(marketTypes.OrderBookStoreExtension)
+		if !ok {
+			continue // Skip stores without order book extension (e.g., prediction markets)
+		}
+
 		if targetExchange != "" {
 			// Looking for specific exchange
-			ob := store.GetOrderBook(asset, targetExchange)
+			ob := orderBookStore.GetOrderBook(asset, targetExchange)
 			if ob != nil {
 				return ob, nil
 			}
 		} else {
 			// Get first available orderbook
-			orderBooks := store.GetOrderBooks(asset)
+			orderBooks := orderBookStore.GetOrderBooks(asset)
 			for _, ob := range orderBooks {
 				if ob != nil {
 					return ob, nil

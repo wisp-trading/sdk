@@ -116,7 +116,7 @@ func (e *executor) executeAction(signal *strategy.Signal, action strategy.TradeA
 // executeTradeAction executes a buy/sell trade action
 func (e *executor) executeTradeAction(signal *strategy.Signal, action strategy.TradeAction) (string, error) {
 	// Get exchange connector
-	exchange, exists := e.connectors.GetConnector(action.Exchange)
+	exchange, exists := e.connectors.Connector(action.Exchange)
 	if !exists {
 		return "", fmt.Errorf("exchange %s not available", action.Exchange)
 	}

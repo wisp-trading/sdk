@@ -4,8 +4,10 @@ import (
 	"time"
 
 	mockPerpConnector "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	data2 "github.com/wisp-trading/sdk/pkg/data"
 	perpBatch "github.com/wisp-trading/sdk/pkg/data/ingestors/market/perp/batch"
 	perpStore "github.com/wisp-trading/sdk/pkg/data/stores/market/perp"
+	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
 	registryTypes "github.com/wisp-trading/sdk/pkg/types/registry"
@@ -35,7 +37,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 	var (
 		store             perp.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
-		assetRegistry     registryTypes.PairRegistry
+		marketWatchlist   data.MarketWatchlist
 		logger            logging.ApplicationLogger
 		timeProviderInst  temporal.TimeProvider
 		factory           batch.BatchIngestorFactory
@@ -50,12 +52,12 @@ var _ = Describe("Perp BatchIngestor", func() {
 		timeProviderInst = timeProvider.NewTimeProvider()
 		store = perpStore.NewStore(timeProviderInst)
 		connectorRegistry = registry.NewConnectorRegistry()
-		assetRegistry = registry.NewAssetRegistry()
+		marketWatchlist = data2.NewMarketWatchlist()
 
 		// Create factory
 		factory = perpBatch.NewFactory(
 			connectorRegistry,
-			assetRegistry,
+			marketWatchlist,
 			store,
 			timeProviderInst,
 			logger,
@@ -140,7 +142,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 
 				// Setup funding rate expectations (perp-specific)
 				btcFundingRate := perpConn.FundingRate{
-					Asset:           btcPair,
+					Pair:            btcPair,
 					CurrentRate:     numerical.NewFromFloat(0.0001),
 					NextFundingTime: now.Add(8 * time.Hour),
 					MarkPrice:       numerical.NewFromFloat(50050),
@@ -148,7 +150,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 					Timestamp:       now,
 				}
 				ethFundingRate := perpConn.FundingRate{
-					Asset:           ethPair,
+					Pair:            ethPair,
 					CurrentRate:     numerical.NewFromFloat(0.00005),
 					NextFundingTime: now.Add(8 * time.Hour),
 					MarkPrice:       numerical.NewFromFloat(3005),
@@ -167,10 +169,10 @@ var _ = Describe("Perp BatchIngestor", func() {
 				m.EXPECT().FetchCurrentFundingRates().Return(allFundingRates, nil).Maybe()
 
 				// Register connector and pairs
-				connectorRegistry.RegisterPerpConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
-				assetRegistry.RegisterPair(btcPair, connector.TypePerpetual)
-				assetRegistry.RegisterPair(ethPair, connector.TypePerpetual)
+				connectorRegistry.RegisterPerp(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
+				marketWatchlist.RequirePair(exchangeName, btcPair)
+				marketWatchlist.RequirePair(exchangeName, ethPair)
 
 				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
@@ -222,8 +224,8 @@ var _ = Describe("Perp BatchIngestor", func() {
 				exchangeName := connector.ExchangeName("test-perp-exchange")
 				m := setupMockPerpConnector(GinkgoT(), exchangeName)
 
-				connectorRegistry.RegisterPerpConnector(exchangeName, m)
-				Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+				connectorRegistry.RegisterPerp(exchangeName, m)
+				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 
 				// Create ingestors without registering any assets
 				ingestors := factory.CreateIngestors()
@@ -245,8 +247,8 @@ var _ = Describe("Perp BatchIngestor", func() {
 			exchangeName := connector.ExchangeName("test-perp-exchange")
 			m := setupMockPerpConnector(GinkgoT(), exchangeName)
 
-			connectorRegistry.RegisterPerpConnector(exchangeName, m)
-			Expect(connectorRegistry.MarkConnectorReady(exchangeName)).To(Succeed())
+			connectorRegistry.RegisterPerp(exchangeName, m)
+			Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 
 			// Create ingestor
 			ingestors := factory.CreateIngestors()

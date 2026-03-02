@@ -1,7 +1,6 @@
 package wisp
 
 import (
-	"github.com/wisp-trading/sdk/pkg/inference/features"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -13,14 +12,13 @@ import (
 // Wisp is the base context object for strategy GetSignals methods.
 // It provides read-only access to market data, indicators, and analytics.
 type wisp struct {
-	tradingLogger     logging.TradingLogger
-	universeProvider  UniverseProvider
-	indicators        analytics.Indicators
-	analytics         analytics.Analytics
-	market            analytics.Market
-	signal            strategy.SignalFactory
-	featureAggregator features.FeatureAggregator
-	activity          activity.Activity
+	tradingLogger    logging.TradingLogger
+	universeProvider UniverseProvider
+	indicators       analytics.Indicators
+	analytics        analytics.Analytics
+	market           analytics.Market
+	signal           strategy.SignalFactory
+	activity         activity.Activity
 }
 
 // NewWisp creates a new Wisp context with injected services.
@@ -32,18 +30,16 @@ func NewWisp(
 	analyticsService analytics.Analytics,
 	marketService analytics.Market,
 	signal strategy.SignalFactory,
-	featureAggregator features.FeatureAggregator,
 	activityService activity.Activity,
 ) wispTypes.Wisp {
 	return &wisp{
-		tradingLogger:     tradingLogger,
-		universeProvider:  universeProvider,
-		indicators:        indicators,
-		market:            marketService,
-		analytics:         analyticsService,
-		signal:            signal,
-		featureAggregator: featureAggregator,
-		activity:          activityService,
+		tradingLogger:    tradingLogger,
+		universeProvider: universeProvider,
+		indicators:       indicators,
+		market:           marketService,
+		analytics:        analyticsService,
+		signal:           signal,
+		activity:         activityService,
 	}
 }
 
@@ -91,12 +87,4 @@ func (k *wisp) Signal(strategyName strategy.StrategyName) strategy.SignalBuilder
 // Data is cached since it does not change after initialization.
 func (k *wisp) Universe() wispTypes.Universe {
 	return k.universeProvider.Universe()
-}
-
-// Features returns the ML feature aggregator for extracting market features.
-// Provides access to 41+ features including market data, orderbook, technical indicators,
-// volatility, volume, price metrics, and time-based features.
-// Usage: featureMap, err := k.Features().Extract(asset)
-func (k *wisp) Features() features.FeatureAggregator {
-	return k.featureAggregator
 }

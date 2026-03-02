@@ -3,32 +3,78 @@ package registry
 import (
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	"github.com/wisp-trading/sdk/pkg/types/connector/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/connector/spot"
 )
 
 type ConnectorRegistry interface {
-	// Spot connector operations
-	GetSpotConnector(name connector.ExchangeName) (spot.Connector, bool)
-	RegisterSpotConnector(name connector.ExchangeName, conn spot.Connector)
-	GetSpotConnectors() []spot.Connector
-	GetReadySpotConnectors() []spot.Connector
-	GetSpotWebSocketConnectors() []spot.WebSocketConnector
-	GetReadySpotWebSocketConnectors() []spot.WebSocketConnector
+	// Registration
+	RegisterSpot(name connector.ExchangeName, conn spot.Connector)
+	RegisterPerp(name connector.ExchangeName, conn perp.Connector)
+	RegisterPrediction(name connector.ExchangeName, conn prediction.Connector)
 
-	// Perpetual connector operations
-	GetPerpConnector(name connector.ExchangeName) (perp.Connector, bool)
-	RegisterPerpConnector(name connector.ExchangeName, conn perp.Connector)
-	GetPerpConnectors() []perp.Connector
-	GetReadyPerpConnectors() []perp.Connector
-	GetPerpWebSocketConnectors() []perp.WebSocketConnector
-	GetReadyPerpWebSocketConnectors() []perp.WebSocketConnector
+	Connector(name connector.ExchangeName) (connector.Connector, bool)
 
-	// Generic access (returns base interface)
-	GetConnector(name connector.ExchangeName) (connector.Connector, bool)
-	GetAllBaseConnectors() []connector.Connector
-	GetAllReadyConnectors() []connector.Connector
+	// Direct getters (type-specific)
+	Spot(name connector.ExchangeName) (spot.Connector, bool)
+	Perp(name connector.ExchangeName) (perp.Connector, bool)
+	Prediction(name connector.ExchangeName) (prediction.Connector, bool)
 
-	// Ready state management (works for all connector types)
-	MarkConnectorReady(name connector.ExchangeName) error
-	IsConnectorReady(name connector.ExchangeName) bool
+	// Filter-based queries
+	Filter(opts FilterOptions) []connector.Connector
+
+	// Typed filter helpers
+	FilterSpot(opts FilterOptions) []spot.Connector
+	FilterPerp(opts FilterOptions) []perp.Connector
+	FilterPrediction(opts FilterOptions) []prediction.Connector
+
+	// WebSocket helpers
+	SpotWebSocket(name connector.ExchangeName) (spot.WebSocketConnector, bool)
+	PerpWebSocket(name connector.ExchangeName) (perp.WebSocketConnector, bool)
+	PredictionWebSocket(name connector.ExchangeName) (prediction.WebSocketConnector, bool)
+
+	// Ready state management
+	MarkReady(name connector.ExchangeName) error
+	IsReady(name connector.ExchangeName) bool
+}
+
+type FilterOptions struct {
+	readyOnly     bool
+	webSocketOnly bool
+}
+
+// Builder for FilterOptions
+type FilterOptionsBuilder struct {
+	opts FilterOptions
+}
+
+// NewFilter creates a new filter options builder
+func NewFilter() *FilterOptionsBuilder {
+	return &FilterOptionsBuilder{}
+}
+
+// ReadyOnly filters for ready connectors only
+func (b *FilterOptionsBuilder) ReadyOnly() *FilterOptionsBuilder {
+	b.opts.readyOnly = true
+	return b
+}
+
+// WebSocketOnly filters for websocket connectors only
+func (b *FilterOptionsBuilder) WebSocketOnly() *FilterOptionsBuilder {
+	b.opts.webSocketOnly = true
+	return b
+}
+
+// Build returns the constructed filter options
+func (b *FilterOptionsBuilder) Build() FilterOptions {
+	return b.opts
+}
+
+// Getters for internal use by registry
+func (f FilterOptions) IsReadyOnly() bool {
+	return f.readyOnly
+}
+
+func (f FilterOptions) IsWebSocketOnly() bool {
+	return f.webSocketOnly
 }

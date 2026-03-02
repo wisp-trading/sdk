@@ -827,6 +827,52 @@ func (_c *WebSocketConnector_GetOrderStatus_Call) RunAndReturn(run func(string, 
 	return _c
 }
 
+// GetSpotSymbol provides a mock function with given fields: symbol
+func (_m *WebSocketConnector) GetSpotSymbol(symbol portfolio.Pair) string {
+	ret := _m.Called(symbol)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetSpotSymbol")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) string); ok {
+		r0 = rf(symbol)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// WebSocketConnector_GetSpotSymbol_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSpotSymbol'
+type WebSocketConnector_GetSpotSymbol_Call struct {
+	*mock.Call
+}
+
+// GetSpotSymbol is a helper method to define mock.On call
+//   - symbol portfolio.Pair
+func (_e *WebSocketConnector_Expecter) GetSpotSymbol(symbol interface{}) *WebSocketConnector_GetSpotSymbol_Call {
+	return &WebSocketConnector_GetSpotSymbol_Call{Call: _e.mock.On("GetSpotSymbol", symbol)}
+}
+
+func (_c *WebSocketConnector_GetSpotSymbol_Call) Run(run func(symbol portfolio.Pair)) *WebSocketConnector_GetSpotSymbol_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(portfolio.Pair))
+	})
+	return _c
+}
+
+func (_c *WebSocketConnector_GetSpotSymbol_Call) Return(_a0 string) *WebSocketConnector_GetSpotSymbol_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebSocketConnector_GetSpotSymbol_Call) RunAndReturn(run func(portfolio.Pair) string) *WebSocketConnector_GetSpotSymbol_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetTradingHistory provides a mock function with given fields: pair, limit
 func (_m *WebSocketConnector) GetTradingHistory(pair portfolio.Pair, limit int) ([]connector.Trade, error) {
 	ret := _m.Called(pair, limit)

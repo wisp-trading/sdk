@@ -27,7 +27,7 @@ func NewValidationService(connectorRegistry registry.ConnectorRegistry) Validati
 
 // ValidateConnectorName checks if the connector name is registered
 func (v *validationService) ValidateConnectorName(name string) error {
-	_, exists := v.connectorRegistry.GetConnector(connector.ExchangeName(name))
+	_, exists := v.connectorRegistry.Connector(connector.ExchangeName(name))
 	if !exists {
 		return fmt.Errorf("connector '%s' is not registered", name)
 	}

@@ -1,7 +1,6 @@
 package perp
 
 import (
-	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
@@ -23,6 +22,6 @@ type PositionManager interface {
 
 // ContractProvider handles contract/derivative specifications (perps only)
 type ContractProvider interface {
-	FetchContracts() ([]connector.ContractInfo, error)
+	FetchContracts() ([]ContractInfo, error)
 	FetchRiskFundBalance(symbol string) (*RiskFundBalance, error)
 }

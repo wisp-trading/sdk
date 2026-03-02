@@ -8,6 +8,10 @@ import (
 
 	perp "github.com/wisp-trading/sdk/pkg/types/connector/perp"
 
+	prediction "github.com/wisp-trading/sdk/pkg/types/connector/prediction"
+
+	registry "github.com/wisp-trading/sdk/pkg/types/registry"
+
 	spot "github.com/wisp-trading/sdk/pkg/types/connector/spot"
 )
 
@@ -24,106 +28,12 @@ func (_m *ConnectorRegistry) EXPECT() *ConnectorRegistry_Expecter {
 	return &ConnectorRegistry_Expecter{mock: &_m.Mock}
 }
 
-// GetAllBaseConnectors provides a mock function with no fields
-func (_m *ConnectorRegistry) GetAllBaseConnectors() []connector.Connector {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetAllBaseConnectors")
-	}
-
-	var r0 []connector.Connector
-	if rf, ok := ret.Get(0).(func() []connector.Connector); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]connector.Connector)
-		}
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_GetAllBaseConnectors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAllBaseConnectors'
-type ConnectorRegistry_GetAllBaseConnectors_Call struct {
-	*mock.Call
-}
-
-// GetAllBaseConnectors is a helper method to define mock.On call
-func (_e *ConnectorRegistry_Expecter) GetAllBaseConnectors() *ConnectorRegistry_GetAllBaseConnectors_Call {
-	return &ConnectorRegistry_GetAllBaseConnectors_Call{Call: _e.mock.On("GetAllBaseConnectors")}
-}
-
-func (_c *ConnectorRegistry_GetAllBaseConnectors_Call) Run(run func()) *ConnectorRegistry_GetAllBaseConnectors_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetAllBaseConnectors_Call) Return(_a0 []connector.Connector) *ConnectorRegistry_GetAllBaseConnectors_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetAllBaseConnectors_Call) RunAndReturn(run func() []connector.Connector) *ConnectorRegistry_GetAllBaseConnectors_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetAllReadyConnectors provides a mock function with no fields
-func (_m *ConnectorRegistry) GetAllReadyConnectors() []connector.Connector {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetAllReadyConnectors")
-	}
-
-	var r0 []connector.Connector
-	if rf, ok := ret.Get(0).(func() []connector.Connector); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]connector.Connector)
-		}
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_GetAllReadyConnectors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAllReadyConnectors'
-type ConnectorRegistry_GetAllReadyConnectors_Call struct {
-	*mock.Call
-}
-
-// GetAllReadyConnectors is a helper method to define mock.On call
-func (_e *ConnectorRegistry_Expecter) GetAllReadyConnectors() *ConnectorRegistry_GetAllReadyConnectors_Call {
-	return &ConnectorRegistry_GetAllReadyConnectors_Call{Call: _e.mock.On("GetAllReadyConnectors")}
-}
-
-func (_c *ConnectorRegistry_GetAllReadyConnectors_Call) Run(run func()) *ConnectorRegistry_GetAllReadyConnectors_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetAllReadyConnectors_Call) Return(_a0 []connector.Connector) *ConnectorRegistry_GetAllReadyConnectors_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetAllReadyConnectors_Call) RunAndReturn(run func() []connector.Connector) *ConnectorRegistry_GetAllReadyConnectors_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetConnector provides a mock function with given fields: name
-func (_m *ConnectorRegistry) GetConnector(name connector.ExchangeName) (connector.Connector, bool) {
+// Connector provides a mock function with given fields: name
+func (_m *ConnectorRegistry) Connector(name connector.ExchangeName) (connector.Connector, bool) {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetConnector")
+		panic("no return value specified for Connector")
 	}
 
 	var r0 connector.Connector
@@ -148,40 +58,324 @@ func (_m *ConnectorRegistry) GetConnector(name connector.ExchangeName) (connecto
 	return r0, r1
 }
 
-// ConnectorRegistry_GetConnector_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetConnector'
-type ConnectorRegistry_GetConnector_Call struct {
+// ConnectorRegistry_Connector_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Connector'
+type ConnectorRegistry_Connector_Call struct {
 	*mock.Call
 }
 
-// GetConnector is a helper method to define mock.On call
+// Connector is a helper method to define mock.On call
 //   - name connector.ExchangeName
-func (_e *ConnectorRegistry_Expecter) GetConnector(name interface{}) *ConnectorRegistry_GetConnector_Call {
-	return &ConnectorRegistry_GetConnector_Call{Call: _e.mock.On("GetConnector", name)}
+func (_e *ConnectorRegistry_Expecter) Connector(name interface{}) *ConnectorRegistry_Connector_Call {
+	return &ConnectorRegistry_Connector_Call{Call: _e.mock.On("Connector", name)}
 }
 
-func (_c *ConnectorRegistry_GetConnector_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_GetConnector_Call {
+func (_c *ConnectorRegistry_Connector_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_Connector_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(connector.ExchangeName))
 	})
 	return _c
 }
 
-func (_c *ConnectorRegistry_GetConnector_Call) Return(_a0 connector.Connector, _a1 bool) *ConnectorRegistry_GetConnector_Call {
+func (_c *ConnectorRegistry_Connector_Call) Return(_a0 connector.Connector, _a1 bool) *ConnectorRegistry_Connector_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ConnectorRegistry_GetConnector_Call) RunAndReturn(run func(connector.ExchangeName) (connector.Connector, bool)) *ConnectorRegistry_GetConnector_Call {
+func (_c *ConnectorRegistry_Connector_Call) RunAndReturn(run func(connector.ExchangeName) (connector.Connector, bool)) *ConnectorRegistry_Connector_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetPerpConnector provides a mock function with given fields: name
-func (_m *ConnectorRegistry) GetPerpConnector(name connector.ExchangeName) (perp.Connector, bool) {
+// Filter provides a mock function with given fields: opts
+func (_m *ConnectorRegistry) Filter(opts registry.FilterOptions) []connector.Connector {
+	ret := _m.Called(opts)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Filter")
+	}
+
+	var r0 []connector.Connector
+	if rf, ok := ret.Get(0).(func(registry.FilterOptions) []connector.Connector); ok {
+		r0 = rf(opts)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector.Connector)
+		}
+	}
+
+	return r0
+}
+
+// ConnectorRegistry_Filter_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Filter'
+type ConnectorRegistry_Filter_Call struct {
+	*mock.Call
+}
+
+// Filter is a helper method to define mock.On call
+//   - opts registry.FilterOptions
+func (_e *ConnectorRegistry_Expecter) Filter(opts interface{}) *ConnectorRegistry_Filter_Call {
+	return &ConnectorRegistry_Filter_Call{Call: _e.mock.On("Filter", opts)}
+}
+
+func (_c *ConnectorRegistry_Filter_Call) Run(run func(opts registry.FilterOptions)) *ConnectorRegistry_Filter_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(registry.FilterOptions))
+	})
+	return _c
+}
+
+func (_c *ConnectorRegistry_Filter_Call) Return(_a0 []connector.Connector) *ConnectorRegistry_Filter_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ConnectorRegistry_Filter_Call) RunAndReturn(run func(registry.FilterOptions) []connector.Connector) *ConnectorRegistry_Filter_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FilterPerp provides a mock function with given fields: opts
+func (_m *ConnectorRegistry) FilterPerp(opts registry.FilterOptions) []perp.Connector {
+	ret := _m.Called(opts)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FilterPerp")
+	}
+
+	var r0 []perp.Connector
+	if rf, ok := ret.Get(0).(func(registry.FilterOptions) []perp.Connector); ok {
+		r0 = rf(opts)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]perp.Connector)
+		}
+	}
+
+	return r0
+}
+
+// ConnectorRegistry_FilterPerp_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FilterPerp'
+type ConnectorRegistry_FilterPerp_Call struct {
+	*mock.Call
+}
+
+// FilterPerp is a helper method to define mock.On call
+//   - opts registry.FilterOptions
+func (_e *ConnectorRegistry_Expecter) FilterPerp(opts interface{}) *ConnectorRegistry_FilterPerp_Call {
+	return &ConnectorRegistry_FilterPerp_Call{Call: _e.mock.On("FilterPerp", opts)}
+}
+
+func (_c *ConnectorRegistry_FilterPerp_Call) Run(run func(opts registry.FilterOptions)) *ConnectorRegistry_FilterPerp_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(registry.FilterOptions))
+	})
+	return _c
+}
+
+func (_c *ConnectorRegistry_FilterPerp_Call) Return(_a0 []perp.Connector) *ConnectorRegistry_FilterPerp_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ConnectorRegistry_FilterPerp_Call) RunAndReturn(run func(registry.FilterOptions) []perp.Connector) *ConnectorRegistry_FilterPerp_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FilterPrediction provides a mock function with given fields: opts
+func (_m *ConnectorRegistry) FilterPrediction(opts registry.FilterOptions) []prediction.Connector {
+	ret := _m.Called(opts)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FilterPrediction")
+	}
+
+	var r0 []prediction.Connector
+	if rf, ok := ret.Get(0).(func(registry.FilterOptions) []prediction.Connector); ok {
+		r0 = rf(opts)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]prediction.Connector)
+		}
+	}
+
+	return r0
+}
+
+// ConnectorRegistry_FilterPrediction_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FilterPrediction'
+type ConnectorRegistry_FilterPrediction_Call struct {
+	*mock.Call
+}
+
+// FilterPrediction is a helper method to define mock.On call
+//   - opts registry.FilterOptions
+func (_e *ConnectorRegistry_Expecter) FilterPrediction(opts interface{}) *ConnectorRegistry_FilterPrediction_Call {
+	return &ConnectorRegistry_FilterPrediction_Call{Call: _e.mock.On("FilterPrediction", opts)}
+}
+
+func (_c *ConnectorRegistry_FilterPrediction_Call) Run(run func(opts registry.FilterOptions)) *ConnectorRegistry_FilterPrediction_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(registry.FilterOptions))
+	})
+	return _c
+}
+
+func (_c *ConnectorRegistry_FilterPrediction_Call) Return(_a0 []prediction.Connector) *ConnectorRegistry_FilterPrediction_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ConnectorRegistry_FilterPrediction_Call) RunAndReturn(run func(registry.FilterOptions) []prediction.Connector) *ConnectorRegistry_FilterPrediction_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// FilterSpot provides a mock function with given fields: opts
+func (_m *ConnectorRegistry) FilterSpot(opts registry.FilterOptions) []spot.Connector {
+	ret := _m.Called(opts)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FilterSpot")
+	}
+
+	var r0 []spot.Connector
+	if rf, ok := ret.Get(0).(func(registry.FilterOptions) []spot.Connector); ok {
+		r0 = rf(opts)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]spot.Connector)
+		}
+	}
+
+	return r0
+}
+
+// ConnectorRegistry_FilterSpot_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FilterSpot'
+type ConnectorRegistry_FilterSpot_Call struct {
+	*mock.Call
+}
+
+// FilterSpot is a helper method to define mock.On call
+//   - opts registry.FilterOptions
+func (_e *ConnectorRegistry_Expecter) FilterSpot(opts interface{}) *ConnectorRegistry_FilterSpot_Call {
+	return &ConnectorRegistry_FilterSpot_Call{Call: _e.mock.On("FilterSpot", opts)}
+}
+
+func (_c *ConnectorRegistry_FilterSpot_Call) Run(run func(opts registry.FilterOptions)) *ConnectorRegistry_FilterSpot_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(registry.FilterOptions))
+	})
+	return _c
+}
+
+func (_c *ConnectorRegistry_FilterSpot_Call) Return(_a0 []spot.Connector) *ConnectorRegistry_FilterSpot_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ConnectorRegistry_FilterSpot_Call) RunAndReturn(run func(registry.FilterOptions) []spot.Connector) *ConnectorRegistry_FilterSpot_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// IsReady provides a mock function with given fields: name
+func (_m *ConnectorRegistry) IsReady(name connector.ExchangeName) bool {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetPerpConnector")
+		panic("no return value specified for IsReady")
+	}
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) bool); ok {
+		r0 = rf(name)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// ConnectorRegistry_IsReady_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsReady'
+type ConnectorRegistry_IsReady_Call struct {
+	*mock.Call
+}
+
+// IsReady is a helper method to define mock.On call
+//   - name connector.ExchangeName
+func (_e *ConnectorRegistry_Expecter) IsReady(name interface{}) *ConnectorRegistry_IsReady_Call {
+	return &ConnectorRegistry_IsReady_Call{Call: _e.mock.On("IsReady", name)}
+}
+
+func (_c *ConnectorRegistry_IsReady_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_IsReady_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName))
+	})
+	return _c
+}
+
+func (_c *ConnectorRegistry_IsReady_Call) Return(_a0 bool) *ConnectorRegistry_IsReady_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ConnectorRegistry_IsReady_Call) RunAndReturn(run func(connector.ExchangeName) bool) *ConnectorRegistry_IsReady_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// MarkReady provides a mock function with given fields: name
+func (_m *ConnectorRegistry) MarkReady(name connector.ExchangeName) error {
+	ret := _m.Called(name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarkReady")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) error); ok {
+		r0 = rf(name)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// ConnectorRegistry_MarkReady_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MarkReady'
+type ConnectorRegistry_MarkReady_Call struct {
+	*mock.Call
+}
+
+// MarkReady is a helper method to define mock.On call
+//   - name connector.ExchangeName
+func (_e *ConnectorRegistry_Expecter) MarkReady(name interface{}) *ConnectorRegistry_MarkReady_Call {
+	return &ConnectorRegistry_MarkReady_Call{Call: _e.mock.On("MarkReady", name)}
+}
+
+func (_c *ConnectorRegistry_MarkReady_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_MarkReady_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName))
+	})
+	return _c
+}
+
+func (_c *ConnectorRegistry_MarkReady_Call) Return(_a0 error) *ConnectorRegistry_MarkReady_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ConnectorRegistry_MarkReady_Call) RunAndReturn(run func(connector.ExchangeName) error) *ConnectorRegistry_MarkReady_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Perp provides a mock function with given fields: name
+func (_m *ConnectorRegistry) Perp(name connector.ExchangeName) (perp.Connector, bool) {
+	ret := _m.Called(name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Perp")
 	}
 
 	var r0 perp.Connector
@@ -206,322 +400,316 @@ func (_m *ConnectorRegistry) GetPerpConnector(name connector.ExchangeName) (perp
 	return r0, r1
 }
 
-// ConnectorRegistry_GetPerpConnector_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPerpConnector'
-type ConnectorRegistry_GetPerpConnector_Call struct {
+// ConnectorRegistry_Perp_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Perp'
+type ConnectorRegistry_Perp_Call struct {
 	*mock.Call
 }
 
-// GetPerpConnector is a helper method to define mock.On call
+// Perp is a helper method to define mock.On call
 //   - name connector.ExchangeName
-func (_e *ConnectorRegistry_Expecter) GetPerpConnector(name interface{}) *ConnectorRegistry_GetPerpConnector_Call {
-	return &ConnectorRegistry_GetPerpConnector_Call{Call: _e.mock.On("GetPerpConnector", name)}
+func (_e *ConnectorRegistry_Expecter) Perp(name interface{}) *ConnectorRegistry_Perp_Call {
+	return &ConnectorRegistry_Perp_Call{Call: _e.mock.On("Perp", name)}
 }
 
-func (_c *ConnectorRegistry_GetPerpConnector_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_GetPerpConnector_Call {
+func (_c *ConnectorRegistry_Perp_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_Perp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(connector.ExchangeName))
 	})
 	return _c
 }
 
-func (_c *ConnectorRegistry_GetPerpConnector_Call) Return(_a0 perp.Connector, _a1 bool) *ConnectorRegistry_GetPerpConnector_Call {
+func (_c *ConnectorRegistry_Perp_Call) Return(_a0 perp.Connector, _a1 bool) *ConnectorRegistry_Perp_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ConnectorRegistry_GetPerpConnector_Call) RunAndReturn(run func(connector.ExchangeName) (perp.Connector, bool)) *ConnectorRegistry_GetPerpConnector_Call {
+func (_c *ConnectorRegistry_Perp_Call) RunAndReturn(run func(connector.ExchangeName) (perp.Connector, bool)) *ConnectorRegistry_Perp_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetPerpConnectors provides a mock function with no fields
-func (_m *ConnectorRegistry) GetPerpConnectors() []perp.Connector {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetPerpConnectors")
-	}
-
-	var r0 []perp.Connector
-	if rf, ok := ret.Get(0).(func() []perp.Connector); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]perp.Connector)
-		}
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_GetPerpConnectors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPerpConnectors'
-type ConnectorRegistry_GetPerpConnectors_Call struct {
-	*mock.Call
-}
-
-// GetPerpConnectors is a helper method to define mock.On call
-func (_e *ConnectorRegistry_Expecter) GetPerpConnectors() *ConnectorRegistry_GetPerpConnectors_Call {
-	return &ConnectorRegistry_GetPerpConnectors_Call{Call: _e.mock.On("GetPerpConnectors")}
-}
-
-func (_c *ConnectorRegistry_GetPerpConnectors_Call) Run(run func()) *ConnectorRegistry_GetPerpConnectors_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetPerpConnectors_Call) Return(_a0 []perp.Connector) *ConnectorRegistry_GetPerpConnectors_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetPerpConnectors_Call) RunAndReturn(run func() []perp.Connector) *ConnectorRegistry_GetPerpConnectors_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetPerpWebSocketConnectors provides a mock function with no fields
-func (_m *ConnectorRegistry) GetPerpWebSocketConnectors() []perp.WebSocketConnector {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetPerpWebSocketConnectors")
-	}
-
-	var r0 []perp.WebSocketConnector
-	if rf, ok := ret.Get(0).(func() []perp.WebSocketConnector); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]perp.WebSocketConnector)
-		}
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_GetPerpWebSocketConnectors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPerpWebSocketConnectors'
-type ConnectorRegistry_GetPerpWebSocketConnectors_Call struct {
-	*mock.Call
-}
-
-// GetPerpWebSocketConnectors is a helper method to define mock.On call
-func (_e *ConnectorRegistry_Expecter) GetPerpWebSocketConnectors() *ConnectorRegistry_GetPerpWebSocketConnectors_Call {
-	return &ConnectorRegistry_GetPerpWebSocketConnectors_Call{Call: _e.mock.On("GetPerpWebSocketConnectors")}
-}
-
-func (_c *ConnectorRegistry_GetPerpWebSocketConnectors_Call) Run(run func()) *ConnectorRegistry_GetPerpWebSocketConnectors_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetPerpWebSocketConnectors_Call) Return(_a0 []perp.WebSocketConnector) *ConnectorRegistry_GetPerpWebSocketConnectors_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetPerpWebSocketConnectors_Call) RunAndReturn(run func() []perp.WebSocketConnector) *ConnectorRegistry_GetPerpWebSocketConnectors_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetReadyPerpConnectors provides a mock function with no fields
-func (_m *ConnectorRegistry) GetReadyPerpConnectors() []perp.Connector {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetReadyPerpConnectors")
-	}
-
-	var r0 []perp.Connector
-	if rf, ok := ret.Get(0).(func() []perp.Connector); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]perp.Connector)
-		}
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_GetReadyPerpConnectors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReadyPerpConnectors'
-type ConnectorRegistry_GetReadyPerpConnectors_Call struct {
-	*mock.Call
-}
-
-// GetReadyPerpConnectors is a helper method to define mock.On call
-func (_e *ConnectorRegistry_Expecter) GetReadyPerpConnectors() *ConnectorRegistry_GetReadyPerpConnectors_Call {
-	return &ConnectorRegistry_GetReadyPerpConnectors_Call{Call: _e.mock.On("GetReadyPerpConnectors")}
-}
-
-func (_c *ConnectorRegistry_GetReadyPerpConnectors_Call) Run(run func()) *ConnectorRegistry_GetReadyPerpConnectors_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetReadyPerpConnectors_Call) Return(_a0 []perp.Connector) *ConnectorRegistry_GetReadyPerpConnectors_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetReadyPerpConnectors_Call) RunAndReturn(run func() []perp.Connector) *ConnectorRegistry_GetReadyPerpConnectors_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetReadyPerpWebSocketConnectors provides a mock function with no fields
-func (_m *ConnectorRegistry) GetReadyPerpWebSocketConnectors() []perp.WebSocketConnector {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetReadyPerpWebSocketConnectors")
-	}
-
-	var r0 []perp.WebSocketConnector
-	if rf, ok := ret.Get(0).(func() []perp.WebSocketConnector); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]perp.WebSocketConnector)
-		}
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_GetReadyPerpWebSocketConnectors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReadyPerpWebSocketConnectors'
-type ConnectorRegistry_GetReadyPerpWebSocketConnectors_Call struct {
-	*mock.Call
-}
-
-// GetReadyPerpWebSocketConnectors is a helper method to define mock.On call
-func (_e *ConnectorRegistry_Expecter) GetReadyPerpWebSocketConnectors() *ConnectorRegistry_GetReadyPerpWebSocketConnectors_Call {
-	return &ConnectorRegistry_GetReadyPerpWebSocketConnectors_Call{Call: _e.mock.On("GetReadyPerpWebSocketConnectors")}
-}
-
-func (_c *ConnectorRegistry_GetReadyPerpWebSocketConnectors_Call) Run(run func()) *ConnectorRegistry_GetReadyPerpWebSocketConnectors_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetReadyPerpWebSocketConnectors_Call) Return(_a0 []perp.WebSocketConnector) *ConnectorRegistry_GetReadyPerpWebSocketConnectors_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetReadyPerpWebSocketConnectors_Call) RunAndReturn(run func() []perp.WebSocketConnector) *ConnectorRegistry_GetReadyPerpWebSocketConnectors_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetReadySpotConnectors provides a mock function with no fields
-func (_m *ConnectorRegistry) GetReadySpotConnectors() []spot.Connector {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetReadySpotConnectors")
-	}
-
-	var r0 []spot.Connector
-	if rf, ok := ret.Get(0).(func() []spot.Connector); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]spot.Connector)
-		}
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_GetReadySpotConnectors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReadySpotConnectors'
-type ConnectorRegistry_GetReadySpotConnectors_Call struct {
-	*mock.Call
-}
-
-// GetReadySpotConnectors is a helper method to define mock.On call
-func (_e *ConnectorRegistry_Expecter) GetReadySpotConnectors() *ConnectorRegistry_GetReadySpotConnectors_Call {
-	return &ConnectorRegistry_GetReadySpotConnectors_Call{Call: _e.mock.On("GetReadySpotConnectors")}
-}
-
-func (_c *ConnectorRegistry_GetReadySpotConnectors_Call) Run(run func()) *ConnectorRegistry_GetReadySpotConnectors_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetReadySpotConnectors_Call) Return(_a0 []spot.Connector) *ConnectorRegistry_GetReadySpotConnectors_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetReadySpotConnectors_Call) RunAndReturn(run func() []spot.Connector) *ConnectorRegistry_GetReadySpotConnectors_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetReadySpotWebSocketConnectors provides a mock function with no fields
-func (_m *ConnectorRegistry) GetReadySpotWebSocketConnectors() []spot.WebSocketConnector {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetReadySpotWebSocketConnectors")
-	}
-
-	var r0 []spot.WebSocketConnector
-	if rf, ok := ret.Get(0).(func() []spot.WebSocketConnector); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]spot.WebSocketConnector)
-		}
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_GetReadySpotWebSocketConnectors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetReadySpotWebSocketConnectors'
-type ConnectorRegistry_GetReadySpotWebSocketConnectors_Call struct {
-	*mock.Call
-}
-
-// GetReadySpotWebSocketConnectors is a helper method to define mock.On call
-func (_e *ConnectorRegistry_Expecter) GetReadySpotWebSocketConnectors() *ConnectorRegistry_GetReadySpotWebSocketConnectors_Call {
-	return &ConnectorRegistry_GetReadySpotWebSocketConnectors_Call{Call: _e.mock.On("GetReadySpotWebSocketConnectors")}
-}
-
-func (_c *ConnectorRegistry_GetReadySpotWebSocketConnectors_Call) Run(run func()) *ConnectorRegistry_GetReadySpotWebSocketConnectors_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetReadySpotWebSocketConnectors_Call) Return(_a0 []spot.WebSocketConnector) *ConnectorRegistry_GetReadySpotWebSocketConnectors_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetReadySpotWebSocketConnectors_Call) RunAndReturn(run func() []spot.WebSocketConnector) *ConnectorRegistry_GetReadySpotWebSocketConnectors_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetSpotConnector provides a mock function with given fields: name
-func (_m *ConnectorRegistry) GetSpotConnector(name connector.ExchangeName) (spot.Connector, bool) {
+// PerpWebSocket provides a mock function with given fields: name
+func (_m *ConnectorRegistry) PerpWebSocket(name connector.ExchangeName) (perp.WebSocketConnector, bool) {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetSpotConnector")
+		panic("no return value specified for PerpWebSocket")
+	}
+
+	var r0 perp.WebSocketConnector
+	var r1 bool
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) (perp.WebSocketConnector, bool)); ok {
+		return rf(name)
+	}
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) perp.WebSocketConnector); ok {
+		r0 = rf(name)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(perp.WebSocketConnector)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(connector.ExchangeName) bool); ok {
+		r1 = rf(name)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+
+	return r0, r1
+}
+
+// ConnectorRegistry_PerpWebSocket_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PerpWebSocket'
+type ConnectorRegistry_PerpWebSocket_Call struct {
+	*mock.Call
+}
+
+// PerpWebSocket is a helper method to define mock.On call
+//   - name connector.ExchangeName
+func (_e *ConnectorRegistry_Expecter) PerpWebSocket(name interface{}) *ConnectorRegistry_PerpWebSocket_Call {
+	return &ConnectorRegistry_PerpWebSocket_Call{Call: _e.mock.On("PerpWebSocket", name)}
+}
+
+func (_c *ConnectorRegistry_PerpWebSocket_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_PerpWebSocket_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName))
+	})
+	return _c
+}
+
+func (_c *ConnectorRegistry_PerpWebSocket_Call) Return(_a0 perp.WebSocketConnector, _a1 bool) *ConnectorRegistry_PerpWebSocket_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ConnectorRegistry_PerpWebSocket_Call) RunAndReturn(run func(connector.ExchangeName) (perp.WebSocketConnector, bool)) *ConnectorRegistry_PerpWebSocket_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Prediction provides a mock function with given fields: name
+func (_m *ConnectorRegistry) Prediction(name connector.ExchangeName) (prediction.Connector, bool) {
+	ret := _m.Called(name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Prediction")
+	}
+
+	var r0 prediction.Connector
+	var r1 bool
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) (prediction.Connector, bool)); ok {
+		return rf(name)
+	}
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) prediction.Connector); ok {
+		r0 = rf(name)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(prediction.Connector)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(connector.ExchangeName) bool); ok {
+		r1 = rf(name)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+
+	return r0, r1
+}
+
+// ConnectorRegistry_Prediction_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Prediction'
+type ConnectorRegistry_Prediction_Call struct {
+	*mock.Call
+}
+
+// Prediction is a helper method to define mock.On call
+//   - name connector.ExchangeName
+func (_e *ConnectorRegistry_Expecter) Prediction(name interface{}) *ConnectorRegistry_Prediction_Call {
+	return &ConnectorRegistry_Prediction_Call{Call: _e.mock.On("Prediction", name)}
+}
+
+func (_c *ConnectorRegistry_Prediction_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_Prediction_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName))
+	})
+	return _c
+}
+
+func (_c *ConnectorRegistry_Prediction_Call) Return(_a0 prediction.Connector, _a1 bool) *ConnectorRegistry_Prediction_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ConnectorRegistry_Prediction_Call) RunAndReturn(run func(connector.ExchangeName) (prediction.Connector, bool)) *ConnectorRegistry_Prediction_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PredictionWebSocket provides a mock function with given fields: name
+func (_m *ConnectorRegistry) PredictionWebSocket(name connector.ExchangeName) (prediction.WebSocketConnector, bool) {
+	ret := _m.Called(name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PredictionWebSocket")
+	}
+
+	var r0 prediction.WebSocketConnector
+	var r1 bool
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) (prediction.WebSocketConnector, bool)); ok {
+		return rf(name)
+	}
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) prediction.WebSocketConnector); ok {
+		r0 = rf(name)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(prediction.WebSocketConnector)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(connector.ExchangeName) bool); ok {
+		r1 = rf(name)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+
+	return r0, r1
+}
+
+// ConnectorRegistry_PredictionWebSocket_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PredictionWebSocket'
+type ConnectorRegistry_PredictionWebSocket_Call struct {
+	*mock.Call
+}
+
+// PredictionWebSocket is a helper method to define mock.On call
+//   - name connector.ExchangeName
+func (_e *ConnectorRegistry_Expecter) PredictionWebSocket(name interface{}) *ConnectorRegistry_PredictionWebSocket_Call {
+	return &ConnectorRegistry_PredictionWebSocket_Call{Call: _e.mock.On("PredictionWebSocket", name)}
+}
+
+func (_c *ConnectorRegistry_PredictionWebSocket_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_PredictionWebSocket_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName))
+	})
+	return _c
+}
+
+func (_c *ConnectorRegistry_PredictionWebSocket_Call) Return(_a0 prediction.WebSocketConnector, _a1 bool) *ConnectorRegistry_PredictionWebSocket_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ConnectorRegistry_PredictionWebSocket_Call) RunAndReturn(run func(connector.ExchangeName) (prediction.WebSocketConnector, bool)) *ConnectorRegistry_PredictionWebSocket_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RegisterPerp provides a mock function with given fields: name, conn
+func (_m *ConnectorRegistry) RegisterPerp(name connector.ExchangeName, conn perp.Connector) {
+	_m.Called(name, conn)
+}
+
+// ConnectorRegistry_RegisterPerp_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RegisterPerp'
+type ConnectorRegistry_RegisterPerp_Call struct {
+	*mock.Call
+}
+
+// RegisterPerp is a helper method to define mock.On call
+//   - name connector.ExchangeName
+//   - conn perp.Connector
+func (_e *ConnectorRegistry_Expecter) RegisterPerp(name interface{}, conn interface{}) *ConnectorRegistry_RegisterPerp_Call {
+	return &ConnectorRegistry_RegisterPerp_Call{Call: _e.mock.On("RegisterPerp", name, conn)}
+}
+
+func (_c *ConnectorRegistry_RegisterPerp_Call) Run(run func(name connector.ExchangeName, conn perp.Connector)) *ConnectorRegistry_RegisterPerp_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName), args[1].(perp.Connector))
+	})
+	return _c
+}
+
+func (_c *ConnectorRegistry_RegisterPerp_Call) Return() *ConnectorRegistry_RegisterPerp_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *ConnectorRegistry_RegisterPerp_Call) RunAndReturn(run func(connector.ExchangeName, perp.Connector)) *ConnectorRegistry_RegisterPerp_Call {
+	_c.Run(run)
+	return _c
+}
+
+// RegisterPrediction provides a mock function with given fields: name, conn
+func (_m *ConnectorRegistry) RegisterPrediction(name connector.ExchangeName, conn prediction.Connector) {
+	_m.Called(name, conn)
+}
+
+// ConnectorRegistry_RegisterPrediction_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RegisterPrediction'
+type ConnectorRegistry_RegisterPrediction_Call struct {
+	*mock.Call
+}
+
+// RegisterPrediction is a helper method to define mock.On call
+//   - name connector.ExchangeName
+//   - conn prediction.Connector
+func (_e *ConnectorRegistry_Expecter) RegisterPrediction(name interface{}, conn interface{}) *ConnectorRegistry_RegisterPrediction_Call {
+	return &ConnectorRegistry_RegisterPrediction_Call{Call: _e.mock.On("RegisterPrediction", name, conn)}
+}
+
+func (_c *ConnectorRegistry_RegisterPrediction_Call) Run(run func(name connector.ExchangeName, conn prediction.Connector)) *ConnectorRegistry_RegisterPrediction_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName), args[1].(prediction.Connector))
+	})
+	return _c
+}
+
+func (_c *ConnectorRegistry_RegisterPrediction_Call) Return() *ConnectorRegistry_RegisterPrediction_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *ConnectorRegistry_RegisterPrediction_Call) RunAndReturn(run func(connector.ExchangeName, prediction.Connector)) *ConnectorRegistry_RegisterPrediction_Call {
+	_c.Run(run)
+	return _c
+}
+
+// RegisterSpot provides a mock function with given fields: name, conn
+func (_m *ConnectorRegistry) RegisterSpot(name connector.ExchangeName, conn spot.Connector) {
+	_m.Called(name, conn)
+}
+
+// ConnectorRegistry_RegisterSpot_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RegisterSpot'
+type ConnectorRegistry_RegisterSpot_Call struct {
+	*mock.Call
+}
+
+// RegisterSpot is a helper method to define mock.On call
+//   - name connector.ExchangeName
+//   - conn spot.Connector
+func (_e *ConnectorRegistry_Expecter) RegisterSpot(name interface{}, conn interface{}) *ConnectorRegistry_RegisterSpot_Call {
+	return &ConnectorRegistry_RegisterSpot_Call{Call: _e.mock.On("RegisterSpot", name, conn)}
+}
+
+func (_c *ConnectorRegistry_RegisterSpot_Call) Run(run func(name connector.ExchangeName, conn spot.Connector)) *ConnectorRegistry_RegisterSpot_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName), args[1].(spot.Connector))
+	})
+	return _c
+}
+
+func (_c *ConnectorRegistry_RegisterSpot_Call) Return() *ConnectorRegistry_RegisterSpot_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *ConnectorRegistry_RegisterSpot_Call) RunAndReturn(run func(connector.ExchangeName, spot.Connector)) *ConnectorRegistry_RegisterSpot_Call {
+	_c.Run(run)
+	return _c
+}
+
+// Spot provides a mock function with given fields: name
+func (_m *ConnectorRegistry) Spot(name connector.ExchangeName) (spot.Connector, bool) {
+	ret := _m.Called(name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Spot")
 	}
 
 	var r0 spot.Connector
@@ -546,285 +734,89 @@ func (_m *ConnectorRegistry) GetSpotConnector(name connector.ExchangeName) (spot
 	return r0, r1
 }
 
-// ConnectorRegistry_GetSpotConnector_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSpotConnector'
-type ConnectorRegistry_GetSpotConnector_Call struct {
+// ConnectorRegistry_Spot_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Spot'
+type ConnectorRegistry_Spot_Call struct {
 	*mock.Call
 }
 
-// GetSpotConnector is a helper method to define mock.On call
+// Spot is a helper method to define mock.On call
 //   - name connector.ExchangeName
-func (_e *ConnectorRegistry_Expecter) GetSpotConnector(name interface{}) *ConnectorRegistry_GetSpotConnector_Call {
-	return &ConnectorRegistry_GetSpotConnector_Call{Call: _e.mock.On("GetSpotConnector", name)}
+func (_e *ConnectorRegistry_Expecter) Spot(name interface{}) *ConnectorRegistry_Spot_Call {
+	return &ConnectorRegistry_Spot_Call{Call: _e.mock.On("Spot", name)}
 }
 
-func (_c *ConnectorRegistry_GetSpotConnector_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_GetSpotConnector_Call {
+func (_c *ConnectorRegistry_Spot_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_Spot_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(connector.ExchangeName))
 	})
 	return _c
 }
 
-func (_c *ConnectorRegistry_GetSpotConnector_Call) Return(_a0 spot.Connector, _a1 bool) *ConnectorRegistry_GetSpotConnector_Call {
+func (_c *ConnectorRegistry_Spot_Call) Return(_a0 spot.Connector, _a1 bool) *ConnectorRegistry_Spot_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ConnectorRegistry_GetSpotConnector_Call) RunAndReturn(run func(connector.ExchangeName) (spot.Connector, bool)) *ConnectorRegistry_GetSpotConnector_Call {
+func (_c *ConnectorRegistry_Spot_Call) RunAndReturn(run func(connector.ExchangeName) (spot.Connector, bool)) *ConnectorRegistry_Spot_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetSpotConnectors provides a mock function with no fields
-func (_m *ConnectorRegistry) GetSpotConnectors() []spot.Connector {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetSpotConnectors")
-	}
-
-	var r0 []spot.Connector
-	if rf, ok := ret.Get(0).(func() []spot.Connector); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]spot.Connector)
-		}
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_GetSpotConnectors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSpotConnectors'
-type ConnectorRegistry_GetSpotConnectors_Call struct {
-	*mock.Call
-}
-
-// GetSpotConnectors is a helper method to define mock.On call
-func (_e *ConnectorRegistry_Expecter) GetSpotConnectors() *ConnectorRegistry_GetSpotConnectors_Call {
-	return &ConnectorRegistry_GetSpotConnectors_Call{Call: _e.mock.On("GetSpotConnectors")}
-}
-
-func (_c *ConnectorRegistry_GetSpotConnectors_Call) Run(run func()) *ConnectorRegistry_GetSpotConnectors_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetSpotConnectors_Call) Return(_a0 []spot.Connector) *ConnectorRegistry_GetSpotConnectors_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetSpotConnectors_Call) RunAndReturn(run func() []spot.Connector) *ConnectorRegistry_GetSpotConnectors_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetSpotWebSocketConnectors provides a mock function with no fields
-func (_m *ConnectorRegistry) GetSpotWebSocketConnectors() []spot.WebSocketConnector {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetSpotWebSocketConnectors")
-	}
-
-	var r0 []spot.WebSocketConnector
-	if rf, ok := ret.Get(0).(func() []spot.WebSocketConnector); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]spot.WebSocketConnector)
-		}
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_GetSpotWebSocketConnectors_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSpotWebSocketConnectors'
-type ConnectorRegistry_GetSpotWebSocketConnectors_Call struct {
-	*mock.Call
-}
-
-// GetSpotWebSocketConnectors is a helper method to define mock.On call
-func (_e *ConnectorRegistry_Expecter) GetSpotWebSocketConnectors() *ConnectorRegistry_GetSpotWebSocketConnectors_Call {
-	return &ConnectorRegistry_GetSpotWebSocketConnectors_Call{Call: _e.mock.On("GetSpotWebSocketConnectors")}
-}
-
-func (_c *ConnectorRegistry_GetSpotWebSocketConnectors_Call) Run(run func()) *ConnectorRegistry_GetSpotWebSocketConnectors_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetSpotWebSocketConnectors_Call) Return(_a0 []spot.WebSocketConnector) *ConnectorRegistry_GetSpotWebSocketConnectors_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_GetSpotWebSocketConnectors_Call) RunAndReturn(run func() []spot.WebSocketConnector) *ConnectorRegistry_GetSpotWebSocketConnectors_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// IsConnectorReady provides a mock function with given fields: name
-func (_m *ConnectorRegistry) IsConnectorReady(name connector.ExchangeName) bool {
+// SpotWebSocket provides a mock function with given fields: name
+func (_m *ConnectorRegistry) SpotWebSocket(name connector.ExchangeName) (spot.WebSocketConnector, bool) {
 	ret := _m.Called(name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for IsConnectorReady")
+		panic("no return value specified for SpotWebSocket")
 	}
 
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(connector.ExchangeName) bool); ok {
+	var r0 spot.WebSocketConnector
+	var r1 bool
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) (spot.WebSocketConnector, bool)); ok {
+		return rf(name)
+	}
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) spot.WebSocketConnector); ok {
 		r0 = rf(name)
 	} else {
-		r0 = ret.Get(0).(bool)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(spot.WebSocketConnector)
+		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(connector.ExchangeName) bool); ok {
+		r1 = rf(name)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+
+	return r0, r1
 }
 
-// ConnectorRegistry_IsConnectorReady_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IsConnectorReady'
-type ConnectorRegistry_IsConnectorReady_Call struct {
+// ConnectorRegistry_SpotWebSocket_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SpotWebSocket'
+type ConnectorRegistry_SpotWebSocket_Call struct {
 	*mock.Call
 }
 
-// IsConnectorReady is a helper method to define mock.On call
+// SpotWebSocket is a helper method to define mock.On call
 //   - name connector.ExchangeName
-func (_e *ConnectorRegistry_Expecter) IsConnectorReady(name interface{}) *ConnectorRegistry_IsConnectorReady_Call {
-	return &ConnectorRegistry_IsConnectorReady_Call{Call: _e.mock.On("IsConnectorReady", name)}
+func (_e *ConnectorRegistry_Expecter) SpotWebSocket(name interface{}) *ConnectorRegistry_SpotWebSocket_Call {
+	return &ConnectorRegistry_SpotWebSocket_Call{Call: _e.mock.On("SpotWebSocket", name)}
 }
 
-func (_c *ConnectorRegistry_IsConnectorReady_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_IsConnectorReady_Call {
+func (_c *ConnectorRegistry_SpotWebSocket_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_SpotWebSocket_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(connector.ExchangeName))
 	})
 	return _c
 }
 
-func (_c *ConnectorRegistry_IsConnectorReady_Call) Return(_a0 bool) *ConnectorRegistry_IsConnectorReady_Call {
-	_c.Call.Return(_a0)
+func (_c *ConnectorRegistry_SpotWebSocket_Call) Return(_a0 spot.WebSocketConnector, _a1 bool) *ConnectorRegistry_SpotWebSocket_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ConnectorRegistry_IsConnectorReady_Call) RunAndReturn(run func(connector.ExchangeName) bool) *ConnectorRegistry_IsConnectorReady_Call {
+func (_c *ConnectorRegistry_SpotWebSocket_Call) RunAndReturn(run func(connector.ExchangeName) (spot.WebSocketConnector, bool)) *ConnectorRegistry_SpotWebSocket_Call {
 	_c.Call.Return(run)
-	return _c
-}
-
-// MarkConnectorReady provides a mock function with given fields: name
-func (_m *ConnectorRegistry) MarkConnectorReady(name connector.ExchangeName) error {
-	ret := _m.Called(name)
-
-	if len(ret) == 0 {
-		panic("no return value specified for MarkConnectorReady")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(connector.ExchangeName) error); ok {
-		r0 = rf(name)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// ConnectorRegistry_MarkConnectorReady_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MarkConnectorReady'
-type ConnectorRegistry_MarkConnectorReady_Call struct {
-	*mock.Call
-}
-
-// MarkConnectorReady is a helper method to define mock.On call
-//   - name connector.ExchangeName
-func (_e *ConnectorRegistry_Expecter) MarkConnectorReady(name interface{}) *ConnectorRegistry_MarkConnectorReady_Call {
-	return &ConnectorRegistry_MarkConnectorReady_Call{Call: _e.mock.On("MarkConnectorReady", name)}
-}
-
-func (_c *ConnectorRegistry_MarkConnectorReady_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_MarkConnectorReady_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(connector.ExchangeName))
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_MarkConnectorReady_Call) Return(_a0 error) *ConnectorRegistry_MarkConnectorReady_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ConnectorRegistry_MarkConnectorReady_Call) RunAndReturn(run func(connector.ExchangeName) error) *ConnectorRegistry_MarkConnectorReady_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// RegisterPerpConnector provides a mock function with given fields: name, conn
-func (_m *ConnectorRegistry) RegisterPerpConnector(name connector.ExchangeName, conn perp.Connector) {
-	_m.Called(name, conn)
-}
-
-// ConnectorRegistry_RegisterPerpConnector_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RegisterPerpConnector'
-type ConnectorRegistry_RegisterPerpConnector_Call struct {
-	*mock.Call
-}
-
-// RegisterPerpConnector is a helper method to define mock.On call
-//   - name connector.ExchangeName
-//   - conn perp.Connector
-func (_e *ConnectorRegistry_Expecter) RegisterPerpConnector(name interface{}, conn interface{}) *ConnectorRegistry_RegisterPerpConnector_Call {
-	return &ConnectorRegistry_RegisterPerpConnector_Call{Call: _e.mock.On("RegisterPerpConnector", name, conn)}
-}
-
-func (_c *ConnectorRegistry_RegisterPerpConnector_Call) Run(run func(name connector.ExchangeName, conn perp.Connector)) *ConnectorRegistry_RegisterPerpConnector_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(connector.ExchangeName), args[1].(perp.Connector))
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_RegisterPerpConnector_Call) Return() *ConnectorRegistry_RegisterPerpConnector_Call {
-	_c.Call.Return()
-	return _c
-}
-
-func (_c *ConnectorRegistry_RegisterPerpConnector_Call) RunAndReturn(run func(connector.ExchangeName, perp.Connector)) *ConnectorRegistry_RegisterPerpConnector_Call {
-	_c.Run(run)
-	return _c
-}
-
-// RegisterSpotConnector provides a mock function with given fields: name, conn
-func (_m *ConnectorRegistry) RegisterSpotConnector(name connector.ExchangeName, conn spot.Connector) {
-	_m.Called(name, conn)
-}
-
-// ConnectorRegistry_RegisterSpotConnector_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RegisterSpotConnector'
-type ConnectorRegistry_RegisterSpotConnector_Call struct {
-	*mock.Call
-}
-
-// RegisterSpotConnector is a helper method to define mock.On call
-//   - name connector.ExchangeName
-//   - conn spot.Connector
-func (_e *ConnectorRegistry_Expecter) RegisterSpotConnector(name interface{}, conn interface{}) *ConnectorRegistry_RegisterSpotConnector_Call {
-	return &ConnectorRegistry_RegisterSpotConnector_Call{Call: _e.mock.On("RegisterSpotConnector", name, conn)}
-}
-
-func (_c *ConnectorRegistry_RegisterSpotConnector_Call) Run(run func(name connector.ExchangeName, conn spot.Connector)) *ConnectorRegistry_RegisterSpotConnector_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(connector.ExchangeName), args[1].(spot.Connector))
-	})
-	return _c
-}
-
-func (_c *ConnectorRegistry_RegisterSpotConnector_Call) Return() *ConnectorRegistry_RegisterSpotConnector_Call {
-	_c.Call.Return()
-	return _c
-}
-
-func (_c *ConnectorRegistry_RegisterSpotConnector_Call) RunAndReturn(run func(connector.ExchangeName, spot.Connector)) *ConnectorRegistry_RegisterSpotConnector_Call {
-	_c.Run(run)
 	return _c
 }
 
