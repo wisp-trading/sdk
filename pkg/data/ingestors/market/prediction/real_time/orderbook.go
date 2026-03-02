@@ -2,7 +2,6 @@ package realtime
 
 import (
 	"context"
-	"sync"
 
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector/prediction"
@@ -59,39 +58,18 @@ func (e *predictionOrderBookExtension) ProcessChannels(
 		return
 	}
 
-	channels := wsConnector.GetOrderbookChannels()
-	e.logger.Info("Processing %d prediction order book channels for %s", len(channels), exchangeName)
-
-	var wg sync.WaitGroup
-	for key, ch := range channels {
-		wg.Add(1)
-		go func(chKey prediction.MarketID, obCh <-chan prediction.OrderBook) {
-			defer wg.Done()
-			e.processOrderBookChannel(ctx, exchangeName, chKey, obCh)
-		}(key, ch)
-	}
-
-	wg.Wait()
-	e.logger.Info("All prediction order book channels closed for %s", exchangeName)
-}
-
-func (e *predictionOrderBookExtension) processOrderBookChannel(
-	ctx context.Context,
-	exchangeName connector.ExchangeName,
-	channelKey prediction.MarketID,
-	orderBookChan <-chan prediction.OrderBook,
-) {
-	e.logger.Debug("Starting prediction order book channel processor for %s on %s", channelKey, exchangeName)
+	orderBookChan := wsConnector.GetOrderBookUpdates()
+	e.logger.Info("Starting prediction order book channel processor for %s", exchangeName)
 
 	for {
 		select {
 		case <-ctx.Done():
-			e.logger.Debug("Context cancelled, stopping prediction order book channel %s", channelKey)
+			e.logger.Debug("Context cancelled, stopping prediction order book channel for %s", exchangeName)
 			return
 
 		case update, ok := <-orderBookChan:
 			if !ok {
-				e.logger.Debug("Prediction order book channel %s closed", channelKey)
+				e.logger.Debug("Prediction order book channel closed for %s", exchangeName)
 				return
 			}
 
@@ -99,8 +77,7 @@ func (e *predictionOrderBookExtension) processOrderBookChannel(
 
 			if len(update.Bids) > 0 && len(update.Asks) > 0 {
 				e.logger.Debug(
-					"WS updated prediction order book %s (market %s / outcome %s) on %s - bid: %s, ask: %s",
-					channelKey,
+					"WS updated prediction order book for market %s / outcome %s on %s - bid: %s, ask: %s",
 					update.MarketID,
 					update.OutcomeID,
 					exchangeName,

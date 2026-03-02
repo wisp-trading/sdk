@@ -4,6 +4,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
+	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
@@ -13,20 +14,20 @@ type factory struct {
 	connectorRegistry registry.ConnectorRegistry
 	watchlist         data.PredictionWatchlist
 	logger            logging.ApplicationLogger
-	extensions        []realtime.PredictionExtension
+	store             prediction.MarketStore
 }
 
 func NewFactory(
 	connectorRegistry registry.ConnectorRegistry,
 	watchlist data.PredictionWatchlist,
 	logger logging.ApplicationLogger,
-	extensions ...realtime.PredictionExtension,
+	store prediction.MarketStore,
 ) realtime.RealtimeIngestorFactory {
 	return &factory{
 		connectorRegistry: connectorRegistry,
 		watchlist:         watchlist,
 		logger:            logger,
-		extensions:        extensions,
+		store:             store,
 	}
 }
 
@@ -48,8 +49,9 @@ func (f *factory) CreateIngestors() []realtime.RealtimeIngestor {
 			connector.MarketTypePrediction,
 			f.watchlist,
 			f.logger,
-			f.extensions...,
+			NewPredictionOrderBookExtension(f.store, f.logger),
 		)
+
 		if ingestor == nil {
 			continue
 		}

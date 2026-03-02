@@ -304,53 +304,6 @@ func (_c *WebSocketConnector_GetMarket_Call) RunAndReturn(run func(string) (pred
 	return _c
 }
 
-// GetOrderbookChannels provides a mock function with no fields
-func (_m *WebSocketConnector) GetOrderbookChannels() map[prediction.MarketID]<-chan prediction.OrderBook {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetOrderbookChannels")
-	}
-
-	var r0 map[prediction.MarketID]<-chan prediction.OrderBook
-	if rf, ok := ret.Get(0).(func() map[prediction.MarketID]<-chan prediction.OrderBook); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[prediction.MarketID]<-chan prediction.OrderBook)
-		}
-	}
-
-	return r0
-}
-
-// WebSocketConnector_GetOrderbookChannels_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrderbookChannels'
-type WebSocketConnector_GetOrderbookChannels_Call struct {
-	*mock.Call
-}
-
-// GetOrderbookChannels is a helper method to define mock.On call
-func (_e *WebSocketConnector_Expecter) GetOrderbookChannels() *WebSocketConnector_GetOrderbookChannels_Call {
-	return &WebSocketConnector_GetOrderbookChannels_Call{Call: _e.mock.On("GetOrderbookChannels")}
-}
-
-func (_c *WebSocketConnector_GetOrderbookChannels_Call) Run(run func()) *WebSocketConnector_GetOrderbookChannels_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *WebSocketConnector_GetOrderbookChannels_Call) Return(_a0 map[prediction.MarketID]<-chan prediction.OrderBook) *WebSocketConnector_GetOrderbookChannels_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *WebSocketConnector_GetOrderbookChannels_Call) RunAndReturn(run func() map[prediction.MarketID]<-chan prediction.OrderBook) *WebSocketConnector_GetOrderbookChannels_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetOrdersChannel provides a mock function with no fields
 func (_m *WebSocketConnector) GetOrdersChannel() <-chan connector.Order {
 	ret := _m.Called()
@@ -890,6 +843,53 @@ func (_c *WebSocketConnector_NewConfig_Call) Return(_a0 connector.Config) *WebSo
 }
 
 func (_c *WebSocketConnector_NewConfig_Call) RunAndReturn(run func() connector.Config) *WebSocketConnector_NewConfig_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// OrderBookUpdates provides a mock function with no fields
+func (_m *WebSocketConnector) OrderBookUpdates() <-chan prediction.OrderBook {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for OrderBookUpdates")
+	}
+
+	var r0 <-chan prediction.OrderBook
+	if rf, ok := ret.Get(0).(func() <-chan prediction.OrderBook); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan prediction.OrderBook)
+		}
+	}
+
+	return r0
+}
+
+// WebSocketConnector_OrderBookUpdates_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'OrderBookUpdates'
+type WebSocketConnector_OrderBookUpdates_Call struct {
+	*mock.Call
+}
+
+// OrderBookUpdates is a helper method to define mock.On call
+func (_e *WebSocketConnector_Expecter) OrderBookUpdates() *WebSocketConnector_OrderBookUpdates_Call {
+	return &WebSocketConnector_OrderBookUpdates_Call{Call: _e.mock.On("OrderBookUpdates")}
+}
+
+func (_c *WebSocketConnector_OrderBookUpdates_Call) Run(run func()) *WebSocketConnector_OrderBookUpdates_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *WebSocketConnector_OrderBookUpdates_Call) Return(_a0 <-chan prediction.OrderBook) *WebSocketConnector_OrderBookUpdates_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *WebSocketConnector_OrderBookUpdates_Call) RunAndReturn(run func() <-chan prediction.OrderBook) *WebSocketConnector_OrderBookUpdates_Call {
 	_c.Call.Return(run)
 	return _c
 }

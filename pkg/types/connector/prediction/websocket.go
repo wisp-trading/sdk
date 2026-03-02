@@ -21,7 +21,7 @@ type WebSocketConnector interface {
 
 	FetchOrderBooks(market Market, outcome Outcome) (*OrderBook, error)
 
-	GetOrderbookChannels() map[MarketID]<-chan OrderBook
+	GetOrderBookUpdates() <-chan OrderBook
 	GetPriceChangeChannels() map[string]<-chan PriceChange
 	GetTradesChannel() <-chan connector.Trade
 	GetOrdersChannel() <-chan connector.Order

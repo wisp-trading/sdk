@@ -99,9 +99,7 @@ var _ = Describe("Prediction Watchlist Integration", func() {
 			mockWSConn.EXPECT().StartWebSocket().Return(nil).Maybe()
 			mockWSConn.EXPECT().StopWebSocket().Return(nil).Maybe()
 			mockWSConn.EXPECT().ErrorChannel().Return(make(<-chan error)).Maybe()
-			mockWSConn.EXPECT().GetOrderbookChannels().Return(map[prediction.MarketID]<-chan prediction.OrderBook{
-				testMarket1.MarketID: orderBookChan,
-			}).Maybe()
+			mockWSConn.EXPECT().OrderBookUpdates().Return((<-chan prediction.OrderBook)(orderBookChan)).Maybe()
 			mockWSConn.EXPECT().SubscribeOrderBook(testMarket1).Return(nil).Maybe()
 			mockWSConn.EXPECT().SubscribeOrderBook(testMarket2).Return(nil).Maybe()
 			mockWSConn.EXPECT().UnsubscribeMarket(testMarket1).Return(nil).Maybe()
