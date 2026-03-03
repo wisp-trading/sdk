@@ -3,16 +3,21 @@ package prediction
 import (
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/realtime"
+	"github.com/wisp-trading/sdk/pkg/markets/prediction/signal"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/store"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/views"
+	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	predictionTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	"go.uber.org/fx"
 )
 
 // Module wires all prediction market dependencies: store, ingestors, and views.
 var Module = fx.Module("prediction",
-	// Store
 	fx.Provide(
 		store.NewStore,
+		signal.NewFactory,
+		views.NewPredictionViews,
+		NewPredictionWatchlist,
 	),
 
 	// Ingestors
@@ -27,9 +32,8 @@ var Module = fx.Module("prediction",
 		),
 	),
 
-	// Views (monitoring)
-	fx.Provide(
-		views.NewPredictionViews,
+	fx.Invoke(
+		registerStore,
 	),
 )
 
@@ -40,3 +44,11 @@ var BatchModule = fx.Provide(
 		fx.ResultTags(`group:"batch_factories"`),
 	),
 )
+
+// registerStore registers all market stores with the registry
+func registerStore(
+	registry marketTypes.MarketRegistry,
+	predictionStore predictionTypes.MarketStore,
+) {
+	registry.Register(predictionStore)
+}
