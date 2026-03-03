@@ -2,9 +2,22 @@ package types
 
 import (
 	predictiontypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
-
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
+
+// PredictionUniverse holds the live set of prediction exchanges and their watched markets.
+type PredictionUniverse struct {
+	// Exchanges are the ready prediction connectors, each stamped with MarketTypePrediction.
+	Exchanges []connector.Exchange
+
+	// Markets maps each exchange to the markets currently on the watchlist.
+	Markets map[connector.ExchangeName][]predictiontypes.Market
+}
+
+// PredictionUniverseProvider computes the prediction trading universe.
+type PredictionUniverseProvider interface {
+	Universe() PredictionUniverse
+}
 
 type PredictionWatchlist interface {
 	RequireMarket(exchange connector.ExchangeName, market predictiontypes.Market)

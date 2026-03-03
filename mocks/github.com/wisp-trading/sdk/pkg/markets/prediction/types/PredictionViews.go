@@ -26,53 +26,6 @@ func (_m *PredictionViews) EXPECT() *PredictionViews_Expecter {
 	return &PredictionViews_Expecter{mock: &_m.Mock}
 }
 
-// GetAvailableMarkets provides a mock function with no fields
-func (_m *PredictionViews) GetAvailableMarkets() []monitoring.AssetExchange {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetAvailableMarkets")
-	}
-
-	var r0 []monitoring.AssetExchange
-	if rf, ok := ret.Get(0).(func() []monitoring.AssetExchange); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]monitoring.AssetExchange)
-		}
-	}
-
-	return r0
-}
-
-// PredictionViews_GetAvailableMarkets_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAvailableMarkets'
-type PredictionViews_GetAvailableMarkets_Call struct {
-	*mock.Call
-}
-
-// GetAvailableMarkets is a helper method to define mock.On call
-func (_e *PredictionViews_Expecter) GetAvailableMarkets() *PredictionViews_GetAvailableMarkets_Call {
-	return &PredictionViews_GetAvailableMarkets_Call{Call: _e.mock.On("GetAvailableMarkets")}
-}
-
-func (_c *PredictionViews_GetAvailableMarkets_Call) Run(run func()) *PredictionViews_GetAvailableMarkets_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *PredictionViews_GetAvailableMarkets_Call) Return(_a0 []monitoring.AssetExchange) *PredictionViews_GetAvailableMarkets_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *PredictionViews_GetAvailableMarkets_Call) RunAndReturn(run func() []monitoring.AssetExchange) *PredictionViews_GetAvailableMarkets_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetMarketOrderBooks provides a mock function with given fields: exchange, marketID
 func (_m *PredictionViews) GetMarketOrderBooks(exchange connector.ExchangeName, marketID typesconnector.MarketID) prediction.OutcomeOrderBookMap {
 	ret := _m.Called(exchange, marketID)
@@ -118,6 +71,53 @@ func (_c *PredictionViews_GetMarketOrderBooks_Call) Return(_a0 prediction.Outcom
 }
 
 func (_c *PredictionViews_GetMarketOrderBooks_Call) RunAndReturn(run func(connector.ExchangeName, typesconnector.MarketID) prediction.OutcomeOrderBookMap) *PredictionViews_GetMarketOrderBooks_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMarketViews provides a mock function with no fields
+func (_m *PredictionViews) GetMarketViews() []monitoring.PredictionMarketView {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMarketViews")
+	}
+
+	var r0 []monitoring.PredictionMarketView
+	if rf, ok := ret.Get(0).(func() []monitoring.PredictionMarketView); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]monitoring.PredictionMarketView)
+		}
+	}
+
+	return r0
+}
+
+// PredictionViews_GetMarketViews_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMarketViews'
+type PredictionViews_GetMarketViews_Call struct {
+	*mock.Call
+}
+
+// GetMarketViews is a helper method to define mock.On call
+func (_e *PredictionViews_Expecter) GetMarketViews() *PredictionViews_GetMarketViews_Call {
+	return &PredictionViews_GetMarketViews_Call{Call: _e.mock.On("GetMarketViews")}
+}
+
+func (_c *PredictionViews_GetMarketViews_Call) Run(run func()) *PredictionViews_GetMarketViews_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *PredictionViews_GetMarketViews_Call) Return(_a0 []monitoring.PredictionMarketView) *PredictionViews_GetMarketViews_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *PredictionViews_GetMarketViews_Call) RunAndReturn(run func() []monitoring.PredictionMarketView) *PredictionViews_GetMarketViews_Call {
 	_c.Call.Return(run)
 	return _c
 }

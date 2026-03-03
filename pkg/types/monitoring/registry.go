@@ -8,58 +8,79 @@ import (
 )
 
 // ViewRegistry aggregates runtime data from SDK stores and exposes it for monitoring.
-// This interface is implemented in the SDK and used by the monitoring server.
 type ViewRegistry interface {
 	GetPnLView() *PnLView
 	GetPositionsView() *strategy.StrategyExecution
-	GetOrderbookView(pair portfolio.Pair) *connector.OrderBook
 	GetRecentTrades(limit int) []connector.Trade
 	GetMetrics() *StrategyMetrics
 	GetHealth() *health.SystemHealthReport
-	GetAvailableAssets() []AssetExchange
 	GetProfilingStats() *ProfilingStats
 	GetRecentExecutions(limit int) []ProfilingMetrics
+
+	// GetMarketViews returns the live market tree across all market types.
+	// Each domain's views package populates its own section.
+	GetMarketViews() *MarketViews
+
+	// Orderbook queries — one per market type
+	GetOrderbookView(pair portfolio.Pair) *connector.OrderBook
+	GetPredictionOrderbookView(exchange, marketID, outcomeID string) *connector.OrderBook
 }
 
-// AssetExchange represents an asset on a specific exchange
-type AssetExchange struct {
-	Asset    string `json:"asset"`
+// MarketViews is the top-level response for /api/markets.
+// Structured by market type so the CLI can build its navigation tree without
+// any type-switch logic baked into shared code.
+type MarketViews struct {
+	Spot       []SpotMarketView       `json:"spot"`
+	Perp       []PerpMarketView       `json:"perp"`
+	Prediction []PredictionMarketView `json:"prediction"`
+}
+
+// SpotMarketView represents a spot pair watched on an exchange.
+type SpotMarketView struct {
 	Exchange string `json:"exchange"`
+	Pair     string `json:"pair"`
+}
+
+// PerpMarketView represents a perp pair watched on an exchange.
+type PerpMarketView struct {
+	Exchange string `json:"exchange"`
+	Pair     string `json:"pair"`
+}
+
+// PredictionMarketView represents a prediction market with its full outcome list.
+type PredictionMarketView struct {
+	Exchange string                  `json:"exchange"`
+	MarketID string                  `json:"market_id"`
+	Slug     string                  `json:"slug"`
+	Outcomes []PredictionOutcomeView `json:"outcomes"`
+}
+
+// PredictionOutcomeView is a single tradeable outcome within a prediction market.
+type PredictionOutcomeView struct {
+	OutcomeID string `json:"outcome_id"`
+	Name      string `json:"name"`
 }
 
 // ViewQuerier queries views from running strategy instances via Unix socket.
-// This interface is implemented in the CLI to query remote strategy processes.
+// Implemented in the CLI.
 type ViewQuerier interface {
-	// QueryPnL retrieves PnL snapshot from a running instance
 	QueryPnL(instanceID string) (*PnLView, error)
-
-	// QueryPositions retrieves active positions from a running instance
 	QueryPositions(instanceID string) (*strategy.StrategyExecution, error)
-
-	// QueryOrderbook retrieves orderbook for an asset/exchange from a running instance
-	QueryOrderbook(instanceID, asset, exchange string) (*connector.OrderBook, error)
-
-	// QueryRecentTrades retrieves recent trades from a running instance
 	QueryRecentTrades(instanceID string, limit int) ([]connector.Trade, error)
-
-	// QueryMetrics retrieves strategy metrics from a running instance
 	QueryMetrics(instanceID string) (*StrategyMetrics, error)
-
-	// QueryAvailableAssets retrieves the list of assets being traded
-	QueryAvailableAssets(instanceID string) ([]AssetExchange, error)
-
-	// HealthCheck verifies instance is responsive
-	HealthCheck(instanceID string) error
-
-	// Shutdown sends shutdown command to instance (graceful HTTP-based shutdown)
-	Shutdown(instanceID string) error
-
-	// ListInstances returns all instance IDs that have active sockets
-	ListInstances() ([]string, error)
-
-	// QueryProfilingStats retrieves profiling statistics from a running instance
 	QueryProfilingStats(instanceID string) (*ProfilingStats, error)
-
-	// QueryRecentExecutions retrieves recent strategy executions with timing data
 	QueryRecentExecutions(instanceID string, limit int) ([]ProfilingMetrics, error)
+
+	// QueryMarkets returns the live market tree for building the CLI navigation hierarchy.
+	QueryMarkets(instanceID string) (*MarketViews, error)
+
+	// QueryOrderbook retrieves a spot/perp order book — pair is "BTC-USDT"
+	QueryOrderbook(instanceID, pair, exchange string) (*connector.OrderBook, error)
+
+	// QueryPredictionOrderbook retrieves an order book for a specific prediction outcome
+	QueryPredictionOrderbook(instanceID, exchange, marketID, outcomeID string) (*connector.OrderBook, error)
+
+	HealthCheck(instanceID string) error
+	Shutdown(instanceID string) error
+	ListInstances() ([]string, error)
 }

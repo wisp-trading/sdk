@@ -117,36 +117,44 @@ func (r *viewRegistry) GetHealth() *health.SystemHealthReport {
 	return r.health.GetSystemHealth()
 }
 
-func (r *viewRegistry) GetAvailableAssets() []monitoring.AssetExchange {
+// GetMarketViews returns the live market tree across all market types.
+// Spot/perp come from wisp.Universe(); prediction is delegated to predictionViews
+// which owns that domain and queries the watchlist directly.
+func (r *viewRegistry) GetMarketViews() *monitoring.MarketViews {
 	universe := r.wisp.Universe()
-	assetsByExchange := universe.Assets
-	exchanges := universe.Exchanges
+	views := &monitoring.MarketViews{}
 
-	var result []monitoring.AssetExchange
-
-	for _, ex := range exchanges {
-		pairs := assetsByExchange[ex.Name]
+	for _, ex := range universe.Exchanges {
+		pairs := universe.Assets[ex.Name]
 		for _, pair := range pairs {
-			result = append(result, monitoring.AssetExchange{
-				Asset:    pair.Symbol(),
-				Exchange: string(ex.Name),
-			})
+			switch ex.MarketType {
+			case connector.MarketTypePerp:
+				views.Perp = append(views.Perp, monitoring.PerpMarketView{
+					Exchange: string(ex.Name),
+					Pair:     pair.Symbol(),
+				})
+			default: // MarketTypeSpot
+				views.Spot = append(views.Spot, monitoring.SpotMarketView{
+					Exchange: string(ex.Name),
+					Pair:     pair.Symbol(),
+				})
+			}
 		}
 	}
 
-	// Include prediction markets
-	result = append(result, r.predictionViews.GetAvailableMarkets()...)
+	// Prediction is entirely owned by the prediction views package
+	views.Prediction = r.predictionViews.GetMarketViews()
 
-	return result
+	return views
 }
 
-// GetPredictionOrderbookView returns the order book for a specific prediction market outcome.
-func (r *viewRegistry) GetPredictionOrderbookView(
-	exchange connector.ExchangeName,
-	marketID predictionconnector.MarketID,
-	outcomeID predictionconnector.OutcomeID,
-) *connector.OrderBook {
-	return r.predictionViews.GetOrderBook(exchange, marketID, outcomeID)
+// GetPredictionOrderbookView delegates to the prediction views package.
+func (r *viewRegistry) GetPredictionOrderbookView(exchange, marketID, outcomeID string) *connector.OrderBook {
+	return r.predictionViews.GetOrderBook(
+		connector.ExchangeName(exchange),
+		predictionconnector.MarketID(marketID),
+		predictionconnector.OutcomeID(outcomeID),
+	)
 }
 
 func (r *viewRegistry) GetProfilingStats() *monitoring.ProfilingStats {

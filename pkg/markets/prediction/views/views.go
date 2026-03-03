@@ -15,7 +15,6 @@ type predictionViews struct {
 	connectorRegistry registry.ConnectorRegistry
 }
 
-// NewPredictionViews constructs a PredictionViews implementation.
 func NewPredictionViews(
 	watchlist types.PredictionWatchlist,
 	store predictionStore.MarketStore,
@@ -28,17 +27,25 @@ func NewPredictionViews(
 	}
 }
 
-// GetAvailableMarkets returns all prediction markets currently registered on the watchlist,
-// formatted as AssetExchange entries for the monitoring layer.
-func (v *predictionViews) GetAvailableMarkets() []monitoring.AssetExchange {
-	markets := v.watchlist.GetAllMarkets()
-	result := make([]monitoring.AssetExchange, 0, len(markets))
+// GetMarketViews returns all prediction markets currently on the watchlist,
+func (v *predictionViews) GetMarketViews() []monitoring.PredictionMarketView {
+	allMarkets := v.watchlist.GetAllMarkets()
+	result := make([]monitoring.PredictionMarketView, 0)
 
-	for exchange, marketList := range markets {
-		for _, market := range marketList {
-			result = append(result, monitoring.AssetExchange{
-				Asset:    string(market.MarketID),
+	for exchange, markets := range allMarkets {
+		for _, market := range markets {
+			outcomes := make([]monitoring.PredictionOutcomeView, 0, len(market.Outcomes))
+			for _, o := range market.Outcomes {
+				outcomes = append(outcomes, monitoring.PredictionOutcomeView{
+					OutcomeID: string(o.OutcomeID),
+					Name:      o.Pair.Outcome(),
+				})
+			}
+			result = append(result, monitoring.PredictionMarketView{
 				Exchange: string(exchange),
+				MarketID: string(market.MarketID),
+				Slug:     market.Slug,
+				Outcomes: outcomes,
 			})
 		}
 	}
@@ -55,7 +62,7 @@ func (v *predictionViews) GetOrderBook(
 	return v.store.GetOrderBook(exchange, marketID, outcomeID)
 }
 
-// GetMarketOrderBooks returns all known outcome order books for a market.
+// GetMarketOrderBooks returns all outcome order books for a given market.
 func (v *predictionViews) GetMarketOrderBooks(
 	exchange connector.ExchangeName,
 	marketID predictionconnector.MarketID,

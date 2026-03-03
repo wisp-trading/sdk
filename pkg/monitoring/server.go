@@ -103,9 +103,10 @@ func (s *server) Start() error {
 	mux.HandleFunc("/api/pnl", s.handlePnL)
 	mux.HandleFunc("/api/positions", s.handlePositions)
 	mux.HandleFunc("/api/orderbook", s.handleOrderbook)
+	mux.HandleFunc("/api/orderbook/prediction", s.handlePredictionOrderbook)
 	mux.HandleFunc("/api/trades", s.handleTrades)
 	mux.HandleFunc("/api/metrics", s.handleMetrics)
-	mux.HandleFunc("/api/assets", s.handleAssets)
+	mux.HandleFunc("/api/markets", s.handleMarkets)
 	mux.HandleFunc("/profiling/stats", s.handleProfilingStats)
 	mux.HandleFunc("/profiling/executions", s.handleProfilingExecutions)
 
@@ -277,18 +278,36 @@ func (s *server) handleMetrics(w http.ResponseWriter, r *http.Request) {
 	s.writeJSON(w, metrics)
 }
 
-func (s *server) handleAssets(w http.ResponseWriter, r *http.Request) {
+func (s *server) handleMarkets(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	s.writeJSON(w, s.viewRegistry.GetMarketViews())
+}
+
+func (s *server) handlePredictionOrderbook(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	assets := s.viewRegistry.GetAvailableAssets()
-	if assets == nil {
-		assets = []monitoring.AssetExchange{}
+	exchange := r.URL.Query().Get("exchange")
+	marketID := r.URL.Query().Get("market_id")
+	outcomeID := r.URL.Query().Get("outcome_id")
+
+	if exchange == "" || marketID == "" || outcomeID == "" {
+		http.Error(w, "exchange, market_id and outcome_id parameters required", http.StatusBadRequest)
+		return
 	}
 
-	s.writeJSON(w, assets)
+	ob := s.viewRegistry.GetPredictionOrderbookView(exchange, marketID, outcomeID)
+	if ob == nil {
+		http.Error(w, "orderbook not found", http.StatusNotFound)
+		return
+	}
+
+	s.writeJSON(w, ob)
 }
 
 func (s *server) handleProfilingStats(w http.ResponseWriter, r *http.Request) {

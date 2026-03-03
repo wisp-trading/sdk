@@ -1,7 +1,8 @@
 package connector
 
 type Exchange struct {
-	Name ExchangeName `json:"name"`
+	Name       ExchangeName `json:"name"`
+	MarketType MarketType   `json:"market_type"`
 }
 
 type ExchangeName string

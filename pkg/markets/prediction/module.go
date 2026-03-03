@@ -18,6 +18,7 @@ var Module = fx.Module("prediction",
 		signal.NewFactory,
 		views.NewPredictionViews,
 		NewPredictionWatchlist,
+		NewPredictionUniverseProvider,
 	),
 
 	// Ingestors

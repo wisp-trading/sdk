@@ -1,29 +1,31 @@
 package types
 
 import (
-	predictiontypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
+	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	predictionStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
 )
 
-// PredictionViews exposes monitoring data for prediction markets.
+// PredictionViews owns all monitoring view logic for prediction markets.
+// The monitoring ViewRegistry delegates to this interface — it does not implement
+// prediction-specific logic itself.
 type PredictionViews interface {
-	// GetAvailableMarkets returns all prediction markets currently being watched,
-	// grouped by exchange.
-	GetAvailableMarkets() []monitoring.AssetExchange
+	// GetMarketViews returns all prediction markets currently being watched,
+	// structured as PredictionMarketView entries with their full outcome lists.
+	// Driven live from the prediction watchlist — never a stale snapshot.
+	GetMarketViews() []monitoring.PredictionMarketView
 
-	// GetOrderBook returns the latest order book for a specific outcome of a prediction market.
-	// Returns nil if no data is available.
+	// GetOrderBook returns the order book for a specific outcome on a prediction market.
 	GetOrderBook(
 		exchange connector.ExchangeName,
-		marketID predictiontypes.MarketID,
-		outcomeID predictiontypes.OutcomeID,
+		marketID predictionconnector.MarketID,
+		outcomeID predictionconnector.OutcomeID,
 	) *connector.OrderBook
 
 	// GetMarketOrderBooks returns all outcome order books for a given market.
 	GetMarketOrderBooks(
 		exchange connector.ExchangeName,
-		marketID predictiontypes.MarketID,
+		marketID predictionconnector.MarketID,
 	) predictionStore.OutcomeOrderBookMap
 }

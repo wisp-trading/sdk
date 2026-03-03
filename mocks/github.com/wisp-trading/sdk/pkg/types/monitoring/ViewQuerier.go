@@ -129,24 +129,24 @@ func (_c *ViewQuerier_ListInstances_Call) RunAndReturn(run func() ([]string, err
 	return _c
 }
 
-// QueryAvailableAssets provides a mock function with given fields: instanceID
-func (_m *ViewQuerier) QueryAvailableAssets(instanceID string) ([]monitoring.AssetExchange, error) {
+// QueryMarkets provides a mock function with given fields: instanceID
+func (_m *ViewQuerier) QueryMarkets(instanceID string) (*monitoring.MarketViews, error) {
 	ret := _m.Called(instanceID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for QueryAvailableAssets")
+		panic("no return value specified for QueryMarkets")
 	}
 
-	var r0 []monitoring.AssetExchange
+	var r0 *monitoring.MarketViews
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) ([]monitoring.AssetExchange, error)); ok {
+	if rf, ok := ret.Get(0).(func(string) (*monitoring.MarketViews, error)); ok {
 		return rf(instanceID)
 	}
-	if rf, ok := ret.Get(0).(func(string) []monitoring.AssetExchange); ok {
+	if rf, ok := ret.Get(0).(func(string) *monitoring.MarketViews); ok {
 		r0 = rf(instanceID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]monitoring.AssetExchange)
+			r0 = ret.Get(0).(*monitoring.MarketViews)
 		}
 	}
 
@@ -159,30 +159,30 @@ func (_m *ViewQuerier) QueryAvailableAssets(instanceID string) ([]monitoring.Ass
 	return r0, r1
 }
 
-// ViewQuerier_QueryAvailableAssets_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'QueryAvailableAssets'
-type ViewQuerier_QueryAvailableAssets_Call struct {
+// ViewQuerier_QueryMarkets_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'QueryMarkets'
+type ViewQuerier_QueryMarkets_Call struct {
 	*mock.Call
 }
 
-// QueryAvailableAssets is a helper method to define mock.On call
+// QueryMarkets is a helper method to define mock.On call
 //   - instanceID string
-func (_e *ViewQuerier_Expecter) QueryAvailableAssets(instanceID interface{}) *ViewQuerier_QueryAvailableAssets_Call {
-	return &ViewQuerier_QueryAvailableAssets_Call{Call: _e.mock.On("QueryAvailableAssets", instanceID)}
+func (_e *ViewQuerier_Expecter) QueryMarkets(instanceID interface{}) *ViewQuerier_QueryMarkets_Call {
+	return &ViewQuerier_QueryMarkets_Call{Call: _e.mock.On("QueryMarkets", instanceID)}
 }
 
-func (_c *ViewQuerier_QueryAvailableAssets_Call) Run(run func(instanceID string)) *ViewQuerier_QueryAvailableAssets_Call {
+func (_c *ViewQuerier_QueryMarkets_Call) Run(run func(instanceID string)) *ViewQuerier_QueryMarkets_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(string))
 	})
 	return _c
 }
 
-func (_c *ViewQuerier_QueryAvailableAssets_Call) Return(_a0 []monitoring.AssetExchange, _a1 error) *ViewQuerier_QueryAvailableAssets_Call {
+func (_c *ViewQuerier_QueryMarkets_Call) Return(_a0 *monitoring.MarketViews, _a1 error) *ViewQuerier_QueryMarkets_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *ViewQuerier_QueryAvailableAssets_Call) RunAndReturn(run func(string) ([]monitoring.AssetExchange, error)) *ViewQuerier_QueryAvailableAssets_Call {
+func (_c *ViewQuerier_QueryMarkets_Call) RunAndReturn(run func(string) (*monitoring.MarketViews, error)) *ViewQuerier_QueryMarkets_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -245,9 +245,9 @@ func (_c *ViewQuerier_QueryMetrics_Call) RunAndReturn(run func(string) (*monitor
 	return _c
 }
 
-// QueryOrderbook provides a mock function with given fields: instanceID, asset, exchange
-func (_m *ViewQuerier) QueryOrderbook(instanceID string, asset string, exchange string) (*connector.OrderBook, error) {
-	ret := _m.Called(instanceID, asset, exchange)
+// QueryOrderbook provides a mock function with given fields: instanceID, pair, exchange
+func (_m *ViewQuerier) QueryOrderbook(instanceID string, pair string, exchange string) (*connector.OrderBook, error) {
+	ret := _m.Called(instanceID, pair, exchange)
 
 	if len(ret) == 0 {
 		panic("no return value specified for QueryOrderbook")
@@ -256,10 +256,10 @@ func (_m *ViewQuerier) QueryOrderbook(instanceID string, asset string, exchange 
 	var r0 *connector.OrderBook
 	var r1 error
 	if rf, ok := ret.Get(0).(func(string, string, string) (*connector.OrderBook, error)); ok {
-		return rf(instanceID, asset, exchange)
+		return rf(instanceID, pair, exchange)
 	}
 	if rf, ok := ret.Get(0).(func(string, string, string) *connector.OrderBook); ok {
-		r0 = rf(instanceID, asset, exchange)
+		r0 = rf(instanceID, pair, exchange)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*connector.OrderBook)
@@ -267,7 +267,7 @@ func (_m *ViewQuerier) QueryOrderbook(instanceID string, asset string, exchange 
 	}
 
 	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
-		r1 = rf(instanceID, asset, exchange)
+		r1 = rf(instanceID, pair, exchange)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -282,13 +282,13 @@ type ViewQuerier_QueryOrderbook_Call struct {
 
 // QueryOrderbook is a helper method to define mock.On call
 //   - instanceID string
-//   - asset string
+//   - pair string
 //   - exchange string
-func (_e *ViewQuerier_Expecter) QueryOrderbook(instanceID interface{}, asset interface{}, exchange interface{}) *ViewQuerier_QueryOrderbook_Call {
-	return &ViewQuerier_QueryOrderbook_Call{Call: _e.mock.On("QueryOrderbook", instanceID, asset, exchange)}
+func (_e *ViewQuerier_Expecter) QueryOrderbook(instanceID interface{}, pair interface{}, exchange interface{}) *ViewQuerier_QueryOrderbook_Call {
+	return &ViewQuerier_QueryOrderbook_Call{Call: _e.mock.On("QueryOrderbook", instanceID, pair, exchange)}
 }
 
-func (_c *ViewQuerier_QueryOrderbook_Call) Run(run func(instanceID string, asset string, exchange string)) *ViewQuerier_QueryOrderbook_Call {
+func (_c *ViewQuerier_QueryOrderbook_Call) Run(run func(instanceID string, pair string, exchange string)) *ViewQuerier_QueryOrderbook_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(string), args[1].(string), args[2].(string))
 	})
@@ -417,6 +417,67 @@ func (_c *ViewQuerier_QueryPositions_Call) Return(_a0 *strategy.StrategyExecutio
 }
 
 func (_c *ViewQuerier_QueryPositions_Call) RunAndReturn(run func(string) (*strategy.StrategyExecution, error)) *ViewQuerier_QueryPositions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// QueryPredictionOrderbook provides a mock function with given fields: instanceID, exchange, marketID, outcomeID
+func (_m *ViewQuerier) QueryPredictionOrderbook(instanceID string, exchange string, marketID string, outcomeID string) (*connector.OrderBook, error) {
+	ret := _m.Called(instanceID, exchange, marketID, outcomeID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for QueryPredictionOrderbook")
+	}
+
+	var r0 *connector.OrderBook
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, string, string) (*connector.OrderBook, error)); ok {
+		return rf(instanceID, exchange, marketID, outcomeID)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, string, string) *connector.OrderBook); ok {
+		r0 = rf(instanceID, exchange, marketID, outcomeID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*connector.OrderBook)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, string, string) error); ok {
+		r1 = rf(instanceID, exchange, marketID, outcomeID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ViewQuerier_QueryPredictionOrderbook_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'QueryPredictionOrderbook'
+type ViewQuerier_QueryPredictionOrderbook_Call struct {
+	*mock.Call
+}
+
+// QueryPredictionOrderbook is a helper method to define mock.On call
+//   - instanceID string
+//   - exchange string
+//   - marketID string
+//   - outcomeID string
+func (_e *ViewQuerier_Expecter) QueryPredictionOrderbook(instanceID interface{}, exchange interface{}, marketID interface{}, outcomeID interface{}) *ViewQuerier_QueryPredictionOrderbook_Call {
+	return &ViewQuerier_QueryPredictionOrderbook_Call{Call: _e.mock.On("QueryPredictionOrderbook", instanceID, exchange, marketID, outcomeID)}
+}
+
+func (_c *ViewQuerier_QueryPredictionOrderbook_Call) Run(run func(instanceID string, exchange string, marketID string, outcomeID string)) *ViewQuerier_QueryPredictionOrderbook_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].(string), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *ViewQuerier_QueryPredictionOrderbook_Call) Return(_a0 *connector.OrderBook, _a1 error) *ViewQuerier_QueryPredictionOrderbook_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ViewQuerier_QueryPredictionOrderbook_Call) RunAndReturn(run func(string, string, string, string) (*connector.OrderBook, error)) *ViewQuerier_QueryPredictionOrderbook_Call {
 	_c.Call.Return(run)
 	return _c
 }
