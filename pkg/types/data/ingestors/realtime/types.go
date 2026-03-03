@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/connector/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
@@ -35,17 +34,4 @@ type WebSocketSubscriber interface {
 	SubscribeKlines(asset portfolio.Pair, interval string) error
 	GetOrderBookChannels() map[string]<-chan connector.OrderBook
 	GetKlineChannels() map[string]<-chan connector.Kline
-}
-
-// PredictionExtension allows market-specific WebSocket subscriptions for prediction markets (order book updates, etc.)
-type PredictionExtension interface {
-	Subscribe(wsConn interface{}, exchangeName connector.ExchangeName, market prediction.Market) error
-	Unsubscribe(wsConn interface{}, exchangeName connector.ExchangeName, market prediction.Market) error
-	ProcessChannels(wsConn interface{}, exchangeName connector.ExchangeName, ctx context.Context)
-}
-
-// PredictionSubscriber provides subscription methods
-type PredictionSubscriber interface {
-	SubscribeOrderBook(market prediction.Market) error
-	GetOrderBookChannels() map[string]<-chan connector.OrderBook
 }

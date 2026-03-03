@@ -49,7 +49,7 @@ func NewOrchestrator(
 	strategyRegistry registry.StrategyRegistry,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
-	profilingStore profileTypes.ProfilingStore, // Optional: can be nil
+	profilingStore profileTypes.ProfilingStore,   // Optional: can be nil
 	anomalyDetector profileTypes.AnomalyDetector, // Optional: can be nil
 ) lifecycleTypes.Orchestrator {
 	return &orchestrator{
@@ -222,7 +222,7 @@ func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
 		if o.anomalyDetector != nil {
 			alert := o.anomalyDetector.CheckExecution(string(strat.GetName()), duration)
 			if alert.Severity != profileTypes.OK {
-				o.logger.Warn("Performance alert for %s: %s", strat.GetName(), alert.Message)
+				
 			}
 			// Update baseline for future comparisons
 			o.anomalyDetector.UpdateBaseline(string(strat.GetName()), duration)

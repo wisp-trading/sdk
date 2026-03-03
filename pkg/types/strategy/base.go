@@ -48,7 +48,7 @@ func NewBaseStrategy(config BaseStrategyConfig) Strategy {
 	}
 }
 
-func (s *BaseStrategy) GetSignals(ctx StrategyContext) ([]*Signal, error) {
+func (s *BaseStrategy) GetSignals(ctx StrategyContext) ([]Signal, error) {
 	return nil, errors.New("GetSignals not implemented")
 }
 

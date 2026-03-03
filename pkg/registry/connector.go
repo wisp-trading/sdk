@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
+	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector/perp"
-	"github.com/wisp-trading/sdk/pkg/types/connector/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/connector/spot"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
@@ -52,7 +52,7 @@ func (cr *connectorRegistry) RegisterPerp(name connector.ExchangeName, conn perp
 	}
 }
 
-func (cr *connectorRegistry) RegisterPrediction(name connector.ExchangeName, conn prediction.Connector) {
+func (cr *connectorRegistry) RegisterPrediction(name connector.ExchangeName, conn predictionconnector.Connector) {
 	cr.mu.Lock()
 	defer cr.mu.Unlock()
 	cr.connectors[name] = &connectorState{
@@ -105,7 +105,7 @@ func (cr *connectorRegistry) Perp(name connector.ExchangeName) (perp.Connector, 
 	return nil, false
 }
 
-func (cr *connectorRegistry) Prediction(name connector.ExchangeName) (prediction.Connector, bool) {
+func (cr *connectorRegistry) Prediction(name connector.ExchangeName) (predictionconnector.Connector, bool) {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 
@@ -114,7 +114,7 @@ func (cr *connectorRegistry) Prediction(name connector.ExchangeName) (prediction
 		return nil, false
 	}
 
-	if predConn, ok := state.connector.(prediction.Connector); ok {
+	if predConn, ok := state.connector.(predictionconnector.Connector); ok {
 		return predConn, true
 	}
 	return nil, false
@@ -146,13 +146,13 @@ func (cr *connectorRegistry) PerpWebSocket(name connector.ExchangeName) (perp.We
 	return nil, false
 }
 
-func (cr *connectorRegistry) PredictionWebSocket(name connector.ExchangeName) (prediction.WebSocketConnector, bool) {
+func (cr *connectorRegistry) PredictionWebSocket(name connector.ExchangeName) (predictionconnector.WebSocketConnector, bool) {
 	conn, ok := cr.Prediction(name)
 	if !ok {
 		return nil, false
 	}
 
-	if ws, ok := conn.(prediction.WebSocketConnector); ok {
+	if ws, ok := conn.(predictionconnector.WebSocketConnector); ok {
 		return ws, true
 	}
 	return nil, false
@@ -209,17 +209,17 @@ func (cr *connectorRegistry) FilterPerp(opts registry.FilterOptions) []perp.Conn
 	return results
 }
 
-func (cr *connectorRegistry) FilterPrediction(opts registry.FilterOptions) []prediction.Connector {
+func (cr *connectorRegistry) FilterPrediction(opts registry.FilterOptions) []predictionconnector.Connector {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()
 
-	var results []prediction.Connector
+	var results []predictionconnector.Connector
 	for _, state := range cr.connectors {
 		if state.connectorType != connector.MarketTypePrediction {
 			continue
 		}
 		if cr.matchesFilter(state, opts, connector.MarketTypePrediction) {
-			if predConn, ok := state.connector.(prediction.Connector); ok {
+			if predConn, ok := state.connector.(predictionconnector.Connector); ok {
 				results = append(results, predConn)
 			}
 		}
@@ -245,7 +245,7 @@ func (cr *connectorRegistry) matchesFilter(state *connectorState, opts registry.
 			_, ok := state.connector.(perp.WebSocketConnector)
 			return ok
 		case connector.MarketTypePrediction:
-			_, ok := state.connector.(prediction.WebSocketConnector)
+			_, ok := state.connector.(predictionconnector.WebSocketConnector)
 			return ok
 		default:
 			// For generic queries, check any websocket interface

@@ -28,7 +28,7 @@ const (
 )
 
 type Strategy interface {
-	GetSignals(ctx StrategyContext) ([]*Signal, error)
+	GetSignals(ctx StrategyContext) ([]Signal, error)
 
 	GetName() StrategyName
 	GetDescription() string

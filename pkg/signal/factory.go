@@ -17,11 +17,20 @@ func NewFactory(timeProvider temporal.TimeProvider) strategy.SignalFactory {
 	}
 }
 
-// New creates a new signal builder for a strategy.
-func (f factory) New(strategyName strategy.StrategyName) strategy.SignalBuilder {
-	return &builder{
+// NewSpot creates a new spot signal builder for a strategy.
+func (f factory) NewSpot(strategyName strategy.StrategyName) strategy.SpotSignalBuilder {
+	return &spotBuilder{
 		strategyName: strategyName,
-		actions:      make([]strategy.TradeAction, 0),
+		actions:      make([]*strategy.SpotAction, 0),
+		timeProvider: f.timeProvider,
+	}
+}
+
+// NewPerp creates a new perpetual futures signal builder for a strategy.
+func (f factory) NewPerp(strategyName strategy.StrategyName) strategy.PerpSignalBuilder {
+	return &perpBuilder{
+		strategyName: strategyName,
+		actions:      make([]*strategy.PerpAction, 0),
 		timeProvider: f.timeProvider,
 	}
 }

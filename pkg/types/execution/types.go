@@ -8,7 +8,7 @@ import (
 
 // ExecutionContext contains the context for an execution
 type ExecutionContext struct {
-	Signal    *strategy.Signal
+	Signal    strategy.Signal
 	Timestamp time.Time
 	Metadata  map[string]interface{}
 }

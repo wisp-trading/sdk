@@ -36,7 +36,7 @@ func init() {
 func BenchmarkSignalBuilder_Buy(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		builder := benchFactory.New(benchStrategyName)
+		builder := benchFactory.NewSpot(benchStrategyName)
 		_ = builder.Buy(benchPair, benchExchange, benchQuantity).Build()
 	}
 }
@@ -44,7 +44,7 @@ func BenchmarkSignalBuilder_Buy(b *testing.B) {
 func BenchmarkSignalBuilder_BuyLimit(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		builder := benchFactory.New(benchStrategyName)
+		builder := benchFactory.NewSpot(benchStrategyName)
 		_ = builder.BuyLimit(benchPair, benchExchange, benchQuantity, benchPrice).Build()
 	}
 }
@@ -52,7 +52,7 @@ func BenchmarkSignalBuilder_BuyLimit(b *testing.B) {
 func BenchmarkSignalBuilder_Sell(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		builder := benchFactory.New(benchStrategyName)
+		builder := benchFactory.NewSpot(benchStrategyName)
 		_ = builder.Sell(benchPair, benchExchange, benchQuantity).Build()
 	}
 }
@@ -60,7 +60,7 @@ func BenchmarkSignalBuilder_Sell(b *testing.B) {
 func BenchmarkSignalBuilder_SellLimit(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		builder := benchFactory.New(benchStrategyName)
+		builder := benchFactory.NewSpot(benchStrategyName)
 		_ = builder.SellLimit(benchPair, benchExchange, benchQuantity, benchPrice).Build()
 	}
 }
@@ -68,7 +68,7 @@ func BenchmarkSignalBuilder_SellLimit(b *testing.B) {
 func BenchmarkSignalBuilder_SellShort(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		builder := benchFactory.New(benchStrategyName)
+		builder := benchFactory.NewSpot(benchStrategyName)
 		_ = builder.SellShort(benchPair, benchExchange, benchQuantity).Build()
 	}
 }
@@ -76,7 +76,7 @@ func BenchmarkSignalBuilder_SellShort(b *testing.B) {
 func BenchmarkSignalBuilder_SellShortLimit(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		builder := benchFactory.New(benchStrategyName)
+		builder := benchFactory.NewSpot(benchStrategyName)
 		_ = builder.SellShortLimit(benchPair, benchExchange, benchQuantity, benchPrice).Build()
 	}
 }
@@ -84,7 +84,7 @@ func BenchmarkSignalBuilder_SellShortLimit(b *testing.B) {
 func BenchmarkSignalBuilder_ChainedActions(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		builder := benchFactory.New(benchStrategyName)
+		builder := benchFactory.NewSpot(benchStrategyName)
 		_ = builder.
 			Buy(benchPair, benchExchange, benchQuantity).
 			Sell(benchPair, benchExchange, benchQuantity).
@@ -106,7 +106,7 @@ func BenchmarkSignalBuilder_MultipleActions(b *testing.B) {
 	)
 
 	for i := 0; i < b.N; i++ {
-		builder := benchFactory.New(benchStrategyName)
+		builder := benchFactory.NewSpot(benchStrategyName)
 		_ = builder.
 			Buy(benchPair, benchExchange, benchQuantity).
 			Buy(pair2, benchExchange, benchQuantity).
@@ -120,7 +120,7 @@ func BenchmarkSignalBuilder_MultipleActions(b *testing.B) {
 func BenchmarkSignalBuilder_Build(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		builder := benchFactory.New(benchStrategyName)
+		builder := benchFactory.NewSpot(benchStrategyName)
 		_ = builder.Build()
 	}
 }
@@ -172,7 +172,7 @@ func BenchmarkSignalBuilder_LargeSignal(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		builder := benchFactory.New(benchStrategyName)
+		builder := benchFactory.NewSpot(benchStrategyName)
 		for _, asset := range pairs {
 			builder = builder.Buy(asset, benchExchange, benchQuantity)
 		}
@@ -180,10 +180,10 @@ func BenchmarkSignalBuilder_LargeSignal(b *testing.B) {
 	}
 }
 
-func BenchmarkSignalFactory_New(b *testing.B) {
+func BenchmarkSignalFactory_NewSpot(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		_ = benchFactory.New(benchStrategyName)
+		_ = benchFactory.NewSpot(benchStrategyName)
 	}
 }
 
@@ -192,7 +192,7 @@ func BenchmarkSignalBuilder_Buy_Parallel(b *testing.B) {
 	b.ReportAllocs()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			builder := benchFactory.New(benchStrategyName)
+			builder := benchFactory.NewSpot(benchStrategyName)
 			_ = builder.Buy(benchPair, benchExchange, benchQuantity).Build()
 		}
 	})
@@ -202,7 +202,7 @@ func BenchmarkSignalBuilder_ChainedActions_Parallel(b *testing.B) {
 	b.ReportAllocs()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			builder := benchFactory.New(benchStrategyName)
+			builder := benchFactory.NewSpot(benchStrategyName)
 			_ = builder.
 				Buy(benchPair, benchExchange, benchQuantity).
 				Sell(benchPair, benchExchange, benchQuantity).
@@ -260,7 +260,7 @@ func BenchmarkSignalBuilder_LargeSignal_Parallel(b *testing.B) {
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			builder := benchFactory.New(benchStrategyName)
+			builder := benchFactory.NewSpot(benchStrategyName)
 			for _, asset := range pairs {
 				builder = builder.Buy(asset, benchExchange, benchQuantity)
 			}

@@ -30,53 +30,6 @@ func (_m *ViewRegistry) EXPECT() *ViewRegistry_Expecter {
 	return &ViewRegistry_Expecter{mock: &_m.Mock}
 }
 
-// GetAvailableAssets provides a mock function with no fields
-func (_m *ViewRegistry) GetAvailableAssets() []monitoring.AssetExchange {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetAvailableAssets")
-	}
-
-	var r0 []monitoring.AssetExchange
-	if rf, ok := ret.Get(0).(func() []monitoring.AssetExchange); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]monitoring.AssetExchange)
-		}
-	}
-
-	return r0
-}
-
-// ViewRegistry_GetAvailableAssets_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAvailableAssets'
-type ViewRegistry_GetAvailableAssets_Call struct {
-	*mock.Call
-}
-
-// GetAvailableAssets is a helper method to define mock.On call
-func (_e *ViewRegistry_Expecter) GetAvailableAssets() *ViewRegistry_GetAvailableAssets_Call {
-	return &ViewRegistry_GetAvailableAssets_Call{Call: _e.mock.On("GetAvailableAssets")}
-}
-
-func (_c *ViewRegistry_GetAvailableAssets_Call) Run(run func()) *ViewRegistry_GetAvailableAssets_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *ViewRegistry_GetAvailableAssets_Call) Return(_a0 []monitoring.AssetExchange) *ViewRegistry_GetAvailableAssets_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *ViewRegistry_GetAvailableAssets_Call) RunAndReturn(run func() []monitoring.AssetExchange) *ViewRegistry_GetAvailableAssets_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetHealth provides a mock function with no fields
 func (_m *ViewRegistry) GetHealth() *health.SystemHealthReport {
 	ret := _m.Called()
@@ -120,6 +73,53 @@ func (_c *ViewRegistry_GetHealth_Call) Return(_a0 *health.SystemHealthReport) *V
 }
 
 func (_c *ViewRegistry_GetHealth_Call) RunAndReturn(run func() *health.SystemHealthReport) *ViewRegistry_GetHealth_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetMarketViews provides a mock function with no fields
+func (_m *ViewRegistry) GetMarketViews() *monitoring.MarketViews {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMarketViews")
+	}
+
+	var r0 *monitoring.MarketViews
+	if rf, ok := ret.Get(0).(func() *monitoring.MarketViews); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*monitoring.MarketViews)
+		}
+	}
+
+	return r0
+}
+
+// ViewRegistry_GetMarketViews_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMarketViews'
+type ViewRegistry_GetMarketViews_Call struct {
+	*mock.Call
+}
+
+// GetMarketViews is a helper method to define mock.On call
+func (_e *ViewRegistry_Expecter) GetMarketViews() *ViewRegistry_GetMarketViews_Call {
+	return &ViewRegistry_GetMarketViews_Call{Call: _e.mock.On("GetMarketViews")}
+}
+
+func (_c *ViewRegistry_GetMarketViews_Call) Run(run func()) *ViewRegistry_GetMarketViews_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *ViewRegistry_GetMarketViews_Call) Return(_a0 *monitoring.MarketViews) *ViewRegistry_GetMarketViews_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ViewRegistry_GetMarketViews_Call) RunAndReturn(run func() *monitoring.MarketViews) *ViewRegistry_GetMarketViews_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -309,6 +309,56 @@ func (_c *ViewRegistry_GetPositionsView_Call) Return(_a0 *strategy.StrategyExecu
 }
 
 func (_c *ViewRegistry_GetPositionsView_Call) RunAndReturn(run func() *strategy.StrategyExecution) *ViewRegistry_GetPositionsView_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetPredictionOrderbookView provides a mock function with given fields: exchange, marketID, outcomeID
+func (_m *ViewRegistry) GetPredictionOrderbookView(exchange string, marketID string, outcomeID string) *connector.OrderBook {
+	ret := _m.Called(exchange, marketID, outcomeID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPredictionOrderbookView")
+	}
+
+	var r0 *connector.OrderBook
+	if rf, ok := ret.Get(0).(func(string, string, string) *connector.OrderBook); ok {
+		r0 = rf(exchange, marketID, outcomeID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*connector.OrderBook)
+		}
+	}
+
+	return r0
+}
+
+// ViewRegistry_GetPredictionOrderbookView_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPredictionOrderbookView'
+type ViewRegistry_GetPredictionOrderbookView_Call struct {
+	*mock.Call
+}
+
+// GetPredictionOrderbookView is a helper method to define mock.On call
+//   - exchange string
+//   - marketID string
+//   - outcomeID string
+func (_e *ViewRegistry_Expecter) GetPredictionOrderbookView(exchange interface{}, marketID interface{}, outcomeID interface{}) *ViewRegistry_GetPredictionOrderbookView_Call {
+	return &ViewRegistry_GetPredictionOrderbookView_Call{Call: _e.mock.On("GetPredictionOrderbookView", exchange, marketID, outcomeID)}
+}
+
+func (_c *ViewRegistry_GetPredictionOrderbookView_Call) Run(run func(exchange string, marketID string, outcomeID string)) *ViewRegistry_GetPredictionOrderbookView_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *ViewRegistry_GetPredictionOrderbookView_Call) Return(_a0 *connector.OrderBook) *ViewRegistry_GetPredictionOrderbookView_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ViewRegistry_GetPredictionOrderbookView_Call) RunAndReturn(run func(string, string, string) *connector.OrderBook) *ViewRegistry_GetPredictionOrderbookView_Call {
 	_c.Call.Return(run)
 	return _c
 }

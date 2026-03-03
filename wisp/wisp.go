@@ -76,10 +76,14 @@ func (k *wisp) Asset(symbol string) portfolio.Asset {
 	return portfolio.NewAsset(symbol)
 }
 
-// Signal creates a new signal builder for constructing trading signals.
-// Usage: k.Signal(strategyName).Buy(asset, exchange, qty).SellShort(asset, exchange, qty).Build()
-func (k *wisp) Signal(strategyName strategy.StrategyName) strategy.SignalBuilder {
-	return k.signal.New(strategyName)
+// SpotSignal creates a new signal builder for spot market trading signals.
+func (k *wisp) SpotSignal(strategyName strategy.StrategyName) strategy.SpotSignalBuilder {
+	return k.signal.NewSpot(strategyName)
+}
+
+// PerpSignal creates a new signal builder for perpetual futures trading signals.
+func (k *wisp) PerpSignal(strategyName strategy.StrategyName) strategy.PerpSignalBuilder {
+	return k.signal.NewPerp(strategyName)
 }
 
 // Universe returns the tradeable assets, instruments, and ready exchanges.

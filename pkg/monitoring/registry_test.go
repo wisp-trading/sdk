@@ -85,15 +85,6 @@ var _ = Describe("ViewRegistry", func() {
 		})
 	})
 
-	Describe("GetAvailableAssets", func() {
-		It("should return available assets from universe", func() {
-			result := viewRegistry.GetAvailableAssets()
-
-			// Without universe configuration, returns empty slice (not nil)
-			Expect(result).To(BeEmpty())
-		})
-	})
-
 	Describe("GetPositionsView", func() {
 		Context("when strategy exists", func() {
 			It("should return strategy execution with trades and orders", func() {

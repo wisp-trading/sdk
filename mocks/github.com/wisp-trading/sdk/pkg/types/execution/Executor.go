@@ -24,7 +24,7 @@ func (_m *Executor) EXPECT() *Executor_Expecter {
 }
 
 // ExecuteSignal provides a mock function with given fields: signal
-func (_m *Executor) ExecuteSignal(signal *strategy.Signal) error {
+func (_m *Executor) ExecuteSignal(signal strategy.Signal) error {
 	ret := _m.Called(signal)
 
 	if len(ret) == 0 {
@@ -32,7 +32,7 @@ func (_m *Executor) ExecuteSignal(signal *strategy.Signal) error {
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*strategy.Signal) error); ok {
+	if rf, ok := ret.Get(0).(func(strategy.Signal) error); ok {
 		r0 = rf(signal)
 	} else {
 		r0 = ret.Error(0)
@@ -47,14 +47,14 @@ type Executor_ExecuteSignal_Call struct {
 }
 
 // ExecuteSignal is a helper method to define mock.On call
-//   - signal *strategy.Signal
+//   - signal strategy.Signal
 func (_e *Executor_Expecter) ExecuteSignal(signal interface{}) *Executor_ExecuteSignal_Call {
 	return &Executor_ExecuteSignal_Call{Call: _e.mock.On("ExecuteSignal", signal)}
 }
 
-func (_c *Executor_ExecuteSignal_Call) Run(run func(signal *strategy.Signal)) *Executor_ExecuteSignal_Call {
+func (_c *Executor_ExecuteSignal_Call) Run(run func(signal strategy.Signal)) *Executor_ExecuteSignal_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*strategy.Signal))
+		run(args[0].(strategy.Signal))
 	})
 	return _c
 }
@@ -64,7 +64,7 @@ func (_c *Executor_ExecuteSignal_Call) Return(_a0 error) *Executor_ExecuteSignal
 	return _c
 }
 
-func (_c *Executor_ExecuteSignal_Call) RunAndReturn(run func(*strategy.Signal) error) *Executor_ExecuteSignal_Call {
+func (_c *Executor_ExecuteSignal_Call) RunAndReturn(run func(strategy.Signal) error) *Executor_ExecuteSignal_Call {
 	_c.Call.Return(run)
 	return _c
 }

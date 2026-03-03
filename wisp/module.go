@@ -2,7 +2,7 @@ package wisp
 
 import (
 	packages "github.com/wisp-trading/sdk/pkg"
-	"github.com/wisp-trading/sdk/wisp/predict"
+	"github.com/wisp-trading/sdk/pkg/markets/prediction/predict"
 	"go.uber.org/fx"
 )
 

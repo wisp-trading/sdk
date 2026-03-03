@@ -2,7 +2,6 @@ package market
 
 import (
 	"github.com/wisp-trading/sdk/pkg/data/stores/market/perp"
-	"github.com/wisp-trading/sdk/pkg/data/stores/market/prediction"
 	"github.com/wisp-trading/sdk/pkg/data/stores/market/spot"
 	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	perpTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
@@ -14,7 +13,6 @@ import (
 var Module = fx.Options(
 	perp.Module,
 	spot.Module,
-	prediction.Module,
 	fx.Provide(
 		NewMarketRegistry,
 	),

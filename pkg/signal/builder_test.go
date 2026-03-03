@@ -38,19 +38,18 @@ var _ = Describe("SignalBuilder", func() {
 		It("should add a buy action with market order (price 0)", func() {
 			quantity := numerical.NewFromInt(10)
 
-			builder := factory.New(strategyName)
-			signal := builder.Buy(testAsset, testExchange, quantity).Build()
+			sig := factory.NewSpot(strategyName).Buy(testAsset, testExchange, quantity).Build()
 
-			Expect(signal).NotTo(BeNil())
-			Expect(signal.Strategy).To(Equal(strategyName))
-			Expect(signal.Actions).To(HaveLen(1))
-			Expect(signal.Actions[0].Action).To(Equal(strategy.ActionBuy))
-			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
-			Expect(signal.Actions[0].Exchange).To(Equal(testExchange))
-			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
-			Expect(signal.Actions[0].Price).To(Equal(numerical.NewFromInt(0)))
-			Expect(signal.Timestamp).NotTo(BeZero())
-			Expect(signal.ID).NotTo(Equal(""))
+			Expect(sig).NotTo(BeNil())
+			Expect(sig.GetStrategy()).To(Equal(strategyName))
+			Expect(sig.GetActions()).To(HaveLen(1))
+			Expect(sig.GetActions()[0].ActionType).To(Equal(strategy.ActionBuy))
+			Expect(sig.GetActions()[0].Pair).To(Equal(testAsset))
+			Expect(sig.GetActions()[0].Exchange).To(Equal(testExchange))
+			Expect(sig.GetActions()[0].Quantity).To(Equal(quantity))
+			Expect(sig.GetActions()[0].Price).To(Equal(numerical.NewFromInt(0)))
+			Expect(sig.GetTimestamp()).NotTo(BeZero())
+			Expect(sig.GetID()).NotTo(BeZero())
 		})
 
 		It("should allow chaining multiple buy actions", func() {
@@ -61,17 +60,16 @@ var _ = Describe("SignalBuilder", func() {
 				portfolio.NewAsset("USDT"),
 			)
 
-			builder := factory.New(strategyName)
-			signal := builder.
+			sig := factory.NewSpot(strategyName).
 				Buy(testAsset, testExchange, qty1).
 				Buy(asset2, testExchange, qty2).
 				Build()
 
-			Expect(signal.Actions).To(HaveLen(2))
-			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
-			Expect(signal.Actions[0].Quantity).To(Equal(qty1))
-			Expect(signal.Actions[1].Pair).To(Equal(asset2))
-			Expect(signal.Actions[1].Quantity).To(Equal(qty2))
+			Expect(sig.GetActions()).To(HaveLen(2))
+			Expect(sig.GetActions()[0].Pair).To(Equal(testAsset))
+			Expect(sig.GetActions()[0].Quantity).To(Equal(qty1))
+			Expect(sig.GetActions()[1].Pair).To(Equal(asset2))
+			Expect(sig.GetActions()[1].Quantity).To(Equal(qty2))
 		})
 	})
 
@@ -80,15 +78,14 @@ var _ = Describe("SignalBuilder", func() {
 			quantity := numerical.NewFromInt(10)
 			price := numerical.NewFromFloat(50000.50)
 
-			builder := factory.New(strategyName)
-			signal := builder.BuyLimit(testAsset, testExchange, quantity, price).Build()
+			sig := factory.NewSpot(strategyName).BuyLimit(testAsset, testExchange, quantity, price).Build()
 
-			Expect(signal.Actions).To(HaveLen(1))
-			Expect(signal.Actions[0].Action).To(Equal(strategy.ActionBuy))
-			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
-			Expect(signal.Actions[0].Exchange).To(Equal(testExchange))
-			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
-			Expect(signal.Actions[0].Price).To(Equal(price))
+			Expect(sig.GetActions()).To(HaveLen(1))
+			Expect(sig.GetActions()[0].ActionType).To(Equal(strategy.ActionBuy))
+			Expect(sig.GetActions()[0].Pair).To(Equal(testAsset))
+			Expect(sig.GetActions()[0].Exchange).To(Equal(testExchange))
+			Expect(sig.GetActions()[0].Quantity).To(Equal(quantity))
+			Expect(sig.GetActions()[0].Price).To(Equal(price))
 		})
 	})
 
@@ -96,15 +93,14 @@ var _ = Describe("SignalBuilder", func() {
 		It("should add a sell action with market order (price 0)", func() {
 			quantity := numerical.NewFromInt(5)
 
-			builder := factory.New(strategyName)
-			signal := builder.Sell(testAsset, testExchange, quantity).Build()
+			sig := factory.NewSpot(strategyName).Sell(testAsset, testExchange, quantity).Build()
 
-			Expect(signal.Actions).To(HaveLen(1))
-			Expect(signal.Actions[0].Action).To(Equal(strategy.ActionSell))
-			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
-			Expect(signal.Actions[0].Exchange).To(Equal(testExchange))
-			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
-			Expect(signal.Actions[0].Price).To(Equal(numerical.NewFromInt(0)))
+			Expect(sig.GetActions()).To(HaveLen(1))
+			Expect(sig.GetActions()[0].ActionType).To(Equal(strategy.ActionSell))
+			Expect(sig.GetActions()[0].Pair).To(Equal(testAsset))
+			Expect(sig.GetActions()[0].Exchange).To(Equal(testExchange))
+			Expect(sig.GetActions()[0].Quantity).To(Equal(quantity))
+			Expect(sig.GetActions()[0].Price).To(Equal(numerical.NewFromInt(0)))
 		})
 	})
 
@@ -113,15 +109,14 @@ var _ = Describe("SignalBuilder", func() {
 			quantity := numerical.NewFromInt(5)
 			price := numerical.NewFromFloat(51000.25)
 
-			builder := factory.New(strategyName)
-			signal := builder.SellLimit(testAsset, testExchange, quantity, price).Build()
+			sig := factory.NewSpot(strategyName).SellLimit(testAsset, testExchange, quantity, price).Build()
 
-			Expect(signal.Actions).To(HaveLen(1))
-			Expect(signal.Actions[0].Action).To(Equal(strategy.ActionSell))
-			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
-			Expect(signal.Actions[0].Exchange).To(Equal(testExchange))
-			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
-			Expect(signal.Actions[0].Price).To(Equal(price))
+			Expect(sig.GetActions()).To(HaveLen(1))
+			Expect(sig.GetActions()[0].ActionType).To(Equal(strategy.ActionSell))
+			Expect(sig.GetActions()[0].Pair).To(Equal(testAsset))
+			Expect(sig.GetActions()[0].Exchange).To(Equal(testExchange))
+			Expect(sig.GetActions()[0].Quantity).To(Equal(quantity))
+			Expect(sig.GetActions()[0].Price).To(Equal(price))
 		})
 	})
 
@@ -129,15 +124,14 @@ var _ = Describe("SignalBuilder", func() {
 		It("should add a short sell action with market order (price 0)", func() {
 			quantity := numerical.NewFromInt(8)
 
-			builder := factory.New(strategyName)
-			signal := builder.SellShort(testAsset, testExchange, quantity).Build()
+			sig := factory.NewSpot(strategyName).SellShort(testAsset, testExchange, quantity).Build()
 
-			Expect(signal.Actions).To(HaveLen(1))
-			Expect(signal.Actions[0].Action).To(Equal(strategy.ActionSellShort))
-			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
-			Expect(signal.Actions[0].Exchange).To(Equal(testExchange))
-			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
-			Expect(signal.Actions[0].Price).To(Equal(numerical.NewFromInt(0)))
+			Expect(sig.GetActions()).To(HaveLen(1))
+			Expect(sig.GetActions()[0].ActionType).To(Equal(strategy.ActionSellShort))
+			Expect(sig.GetActions()[0].Pair).To(Equal(testAsset))
+			Expect(sig.GetActions()[0].Exchange).To(Equal(testExchange))
+			Expect(sig.GetActions()[0].Quantity).To(Equal(quantity))
+			Expect(sig.GetActions()[0].Price).To(Equal(numerical.NewFromInt(0)))
 		})
 	})
 
@@ -146,15 +140,14 @@ var _ = Describe("SignalBuilder", func() {
 			quantity := numerical.NewFromInt(8)
 			price := numerical.NewFromFloat(49500.75)
 
-			builder := factory.New(strategyName)
-			signal := builder.SellShortLimit(testAsset, testExchange, quantity, price).Build()
+			sig := factory.NewSpot(strategyName).SellShortLimit(testAsset, testExchange, quantity, price).Build()
 
-			Expect(signal.Actions).To(HaveLen(1))
-			Expect(signal.Actions[0].Action).To(Equal(strategy.ActionSellShort))
-			Expect(signal.Actions[0].Pair).To(Equal(testAsset))
-			Expect(signal.Actions[0].Exchange).To(Equal(testExchange))
-			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
-			Expect(signal.Actions[0].Price).To(Equal(price))
+			Expect(sig.GetActions()).To(HaveLen(1))
+			Expect(sig.GetActions()[0].ActionType).To(Equal(strategy.ActionSellShort))
+			Expect(sig.GetActions()[0].Pair).To(Equal(testAsset))
+			Expect(sig.GetActions()[0].Exchange).To(Equal(testExchange))
+			Expect(sig.GetActions()[0].Quantity).To(Equal(quantity))
+			Expect(sig.GetActions()[0].Price).To(Equal(price))
 		})
 	})
 
@@ -165,8 +158,7 @@ var _ = Describe("SignalBuilder", func() {
 			qty2 := numerical.NewFromInt(5)
 			price2 := numerical.NewFromFloat(51000)
 
-			builder := factory.New(strategyName)
-			signal := builder.
+			sig := factory.NewSpot(strategyName).
 				Buy(testAsset, testExchange, qty1).
 				SellLimit(testAsset, testExchange, qty2, price2).
 				BuyLimit(
@@ -180,14 +172,14 @@ var _ = Describe("SignalBuilder", func() {
 				).
 				Build()
 
-			Expect(signal.Actions).To(HaveLen(3))
-			Expect(signal.Actions[0].Action).To(Equal(strategy.ActionBuy))
-			Expect(signal.Actions[0].Price).To(Equal(numerical.NewFromInt(0))) // market order
-			Expect(signal.Actions[1].Action).To(Equal(strategy.ActionSell))
-			Expect(signal.Actions[1].Price).To(Equal(price2)) // limit order
-			Expect(signal.Actions[2].Action).To(Equal(strategy.ActionBuy))
-			Expect(signal.Actions[2].Pair.Symbol()).To(Equal("ETH-USDT"))
-			Expect(signal.Actions[2].Price).To(Equal(price1)) // limit order
+			Expect(sig.GetActions()).To(HaveLen(3))
+			Expect(sig.GetActions()[0].ActionType).To(Equal(strategy.ActionBuy))
+			Expect(sig.GetActions()[0].Price).To(Equal(numerical.NewFromInt(0))) // market order
+			Expect(sig.GetActions()[1].ActionType).To(Equal(strategy.ActionSell))
+			Expect(sig.GetActions()[1].Price).To(Equal(price2)) // limit order
+			Expect(sig.GetActions()[2].ActionType).To(Equal(strategy.ActionBuy))
+			Expect(sig.GetActions()[2].Pair.Symbol()).To(Equal("ETH-USDT"))
+			Expect(sig.GetActions()[2].Price).To(Equal(price1)) // limit order
 		})
 
 		It("should support multiple exchanges", func() {
@@ -195,54 +187,47 @@ var _ = Describe("SignalBuilder", func() {
 			exchange2 := connector.ExchangeName("kraken")
 			qty := numerical.NewFromInt(10)
 
-			builder := factory.New(strategyName)
-			signal := builder.
+			sig := factory.NewSpot(strategyName).
 				Buy(testAsset, exchange1, qty).
 				Sell(testAsset, exchange2, qty).
 				Build()
 
-			Expect(signal.Actions).To(HaveLen(2))
-			Expect(signal.Actions[0].Exchange).To(Equal(exchange1))
-			Expect(signal.Actions[1].Exchange).To(Equal(exchange2))
+			Expect(sig.GetActions()).To(HaveLen(2))
+			Expect(sig.GetActions()[0].Exchange).To(Equal(exchange1))
+			Expect(sig.GetActions()[1].Exchange).To(Equal(exchange2))
 		})
 	})
 
 	Describe("Build", func() {
 		It("should create signal with unique ID", func() {
-			builder := factory.New(strategyName)
-			signal1 := builder.Buy(testAsset, testExchange, numerical.NewFromInt(1)).Build()
+			sig1 := factory.NewSpot(strategyName).Buy(testAsset, testExchange, numerical.NewFromInt(1)).Build()
+			sig2 := factory.NewSpot(strategyName).Buy(testAsset, testExchange, numerical.NewFromInt(1)).Build()
 
-			builder2 := factory.New(strategyName)
-			signal2 := builder2.Buy(testAsset, testExchange, numerical.NewFromInt(1)).Build()
-
-			Expect(signal1.ID).NotTo(Equal(signal2.ID))
+			Expect(sig1.GetID()).NotTo(Equal(sig2.GetID()))
 		})
 
 		It("should set timestamp when building signal", func() {
-			builder := factory.New(strategyName)
 			beforeTime := time.Now()
-			signal := builder.Buy(testAsset, testExchange, numerical.NewFromInt(1)).Build()
+			sig := factory.NewSpot(strategyName).Buy(testAsset, testExchange, numerical.NewFromInt(1)).Build()
 			afterTime := time.Now()
 
-			Expect(signal.Timestamp).To(BeTemporally(">=", beforeTime))
-			Expect(signal.Timestamp).To(BeTemporally("<=", afterTime))
+			Expect(sig.GetTimestamp()).To(BeTemporally(">=", beforeTime))
+			Expect(sig.GetTimestamp()).To(BeTemporally("<=", afterTime))
 		})
 
 		It("should handle empty actions list", func() {
-			builder := factory.New(strategyName)
-			signal := builder.Build()
+			sig := factory.NewSpot(strategyName).Build()
 
-			Expect(signal.Actions).To(HaveLen(0))
-			Expect(signal.Strategy).To(Equal(strategyName))
-			Expect(signal.Timestamp).NotTo(BeZero())
+			Expect(sig.GetActions()).To(HaveLen(0))
+			Expect(sig.GetStrategy()).To(Equal(strategyName))
+			Expect(sig.GetTimestamp()).NotTo(BeZero())
 		})
 
 		It("should preserve strategy name", func() {
 			customStrategy := strategy.StrategyName("momentum-strategy")
-			builder := factory.New(customStrategy)
-			signal := builder.Buy(testAsset, testExchange, numerical.NewFromInt(1)).Build()
+			sig := factory.NewSpot(customStrategy).Buy(testAsset, testExchange, numerical.NewFromInt(1)).Build()
 
-			Expect(signal.Strategy).To(Equal(customStrategy))
+			Expect(sig.GetStrategy()).To(Equal(customStrategy))
 		})
 	})
 
@@ -250,21 +235,19 @@ var _ = Describe("SignalBuilder", func() {
 		It("should handle fractional quantities", func() {
 			quantity := numerical.NewFromFloat(0.5)
 
-			builder := factory.New(strategyName)
-			signal := builder.Buy(testAsset, testExchange, quantity).Build()
+			sig := factory.NewSpot(strategyName).Buy(testAsset, testExchange, quantity).Build()
 
-			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
+			Expect(sig.GetActions()[0].Quantity).To(Equal(quantity))
 		})
 
 		It("should handle large decimal values", func() {
 			quantity := numerical.NewFromFloat(1000000.123456)
 			price := numerical.NewFromFloat(50000.987654)
 
-			builder := factory.New(strategyName)
-			signal := builder.BuyLimit(testAsset, testExchange, quantity, price).Build()
+			sig := factory.NewSpot(strategyName).BuyLimit(testAsset, testExchange, quantity, price).Build()
 
-			Expect(signal.Actions[0].Quantity).To(Equal(quantity))
-			Expect(signal.Actions[0].Price).To(Equal(price))
+			Expect(sig.GetActions()[0].Quantity).To(Equal(quantity))
+			Expect(sig.GetActions()[0].Price).To(Equal(price))
 		})
 	})
 })

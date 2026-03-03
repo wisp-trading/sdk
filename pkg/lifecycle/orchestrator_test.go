@@ -89,7 +89,7 @@ var _ = Describe("Orchestrator", func() {
 			// Setup mock strategy
 			mockStrat := mockStrategy.NewStrategy(GinkgoT())
 			mockStrat.EXPECT().GetName().Return(strategy.StrategyName("Strategy1")).Maybe()
-			mockStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]*strategy.Signal{}, nil).Maybe()
+			mockStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]strategy.Signal{}, nil).Maybe()
 			mockStrat.EXPECT().ExecutionConfig().Return(nil)
 
 			strategyRegistry.RegisterStrategy(mockStrat)
@@ -108,11 +108,11 @@ var _ = Describe("Orchestrator", func() {
 
 			// Note if the default tick interval changes, these expectations may need adjustment
 			mockStrat1.EXPECT().GetName().Return(strategy.StrategyName("Strategy1")).Maybe()
-			mockStrat1.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]*strategy.Signal{}, nil).Maybe()
+			mockStrat1.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]strategy.Signal{}, nil).Maybe()
 			mockStrat1.EXPECT().ExecutionConfig().Return(nil)
 
 			mockStrat2.EXPECT().GetName().Return(strategy.StrategyName("Strategy2")).Maybe()
-			mockStrat2.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]*strategy.Signal{}, nil).Maybe()
+			mockStrat2.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]strategy.Signal{}, nil).Maybe()
 			mockStrat2.EXPECT().ExecutionConfig().Return(nil)
 
 			strategyRegistry.RegisterStrategy(mockStrat1)
@@ -161,13 +161,13 @@ var _ = Describe("Orchestrator", func() {
 			normalStrat := mockStrategy.NewStrategy(GinkgoT())
 
 			panicStrat.EXPECT().GetName().Return(strategy.StrategyName("PanicStrategy")).Maybe()
-			panicStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).RunAndReturn(func(ctx strategy.StrategyContext) ([]*strategy.Signal, error) {
+			panicStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).RunAndReturn(func(ctx strategy.StrategyContext) ([]strategy.Signal, error) {
 				panic("intentional panic for testing")
 			}).Maybe()
 			panicStrat.EXPECT().ExecutionConfig().Return(nil)
 
 			normalStrat.EXPECT().GetName().Return(strategy.StrategyName("NormalStrategy")).Maybe()
-			normalStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]*strategy.Signal{}, nil).Maybe()
+			normalStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]strategy.Signal{}, nil).Maybe()
 			normalStrat.EXPECT().ExecutionConfig().Return(nil)
 
 			strategyRegistry.RegisterStrategy(panicStrat)

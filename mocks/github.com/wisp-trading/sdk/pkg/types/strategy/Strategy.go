@@ -250,23 +250,23 @@ func (_c *Strategy_GetRiskLevel_Call) RunAndReturn(run func() strategy.RiskLevel
 }
 
 // GetSignals provides a mock function with given fields: ctx
-func (_m *Strategy) GetSignals(ctx strategy.StrategyContext) ([]*strategy.Signal, error) {
+func (_m *Strategy) GetSignals(ctx strategy.StrategyContext) ([]strategy.Signal, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetSignals")
 	}
 
-	var r0 []*strategy.Signal
+	var r0 []strategy.Signal
 	var r1 error
-	if rf, ok := ret.Get(0).(func(strategy.StrategyContext) ([]*strategy.Signal, error)); ok {
+	if rf, ok := ret.Get(0).(func(strategy.StrategyContext) ([]strategy.Signal, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(strategy.StrategyContext) []*strategy.Signal); ok {
+	if rf, ok := ret.Get(0).(func(strategy.StrategyContext) []strategy.Signal); ok {
 		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*strategy.Signal)
+			r0 = ret.Get(0).([]strategy.Signal)
 		}
 	}
 
@@ -297,12 +297,12 @@ func (_c *Strategy_GetSignals_Call) Run(run func(ctx strategy.StrategyContext)) 
 	return _c
 }
 
-func (_c *Strategy_GetSignals_Call) Return(_a0 []*strategy.Signal, _a1 error) *Strategy_GetSignals_Call {
+func (_c *Strategy_GetSignals_Call) Return(_a0 []strategy.Signal, _a1 error) *Strategy_GetSignals_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *Strategy_GetSignals_Call) RunAndReturn(run func(strategy.StrategyContext) ([]*strategy.Signal, error)) *Strategy_GetSignals_Call {
+func (_c *Strategy_GetSignals_Call) RunAndReturn(run func(strategy.StrategyContext) ([]strategy.Signal, error)) *Strategy_GetSignals_Call {
 	_c.Call.Return(run)
 	return _c
 }

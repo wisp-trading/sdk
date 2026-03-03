@@ -20,50 +20,98 @@ func (_m *SignalFactory) EXPECT() *SignalFactory_Expecter {
 	return &SignalFactory_Expecter{mock: &_m.Mock}
 }
 
-// New provides a mock function with given fields: strategyName
-func (_m *SignalFactory) New(strategyName strategy.StrategyName) strategy.SignalBuilder {
+// NewPerp provides a mock function with given fields: strategyName
+func (_m *SignalFactory) NewPerp(strategyName strategy.StrategyName) strategy.PerpSignalBuilder {
 	ret := _m.Called(strategyName)
 
 	if len(ret) == 0 {
-		panic("no return value specified for New")
+		panic("no return value specified for NewPerp")
 	}
 
-	var r0 strategy.SignalBuilder
-	if rf, ok := ret.Get(0).(func(strategy.StrategyName) strategy.SignalBuilder); ok {
+	var r0 strategy.PerpSignalBuilder
+	if rf, ok := ret.Get(0).(func(strategy.StrategyName) strategy.PerpSignalBuilder); ok {
 		r0 = rf(strategyName)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(strategy.SignalBuilder)
+			r0 = ret.Get(0).(strategy.PerpSignalBuilder)
 		}
 	}
 
 	return r0
 }
 
-// SignalFactory_New_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'New'
-type SignalFactory_New_Call struct {
+// SignalFactory_NewPerp_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NewPerp'
+type SignalFactory_NewPerp_Call struct {
 	*mock.Call
 }
 
-// New is a helper method to define mock.On call
+// NewPerp is a helper method to define mock.On call
 //   - strategyName strategy.StrategyName
-func (_e *SignalFactory_Expecter) New(strategyName interface{}) *SignalFactory_New_Call {
-	return &SignalFactory_New_Call{Call: _e.mock.On("New", strategyName)}
+func (_e *SignalFactory_Expecter) NewPerp(strategyName interface{}) *SignalFactory_NewPerp_Call {
+	return &SignalFactory_NewPerp_Call{Call: _e.mock.On("NewPerp", strategyName)}
 }
 
-func (_c *SignalFactory_New_Call) Run(run func(strategyName strategy.StrategyName)) *SignalFactory_New_Call {
+func (_c *SignalFactory_NewPerp_Call) Run(run func(strategyName strategy.StrategyName)) *SignalFactory_NewPerp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(strategy.StrategyName))
 	})
 	return _c
 }
 
-func (_c *SignalFactory_New_Call) Return(_a0 strategy.SignalBuilder) *SignalFactory_New_Call {
+func (_c *SignalFactory_NewPerp_Call) Return(_a0 strategy.PerpSignalBuilder) *SignalFactory_NewPerp_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *SignalFactory_New_Call) RunAndReturn(run func(strategy.StrategyName) strategy.SignalBuilder) *SignalFactory_New_Call {
+func (_c *SignalFactory_NewPerp_Call) RunAndReturn(run func(strategy.StrategyName) strategy.PerpSignalBuilder) *SignalFactory_NewPerp_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// NewSpot provides a mock function with given fields: strategyName
+func (_m *SignalFactory) NewSpot(strategyName strategy.StrategyName) strategy.SpotSignalBuilder {
+	ret := _m.Called(strategyName)
+
+	if len(ret) == 0 {
+		panic("no return value specified for NewSpot")
+	}
+
+	var r0 strategy.SpotSignalBuilder
+	if rf, ok := ret.Get(0).(func(strategy.StrategyName) strategy.SpotSignalBuilder); ok {
+		r0 = rf(strategyName)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(strategy.SpotSignalBuilder)
+		}
+	}
+
+	return r0
+}
+
+// SignalFactory_NewSpot_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NewSpot'
+type SignalFactory_NewSpot_Call struct {
+	*mock.Call
+}
+
+// NewSpot is a helper method to define mock.On call
+//   - strategyName strategy.StrategyName
+func (_e *SignalFactory_Expecter) NewSpot(strategyName interface{}) *SignalFactory_NewSpot_Call {
+	return &SignalFactory_NewSpot_Call{Call: _e.mock.On("NewSpot", strategyName)}
+}
+
+func (_c *SignalFactory_NewSpot_Call) Run(run func(strategyName strategy.StrategyName)) *SignalFactory_NewSpot_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(strategy.StrategyName))
+	})
+	return _c
+}
+
+func (_c *SignalFactory_NewSpot_Call) Return(_a0 strategy.SpotSignalBuilder) *SignalFactory_NewSpot_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *SignalFactory_NewSpot_Call) RunAndReturn(run func(strategy.StrategyName) strategy.SpotSignalBuilder) *SignalFactory_NewSpot_Call {
 	_c.Call.Return(run)
 	return _c
 }

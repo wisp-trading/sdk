@@ -12,6 +12,5 @@ var Module = fx.Options(
 
 	fx.Provide(
 		NewMarketWatchlist,
-		NewPredictionWatchlist,
 	),
 )

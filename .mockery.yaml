@@ -4,7 +4,7 @@ filename: "{{.InterfaceName}}.go"
 mockname: "{{.InterfaceName}}"
 outpkg: "{{.PackageName}}"
 packages:
-  github.com/wisp-trading/sdk/pkg/types:
+  github.com/wisp-trading/sdk/pkg:
     config:
       recursive: true
       all: true
