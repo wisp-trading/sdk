@@ -106,3 +106,8 @@ func (p predict) Orderbook(exchange connector.ExchangeName, market prediction.Ma
 func (p predict) Log() logging.TradingLogger {
 	return p.tradingLogger
 }
+
+// PredictionSignal creates a new signal builder for prediction market trading signals.
+func (p predict) PredictionSignal(strategyName strategy.StrategyName) strategy.PredictionSignalBuilder {
+	return p.signal.NewPrediction(strategyName)
+}

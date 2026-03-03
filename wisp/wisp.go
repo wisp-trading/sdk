@@ -86,11 +86,6 @@ func (k *wisp) PerpSignal(strategyName strategy.StrategyName) strategy.PerpSigna
 	return k.signal.NewPerp(strategyName)
 }
 
-// PredictionSignal creates a new signal builder for prediction market trading signals.
-func (k *wisp) PredictionSignal(strategyName strategy.StrategyName) strategy.PredictionSignalBuilder {
-	return k.signal.NewPrediction(strategyName)
-}
-
 // Universe returns the tradeable assets, instruments, and ready exchanges.
 // Provides the complete trading universe available to the strategy.
 // Data is cached since it does not change after initialization.

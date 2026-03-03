@@ -82,12 +82,7 @@ func (b *spotBuilder) SellShortLimit(pair portfolio.Pair, exchange connector.Exc
 	return b
 }
 
-// Build constructs the final Signal object.
-func (b *spotBuilder) Build() *strategy.SpotSignal {
-	return &strategy.SpotSignal{
-		ID:        uuid.New(),
-		Strategy:  b.strategyName,
-		Actions:   b.actions,
-		Timestamp: b.timeProvider.Now(),
-	}
+// Build constructs and returns the SpotSignal.
+func (b *spotBuilder) Build() strategy.SpotSignal {
+	return strategy.NewSpotSignal(uuid.New(), b.strategyName, b.timeProvider.Now(), b.actions)
 }

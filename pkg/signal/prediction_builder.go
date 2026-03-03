@@ -46,12 +46,7 @@ func (b *predictionBuilder) Sell(market prediction.Market, outcome prediction.Ou
 	return b
 }
 
-// Build constructs the final PredictionSignal.
-func (b *predictionBuilder) Build() *strategy.PredictionSignal {
-	return &strategy.PredictionSignal{
-		ID:        uuid.New(),
-		Strategy:  b.strategyName,
-		Actions:   b.actions,
-		Timestamp: b.timeProvider.Now(),
-	}
+// Build constructs and returns the PredictionSignal.
+func (b *predictionBuilder) Build() strategy.PredictionSignal {
+	return strategy.NewPredictionSignal(uuid.New(), b.strategyName, b.timeProvider.Now(), b.actions)
 }

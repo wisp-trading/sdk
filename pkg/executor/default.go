@@ -72,11 +72,11 @@ func (e *executor) ExecuteSignal(signal strategy.Signal) error {
 
 	var execErr error
 	switch s := signal.(type) {
-	case *strategy.SpotSignal:
+	case strategy.SpotSignal:
 		execErr = e.executeSpotSignal(ctx, s, result)
-	case *strategy.PerpSignal:
+	case strategy.PerpSignal:
 		execErr = e.executePerpSignal(ctx, s, result)
-	case *strategy.PredictionSignal:
+	case strategy.PredictionSignal:
 		execErr = e.executePredictionSignal(ctx, s, result)
 	default:
 		execErr = fmt.Errorf("unsupported signal type: %T", signal)
@@ -101,11 +101,11 @@ func (e *executor) ExecuteSignal(signal strategy.Signal) error {
 }
 
 // executeSpotSignal executes all actions in a spot signal
-func (e *executor) executeSpotSignal(ctx *execution.ExecutionContext, signal *strategy.SpotSignal, result *execution.ExecutionResult) error {
-	for i, action := range signal.Actions {
-		orderID, err := e.executeSpotAction(signal.Strategy, action)
+func (e *executor) executeSpotSignal(ctx *execution.ExecutionContext, signal strategy.SpotSignal, result *execution.ExecutionResult) error {
+	for i, action := range signal.GetActions() {
+		orderID, err := e.executeSpotAction(signal.GetStrategy(), action)
 		if err != nil {
-			e.logger.Error("Failed to execute spot action %d for signal %s: %v", i, signal.ID, err)
+			e.logger.Error("Failed to execute spot action %d for signal %s: %v", i, signal.GetID(), err)
 			return err
 		}
 		if orderID != "" {
@@ -116,11 +116,11 @@ func (e *executor) executeSpotSignal(ctx *execution.ExecutionContext, signal *st
 }
 
 // executePerpSignal executes all actions in a perp signal
-func (e *executor) executePerpSignal(ctx *execution.ExecutionContext, signal *strategy.PerpSignal, result *execution.ExecutionResult) error {
-	for i, action := range signal.Actions {
-		orderID, err := e.executePerpAction(signal.Strategy, action)
+func (e *executor) executePerpSignal(ctx *execution.ExecutionContext, signal strategy.PerpSignal, result *execution.ExecutionResult) error {
+	for i, action := range signal.GetActions() {
+		orderID, err := e.executePerpAction(signal.GetStrategy(), action)
 		if err != nil {
-			e.logger.Error("Failed to execute perp action %d for signal %s: %v", i, signal.ID, err)
+			e.logger.Error("Failed to execute perp action %d for signal %s: %v", i, signal.GetID(), err)
 			return err
 		}
 		if orderID != "" {
@@ -130,9 +130,9 @@ func (e *executor) executePerpSignal(ctx *execution.ExecutionContext, signal *st
 	return nil
 }
 
-// executePredictionSignal logs prediction actions (exchange execution is handled separately)
-func (e *executor) executePredictionSignal(ctx *execution.ExecutionContext, signal *strategy.PredictionSignal, result *execution.ExecutionResult) error {
-	for i, action := range signal.Actions {
+// executePredictionSignal executes all actions in a prediction signal
+func (e *executor) executePredictionSignal(ctx *execution.ExecutionContext, signal strategy.PredictionSignal, result *execution.ExecutionResult) error {
+	for i, action := range signal.GetActions() {
 		e.logger.Info("🔮 Prediction action %d: %s on market %s", i, action.ActionType, action.Market.MarketID.String())
 	}
 	return nil

@@ -106,12 +106,7 @@ func (b *perpBuilder) SellShortLimitWithLeverage(pair portfolio.Pair, exchange c
 	return b
 }
 
-// Build constructs the final Signal object.
-func (b *perpBuilder) Build() *strategy.PerpSignal {
-	return &strategy.PerpSignal{
-		ID:        uuid.New(),
-		Strategy:  b.strategyName,
-		Actions:   b.actions,
-		Timestamp: b.timeProvider.Now(),
-	}
+// Build constructs and returns the PerpSignal.
+func (b *perpBuilder) Build() strategy.PerpSignal {
+	return strategy.NewPerpSignal(uuid.New(), b.strategyName, b.timeProvider.Now(), b.actions)
 }

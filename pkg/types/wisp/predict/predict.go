@@ -4,6 +4,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 type Predict interface {
@@ -22,4 +23,8 @@ type Predict interface {
 	// Log returns the trading logger for strategy-specific logging.
 	// Use for recording trading decisions and strategy events.
 	Log() logging.TradingLogger
+
+	// PredictionSignal creates a new signal builder for prediction market trading signals.
+	// Example: k.PredictionSignal(strategyName).Buy(market, outcome, exchange, shares, maxPrice, expiry).Build()
+	PredictionSignal(strategyName strategy.StrategyName) strategy.PredictionSignalBuilder
 }

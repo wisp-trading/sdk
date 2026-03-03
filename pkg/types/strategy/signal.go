@@ -8,56 +8,88 @@ import (
 
 // SignalFactory creates market-type-specific signal builders.
 type SignalFactory interface {
-	// NewSpot creates a builder for spot market signals.
 	NewSpot(strategyName StrategyName) SpotSignalBuilder
-
-	// NewPerp creates a builder for perpetual futures signals.
 	NewPerp(strategyName StrategyName) PerpSignalBuilder
-
-	// NewPrediction creates a builder for prediction market signals.
 	NewPrediction(strategyName StrategyName) PredictionSignalBuilder
 }
 
 // Signal is the common interface for all market-type signals.
-// The executor uses this to accept any signal type and dispatch accordingly.
+// The executor accepts this and type-switches to the concrete signal type.
 type Signal interface {
 	GetID() uuid.UUID
 	GetStrategy() StrategyName
 	GetTimestamp() time.Time
 }
 
-// SpotSignal is a trading signal for spot markets.
-type SpotSignal struct {
-	ID        uuid.UUID     `json:"id"`
-	Strategy  StrategyName  `json:"strategy"`
-	Timestamp time.Time     `json:"timestamp"`
-	Actions   []*SpotAction `json:"actions"`
+// SpotSignal is the interface for spot market signals.
+// Callers get type-safe access to spot actions without a type assertion.
+type SpotSignal interface {
+	Signal
+	GetActions() []*SpotAction
 }
 
-func (s *SpotSignal) GetID() uuid.UUID          { return s.ID }
-func (s *SpotSignal) GetStrategy() StrategyName { return s.Strategy }
-func (s *SpotSignal) GetTimestamp() time.Time   { return s.Timestamp }
-
-// PerpSignal is a trading signal for perpetual futures markets.
-type PerpSignal struct {
-	ID        uuid.UUID     `json:"id"`
-	Strategy  StrategyName  `json:"strategy"`
-	Timestamp time.Time     `json:"timestamp"`
-	Actions   []*PerpAction `json:"actions"`
+// PerpSignal is the interface for perpetual futures signals.
+type PerpSignal interface {
+	Signal
+	GetActions() []*PerpAction
 }
 
-func (s *PerpSignal) GetID() uuid.UUID          { return s.ID }
-func (s *PerpSignal) GetStrategy() StrategyName { return s.Strategy }
-func (s *PerpSignal) GetTimestamp() time.Time   { return s.Timestamp }
-
-// PredictionSignal is a trading signal for prediction markets.
-type PredictionSignal struct {
-	ID        uuid.UUID           `json:"id"`
-	Strategy  StrategyName        `json:"strategy"`
-	Timestamp time.Time           `json:"timestamp"`
-	Actions   []*PredictionAction `json:"actions"`
+// PredictionSignal is the interface for prediction market signals.
+type PredictionSignal interface {
+	Signal
+	GetActions() []*PredictionAction
 }
 
-func (s *PredictionSignal) GetID() uuid.UUID          { return s.ID }
-func (s *PredictionSignal) GetStrategy() StrategyName { return s.Strategy }
-func (s *PredictionSignal) GetTimestamp() time.Time   { return s.Timestamp }
+// spotSignal is the unexported concrete implementation of SpotSignal.
+type spotSignal struct {
+	id        uuid.UUID
+	strategy  StrategyName
+	timestamp time.Time
+	actions   []*SpotAction
+}
+
+func (s *spotSignal) GetID() uuid.UUID          { return s.id }
+func (s *spotSignal) GetStrategy() StrategyName { return s.strategy }
+func (s *spotSignal) GetTimestamp() time.Time   { return s.timestamp }
+func (s *spotSignal) GetActions() []*SpotAction { return s.actions }
+
+// NewSpotSignal constructs a SpotSignal. Used by the builder.
+func NewSpotSignal(id uuid.UUID, name StrategyName, ts time.Time, actions []*SpotAction) SpotSignal {
+	return &spotSignal{id: id, strategy: name, timestamp: ts, actions: actions}
+}
+
+// perpSignal is the unexported concrete implementation of PerpSignal.
+type perpSignal struct {
+	id        uuid.UUID
+	strategy  StrategyName
+	timestamp time.Time
+	actions   []*PerpAction
+}
+
+func (s *perpSignal) GetID() uuid.UUID          { return s.id }
+func (s *perpSignal) GetStrategy() StrategyName { return s.strategy }
+func (s *perpSignal) GetTimestamp() time.Time   { return s.timestamp }
+func (s *perpSignal) GetActions() []*PerpAction { return s.actions }
+
+// NewPerpSignal constructs a PerpSignal. Used by the builder.
+func NewPerpSignal(id uuid.UUID, name StrategyName, ts time.Time, actions []*PerpAction) PerpSignal {
+	return &perpSignal{id: id, strategy: name, timestamp: ts, actions: actions}
+}
+
+// predictionSignal is the unexported concrete implementation of PredictionSignal.
+type predictionSignal struct {
+	id        uuid.UUID
+	strategy  StrategyName
+	timestamp time.Time
+	actions   []*PredictionAction
+}
+
+func (s *predictionSignal) GetID() uuid.UUID                { return s.id }
+func (s *predictionSignal) GetStrategy() StrategyName       { return s.strategy }
+func (s *predictionSignal) GetTimestamp() time.Time         { return s.timestamp }
+func (s *predictionSignal) GetActions() []*PredictionAction { return s.actions }
+
+// NewPredictionSignal constructs a PredictionSignal. Used by the builder.
+func NewPredictionSignal(id uuid.UUID, name StrategyName, ts time.Time, actions []*PredictionAction) PredictionSignal {
+	return &predictionSignal{id: id, strategy: name, timestamp: ts, actions: actions}
+}
