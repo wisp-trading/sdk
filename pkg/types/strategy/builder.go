@@ -2,7 +2,6 @@ package strategy
 
 import (
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/connector/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
@@ -29,11 +28,4 @@ type PerpSignalBuilder interface {
 	SellShortLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) PerpSignalBuilder
 	SellShortLimitWithLeverage(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price, leverage numerical.Decimal) PerpSignalBuilder
 	Build() PerpSignal
-}
-
-// PredictionSignalBuilder provides a fluent API for constructing prediction market trading signals.
-type PredictionSignalBuilder interface {
-	Buy(market prediction.Market, outcome prediction.Outcome, exchange connector.ExchangeName, shares, maxPrice numerical.Decimal, expiration int64) PredictionSignalBuilder
-	Sell(market prediction.Market, outcome prediction.Outcome, exchange connector.ExchangeName, shares, minPrice numerical.Decimal, expiration int64) PredictionSignalBuilder
-	Build() PredictionSignal
 }

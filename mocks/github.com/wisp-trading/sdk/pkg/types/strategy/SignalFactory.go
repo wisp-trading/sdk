@@ -68,54 +68,6 @@ func (_c *SignalFactory_NewPerp_Call) RunAndReturn(run func(strategy.StrategyNam
 	return _c
 }
 
-// NewPrediction provides a mock function with given fields: strategyName
-func (_m *SignalFactory) NewPrediction(strategyName strategy.StrategyName) strategy.PredictionSignalBuilder {
-	ret := _m.Called(strategyName)
-
-	if len(ret) == 0 {
-		panic("no return value specified for NewPrediction")
-	}
-
-	var r0 strategy.PredictionSignalBuilder
-	if rf, ok := ret.Get(0).(func(strategy.StrategyName) strategy.PredictionSignalBuilder); ok {
-		r0 = rf(strategyName)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(strategy.PredictionSignalBuilder)
-		}
-	}
-
-	return r0
-}
-
-// SignalFactory_NewPrediction_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NewPrediction'
-type SignalFactory_NewPrediction_Call struct {
-	*mock.Call
-}
-
-// NewPrediction is a helper method to define mock.On call
-//   - strategyName strategy.StrategyName
-func (_e *SignalFactory_Expecter) NewPrediction(strategyName interface{}) *SignalFactory_NewPrediction_Call {
-	return &SignalFactory_NewPrediction_Call{Call: _e.mock.On("NewPrediction", strategyName)}
-}
-
-func (_c *SignalFactory_NewPrediction_Call) Run(run func(strategyName strategy.StrategyName)) *SignalFactory_NewPrediction_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyName))
-	})
-	return _c
-}
-
-func (_c *SignalFactory_NewPrediction_Call) Return(_a0 strategy.PredictionSignalBuilder) *SignalFactory_NewPrediction_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *SignalFactory_NewPrediction_Call) RunAndReturn(run func(strategy.StrategyName) strategy.PredictionSignalBuilder) *SignalFactory_NewPrediction_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // NewSpot provides a mock function with given fields: strategyName
 func (_m *SignalFactory) NewSpot(strategyName strategy.StrategyName) strategy.SpotSignalBuilder {
 	ret := _m.Called(strategyName)

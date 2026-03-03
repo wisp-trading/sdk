@@ -3,6 +3,8 @@ package monitoring
 import (
 	"context"
 
+	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
+	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
@@ -18,6 +20,7 @@ type viewRegistry struct {
 	health           health.HealthStore
 	strategyRegistry registry.StrategyRegistry
 	profilingStore   profiling.ProfilingStore
+	predictionViews  types.PredictionViews
 }
 
 func NewViewRegistry(
@@ -25,12 +28,14 @@ func NewViewRegistry(
 	wisp wisp.Wisp,
 	strategyRegistry registry.StrategyRegistry,
 	profilingStore profiling.ProfilingStore,
+	predictionViews types.PredictionViews,
 ) monitoring.ViewRegistry {
 	return &viewRegistry{
 		health:           health,
 		wisp:             wisp,
 		strategyRegistry: strategyRegistry,
 		profilingStore:   profilingStore,
+		predictionViews:  predictionViews,
 	}
 }
 
@@ -129,7 +134,19 @@ func (r *viewRegistry) GetAvailableAssets() []monitoring.AssetExchange {
 		}
 	}
 
+	// Include prediction markets
+	result = append(result, r.predictionViews.GetAvailableMarkets()...)
+
 	return result
+}
+
+// GetPredictionOrderbookView returns the order book for a specific prediction market outcome.
+func (r *viewRegistry) GetPredictionOrderbookView(
+	exchange connector.ExchangeName,
+	marketID predictionconnector.MarketID,
+	outcomeID predictionconnector.OutcomeID,
+) *connector.OrderBook {
+	return r.predictionViews.GetOrderBook(exchange, marketID, outcomeID)
 }
 
 func (r *viewRegistry) GetProfilingStats() *monitoring.ProfilingStats {

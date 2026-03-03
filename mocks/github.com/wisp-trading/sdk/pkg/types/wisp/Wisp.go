@@ -406,54 +406,6 @@ func (_c *Wisp_PerpSignal_Call) RunAndReturn(run func(strategy.StrategyName) str
 	return _c
 }
 
-// PredictionSignal provides a mock function with given fields: strategyName
-func (_m *Wisp) PredictionSignal(strategyName strategy.StrategyName) strategy.PredictionSignalBuilder {
-	ret := _m.Called(strategyName)
-
-	if len(ret) == 0 {
-		panic("no return value specified for PredictionSignal")
-	}
-
-	var r0 strategy.PredictionSignalBuilder
-	if rf, ok := ret.Get(0).(func(strategy.StrategyName) strategy.PredictionSignalBuilder); ok {
-		r0 = rf(strategyName)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(strategy.PredictionSignalBuilder)
-		}
-	}
-
-	return r0
-}
-
-// Wisp_PredictionSignal_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PredictionSignal'
-type Wisp_PredictionSignal_Call struct {
-	*mock.Call
-}
-
-// PredictionSignal is a helper method to define mock.On call
-//   - strategyName strategy.StrategyName
-func (_e *Wisp_Expecter) PredictionSignal(strategyName interface{}) *Wisp_PredictionSignal_Call {
-	return &Wisp_PredictionSignal_Call{Call: _e.mock.On("PredictionSignal", strategyName)}
-}
-
-func (_c *Wisp_PredictionSignal_Call) Run(run func(strategyName strategy.StrategyName)) *Wisp_PredictionSignal_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyName))
-	})
-	return _c
-}
-
-func (_c *Wisp_PredictionSignal_Call) Return(_a0 strategy.PredictionSignalBuilder) *Wisp_PredictionSignal_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Wisp_PredictionSignal_Call) RunAndReturn(run func(strategy.StrategyName) strategy.PredictionSignalBuilder) *Wisp_PredictionSignal_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // SpotSignal provides a mock function with given fields: strategyName
 func (_m *Wisp) SpotSignal(strategyName strategy.StrategyName) strategy.SpotSignalBuilder {
 	ret := _m.Called(strategyName)

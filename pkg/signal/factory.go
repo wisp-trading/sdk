@@ -34,18 +34,3 @@ func (f factory) NewPerp(strategyName strategy.StrategyName) strategy.PerpSignal
 		timeProvider: f.timeProvider,
 	}
 }
-
-// NewPrediction creates a new prediction market signal builder for a strategy.
-func (f factory) NewPrediction(strategyName strategy.StrategyName) strategy.PredictionSignalBuilder {
-	return &predictionBuilder{
-		strategyName: strategyName,
-		actions:      make([]*strategy.PredictionAction, 0),
-		timeProvider: f.timeProvider,
-	}
-}
-
-// New creates a new spot signal builder. Kept for backward compatibility.
-// Prefer NewSpot for new code.
-func (f factory) New(strategyName strategy.StrategyName) strategy.SpotSignalBuilder {
-	return f.NewSpot(strategyName)
-}

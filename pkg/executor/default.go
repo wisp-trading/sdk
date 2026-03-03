@@ -3,6 +3,7 @@ package executor
 import (
 	"fmt"
 
+	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/execution"
@@ -76,7 +77,7 @@ func (e *executor) ExecuteSignal(signal strategy.Signal) error {
 		execErr = e.executeSpotSignal(ctx, s, result)
 	case strategy.PerpSignal:
 		execErr = e.executePerpSignal(ctx, s, result)
-	case strategy.PredictionSignal:
+	case types.PredictionSignal:
 		execErr = e.executePredictionSignal(ctx, s, result)
 	default:
 		execErr = fmt.Errorf("unsupported signal type: %T", signal)
@@ -131,7 +132,7 @@ func (e *executor) executePerpSignal(ctx *execution.ExecutionContext, signal str
 }
 
 // executePredictionSignal executes all actions in a prediction signal
-func (e *executor) executePredictionSignal(ctx *execution.ExecutionContext, signal strategy.PredictionSignal, result *execution.ExecutionResult) error {
+func (e *executor) executePredictionSignal(ctx *execution.ExecutionContext, signal types.PredictionSignal, result *execution.ExecutionResult) error {
 	for i, action := range signal.GetActions() {
 		e.logger.Info("🔮 Prediction action %d: %s on market %s", i, action.ActionType, action.Market.MarketID.String())
 	}

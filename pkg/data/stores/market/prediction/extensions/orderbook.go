@@ -3,8 +3,8 @@ package extensions
 import (
 	"sync"
 
+	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	predictionTypes "github.com/wisp-trading/sdk/pkg/types/connector/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 )
 
@@ -21,14 +21,14 @@ func NewPredictionOrderBookExtension() prediction.OrderBookStoreExtension {
 
 func (e *predictionOrderBookExtension) UpdateOrderBook(
 	exchange connector.ExchangeName,
-	marketID predictionTypes.MarketID,
-	outcomeID predictionTypes.OutcomeID,
+	marketID predictionconnector.MarketID,
+	outcomeID predictionconnector.OutcomeID,
 	orderBook connector.OrderBook,
 ) {
 	e.mu.Lock()
 
 	if e.orderBooks[exchange] == nil {
-		e.orderBooks[exchange] = make(map[predictionTypes.MarketID]prediction.OutcomeOrderBookMap)
+		e.orderBooks[exchange] = make(map[predictionconnector.MarketID]prediction.OutcomeOrderBookMap)
 	}
 	if e.orderBooks[exchange][marketID] == nil {
 		e.orderBooks[exchange][marketID] = make(prediction.OutcomeOrderBookMap)
@@ -41,8 +41,8 @@ func (e *predictionOrderBookExtension) UpdateOrderBook(
 
 func (e *predictionOrderBookExtension) GetOrderBook(
 	exchange connector.ExchangeName,
-	marketID predictionTypes.MarketID,
-	outcomeID predictionTypes.OutcomeID,
+	marketID predictionconnector.MarketID,
+	outcomeID predictionconnector.OutcomeID,
 ) *connector.OrderBook {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -57,7 +57,7 @@ func (e *predictionOrderBookExtension) GetOrderBook(
 
 func (e *predictionOrderBookExtension) GetMarketOrderBooks(
 	exchange connector.ExchangeName,
-	marketID predictionTypes.MarketID,
+	marketID predictionconnector.MarketID,
 ) prediction.OutcomeOrderBookMap {
 	e.mu.RLock()
 	defer e.mu.RUnlock()

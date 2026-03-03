@@ -27,19 +27,19 @@ func (_m *SpotSignalBuilder) EXPECT() *SpotSignalBuilder_Expecter {
 }
 
 // Build provides a mock function with no fields
-func (_m *SpotSignalBuilder) Build() *strategy.SpotSignal {
+func (_m *SpotSignalBuilder) Build() strategy.SpotSignal {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Build")
 	}
 
-	var r0 *strategy.SpotSignal
-	if rf, ok := ret.Get(0).(func() *strategy.SpotSignal); ok {
+	var r0 strategy.SpotSignal
+	if rf, ok := ret.Get(0).(func() strategy.SpotSignal); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*strategy.SpotSignal)
+			r0 = ret.Get(0).(strategy.SpotSignal)
 		}
 	}
 
@@ -63,12 +63,12 @@ func (_c *SpotSignalBuilder_Build_Call) Run(run func()) *SpotSignalBuilder_Build
 	return _c
 }
 
-func (_c *SpotSignalBuilder_Build_Call) Return(_a0 *strategy.SpotSignal) *SpotSignalBuilder_Build_Call {
+func (_c *SpotSignalBuilder_Build_Call) Return(_a0 strategy.SpotSignal) *SpotSignalBuilder_Build_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *SpotSignalBuilder_Build_Call) RunAndReturn(run func() *strategy.SpotSignal) *SpotSignalBuilder_Build_Call {
+func (_c *SpotSignalBuilder_Build_Call) RunAndReturn(run func() strategy.SpotSignal) *SpotSignalBuilder_Build_Call {
 	_c.Call.Return(run)
 	return _c
 }

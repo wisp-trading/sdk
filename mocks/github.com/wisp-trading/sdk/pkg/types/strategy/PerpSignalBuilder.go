@@ -27,19 +27,19 @@ func (_m *PerpSignalBuilder) EXPECT() *PerpSignalBuilder_Expecter {
 }
 
 // Build provides a mock function with no fields
-func (_m *PerpSignalBuilder) Build() *strategy.PerpSignal {
+func (_m *PerpSignalBuilder) Build() strategy.PerpSignal {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for Build")
 	}
 
-	var r0 *strategy.PerpSignal
-	if rf, ok := ret.Get(0).(func() *strategy.PerpSignal); ok {
+	var r0 strategy.PerpSignal
+	if rf, ok := ret.Get(0).(func() strategy.PerpSignal); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*strategy.PerpSignal)
+			r0 = ret.Get(0).(strategy.PerpSignal)
 		}
 	}
 
@@ -63,12 +63,12 @@ func (_c *PerpSignalBuilder_Build_Call) Run(run func()) *PerpSignalBuilder_Build
 	return _c
 }
 
-func (_c *PerpSignalBuilder_Build_Call) Return(_a0 *strategy.PerpSignal) *PerpSignalBuilder_Build_Call {
+func (_c *PerpSignalBuilder_Build_Call) Return(_a0 strategy.PerpSignal) *PerpSignalBuilder_Build_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *PerpSignalBuilder_Build_Call) RunAndReturn(run func() *strategy.PerpSignal) *PerpSignalBuilder_Build_Call {
+func (_c *PerpSignalBuilder_Build_Call) RunAndReturn(run func() strategy.PerpSignal) *PerpSignalBuilder_Build_Call {
 	_c.Call.Return(run)
 	return _c
 }

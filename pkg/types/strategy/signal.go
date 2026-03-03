@@ -10,7 +10,6 @@ import (
 type SignalFactory interface {
 	NewSpot(strategyName StrategyName) SpotSignalBuilder
 	NewPerp(strategyName StrategyName) PerpSignalBuilder
-	NewPrediction(strategyName StrategyName) PredictionSignalBuilder
 }
 
 // Signal is the common interface for all market-type signals.
@@ -32,12 +31,6 @@ type SpotSignal interface {
 type PerpSignal interface {
 	Signal
 	GetActions() []*PerpAction
-}
-
-// PredictionSignal is the interface for prediction market signals.
-type PredictionSignal interface {
-	Signal
-	GetActions() []*PredictionAction
 }
 
 // spotSignal is the unexported concrete implementation of SpotSignal.
@@ -74,22 +67,4 @@ func (s *perpSignal) GetActions() []*PerpAction { return s.actions }
 // NewPerpSignal constructs a PerpSignal. Used by the builder.
 func NewPerpSignal(id uuid.UUID, name StrategyName, ts time.Time, actions []*PerpAction) PerpSignal {
 	return &perpSignal{id: id, strategy: name, timestamp: ts, actions: actions}
-}
-
-// predictionSignal is the unexported concrete implementation of PredictionSignal.
-type predictionSignal struct {
-	id        uuid.UUID
-	strategy  StrategyName
-	timestamp time.Time
-	actions   []*PredictionAction
-}
-
-func (s *predictionSignal) GetID() uuid.UUID                { return s.id }
-func (s *predictionSignal) GetStrategy() StrategyName       { return s.strategy }
-func (s *predictionSignal) GetTimestamp() time.Time         { return s.timestamp }
-func (s *predictionSignal) GetActions() []*PredictionAction { return s.actions }
-
-// NewPredictionSignal constructs a PredictionSignal. Used by the builder.
-func NewPredictionSignal(id uuid.UUID, name StrategyName, ts time.Time, actions []*PredictionAction) PredictionSignal {
-	return &predictionSignal{id: id, strategy: name, timestamp: ts, actions: actions}
 }
