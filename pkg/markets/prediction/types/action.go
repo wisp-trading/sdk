@@ -38,8 +38,5 @@ func (a *PredictionAction) Validate() error {
 	if a.MaxPrice.IsZero() || a.MaxPrice.IsNegative() || a.MaxPrice.GreaterThan(numerical.NewFromFloat(1.0)) {
 		return fmt.Errorf("max price must be between 0 and 1")
 	}
-	if a.Expiration <= 0 {
-		return fmt.Errorf("expiration must be set")
-	}
 	return nil
 }

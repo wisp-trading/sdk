@@ -64,7 +64,7 @@ func (e *executor) ExecuteSignal(signal strategy.Signal) error {
 	// Run BeforeExecute hooks
 	for _, hook := range hooks {
 		if err := hook.BeforeExecute(ctx); err != nil {
-			e.logger.Warn("🚫 Hook blocked execution: %v", err)
+			e.logger.Warn("Hook blocked execution: %v", err)
 			e.handleError(ctx, err, hooks)
 			return err
 		}
@@ -102,7 +102,7 @@ func (e *executor) ExecuteSignal(signal strategy.Signal) error {
 		}
 	}
 
-	e.logger.Info("✅ Successfully executed all actions for signal %s", signal.GetID())
+	e.logger.Info("Successfully executed all actions for signal %s", signal.GetID())
 	return nil
 }
 
