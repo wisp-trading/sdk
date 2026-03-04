@@ -102,7 +102,7 @@ func (c *controller) Start(ctx context.Context, strategyName strategy.StrategyNa
 	c.logger.Info("  ✓ Market data ingestion ready")
 
 	// Start orchestrator
-	c.logger.Info("  🎯 Starting strategy orchestrator...")
+	c.logger.Info("   Starting strategy orchestrator...")
 	if err := c.orchestrator.Start(ctx); err != nil {
 		c.stateMu.Lock()
 		c.state = lifecycleTypes.StateCreated

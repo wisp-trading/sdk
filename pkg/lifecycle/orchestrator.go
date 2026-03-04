@@ -73,7 +73,7 @@ func (o *orchestrator) Start(ctx context.Context) error {
 	o.ctx, o.cancel = context.WithCancel(ctx)
 	o.ticker = time.NewTicker(defaultTickInterval)
 
-	o.logger.Info("🎯 Starting strategy orchestrator")
+	o.logger.Info(" Starting strategy orchestrator")
 
 	go o.executionLoop()
 
@@ -222,7 +222,7 @@ func (o *orchestrator) executeStrategy(strat strategy.Strategy) {
 		if o.anomalyDetector != nil {
 			alert := o.anomalyDetector.CheckExecution(string(strat.GetName()), duration)
 			if alert.Severity != profileTypes.OK {
-				
+
 			}
 			// Update baseline for future comparisons
 			o.anomalyDetector.UpdateBaseline(string(strat.GetName()), duration)

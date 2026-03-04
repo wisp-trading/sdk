@@ -3,7 +3,6 @@ package types
 import (
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	predictionStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
 )
 
@@ -27,5 +26,5 @@ type PredictionViews interface {
 	GetMarketOrderBooks(
 		exchange connector.ExchangeName,
 		marketID predictionconnector.MarketID,
-	) predictionStore.OutcomeOrderBookMap
+	) OutcomeOrderBookMap
 }

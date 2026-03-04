@@ -13,7 +13,6 @@ import (
 	prediction "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	predictionStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 	"go.uber.org/fx"
@@ -28,7 +27,7 @@ var _ = Describe("Prediction Watchlist Integration", func() {
 		ctx       context.Context
 		cancel    context.CancelFunc
 		watchlist types.PredictionWatchlist
-		store     predictionStore.MarketStore
+		store     types.MarketStore
 		logger    logging.ApplicationLogger
 	)
 
@@ -107,7 +106,7 @@ var _ = Describe("Prediction Watchlist Integration", func() {
 
 			// Create orderbook extension
 			extension = realtime.NewPredictionOrderBookExtension(
-				store.(predictionStore.OrderBookStoreExtension),
+				store.(types.OrderBookStoreExtension),
 				logger,
 			)
 		})
