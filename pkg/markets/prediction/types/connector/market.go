@@ -24,6 +24,7 @@ type Market struct {
 
 	// Timing
 	ResolutionTime *time.Time `json:"resolution_time,omitempty"`
+	StartTime      *time.Time `json:"start_time,omitempty"`
 
 	RecurringMarket *RecurringMarket `json:"recurring_market,omitempty"`
 }
