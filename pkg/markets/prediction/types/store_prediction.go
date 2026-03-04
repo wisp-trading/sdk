@@ -10,4 +10,5 @@ type MarketStore interface {
 	market.MarketStore
 	OrderBookStoreExtension
 	PositionsStoreExtension
+	BalanceStoreExtension
 }
