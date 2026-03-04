@@ -7,8 +7,10 @@ import (
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // Wisp is the base context object for strategy GetSignals methods.
@@ -108,4 +110,14 @@ func (p predict) Log() logging.TradingLogger {
 // PredictionSignal creates a new signal builder for prediction market trading signals.
 func (p predict) PredictionSignal(strategyName strategy.StrategyName) types.PredictionSignalBuilder {
 	return p.signal.NewPrediction(strategyName)
+}
+
+// Balance returns the current balance for an asset on an exchange.
+func (p predict) Balance(exchange connector.ExchangeName, asset portfolio.Asset) (numerical.Decimal, bool) {
+	return p.store.GetBalance(exchange, asset)
+}
+
+// Positions returns all orders recorded for the given strategy.
+func (p predict) Positions(strategyName strategy.StrategyName) []types.PredictionOrder {
+	return p.store.GetOrdersByStrategy(strategyName)
 }
