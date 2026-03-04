@@ -4,9 +4,10 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 )
 
-// MarketStore handles prediction market data storage
-// Embeds base.MarketStore and adds prediction-specific methods
+// MarketStore handles prediction market data storage.
+// Embeds base.MarketStore and all prediction-specific extensions.
 type MarketStore interface {
 	market.MarketStore
 	OrderBookStoreExtension
+	PositionsStoreExtension
 }

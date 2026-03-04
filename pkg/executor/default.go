@@ -56,7 +56,7 @@ func (e *executor) ExecuteSignal(signal strategy.Signal) error {
 		Metadata:  make(map[string]interface{}),
 	}
 
-	e.logger.Info("🎯 Executing signal %s with strategy %s", signal.GetID(), signal.GetStrategy())
+	e.logger.Info("Executing signal %s with strategy %s", signal.GetID(), signal.GetStrategy())
 
 	// Get hooks from registry at execution time
 	hooks := e.hookRegistry.GetHooks()

@@ -43,12 +43,3 @@ type PositionsStoreExtension interface {
 	// UpdateOrderStatus updates the status of an existing order (e.g. filled, cancelled).
 	UpdateOrderStatus(orderID string, status connector.OrderStatus) error
 }
-
-// Store is the domain-level prediction store interface.
-// It composes the base MarketStore (used by the registry and views) with the
-// PositionsStoreExtension (used by the executor). The pkg/types layer cannot reference
-// PositionsStoreExtension without an import cycle, so this richer interface lives here.
-type Store interface {
-	MarketStore
-	PositionsStoreExtension
-}

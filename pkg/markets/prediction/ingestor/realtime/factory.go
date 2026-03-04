@@ -1,7 +1,7 @@
 package realtime
 
 import (
-	prediction2 "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
+	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
@@ -11,16 +11,16 @@ import (
 // factory creates realtime ingestors for all registered prediction WebSocket connectors.
 type factory struct {
 	connectorRegistry registry.ConnectorRegistry
-	watchlist         prediction2.PredictionWatchlist
+	watchlist         types.PredictionWatchlist
 	logger            logging.ApplicationLogger
-	store             prediction2.MarketStore
+	store             types.MarketStore
 }
 
 func NewFactory(
 	connectorRegistry registry.ConnectorRegistry,
-	watchlist prediction2.PredictionWatchlist,
+	watchlist types.PredictionWatchlist,
 	logger logging.ApplicationLogger,
-	store prediction2.MarketStore,
+	store types.MarketStore,
 ) realtime.RealtimeIngestorFactory {
 	return &factory{
 		connectorRegistry: connectorRegistry,

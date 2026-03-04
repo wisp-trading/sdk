@@ -14,7 +14,7 @@ type predictionStore struct {
 	domainTypes.PositionsStoreExtension
 }
 
-func NewStore(timeProvider temporal.TimeProvider) domainTypes.Store {
+func NewStore(timeProvider temporal.TimeProvider) domainTypes.MarketStore {
 	baseStore := store.NewStore(timeProvider)
 
 	return &predictionStore{

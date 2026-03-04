@@ -13,11 +13,11 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
-// Executor handles execution of prediction market signals.
+// executor handles execution of prediction market signals.
 // It owns position tracking via the prediction store — no shared activity.Positions.
-type Executor struct {
+type executor struct {
 	connectors   registry.ConnectorRegistry
-	store        predTypes.Store
+	store        predTypes.MarketStore
 	logger       logging.ApplicationLogger
 	timeProvider temporal.TimeProvider
 }
@@ -25,12 +25,12 @@ type Executor struct {
 // NewExecutor creates a new prediction market executor.
 func NewExecutor(
 	connectors registry.ConnectorRegistry,
-	store predTypes.Store,
+	store predTypes.MarketStore,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
-) *Executor {
-	logger.Info("📌 Initializing prediction executor")
-	return &Executor{
+) predTypes.SignalExecutor {
+	logger.Info("Initializing prediction executor")
+	return &executor{
 		connectors:   connectors,
 		store:        store,
 		logger:       logger,
@@ -40,7 +40,7 @@ func NewExecutor(
 
 // ExecutePredictionSignal executes all actions in a prediction signal.
 // Satisfies predTypes.SignalExecutor.
-func (e *Executor) ExecutePredictionSignal(
+func (e *executor) ExecutePredictionSignal(
 	signal predTypes.PredictionSignal,
 	ctx *execution.ExecutionContext,
 	result *execution.ExecutionResult,
@@ -63,7 +63,7 @@ func (e *Executor) ExecutePredictionSignal(
 	return nil
 }
 
-func (e *Executor) executeAction(strategyName strategy.StrategyName, action *predTypes.PredictionAction) (string, error) {
+func (e *executor) executeAction(strategyName strategy.StrategyName, action *predTypes.PredictionAction) (string, error) {
 	exchange, exists := e.connectors.Connector(action.Exchange)
 	if !exists {
 		return "", fmt.Errorf("exchange %s not available", action.Exchange)

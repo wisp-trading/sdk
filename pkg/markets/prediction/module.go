@@ -49,10 +49,9 @@ var BatchModule = fx.Provide(
 )
 
 // registerStore registers the prediction store with the market registry.
-// Accepts domainTypes.Store (the richer domain interface) which satisfies marketTypes.MarketStore.
 func registerStore(
 	registry marketTypes.MarketRegistry,
-	predictionStore domainTypes.Store,
+	predictionStore domainTypes.MarketStore,
 ) {
 	registry.Register(predictionStore)
 }
