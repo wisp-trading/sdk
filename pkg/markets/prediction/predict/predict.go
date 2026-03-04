@@ -121,3 +121,19 @@ func (p predict) Balance(exchange connector.ExchangeName, asset portfolio.Asset)
 func (p predict) Positions(strategyName strategy.StrategyName) []types.PredictionOrder {
 	return p.store.GetOrdersByStrategy(strategyName)
 }
+
+func (p predict) Redeem(market predictionconnector.Market) error {
+	marketConnector, exists := p.connectorRegistry.Prediction(market.Exchange)
+
+	if !exists {
+		return errors.New("connector not found for exchange: " + string(market.Exchange))
+	}
+
+	_, err := marketConnector.Redeem(market)
+
+	if err != nil {
+		return errors.New("failed to redeem market: " + market.MarketID.String() + " on exchange: " + string(market.Exchange) + " error: " + err.Error())
+	}
+
+	return nil
+}

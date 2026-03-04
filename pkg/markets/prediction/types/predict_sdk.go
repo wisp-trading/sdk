@@ -35,4 +35,7 @@ type Predict interface {
 	// PredictionSignal creates a new signal builder for prediction market trading signals.
 	// Example: k.PredictionSignal(strategyName).Buy(market, outcome, exchange, shares, maxPrice, expiry).Build()
 	PredictionSignal(strategyName strategy.StrategyName) PredictionSignalBuilder
+
+	// Redeem attempts to redeem winnings for a market. Returns an error if redemption fails.
+	Redeem(market predictionconnector.Market) error
 }
