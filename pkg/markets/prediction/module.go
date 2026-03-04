@@ -1,22 +1,24 @@
 package prediction
 
 import (
+	"github.com/wisp-trading/sdk/pkg/markets/prediction/executor"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/realtime"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/signal"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/store"
+	domainTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/views"
 	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
-	predictionTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	"go.uber.org/fx"
 )
 
-// Module wires all prediction market dependencies: store, ingestors, and views.
+// Module wires all prediction market dependencies: store, ingestors, views, and executor.
 var Module = fx.Module("prediction",
 	fx.Provide(
 		store.NewStore,
 		signal.NewFactory,
 		views.NewPredictionViews,
+		executor.NewExecutor,
 		NewPredictionWatchlist,
 		NewPredictionUniverseProvider,
 	),
@@ -46,10 +48,11 @@ var BatchModule = fx.Provide(
 	),
 )
 
-// registerStore registers all market stores with the registry
+// registerStore registers the prediction store with the market registry.
+// Accepts domainTypes.Store (the richer domain interface) which satisfies marketTypes.MarketStore.
 func registerStore(
 	registry marketTypes.MarketRegistry,
-	predictionStore predictionTypes.MarketStore,
+	predictionStore domainTypes.Store,
 ) {
 	registry.Register(predictionStore)
 }

@@ -2,10 +2,10 @@ package batch
 
 import (
 	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/batch"
+	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/data"
 	batchTypes "github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
-	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
@@ -15,7 +15,7 @@ import (
 type factory struct {
 	connectorRegistry registry.ConnectorRegistry
 	marketWatchlist   data.MarketWatchlist
-	store             prediction.MarketStore
+	store             types.MarketStore
 	timeProvider      temporal.TimeProvider
 	logger            logging.ApplicationLogger
 }
@@ -23,7 +23,7 @@ type factory struct {
 func NewFactory(
 	connectorRegistry registry.ConnectorRegistry,
 	marketWatchlist data.MarketWatchlist,
-	store prediction.MarketStore,
+	store types.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
 ) batchTypes.BatchIngestorFactory {

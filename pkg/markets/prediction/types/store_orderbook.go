@@ -1,4 +1,4 @@
-package prediction
+package types
 
 import (
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
@@ -6,7 +6,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 )
 
-// One market has N outcomes, each with an order book
+// OutcomeOrderBookMap One market has N outcomes, each with an order book
 type OutcomeOrderBookMap map[predictionconnector.OutcomeID]*connector.OrderBook
 
 // Exchange -> Market -> Outcome -> OrderBook

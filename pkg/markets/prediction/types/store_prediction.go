@@ -1,4 +1,4 @@
-package prediction
+package types
 
 import (
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/market"

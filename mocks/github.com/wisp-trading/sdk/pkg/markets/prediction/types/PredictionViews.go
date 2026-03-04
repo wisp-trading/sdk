@@ -8,7 +8,7 @@ import (
 
 	monitoring "github.com/wisp-trading/sdk/pkg/types/monitoring"
 
-	prediction "github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
+	types "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 
 	typesconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 )
@@ -27,19 +27,19 @@ func (_m *PredictionViews) EXPECT() *PredictionViews_Expecter {
 }
 
 // GetMarketOrderBooks provides a mock function with given fields: exchange, marketID
-func (_m *PredictionViews) GetMarketOrderBooks(exchange connector.ExchangeName, marketID typesconnector.MarketID) prediction.OutcomeOrderBookMap {
+func (_m *PredictionViews) GetMarketOrderBooks(exchange connector.ExchangeName, marketID typesconnector.MarketID) types.OutcomeOrderBookMap {
 	ret := _m.Called(exchange, marketID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetMarketOrderBooks")
 	}
 
-	var r0 prediction.OutcomeOrderBookMap
-	if rf, ok := ret.Get(0).(func(connector.ExchangeName, typesconnector.MarketID) prediction.OutcomeOrderBookMap); ok {
+	var r0 types.OutcomeOrderBookMap
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName, typesconnector.MarketID) types.OutcomeOrderBookMap); ok {
 		r0 = rf(exchange, marketID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(prediction.OutcomeOrderBookMap)
+			r0 = ret.Get(0).(types.OutcomeOrderBookMap)
 		}
 	}
 
@@ -65,12 +65,12 @@ func (_c *PredictionViews_GetMarketOrderBooks_Call) Run(run func(exchange connec
 	return _c
 }
 
-func (_c *PredictionViews_GetMarketOrderBooks_Call) Return(_a0 prediction.OutcomeOrderBookMap) *PredictionViews_GetMarketOrderBooks_Call {
+func (_c *PredictionViews_GetMarketOrderBooks_Call) Return(_a0 types.OutcomeOrderBookMap) *PredictionViews_GetMarketOrderBooks_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *PredictionViews_GetMarketOrderBooks_Call) RunAndReturn(run func(connector.ExchangeName, typesconnector.MarketID) prediction.OutcomeOrderBookMap) *PredictionViews_GetMarketOrderBooks_Call {
+func (_c *PredictionViews_GetMarketOrderBooks_Call) RunAndReturn(run func(connector.ExchangeName, typesconnector.MarketID) types.OutcomeOrderBookMap) *PredictionViews_GetMarketOrderBooks_Call {
 	_c.Call.Return(run)
 	return _c
 }

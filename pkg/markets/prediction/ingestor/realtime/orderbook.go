@@ -6,18 +6,17 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	predictionStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 )
 
 // predictionOrderBookExtension handles WebSocket subscriptions for prediction order book updates.
 type predictionOrderBookExtension struct {
-	store  predictionStore.OrderBookStoreExtension
+	store  types.OrderBookStoreExtension
 	logger logging.ApplicationLogger
 }
 
 func NewPredictionOrderBookExtension(
-	store predictionStore.OrderBookStoreExtension,
+	store types.OrderBookStoreExtension,
 	logger logging.ApplicationLogger,
 ) types.PredictionExtension {
 	return &predictionOrderBookExtension{

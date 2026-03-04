@@ -5,7 +5,6 @@ import (
 	"github.com/wisp-trading/sdk/pkg/data/stores/market/spot"
 	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	perpTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
-	predictionTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	spotTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/spot"
 	"go.uber.org/fx"
 )
@@ -21,14 +20,13 @@ var Module = fx.Options(
 	),
 )
 
-// registerStores registers all market stores with the registry
+// registerStores registers spot and perp stores with the registry.
+// The prediction store is registered by pkg/markets/prediction/module.go.
 func registerStores(
 	registry marketTypes.MarketRegistry,
 	spotStore spotTypes.MarketStore,
 	perpStore perpTypes.MarketStore,
-	predictionStore predictionTypes.MarketStore,
 ) {
 	registry.Register(spotStore)
 	registry.Register(perpStore)
-	registry.Register(predictionStore)
 }

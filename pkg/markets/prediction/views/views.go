@@ -4,20 +4,19 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	predictionStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
 
 type predictionViews struct {
 	watchlist         types.PredictionWatchlist
-	store             predictionStore.MarketStore
+	store             types.MarketStore
 	connectorRegistry registry.ConnectorRegistry
 }
 
 func NewPredictionViews(
 	watchlist types.PredictionWatchlist,
-	store predictionStore.MarketStore,
+	store types.MarketStore,
 	connectorRegistry registry.ConnectorRegistry,
 ) types.PredictionViews {
 	return &predictionViews{
@@ -66,6 +65,6 @@ func (v *predictionViews) GetOrderBook(
 func (v *predictionViews) GetMarketOrderBooks(
 	exchange connector.ExchangeName,
 	marketID predictionconnector.MarketID,
-) predictionStore.OutcomeOrderBookMap {
+) types.OutcomeOrderBookMap {
 	return v.store.GetMarketOrderBooks(exchange, marketID)
 }

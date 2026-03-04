@@ -6,7 +6,6 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	store "github.com/wisp-trading/sdk/pkg/types/data/stores/market/prediction"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -18,7 +17,7 @@ type predict struct {
 	applicationLogger   logging.ApplicationLogger
 	tradingLogger       logging.TradingLogger
 	signal              types.SignalFactory
-	store               store.MarketStore
+	store               types.MarketStore
 	predictionWatchlist types.PredictionWatchlist
 	connectorRegistry   registry.ConnectorRegistry
 }
@@ -28,7 +27,7 @@ func NewPredict(
 	applicationLogger logging.ApplicationLogger,
 	tradingLogger logging.TradingLogger,
 	signal types.SignalFactory,
-	store store.MarketStore,
+	store types.MarketStore,
 	predictionWatchlist types.PredictionWatchlist,
 	connectorRegistry registry.ConnectorRegistry,
 ) types.Predict {

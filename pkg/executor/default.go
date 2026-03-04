@@ -3,7 +3,7 @@ package executor
 import (
 	"fmt"
 
-	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
+	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/execution"
@@ -22,6 +22,9 @@ type executor struct {
 
 	// Hook registry for runtime hook management
 	hookRegistry registry.Hooks
+
+	// Domain-specific executors
+	predictionExecutor predTypes.SignalExecutor
 }
 
 // NewExecutor creates a new default executor
@@ -31,15 +34,17 @@ func NewExecutor(
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 	hookRegistry registry.Hooks,
+	predictionExecutor predTypes.SignalExecutor,
 ) execution.Executor {
 	logger.Info("📌 Initializing executor with hook registry")
 
 	return &executor{
-		connectors:   connectors,
-		positions:    positions,
-		logger:       logger,
-		timeProvider: timeProvider,
-		hookRegistry: hookRegistry,
+		connectors:         connectors,
+		positions:          positions,
+		logger:             logger,
+		timeProvider:       timeProvider,
+		hookRegistry:       hookRegistry,
+		predictionExecutor: predictionExecutor,
 	}
 }
 
@@ -77,7 +82,7 @@ func (e *executor) ExecuteSignal(signal strategy.Signal) error {
 		execErr = e.executeSpotSignal(ctx, s, result)
 	case strategy.PerpSignal:
 		execErr = e.executePerpSignal(ctx, s, result)
-	case types.PredictionSignal:
+	case predTypes.PredictionSignal:
 		execErr = e.executePredictionSignal(ctx, s, result)
 	default:
 		execErr = fmt.Errorf("unsupported signal type: %T", signal)
@@ -131,12 +136,9 @@ func (e *executor) executePerpSignal(ctx *execution.ExecutionContext, signal str
 	return nil
 }
 
-// executePredictionSignal executes all actions in a prediction signal
-func (e *executor) executePredictionSignal(ctx *execution.ExecutionContext, signal types.PredictionSignal, result *execution.ExecutionResult) error {
-	for i, action := range signal.GetActions() {
-		e.logger.Info("🔮 Prediction action %d: %s on market %s", i, action.ActionType, action.Market.MarketID.String())
-	}
-	return nil
+// executePredictionSignal delegates to the prediction domain executor.
+func (e *executor) executePredictionSignal(ctx *execution.ExecutionContext, signal predTypes.PredictionSignal, result *execution.ExecutionResult) error {
+	return e.predictionExecutor.ExecutePredictionSignal(signal, ctx, result)
 }
 
 // executeSpotAction executes a single spot action
