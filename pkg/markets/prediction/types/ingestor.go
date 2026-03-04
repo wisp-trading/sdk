@@ -19,3 +19,9 @@ type PredictionSubscriber interface {
 	SubscribeOrderBook(market predictionconnector.Market) error
 	GetOrderBookChannels() map[string]<-chan connector.OrderBook
 }
+
+// PredictionCollectionExtension allows market-specific REST polling for prediction markets.
+// Parallel to PredictionExtension for the realtime ingestor — no pairs, prediction-native signature.
+type PredictionCollectionExtension interface {
+	Collect(conn interface{}, exchangeName connector.ExchangeName)
+}
