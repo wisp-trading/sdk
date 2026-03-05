@@ -1,11 +1,11 @@
-package perp
+package store
 
 import (
-	"github.com/wisp-trading/sdk/pkg/data/stores/market/perp/extensions"
 	"github.com/wisp-trading/sdk/pkg/data/stores/market/store"
 	storeExtensions "github.com/wisp-trading/sdk/pkg/data/stores/market/store/extensions"
+	"github.com/wisp-trading/sdk/pkg/markets/perp/store/extensions"
+	domainTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
-	perpTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
@@ -13,10 +13,10 @@ type perpStore struct {
 	marketTypes.MarketStore
 	marketTypes.OrderBookStoreExtension
 	marketTypes.KlineStoreExtension
-	perpTypes.FundingRateStoreExtension
+	domainTypes.FundingRateStoreExtension
 }
 
-func NewStore(timeProvider temporal.TimeProvider) perpTypes.MarketStore {
+func NewStore(timeProvider temporal.TimeProvider) domainTypes.MarketStore {
 	baseStore := store.NewStore(timeProvider)
 
 	return &perpStore{

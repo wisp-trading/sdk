@@ -16,7 +16,6 @@ type perpBuilder struct {
 	timeProvider temporal.TimeProvider
 }
 
-// Buy adds a market buy action for a perpetual futures position.
 func (b *perpBuilder) Buy(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.PerpSignalBuilder {
 	b.actions = append(b.actions, &strategy.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionBuy, Exchange: exchange},
@@ -27,7 +26,6 @@ func (b *perpBuilder) Buy(pair portfolio.Pair, exchange connector.ExchangeName, 
 	return b
 }
 
-// BuyLimit adds a limit buy action for a perpetual futures position.
 func (b *perpBuilder) BuyLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.PerpSignalBuilder {
 	b.actions = append(b.actions, &strategy.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionBuy, Exchange: exchange},
@@ -38,7 +36,6 @@ func (b *perpBuilder) BuyLimit(pair portfolio.Pair, exchange connector.ExchangeN
 	return b
 }
 
-// BuyLimitWithLeverage adds a limit buy action with specified leverage.
 func (b *perpBuilder) BuyLimitWithLeverage(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price, leverage numerical.Decimal) strategy.PerpSignalBuilder {
 	b.actions = append(b.actions, &strategy.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionBuy, Exchange: exchange},
@@ -50,7 +47,6 @@ func (b *perpBuilder) BuyLimitWithLeverage(pair portfolio.Pair, exchange connect
 	return b
 }
 
-// Sell adds a market sell action to close a perpetual futures position.
 func (b *perpBuilder) Sell(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.PerpSignalBuilder {
 	b.actions = append(b.actions, &strategy.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionSell, Exchange: exchange},
@@ -61,7 +57,6 @@ func (b *perpBuilder) Sell(pair portfolio.Pair, exchange connector.ExchangeName,
 	return b
 }
 
-// SellLimit adds a limit sell action to close a perpetual futures position.
 func (b *perpBuilder) SellLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.PerpSignalBuilder {
 	b.actions = append(b.actions, &strategy.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionSell, Exchange: exchange},
@@ -72,7 +67,6 @@ func (b *perpBuilder) SellLimit(pair portfolio.Pair, exchange connector.Exchange
 	return b
 }
 
-// SellShort adds a market short sell action for a perpetual futures position.
 func (b *perpBuilder) SellShort(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.PerpSignalBuilder {
 	b.actions = append(b.actions, &strategy.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionSellShort, Exchange: exchange},
@@ -83,7 +77,6 @@ func (b *perpBuilder) SellShort(pair portfolio.Pair, exchange connector.Exchange
 	return b
 }
 
-// SellShortLimit adds a limit short sell action for a perpetual futures position.
 func (b *perpBuilder) SellShortLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.PerpSignalBuilder {
 	b.actions = append(b.actions, &strategy.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionSellShort, Exchange: exchange},
@@ -94,7 +87,6 @@ func (b *perpBuilder) SellShortLimit(pair portfolio.Pair, exchange connector.Exc
 	return b
 }
 
-// SellShortLimitWithLeverage adds a limit short sell action with specified leverage.
 func (b *perpBuilder) SellShortLimitWithLeverage(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price, leverage numerical.Decimal) strategy.PerpSignalBuilder {
 	b.actions = append(b.actions, &strategy.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionSellShort, Exchange: exchange},
@@ -106,7 +98,6 @@ func (b *perpBuilder) SellShortLimitWithLeverage(pair portfolio.Pair, exchange c
 	return b
 }
 
-// Build constructs and returns the PerpSignal.
 func (b *perpBuilder) Build() strategy.PerpSignal {
 	return strategy.NewPerpSignal(uuid.New(), b.strategyName, b.timeProvider.Now(), b.actions)
 }

@@ -1,4 +1,4 @@
-package realtime
+package realtime_test
 
 import (
 	"testing"
@@ -9,5 +9,5 @@ import (
 
 func TestRealtime(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Realtime Ingestor Suite")
+	RunSpecs(t, "Perp Realtime Ingestor Suite")
 }

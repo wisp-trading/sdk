@@ -3,6 +3,7 @@ package monitoring
 import (
 	"context"
 
+	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
@@ -21,6 +22,7 @@ type viewRegistry struct {
 	strategyRegistry registry.StrategyRegistry
 	profilingStore   profiling.ProfilingStore
 	predictionViews  types.PredictionViews
+	perpViews        perpTypes.PerpViews
 }
 
 func NewViewRegistry(
@@ -29,6 +31,7 @@ func NewViewRegistry(
 	strategyRegistry registry.StrategyRegistry,
 	profilingStore profiling.ProfilingStore,
 	predictionViews types.PredictionViews,
+	perpViews perpTypes.PerpViews,
 ) monitoring.ViewRegistry {
 	return &viewRegistry{
 		health:           health,
@@ -36,6 +39,7 @@ func NewViewRegistry(
 		strategyRegistry: strategyRegistry,
 		profilingStore:   profilingStore,
 		predictionViews:  predictionViews,
+		perpViews:        perpViews,
 	}
 }
 
@@ -116,8 +120,8 @@ func (r *viewRegistry) GetHealth() *health.SystemHealthReport {
 }
 
 // GetMarketViews returns the live market tree across all market types.
-// Spot/perp come from wisp.Universe(); prediction is delegated to predictionViews
-// which owns that domain and queries the watchlist directly.
+// Spot comes from wisp.Universe(); perp and prediction are delegated to their
+// respective views packages which own those domains.
 func (r *viewRegistry) GetMarketViews() *monitoring.MarketViews {
 	universe := r.wisp.Universe()
 	views := &monitoring.MarketViews{}
@@ -125,13 +129,7 @@ func (r *viewRegistry) GetMarketViews() *monitoring.MarketViews {
 	for _, ex := range universe.Exchanges {
 		pairs := universe.Assets[ex.Name]
 		for _, pair := range pairs {
-			switch ex.MarketType {
-			case connector.MarketTypePerp:
-				views.Perp = append(views.Perp, monitoring.PerpMarketView{
-					Exchange: string(ex.Name),
-					Pair:     pair.Symbol(),
-				})
-			default: // MarketTypeSpot
+			if ex.MarketType == connector.MarketTypeSpot {
 				views.Spot = append(views.Spot, monitoring.SpotMarketView{
 					Exchange: string(ex.Name),
 					Pair:     pair.Symbol(),
@@ -140,7 +138,10 @@ func (r *viewRegistry) GetMarketViews() *monitoring.MarketViews {
 		}
 	}
 
-	// Prediction is entirely owned by the prediction views package
+	// Perp is owned by the perp views package
+	views.Perp = r.perpViews.GetMarketViews()
+
+	// Prediction is owned by the prediction views package
 	views.Prediction = r.predictionViews.GetMarketViews()
 
 	return views

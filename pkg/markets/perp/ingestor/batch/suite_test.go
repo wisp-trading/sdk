@@ -1,4 +1,4 @@
-package batch
+package batch_test
 
 import (
 	"testing"
@@ -9,5 +9,5 @@ import (
 
 func TestBatch(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Batch Ingestor Suite")
+	RunSpecs(t, "Perp Batch Ingestor Suite")
 }

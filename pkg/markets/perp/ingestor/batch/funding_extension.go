@@ -1,21 +1,21 @@
 package batch
 
 import (
+	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
-	perpStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
+	batchTypes "github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
 // fundingRateExtension collects perp-specific funding rate data
 type fundingRateExtension struct {
-	store  perpStore.MarketStore
+	store  perpTypes.MarketStore
 	logger logging.ApplicationLogger
 }
 
-func NewFundingRateExtension(store perpStore.MarketStore, logger logging.ApplicationLogger) batch.CollectionExtension {
+func NewFundingRateExtension(store perpTypes.MarketStore, logger logging.ApplicationLogger) batchTypes.CollectionExtension {
 	return &fundingRateExtension{
 		store:  store,
 		logger: logger,
@@ -29,14 +29,12 @@ func (f *fundingRateExtension) Collect(conn connector.Connector, exchangeName co
 		return
 	}
 
-	// Fetch current funding rates
 	rates, err := pc.FetchCurrentFundingRates()
 	if err != nil {
 		f.logger.Error("Failed to fetch funding rates from %s: %v", exchangeName, err)
 		return
 	}
 
-	// Update all funding rates from this connector
 	f.store.UpdateFundingRates(exchangeName, rates)
 
 	for asset, rate := range rates {
@@ -45,4 +43,4 @@ func (f *fundingRateExtension) Collect(conn connector.Connector, exchangeName co
 	}
 }
 
-var _ batch.CollectionExtension = (*fundingRateExtension)(nil)
+var _ batchTypes.CollectionExtension = (*fundingRateExtension)(nil)

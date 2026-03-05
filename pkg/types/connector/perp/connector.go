@@ -5,12 +5,13 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-// Connector represents a perpetual futures exchange connection
+// Connector represents a perpetual futures exchange connection.
+// AccountReader is the perp-specific override (adds GetMarginBalances) and
+// replaces the base connector.AccountReader (GetBalances).
 type Connector interface {
 	connector.Connector
 	connector.MarketDataReader
 	connector.OrderExecutor
-	connector.AccountReader
 	FundingRateProvider
 	PositionManager
 	ContractProvider

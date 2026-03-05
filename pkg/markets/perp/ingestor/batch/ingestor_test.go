@@ -4,25 +4,24 @@ import (
 	"time"
 
 	mockPerpConnector "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/perp"
-	data2 "github.com/wisp-trading/sdk/pkg/data"
-	perpBatch "github.com/wisp-trading/sdk/pkg/data/ingestors/market/perp/batch"
-	perpStore "github.com/wisp-trading/sdk/pkg/data/stores/market/perp"
-	"github.com/wisp-trading/sdk/pkg/types/data"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
-	"github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
-	registryTypes "github.com/wisp-trading/sdk/pkg/types/registry"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	"github.com/stretchr/testify/mock"
+	perpDomain "github.com/wisp-trading/sdk/pkg/markets/perp"
+	perpBatch "github.com/wisp-trading/sdk/pkg/markets/perp/ingestor/batch"
+	perpStore "github.com/wisp-trading/sdk/pkg/markets/perp/store"
+	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/registry"
 	timeProvider "github.com/wisp-trading/sdk/pkg/runtime/time"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	batchTypes "github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	registryTypes "github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/mock"
 )
 
 func setupMockPerpConnector(t GinkgoTInterface, name connector.ExchangeName) *mockPerpConnector.Connector {
@@ -35,29 +34,27 @@ func setupMockPerpConnector(t GinkgoTInterface, name connector.ExchangeName) *mo
 
 var _ = Describe("Perp BatchIngestor", func() {
 	var (
-		store             perp.MarketStore
+		store             perpTypes.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
-		marketWatchlist   data.MarketWatchlist
+		watchlist         perpTypes.PerpWatchlist
 		logger            logging.ApplicationLogger
 		timeProviderInst  temporal.TimeProvider
-		factory           batch.BatchIngestorFactory
+		factory           batchTypes.BatchIngestorFactory
 		quote             = portfolio.NewAsset("USD")
 		btcPair           = portfolio.NewPair(portfolio.NewAsset("BTC"), quote)
 		ethPair           = portfolio.NewPair(portfolio.NewAsset("ETH"), quote)
 	)
 
 	BeforeEach(func() {
-		// Create real instances
 		logger = logging.NewNoOpLogger()
 		timeProviderInst = timeProvider.NewTimeProvider()
 		store = perpStore.NewStore(timeProviderInst)
 		connectorRegistry = registry.NewConnectorRegistry()
-		marketWatchlist = data2.NewMarketWatchlist()
+		watchlist = perpDomain.NewPerpWatchlist()
 
-		// Create factory
 		factory = perpBatch.NewFactory(
 			connectorRegistry,
-			marketWatchlist,
+			watchlist,
 			store,
 			timeProviderInst,
 			logger,
@@ -72,7 +69,6 @@ var _ = Describe("Perp BatchIngestor", func() {
 
 				now := time.Now()
 
-				// Setup orderbook expectations
 				btcOrderbook := &connector.OrderBook{
 					Pair:      btcPair,
 					Bids:      []connector.PriceLevel{{Price: numerical.NewFromFloat(50000), Quantity: numerical.NewFromFloat(1.0)}},
@@ -89,7 +85,6 @@ var _ = Describe("Perp BatchIngestor", func() {
 				m.EXPECT().FetchOrderBook(btcPair, 20).Return(btcOrderbook, nil).Maybe()
 				m.EXPECT().FetchOrderBook(ethPair, 20).Return(ethOrderbook, nil).Maybe()
 
-				// Setup price expectations
 				btcPrice := &connector.Price{
 					Symbol:    "BTC",
 					Price:     numerical.NewFromFloat(50050),
@@ -109,82 +104,48 @@ var _ = Describe("Perp BatchIngestor", func() {
 				m.EXPECT().FetchPrice(btcPair).Return(btcPrice, nil).Maybe()
 				m.EXPECT().FetchPrice(ethPair).Return(ethPrice, nil).Maybe()
 
-				// Setup kline expectations for all intervals
 				intervals := []string{"1m", "5m", "15m", "1h", "4h", "1d"}
 				for _, interval := range intervals {
 					m.EXPECT().FetchKlines(btcPair, interval, mock.Anything).Return([]connector.Kline{
-						{
-							Symbol:    "BTC",
-							Interval:  interval,
-							Open:      50000,
-							High:      50100,
-							Low:       49900,
-							Close:     50050,
-							Volume:    100,
-							OpenTime:  now.Add(-time.Hour),
-							CloseTime: now,
-						},
+						{Symbol: "BTC", Interval: interval, Open: 50000, High: 50100, Low: 49900, Close: 50050, Volume: 100, OpenTime: now.Add(-time.Hour), CloseTime: now},
 					}, nil).Maybe()
 					m.EXPECT().FetchKlines(ethPair, interval, mock.Anything).Return([]connector.Kline{
-						{
-							Symbol:    "ETH",
-							Interval:  interval,
-							Open:      3000,
-							High:      3010,
-							Low:       2990,
-							Close:     3005,
-							Volume:    50,
-							OpenTime:  now.Add(-time.Hour),
-							CloseTime: now,
-						},
+						{Symbol: "ETH", Interval: interval, Open: 3000, High: 3010, Low: 2990, Close: 3005, Volume: 50, OpenTime: now.Add(-time.Hour), CloseTime: now},
 					}, nil).Maybe()
 				}
 
-				// Setup funding rate expectations (perp-specific)
 				btcFundingRate := perpConn.FundingRate{
-					Pair:            btcPair,
-					CurrentRate:     numerical.NewFromFloat(0.0001),
-					NextFundingTime: now.Add(8 * time.Hour),
-					MarkPrice:       numerical.NewFromFloat(50050),
-					IndexPrice:      numerical.NewFromFloat(50045),
-					Timestamp:       now,
+					Pair: btcPair, CurrentRate: numerical.NewFromFloat(0.0001),
+					NextFundingTime: now.Add(8 * time.Hour), MarkPrice: numerical.NewFromFloat(50050),
+					IndexPrice: numerical.NewFromFloat(50045), Timestamp: now,
 				}
 				ethFundingRate := perpConn.FundingRate{
-					Pair:            ethPair,
-					CurrentRate:     numerical.NewFromFloat(0.00005),
-					NextFundingTime: now.Add(8 * time.Hour),
-					MarkPrice:       numerical.NewFromFloat(3005),
-					IndexPrice:      numerical.NewFromFloat(3004),
-					Timestamp:       now,
+					Pair: ethPair, CurrentRate: numerical.NewFromFloat(0.00005),
+					NextFundingTime: now.Add(8 * time.Hour), MarkPrice: numerical.NewFromFloat(3005),
+					IndexPrice: numerical.NewFromFloat(3004), Timestamp: now,
 				}
 
 				m.EXPECT().FetchFundingRate(btcPair).Return(&btcFundingRate, nil).Maybe()
 				m.EXPECT().FetchFundingRate(ethPair).Return(&ethFundingRate, nil).Maybe()
 
-				// Setup FetchCurrentFundingRates expectation (for batch collection extension)
 				allFundingRates := map[portfolio.Pair]perpConn.FundingRate{
 					btcPair: btcFundingRate,
 					ethPair: ethFundingRate,
 				}
 				m.EXPECT().FetchCurrentFundingRates().Return(allFundingRates, nil).Maybe()
 
-				// Register connector and pairs
 				connectorRegistry.RegisterPerp(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
-				marketWatchlist.RequirePair(exchangeName, btcPair)
-				marketWatchlist.RequirePair(exchangeName, ethPair)
+				watchlist.RequirePair(exchangeName, btcPair)
+				watchlist.RequirePair(exchangeName, ethPair)
 
-				// Create ingestors from factory
 				ingestors := factory.CreateIngestors()
 				Expect(ingestors).To(HaveLen(1), "Should create one ingestor for the registered connector")
 
 				batchIngestor := ingestors[0]
-
-				// Act - trigger collection
 				batchIngestor.CollectNow()
-				time.Sleep(300 * time.Millisecond) // Give it time to complete
+				time.Sleep(300 * time.Millisecond)
 
-				// Assert - verify orderbooks are stored
 				btcOB := store.GetOrderBook(btcPair, exchangeName)
 				Expect(btcOB).ToNot(BeNil(), "BTC orderbook should be stored")
 				Expect(btcOB.Bids).To(HaveLen(1))
@@ -195,7 +156,6 @@ var _ = Describe("Perp BatchIngestor", func() {
 				Expect(ethOB.Asks).To(HaveLen(1))
 				Expect(ethOB.Asks[0].Price.InexactFloat64()).To(Equal(3010.0))
 
-				// Assert - verify klines are stored
 				btcKlines := store.GetKlines(btcPair, exchangeName, "1m", 10)
 				Expect(btcKlines).ToNot(BeEmpty(), "BTC klines should be stored")
 				Expect(btcKlines[0].Symbol).To(Equal("BTC"))
@@ -203,7 +163,6 @@ var _ = Describe("Perp BatchIngestor", func() {
 				ethKlines := store.GetKlines(ethPair, exchangeName, "5m", 10)
 				Expect(ethKlines).ToNot(BeEmpty(), "ETH klines should be stored")
 
-				// Assert - verify funding rates are stored (perp-specific)
 				btcFunding := store.GetFundingRate(btcPair, exchangeName)
 				Expect(btcFunding).ToNot(BeNil(), "BTC funding rate should be stored")
 				Expect(btcFunding.CurrentRate.InexactFloat64()).To(Equal(0.0001))
@@ -212,7 +171,6 @@ var _ = Describe("Perp BatchIngestor", func() {
 				Expect(ethFunding).ToNot(BeNil(), "ETH funding rate should be stored")
 				Expect(ethFunding.CurrentRate.InexactFloat64()).To(Equal(0.00005))
 
-				// Assert - verify prices are stored
 				storedBtcPrice := store.GetPairPrice(btcPair, exchangeName)
 				Expect(storedBtcPrice).ToNot(BeNil(), "BTC price should be stored")
 				Expect(storedBtcPrice.Price.InexactFloat64()).To(BeNumerically("~", 50050.0, 1.0))
@@ -227,17 +185,12 @@ var _ = Describe("Perp BatchIngestor", func() {
 				connectorRegistry.RegisterPerp(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 
-				// Create ingestors without registering any assets
 				ingestors := factory.CreateIngestors()
 				Expect(ingestors).To(HaveLen(1))
 
 				batchIngestor := ingestors[0]
-
-				// Act - no assets registered, should complete without calling connector
 				batchIngestor.CollectNow()
 				time.Sleep(50 * time.Millisecond)
-
-				// Should not panic or error
 			})
 		})
 	})
@@ -250,7 +203,6 @@ var _ = Describe("Perp BatchIngestor", func() {
 			connectorRegistry.RegisterPerp(exchangeName, m)
 			Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 
-			// Create ingestor
 			ingestors := factory.CreateIngestors()
 			Expect(ingestors).To(HaveLen(1))
 

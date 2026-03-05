@@ -2,10 +2,9 @@ package batch
 
 import (
 	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/batch"
+	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data"
 	batchTypes "github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
-	perpStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/perp"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
@@ -14,22 +13,22 @@ import (
 // factory creates batch ingestors for all registered perp connectors
 type factory struct {
 	connectorRegistry registry.ConnectorRegistry
-	marketWatchlist   data.MarketWatchlist
-	store             perpStore.MarketStore
+	watchlist         perpTypes.PerpWatchlist
+	store             perpTypes.MarketStore
 	timeProvider      temporal.TimeProvider
 	logger            logging.ApplicationLogger
 }
 
 func NewFactory(
 	connectorRegistry registry.ConnectorRegistry,
-	marketWatchlist data.MarketWatchlist,
-	store perpStore.MarketStore,
+	watchlist perpTypes.PerpWatchlist,
+	store perpTypes.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
 ) batchTypes.BatchIngestorFactory {
 	return &factory{
 		connectorRegistry: connectorRegistry,
-		marketWatchlist:   marketWatchlist,
+		watchlist:         watchlist,
 		store:             store,
 		timeProvider:      timeProvider,
 		logger:            logger,
@@ -69,12 +68,15 @@ func (f *factory) CreateIngestors() []batchTypes.BatchIngestor {
 		priceExt := batch.NewPriceExtension(marketDataReader, f.store, f.logger)
 		orderbookExt := batch.NewOrderBookExtension(marketDataReader, f.store, f.logger, 20)
 
+		// Adapt PerpWatchlist to the MarketWatchlist interface expected by the base ingestor
+		watchlistAdapter := newWatchlistAdapter(f.watchlist)
+
 		// Base ingestor + perp extensions
 		ingestor := batch.NewBatchIngestor(
 			conn,
 			exchangeName,
 			connector.MarketTypePerp,
-			f.marketWatchlist,
+			watchlistAdapter,
 			f.store,
 			f.timeProvider,
 			f.logger,

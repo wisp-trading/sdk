@@ -8,6 +8,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/data"
 	"github.com/wisp-trading/sdk/pkg/executor"
 	"github.com/wisp-trading/sdk/pkg/lifecycle"
+	"github.com/wisp-trading/sdk/pkg/markets/perp"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction"
 	"github.com/wisp-trading/sdk/pkg/monitoring"
 	"github.com/wisp-trading/sdk/pkg/plugin"
@@ -31,4 +32,5 @@ var Module = fx.Options(
 	executor.Module,
 	data.Module,
 	prediction.Module,
+	perp.Module,
 )
