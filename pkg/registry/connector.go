@@ -75,6 +75,17 @@ func (cr *connectorRegistry) Connector(name connector.ExchangeName) (connector.C
 	return state.connector, true
 }
 
+func (cr *connectorRegistry) ConnectorType(name connector.ExchangeName) (connector.MarketType, bool) {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	state, exists := cr.connectors[name]
+	if !exists {
+		return "", false
+	}
+	return state.connectorType, true
+}
+
 func (cr *connectorRegistry) Spot(name connector.ExchangeName) (spot.Connector, bool) {
 	cr.mu.RLock()
 	defer cr.mu.RUnlock()

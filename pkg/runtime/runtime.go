@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
+	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	configTypes "github.com/wisp-trading/sdk/pkg/types/config"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/lifecycle"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/plugin"
-	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/runtime"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -20,6 +20,7 @@ type rt struct {
 	pluginManager     plugin.Manager
 	connectorRegistry registry.ConnectorRegistry
 	marketWatchlist   data.MarketWatchlist
+	perpWatchlist     perpTypes.PerpWatchlist
 	strategyRegistry  registry.StrategyRegistry
 	configLoader      configTypes.StartupConfigLoader
 	controller        lifecycle.Controller
@@ -33,6 +34,7 @@ func NewRuntime(
 	pluginManager plugin.Manager,
 	connectorRegistry registry.ConnectorRegistry,
 	marketWatchlist data.MarketWatchlist,
+	perpWatchlist perpTypes.PerpWatchlist,
 	strategyRegistry registry.StrategyRegistry,
 	configLoader configTypes.StartupConfigLoader,
 	controller lifecycle.Controller,
@@ -42,6 +44,7 @@ func NewRuntime(
 		pluginManager:     pluginManager,
 		connectorRegistry: connectorRegistry,
 		marketWatchlist:   marketWatchlist,
+		perpWatchlist:     perpWatchlist,
 		strategyRegistry:  strategyRegistry,
 		configLoader:      configLoader,
 		controller:        controller,
@@ -53,22 +56,18 @@ func NewRuntime(
 func (r *rt) Start(configPath string, wispPath string) error {
 	r.ctx, r.cancel = context.WithCancel(context.Background())
 
-	// Load all config
 	cfg, err := r.configLoader.LoadForStrategy(configPath, wispPath)
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	// Initialize connectors
 	connectorNames, err := r.initializeConnectors(cfg.ConnectorConfigs)
 	if err != nil {
 		return err
 	}
 
-	// Register assets
-	r.registerAssets(cfg.AssetConfigs)
+	r.registerAssets(cfg)
 
-	// Boot in plugin mode
 	return r.boot(r.ctx, runtime.BootConfig{
 		Mode:           runtime.BootModePlugin,
 		StrategyPath:   cfg.PluginPath,
@@ -84,22 +83,18 @@ func (r *rt) StartStandalone(
 ) error {
 	r.ctx, r.cancel = context.WithCancel(context.Background())
 
-	// Load all config
 	cfg, err := r.configLoader.LoadForStrategy(configPath, wispPath)
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	// Initialize connectors
 	connectorNames, err := r.initializeConnectors(cfg.ConnectorConfigs)
 	if err != nil {
 		return err
 	}
 
-	// Register assets
-	r.registerAssets(cfg.AssetConfigs)
+	r.registerAssets(cfg)
 
-	// Boot in standalone mode
 	return r.boot(r.ctx, runtime.BootConfig{
 		Mode:           runtime.BootModeStandalone,
 		Strategy:       strat,
@@ -150,13 +145,38 @@ func (r *rt) initializeConnectors(connectors map[connector.ExchangeName]connecto
 	return names, nil
 }
 
-// registerAssets registers all assets with their instruments
-func (r *rt) registerAssets(exchangeAssets map[connector.ExchangeName][]portfolio.Pair) {
-	for exchange, pairs := range exchangeAssets {
+// registerAssets routes config assets to the correct domain watchlist based on
+// the registered connector type — no market_type annotation needed in config.
+// Must be called after initializeConnectors so connector types are known.
+func (r *rt) registerAssets(cfg *configTypes.StartupConfig) {
+	spotCount, perpCount, unknownCount := 0, 0, 0
+
+	for exchange, pairs := range cfg.Assets {
+		marketType, ok := r.connectorRegistry.ConnectorType(exchange)
+		if !ok {
+			r.logger.Warn("No connector registered for exchange %s — skipping asset registration", exchange)
+			unknownCount += len(pairs)
+			continue
+		}
+
 		for _, pair := range pairs {
-			r.marketWatchlist.RequirePair(exchange, pair)
+			switch marketType {
+			case connector.MarketTypePerp:
+				r.perpWatchlist.RequirePair(exchange, pair)
+				perpCount++
+			case connector.MarketTypeSpot:
+				r.marketWatchlist.RequirePair(exchange, pair)
+				spotCount++
+			default:
+				// Prediction markets don't use a pair watchlist
+				r.logger.Debug("Skipping pair %s for %s connector on %s",
+					pair.Symbol(), marketType, exchange)
+			}
 		}
 	}
+
+	r.logger.Info("Registered assets from config",
+		"spot", spotCount, "perp", perpCount, "skipped", unknownCount)
 }
 
 // boot executes the core boot sequence
@@ -185,7 +205,6 @@ func (r *rt) boot(ctx context.Context, cfg runtime.BootConfig) error {
 	r.loadedStrategy = strat
 	r.logger.Info("Strategy loaded", "name", strat.GetName())
 
-	// Register strategy (orchestrator can now read execution config from strategy)
 	r.strategyRegistry.RegisterStrategy(strat)
 
 	if err := r.controller.Start(ctx, strat.GetName()); err != nil {
