@@ -26,28 +26,48 @@ func NewZapApplicationLogger(logger *zap.Logger) logging.ApplicationLogger {
 	return &ZapApplicationLogger{logger: logger}
 }
 
-func (z *ZapApplicationLogger) Info(msg string, args ...interface{}) {
-	z.logger.Sugar().Infof(msg, args...)
+// Printf-style — interpolates args into the format string.
+func (z *ZapApplicationLogger) Info(format string, args ...interface{}) {
+	z.logger.Sugar().Infof(format, args...)
 }
 
-func (z *ZapApplicationLogger) Debug(msg string, args ...interface{}) {
-	z.logger.Sugar().Debugf(msg, args...)
+func (z *ZapApplicationLogger) Debug(format string, args ...interface{}) {
+	z.logger.Sugar().Debugf(format, args...)
 }
 
-func (z *ZapApplicationLogger) Warn(msg string, args ...interface{}) {
-	z.logger.Sugar().Warnf(msg, args...)
+func (z *ZapApplicationLogger) Warn(format string, args ...interface{}) {
+	z.logger.Sugar().Warnf(format, args...)
 }
 
-func (z *ZapApplicationLogger) Error(msg string, args ...interface{}) {
-	z.logger.Sugar().Errorf(msg, args...)
+func (z *ZapApplicationLogger) Error(format string, args ...interface{}) {
+	z.logger.Sugar().Errorf(format, args...)
+}
+
+func (z *ZapApplicationLogger) Fatal(format string, args ...interface{}) {
+	z.logger.Sugar().Fatalf(format, args...)
 }
 
 func (z *ZapApplicationLogger) ErrorWithDebug(msg string, rawResponse []byte, args ...interface{}) {
-	z.logger.Sugar().Errorw(msg, "raw_response", string(rawResponse), "args", args)
+	fields := []interface{}{"raw_response", string(rawResponse)}
+	fields = append(fields, args...)
+	z.logger.Sugar().Errorw(msg, fields...)
 }
 
-func (z *ZapApplicationLogger) Fatal(msg string, args ...interface{}) {
-	z.logger.Sugar().Fatalf(msg, args...)
+// Structured key-value — emits args as discrete JSON fields.
+func (z *ZapApplicationLogger) Infof(msg string, args ...interface{}) {
+	z.logger.Sugar().Infow(msg, args...)
+}
+
+func (z *ZapApplicationLogger) Debugf(msg string, args ...interface{}) {
+	z.logger.Sugar().Debugw(msg, args...)
+}
+
+func (z *ZapApplicationLogger) Warnf(msg string, args ...interface{}) {
+	z.logger.Sugar().Warnw(msg, args...)
+}
+
+func (z *ZapApplicationLogger) Errorf(msg string, args ...interface{}) {
+	z.logger.Sugar().Errorw(msg, args...)
 }
 
 // ZapTradingLogger adapts zap.Logger to TradingLogger interface
@@ -60,66 +80,52 @@ func NewZapTradingLogger(logger *zap.Logger) logging.TradingLogger {
 	return &ZapTradingLogger{logger: logger}
 }
 
+// Printf-style — interpolates args into the format string.
+func (z *ZapTradingLogger) Info(format string, args ...interface{}) {
+	z.logger.Sugar().Infof(format, args...)
+}
+
+// Structured key-value — emits args as discrete JSON fields.
+func (z *ZapTradingLogger) Infof(msg string, args ...interface{}) {
+	z.logger.Sugar().Infow(msg, args...)
+}
+
 func (z *ZapTradingLogger) Opportunity(strategy, asset, msg string, args ...interface{}) {
-	z.logger.Sugar().Infow("Opportunity",
-		"strategy", strategy,
-		"asset", asset,
-		"message", formatMessage(msg, args...),
-	)
+	fields := []interface{}{"strategy", strategy, "asset", asset}
+	fields = append(fields, args...)
+	z.logger.Sugar().Infow(msg, fields...)
 }
 
 func (z *ZapTradingLogger) Success(strategy, asset, msg string, args ...interface{}) {
-	z.logger.Sugar().Infow("Success",
-		"strategy", strategy,
-		"asset", asset,
-		"message", formatMessage(msg, args...),
-	)
+	fields := []interface{}{"strategy", strategy, "asset", asset}
+	fields = append(fields, args...)
+	z.logger.Sugar().Infow(msg, fields...)
 }
 
 func (z *ZapTradingLogger) Failed(strategy, asset, msg string, args ...interface{}) {
-	z.logger.Sugar().Errorw("Failed",
-		"strategy", strategy,
-		"asset", asset,
-		"message", formatMessage(msg, args...),
-	)
+	fields := []interface{}{"strategy", strategy, "asset", asset}
+	fields = append(fields, args...)
+	z.logger.Sugar().Errorw(msg, fields...)
 }
 
 func (z *ZapTradingLogger) MarketCondition(msg string, args ...interface{}) {
-	z.logger.Sugar().Infow("Market Condition",
-		"message", formatMessage(msg, args...),
-	)
+	z.logger.Sugar().Infow(msg, args...)
 }
 
 func (z *ZapTradingLogger) OrderLifecycle(msg, asset string, args ...interface{}) {
-	z.logger.Sugar().Infow("Order Lifecycle",
-		"asset", asset,
-		"message", formatMessage(msg, args...),
-	)
-}
-
-func (z *ZapTradingLogger) Info(msg string, args ...interface{}) {
-	z.logger.Sugar().Infof(msg, args...)
+	fields := []interface{}{"asset", asset}
+	fields = append(fields, args...)
+	z.logger.Sugar().Infow(msg, fields...)
 }
 
 func (z *ZapTradingLogger) Debug(strategy, asset, msg string, args ...interface{}) {
-	z.logger.Sugar().Debugw("Debug",
-		"strategy", strategy,
-		"asset", asset,
-		"message", formatMessage(msg, args...),
-	)
+	fields := []interface{}{"strategy", strategy, "asset", asset}
+	fields = append(fields, args...)
+	z.logger.Sugar().Debugw(msg, fields...)
 }
 
 func (z *ZapTradingLogger) DataCollection(exchange, msg string, args ...interface{}) {
-	z.logger.Sugar().Infow("Data Collection",
-		"exchange", exchange,
-		"message", formatMessage(msg, args...),
-	)
-}
-
-func formatMessage(msg string, args ...interface{}) string {
-	if len(args) == 0 {
-		return msg
-	}
-	// Use sprintf-style formatting
-	return msg // In production, you'd use fmt.Sprintf(msg, args...)
+	fields := []interface{}{"exchange", exchange}
+	fields = append(fields, args...)
+	z.logger.Sugar().Infow(msg, fields...)
 }
