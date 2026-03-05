@@ -2,6 +2,7 @@ package wisp
 
 import (
 	packages "github.com/wisp-trading/sdk/pkg"
+	"github.com/wisp-trading/sdk/pkg/markets/perp/perp"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/predict"
 	"go.uber.org/fx"
 )
@@ -14,8 +15,12 @@ var Module = fx.Module("wisp",
 	// Provide the universe provider (caches trading universe)
 	fx.Provide(NewUniverseProvider),
 
+	// Provide domain context objects exposed on wisp
+	fx.Provide(
+		perp.NewPerp,
+		predict.NewPredict,
+	),
+
 	// Provide the main Wisp context
 	fx.Provide(NewWisp),
-
-	fx.Provide(predict.NewPredict),
 )
