@@ -135,6 +135,64 @@ func (_c *AccountReader_GetPositionsByMarket_Call) RunAndReturn(run func(string)
 	return _c
 }
 
+// GetTokensToRedeem provides a mock function with given fields: market
+func (_m *AccountReader) GetTokensToRedeem(market connector.Market) ([]connector.Balance, error) {
+	ret := _m.Called(market)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTokensToRedeem")
+	}
+
+	var r0 []connector.Balance
+	var r1 error
+	if rf, ok := ret.Get(0).(func(connector.Market) ([]connector.Balance, error)); ok {
+		return rf(market)
+	}
+	if rf, ok := ret.Get(0).(func(connector.Market) []connector.Balance); ok {
+		r0 = rf(market)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector.Balance)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(connector.Market) error); ok {
+		r1 = rf(market)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// AccountReader_GetTokensToRedeem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTokensToRedeem'
+type AccountReader_GetTokensToRedeem_Call struct {
+	*mock.Call
+}
+
+// GetTokensToRedeem is a helper method to define mock.On call
+//   - market connector.Market
+func (_e *AccountReader_Expecter) GetTokensToRedeem(market interface{}) *AccountReader_GetTokensToRedeem_Call {
+	return &AccountReader_GetTokensToRedeem_Call{Call: _e.mock.On("GetTokensToRedeem", market)}
+}
+
+func (_c *AccountReader_GetTokensToRedeem_Call) Run(run func(market connector.Market)) *AccountReader_GetTokensToRedeem_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.Market))
+	})
+	return _c
+}
+
+func (_c *AccountReader_GetTokensToRedeem_Call) Return(_a0 []connector.Balance, _a1 error) *AccountReader_GetTokensToRedeem_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *AccountReader_GetTokensToRedeem_Call) RunAndReturn(run func(connector.Market) ([]connector.Balance, error)) *AccountReader_GetTokensToRedeem_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewAccountReader creates a new instance of AccountReader. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewAccountReader(t interface {

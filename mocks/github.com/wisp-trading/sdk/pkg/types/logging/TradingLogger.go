@@ -154,10 +154,10 @@ func (_c *TradingLogger_Failed_Call) RunAndReturn(run func(string, string, strin
 	return _c
 }
 
-// Info provides a mock function with given fields: msg, args
-func (_m *TradingLogger) Info(msg string, args ...interface{}) {
+// Info provides a mock function with given fields: format, args
+func (_m *TradingLogger) Info(format string, args ...interface{}) {
 	var _ca []interface{}
-	_ca = append(_ca, msg)
+	_ca = append(_ca, format)
 	_ca = append(_ca, args...)
 	_m.Called(_ca...)
 }
@@ -168,14 +168,14 @@ type TradingLogger_Info_Call struct {
 }
 
 // Info is a helper method to define mock.On call
-//   - msg string
+//   - format string
 //   - args ...interface{}
-func (_e *TradingLogger_Expecter) Info(msg interface{}, args ...interface{}) *TradingLogger_Info_Call {
+func (_e *TradingLogger_Expecter) Info(format interface{}, args ...interface{}) *TradingLogger_Info_Call {
 	return &TradingLogger_Info_Call{Call: _e.mock.On("Info",
-		append([]interface{}{msg}, args...)...)}
+		append([]interface{}{format}, args...)...)}
 }
 
-func (_c *TradingLogger_Info_Call) Run(run func(msg string, args ...interface{})) *TradingLogger_Info_Call {
+func (_c *TradingLogger_Info_Call) Run(run func(format string, args ...interface{})) *TradingLogger_Info_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		variadicArgs := make([]interface{}, len(args)-1)
 		for i, a := range args[1:] {
@@ -194,6 +194,50 @@ func (_c *TradingLogger_Info_Call) Return() *TradingLogger_Info_Call {
 }
 
 func (_c *TradingLogger_Info_Call) RunAndReturn(run func(string, ...interface{})) *TradingLogger_Info_Call {
+	_c.Run(run)
+	return _c
+}
+
+// Infof provides a mock function with given fields: msg, args
+func (_m *TradingLogger) Infof(msg string, args ...interface{}) {
+	var _ca []interface{}
+	_ca = append(_ca, msg)
+	_ca = append(_ca, args...)
+	_m.Called(_ca...)
+}
+
+// TradingLogger_Infof_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Infof'
+type TradingLogger_Infof_Call struct {
+	*mock.Call
+}
+
+// Infof is a helper method to define mock.On call
+//   - msg string
+//   - args ...interface{}
+func (_e *TradingLogger_Expecter) Infof(msg interface{}, args ...interface{}) *TradingLogger_Infof_Call {
+	return &TradingLogger_Infof_Call{Call: _e.mock.On("Infof",
+		append([]interface{}{msg}, args...)...)}
+}
+
+func (_c *TradingLogger_Infof_Call) Run(run func(msg string, args ...interface{})) *TradingLogger_Infof_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]interface{}, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(interface{})
+			}
+		}
+		run(args[0].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *TradingLogger_Infof_Call) Return() *TradingLogger_Infof_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *TradingLogger_Infof_Call) RunAndReturn(run func(string, ...interface{})) *TradingLogger_Infof_Call {
 	_c.Run(run)
 	return _c
 }

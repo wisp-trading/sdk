@@ -2,6 +2,7 @@ package lifecycle_test
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -134,7 +135,7 @@ var _ = Describe("Orchestrator", func() {
 
 			failing := mockStrategy.NewStrategy(GinkgoT())
 			failing.EXPECT().GetName().Return(strategy.StrategyName("BadStrategy")).Maybe()
-			failing.EXPECT().Start(mock.Anything).Return(fmt.Errorf("startup error")).Once()
+			failing.EXPECT().Start(mock.Anything).Return(errors.New("startup error")).Once()
 			failing.EXPECT().Stop(mock.Anything).Return(nil).Maybe()
 
 			strategyRegistry.RegisterStrategy(started)
@@ -147,41 +148,51 @@ var _ = Describe("Orchestrator", func() {
 	})
 
 	Describe("End-to-end signal dispatch", func() {
-		It("a self-directed strategy emits signals on its own schedule", func() {
-			// A minimal concrete strategy that emits one signal after a short delay.
-			type timerStrategy struct {
-				strategy.BaseStrategy
-				emitted chan struct{}
-			}
+		It("a self-directed strategy fires on its own internal clock", func() {
+			// timerStrategy is a concrete self-directed strategy.
+			// It owns its goroutine via StartWithRunner and signals after a short delay.
+			emitted := make(chan struct{}, 1)
 
-			ts := &timerStrategy{
-				BaseStrategy: *strategy.NewBaseStrategy(strategy.BaseStrategyConfig{
-					Name:      "TimerStrategy",
-					RiskLevel: strategy.RiskLevelLow,
-					Type:      strategy.StrategyTypeTechnical,
-				}),
-				emitted: make(chan struct{}, 1),
-			}
-
-			run := func(runCtx context.Context) {
-				select {
-				case <-runCtx.Done():
-					return
-				case <-time.After(20 * time.Millisecond):
-					ts.emitted <- struct{}{}
-				}
-			}
-
-			ts.Start = func(startCtx context.Context) error {
-				return ts.BaseStrategy.StartWithRunner(startCtx, run)
-			}
-
+			ts := newTimerStrategy(emitted)
 			strategyRegistry.RegisterStrategy(ts)
 
 			err := orchestrator.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
 
-			Eventually(ts.emitted, "200ms").Should(Receive())
+			Eventually(emitted, "200ms").Should(Receive())
 		})
 	})
 })
+
+// timerStrategy is a minimal concrete strategy for testing.
+// It embeds BaseStrategy and fires once after a short delay, then exits.
+type timerStrategy struct {
+	strategy.BaseStrategy
+	emitted chan struct{}
+}
+
+func newTimerStrategy(emitted chan struct{}) *timerStrategy {
+	return &timerStrategy{
+		BaseStrategy: *strategy.NewBaseStrategy(strategy.BaseStrategyConfig{
+			Name:      "TimerStrategy",
+			RiskLevel: strategy.RiskLevelLow,
+			Type:      strategy.StrategyTypeTechnical,
+		}),
+		emitted: emitted,
+	}
+}
+
+// Start launches the strategy's run loop via BaseStrategy.StartWithRunner.
+// This is the pattern all concrete strategies follow.
+func (s *timerStrategy) Start(ctx context.Context) error {
+	return s.BaseStrategy.StartWithRunner(ctx, s.run)
+}
+
+func (s *timerStrategy) run(ctx context.Context) {
+	select {
+	case <-ctx.Done():
+		return
+	case <-time.After(20 * time.Millisecond):
+		s.emitted <- struct{}{}
+	}
+}

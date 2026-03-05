@@ -3,7 +3,7 @@
 package strategy
 
 import (
-	"context"
+	context "context"
 
 	mock "github.com/stretchr/testify/mock"
 	strategy "github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -20,51 +20,6 @@ type Strategy_Expecter struct {
 
 func (_m *Strategy) EXPECT() *Strategy_Expecter {
 	return &Strategy_Expecter{mock: &_m.Mock}
-}
-
-// GetName provides a mock function with no fields
-func (_m *Strategy) GetName() strategy.StrategyName {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetName")
-	}
-
-	var r0 strategy.StrategyName
-	if rf, ok := ret.Get(0).(func() strategy.StrategyName); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(strategy.StrategyName)
-	}
-
-	return r0
-}
-
-// Strategy_GetName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetName'
-type Strategy_GetName_Call struct {
-	*mock.Call
-}
-
-// GetName is a helper method to define mock.On call
-func (_e *Strategy_Expecter) GetName() *Strategy_GetName_Call {
-	return &Strategy_GetName_Call{Call: _e.mock.On("GetName")}
-}
-
-func (_c *Strategy_GetName_Call) Run(run func()) *Strategy_GetName_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *Strategy_GetName_Call) Return(_a0 strategy.StrategyName) *Strategy_GetName_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Strategy_GetName_Call) RunAndReturn(run func() strategy.StrategyName) *Strategy_GetName_Call {
-	_c.Call.Return(run)
-	return _c
 }
 
 // GetDescription provides a mock function with no fields
@@ -108,6 +63,51 @@ func (_c *Strategy_GetDescription_Call) Return(_a0 string) *Strategy_GetDescript
 }
 
 func (_c *Strategy_GetDescription_Call) RunAndReturn(run func() string) *Strategy_GetDescription_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetName provides a mock function with no fields
+func (_m *Strategy) GetName() strategy.StrategyName {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetName")
+	}
+
+	var r0 strategy.StrategyName
+	if rf, ok := ret.Get(0).(func() strategy.StrategyName); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(strategy.StrategyName)
+	}
+
+	return r0
+}
+
+// Strategy_GetName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetName'
+type Strategy_GetName_Call struct {
+	*mock.Call
+}
+
+// GetName is a helper method to define mock.On call
+func (_e *Strategy_Expecter) GetName() *Strategy_GetName_Call {
+	return &Strategy_GetName_Call{Call: _e.mock.On("GetName")}
+}
+
+func (_c *Strategy_GetName_Call) Run(run func()) *Strategy_GetName_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Strategy_GetName_Call) Return(_a0 strategy.StrategyName) *Strategy_GetName_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Strategy_GetName_Call) RunAndReturn(run func() strategy.StrategyName) *Strategy_GetName_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -202,6 +202,53 @@ func (_c *Strategy_GetStrategyType_Call) RunAndReturn(run func() strategy.Strate
 	return _c
 }
 
+// Signals provides a mock function with no fields
+func (_m *Strategy) Signals() <-chan strategy.Signal {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Signals")
+	}
+
+	var r0 <-chan strategy.Signal
+	if rf, ok := ret.Get(0).(func() <-chan strategy.Signal); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan strategy.Signal)
+		}
+	}
+
+	return r0
+}
+
+// Strategy_Signals_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Signals'
+type Strategy_Signals_Call struct {
+	*mock.Call
+}
+
+// Signals is a helper method to define mock.On call
+func (_e *Strategy_Expecter) Signals() *Strategy_Signals_Call {
+	return &Strategy_Signals_Call{Call: _e.mock.On("Signals")}
+}
+
+func (_c *Strategy_Signals_Call) Run(run func()) *Strategy_Signals_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Strategy_Signals_Call) Return(_a0 <-chan strategy.Signal) *Strategy_Signals_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Strategy_Signals_Call) RunAndReturn(run func() <-chan strategy.Signal) *Strategy_Signals_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Start provides a mock function with given fields: ctx
 func (_m *Strategy) Start(ctx context.Context) error {
 	ret := _m.Called(ctx)
@@ -290,53 +337,6 @@ func (_c *Strategy_Stop_Call) Return(_a0 error) *Strategy_Stop_Call {
 }
 
 func (_c *Strategy_Stop_Call) RunAndReturn(run func(context.Context) error) *Strategy_Stop_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Signals provides a mock function with no fields
-func (_m *Strategy) Signals() <-chan strategy.Signal {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for Signals")
-	}
-
-	var r0 <-chan strategy.Signal
-	if rf, ok := ret.Get(0).(func() <-chan strategy.Signal); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan strategy.Signal)
-		}
-	}
-
-	return r0
-}
-
-// Strategy_Signals_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Signals'
-type Strategy_Signals_Call struct {
-	*mock.Call
-}
-
-// Signals is a helper method to define mock.On call
-func (_e *Strategy_Expecter) Signals() *Strategy_Signals_Call {
-	return &Strategy_Signals_Call{Call: _e.mock.On("Signals")}
-}
-
-func (_c *Strategy_Signals_Call) Run(run func()) *Strategy_Signals_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *Strategy_Signals_Call) Return(_a0 <-chan strategy.Signal) *Strategy_Signals_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Strategy_Signals_Call) RunAndReturn(run func() <-chan strategy.Signal) *Strategy_Signals_Call {
 	_c.Call.Return(run)
 	return _c
 }

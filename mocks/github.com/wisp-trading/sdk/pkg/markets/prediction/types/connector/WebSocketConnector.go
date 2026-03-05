@@ -664,6 +664,64 @@ func (_c *WebSocketConnector_GetRecurringMarket_Call) RunAndReturn(run func(stri
 	return _c
 }
 
+// GetTokensToRedeem provides a mock function with given fields: market
+func (_m *WebSocketConnector) GetTokensToRedeem(market connector.Market) ([]connector.Balance, error) {
+	ret := _m.Called(market)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTokensToRedeem")
+	}
+
+	var r0 []connector.Balance
+	var r1 error
+	if rf, ok := ret.Get(0).(func(connector.Market) ([]connector.Balance, error)); ok {
+		return rf(market)
+	}
+	if rf, ok := ret.Get(0).(func(connector.Market) []connector.Balance); ok {
+		r0 = rf(market)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector.Balance)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(connector.Market) error); ok {
+		r1 = rf(market)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// WebSocketConnector_GetTokensToRedeem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTokensToRedeem'
+type WebSocketConnector_GetTokensToRedeem_Call struct {
+	*mock.Call
+}
+
+// GetTokensToRedeem is a helper method to define mock.On call
+//   - market connector.Market
+func (_e *WebSocketConnector_Expecter) GetTokensToRedeem(market interface{}) *WebSocketConnector_GetTokensToRedeem_Call {
+	return &WebSocketConnector_GetTokensToRedeem_Call{Call: _e.mock.On("GetTokensToRedeem", market)}
+}
+
+func (_c *WebSocketConnector_GetTokensToRedeem_Call) Run(run func(market connector.Market)) *WebSocketConnector_GetTokensToRedeem_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.Market))
+	})
+	return _c
+}
+
+func (_c *WebSocketConnector_GetTokensToRedeem_Call) Return(_a0 []connector.Balance, _a1 error) *WebSocketConnector_GetTokensToRedeem_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *WebSocketConnector_GetTokensToRedeem_Call) RunAndReturn(run func(connector.Market) ([]connector.Balance, error)) *WebSocketConnector_GetTokensToRedeem_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetTradesChannel provides a mock function with no fields
 func (_m *WebSocketConnector) GetTradesChannel() <-chan typesconnector.Trade {
 	ret := _m.Called()
@@ -1006,6 +1064,62 @@ func (_c *WebSocketConnector_PlaceLimitOrders_Call) Return(_a0 []*typesconnector
 }
 
 func (_c *WebSocketConnector_PlaceLimitOrders_Call) RunAndReturn(run func([]connector.LimitOrder) ([]*typesconnector.OrderResponse, error)) *WebSocketConnector_PlaceLimitOrders_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Redeem provides a mock function with given fields: market
+func (_m *WebSocketConnector) Redeem(market connector.Market) (string, error) {
+	ret := _m.Called(market)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Redeem")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(connector.Market) (string, error)); ok {
+		return rf(market)
+	}
+	if rf, ok := ret.Get(0).(func(connector.Market) string); ok {
+		r0 = rf(market)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(connector.Market) error); ok {
+		r1 = rf(market)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// WebSocketConnector_Redeem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Redeem'
+type WebSocketConnector_Redeem_Call struct {
+	*mock.Call
+}
+
+// Redeem is a helper method to define mock.On call
+//   - market connector.Market
+func (_e *WebSocketConnector_Expecter) Redeem(market interface{}) *WebSocketConnector_Redeem_Call {
+	return &WebSocketConnector_Redeem_Call{Call: _e.mock.On("Redeem", market)}
+}
+
+func (_c *WebSocketConnector_Redeem_Call) Run(run func(market connector.Market)) *WebSocketConnector_Redeem_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.Market))
+	})
+	return _c
+}
+
+func (_c *WebSocketConnector_Redeem_Call) Return(_a0 string, _a1 error) *WebSocketConnector_Redeem_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *WebSocketConnector_Redeem_Call) RunAndReturn(run func(connector.Market) (string, error)) *WebSocketConnector_Redeem_Call {
 	_c.Call.Return(run)
 	return _c
 }
