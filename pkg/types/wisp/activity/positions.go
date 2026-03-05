@@ -1,20 +1,20 @@
 package activity
 
 import (
+	"context"
+
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 // Positions provides read-only access to position data
 type Positions interface {
-	// Strategy queries
-	GetStrategyExecution(ctx strategy.StrategyContext) *strategy.StrategyExecution
-	GetAllStrategyExecutions(ctx strategy.StrategyContext) map[strategy.StrategyName]*strategy.StrategyExecution
+	// Strategy-scoped queries
+	GetStrategyExecution(name strategy.StrategyName) *strategy.StrategyExecution
+	GetTradesForStrategy(name strategy.StrategyName) []connector.Trade
 
-	// Order queries
-	GetStrategyForOrder(ctx strategy.StrategyContext, orderID string) (strategy.StrategyName, bool)
-	GetTotalOrderCount(ctx strategy.StrategyContext) int64
-
-	// Trade queries
-	GetTradesForStrategy(ctx strategy.StrategyContext) []connector.Trade
+	// Global queries
+	GetAllStrategyExecutions() map[strategy.StrategyName]*strategy.StrategyExecution
+	GetStrategyForOrder(ctx context.Context, orderID string) (strategy.StrategyName, bool)
+	GetTotalOrderCount(ctx context.Context) int64
 }

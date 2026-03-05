@@ -1,6 +1,8 @@
 package activity
 
 import (
+	"context"
+
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -139,8 +141,8 @@ func calculateFromTrades(trades []connector.Trade) (numerical.Decimal, map[strin
 }
 
 // GetRealizedPNL returns the realized PNL for a strategy (net of fees)
-func (p *pnl) GetRealizedPNL(ctx strategy.StrategyContext, strategyName strategy.StrategyName) numerical.Decimal {
-	trades := p.positions.GetTradesForStrategy(ctx)
+func (p *pnl) GetRealizedPNL(_ context.Context, name strategy.StrategyName) numerical.Decimal {
+	trades := p.positions.GetTradesForStrategy(name)
 	realizedPnl, _ := calculateFromTrades(trades)
 
 	// Calculate fees inline to avoid extra call
@@ -153,7 +155,7 @@ func (p *pnl) GetRealizedPNL(ctx strategy.StrategyContext, strategyName strategy
 }
 
 // GetRealizedPNLByPair returns the realized PNL for a specific pair across all strategies
-func (p *pnl) GetRealizedPNLByPair(ctx strategy.StrategyContext, pair portfolio.Pair) numerical.Decimal {
+func (p *pnl) GetRealizedPNLByPair(ctx context.Context, pair portfolio.Pair) numerical.Decimal {
 	trades := p.trades.GetTradesByPair(ctx, pair)
 	realizedPnl, _ := calculateFromTrades(trades)
 
@@ -167,7 +169,7 @@ func (p *pnl) GetRealizedPNLByPair(ctx strategy.StrategyContext, pair portfolio.
 }
 
 // GetTotalRealizedPNL returns the total realized PNL across all strategies
-func (p *pnl) GetTotalRealizedPNL(ctx strategy.StrategyContext) numerical.Decimal {
+func (p *pnl) GetTotalRealizedPNL(ctx context.Context) numerical.Decimal {
 	allTrades := p.trades.GetAllTrades(ctx)
 	realizedPnl, _ := calculateFromTrades(allTrades)
 
@@ -181,8 +183,8 @@ func (p *pnl) GetTotalRealizedPNL(ctx strategy.StrategyContext) numerical.Decima
 }
 
 // GetUnrealizedPNL returns the unrealized PNL for a strategy
-func (p *pnl) GetUnrealizedPNL(ctx strategy.StrategyContext, strategyName strategy.StrategyName) (numerical.Decimal, error) {
-	trades := p.positions.GetTradesForStrategy(ctx)
+func (p *pnl) GetUnrealizedPNL(ctx context.Context, name strategy.StrategyName) (numerical.Decimal, error) {
+	trades := p.positions.GetTradesForStrategy(name)
 	_, openPositions := calculateFromTrades(trades)
 
 	unrealizedPnl := numerical.Zero()
@@ -203,7 +205,7 @@ func (p *pnl) GetUnrealizedPNL(ctx strategy.StrategyContext, strategyName strate
 }
 
 // GetTotalUnrealizedPNL returns the total unrealized PNL across all strategies
-func (p *pnl) GetTotalUnrealizedPNL(ctx strategy.StrategyContext) (numerical.Decimal, error) {
+func (p *pnl) GetTotalUnrealizedPNL(ctx context.Context) (numerical.Decimal, error) {
 	allTrades := p.trades.GetAllTrades(ctx)
 	_, openPositions := calculateFromTrades(allTrades)
 
@@ -225,7 +227,7 @@ func (p *pnl) GetTotalUnrealizedPNL(ctx strategy.StrategyContext) (numerical.Dec
 }
 
 // GetTotalPNL returns the total PNL (realized + unrealized)
-func (p *pnl) GetTotalPNL(ctx strategy.StrategyContext) (numerical.Decimal, error) {
+func (p *pnl) GetTotalPNL(ctx context.Context) (numerical.Decimal, error) {
 	// Fetch trades once and calculate everything from cached data
 	allTrades := p.trades.GetAllTrades(ctx)
 	realizedPnl, openPositions := calculateFromTrades(allTrades)
@@ -256,7 +258,7 @@ func (p *pnl) GetTotalPNL(ctx strategy.StrategyContext) (numerical.Decimal, erro
 }
 
 // GetTotalFees returns the total fees paid across all trades
-func (p *pnl) GetTotalFees(ctx strategy.StrategyContext) numerical.Decimal {
+func (p *pnl) GetTotalFees(ctx context.Context) numerical.Decimal {
 	allTrades := p.trades.GetAllTrades(ctx)
 	totalFees := numerical.Zero()
 	for _, trade := range allTrades {
@@ -266,8 +268,8 @@ func (p *pnl) GetTotalFees(ctx strategy.StrategyContext) numerical.Decimal {
 }
 
 // GetFeesByStrategy returns the total fees paid for a strategy
-func (p *pnl) GetFeesByStrategy(ctx strategy.StrategyContext, strategyName strategy.StrategyName) numerical.Decimal {
-	trades := p.positions.GetTradesForStrategy(ctx)
+func (p *pnl) GetFeesByStrategy(_ context.Context, name strategy.StrategyName) numerical.Decimal {
+	trades := p.positions.GetTradesForStrategy(name)
 	totalFees := numerical.Zero()
 	for _, trade := range trades {
 		totalFees = totalFees.Add(trade.Fee)

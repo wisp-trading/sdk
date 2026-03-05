@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/mock"
 	mockStrategy "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/strategy"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
-	"github.com/wisp-trading/sdk/pkg/types/execution"
 	lifecycleTypes "github.com/wisp-trading/sdk/pkg/types/lifecycle"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -23,19 +22,17 @@ var _ = Describe("Orchestrator", func() {
 		app              *fxtest.App
 		orchestrator     lifecycleTypes.Orchestrator
 		strategyRegistry registry.StrategyRegistry
-		executor         execution.Executor
-		ctx              strategy.StrategyContext
+		ctx              context.Context
 	)
 
 	BeforeEach(func() {
-		ctx = strategy.NewStrategyContext(context.Background(), strategy.StrategyName("TestStrategy"))
+		ctx = context.Background()
 
 		app = fxtest.New(GinkgoT(),
 			sdkTesting.Module,
 			fx.Populate(
 				&orchestrator,
 				&strategyRegistry,
-				&executor,
 			),
 			fx.NopLogger,
 		)
@@ -50,17 +47,16 @@ var _ = Describe("Orchestrator", func() {
 	})
 
 	Describe("Starting and Stopping", func() {
-		It("should start successfully", func() {
+		It("should start successfully with no strategies", func() {
 			err := orchestrator.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
 		})
 
-		It("should not allow starting Maybe", func() {
+		It("should not error when started twice", func() {
 			err := orchestrator.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
 
 			err = orchestrator.Start(ctx)
-			// Should warn but not error
 			Expect(err).ToNot(HaveOccurred())
 		})
 
@@ -84,102 +80,119 @@ var _ = Describe("Orchestrator", func() {
 		})
 	})
 
-	Describe("Strategy Execution", func() {
-		It("should execute single strategy", func() {
-			// Setup mock strategy
+	Describe("Strategy Lifecycle", func() {
+		It("should call Start on a registered strategy", func() {
 			mockStrat := mockStrategy.NewStrategy(GinkgoT())
 			mockStrat.EXPECT().GetName().Return(strategy.StrategyName("Strategy1")).Maybe()
-			mockStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]strategy.Signal{}, nil).Maybe()
-			mockStrat.EXPECT().ExecutionConfig().Return(nil)
+			mockStrat.EXPECT().Start(mock.AnythingOfType("*context.cancelCtx")).Return(nil).Once()
+			mockStrat.EXPECT().Stop(mock.Anything).Return(nil).Maybe()
 
 			strategyRegistry.RegisterStrategy(mockStrat)
 
 			err := orchestrator.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
-
-			// Wait for fixed ticker to trigger (50ms interval)
-			time.Sleep(100 * time.Millisecond)
 		})
 
-		It("should execute multiple strategies concurrently", func() {
-			// Setup mock strategies
+		It("should call Start on multiple registered strategies", func() {
 			mockStrat1 := mockStrategy.NewStrategy(GinkgoT())
 			mockStrat2 := mockStrategy.NewStrategy(GinkgoT())
 
-			// Note if the default tick interval changes, these expectations may need adjustment
 			mockStrat1.EXPECT().GetName().Return(strategy.StrategyName("Strategy1")).Maybe()
-			mockStrat1.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]strategy.Signal{}, nil).Maybe()
-			mockStrat1.EXPECT().ExecutionConfig().Return(nil)
+			mockStrat1.EXPECT().Start(mock.Anything).Return(nil).Once()
+			mockStrat1.EXPECT().Stop(mock.Anything).Return(nil).Maybe()
 
 			mockStrat2.EXPECT().GetName().Return(strategy.StrategyName("Strategy2")).Maybe()
-			mockStrat2.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]strategy.Signal{}, nil).Maybe()
-			mockStrat2.EXPECT().ExecutionConfig().Return(nil)
+			mockStrat2.EXPECT().Start(mock.Anything).Return(nil).Once()
+			mockStrat2.EXPECT().Stop(mock.Anything).Return(nil).Maybe()
 
 			strategyRegistry.RegisterStrategy(mockStrat1)
 			strategyRegistry.RegisterStrategy(mockStrat2)
 
 			err := orchestrator.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
-
-			// Wait for fixed ticker to trigger
-			time.Sleep(100 * time.Millisecond)
-
-			err = orchestrator.Stop(ctx)
-			Expect(err).ToNot(HaveOccurred())
-
 		})
 
-		It("should handle strategy returning error", func() {
-			// Setup mock strategy that returns error
+		It("should call Stop on all strategies when orchestrator stops", func() {
 			mockStrat := mockStrategy.NewStrategy(GinkgoT())
 			mockStrat.EXPECT().GetName().Return(strategy.StrategyName("Strategy1")).Maybe()
-			mockStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return(nil, errors.New("strategy error")).Maybe()
-			mockStrat.EXPECT().ExecutionConfig().Return(nil)
+			mockStrat.EXPECT().Start(mock.Anything).Return(nil).Once()
+			mockStrat.EXPECT().Stop(mock.Anything).Return(nil).Once()
 
 			strategyRegistry.RegisterStrategy(mockStrat)
 
 			err := orchestrator.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
 
-			// Wait for fixed ticker to trigger
-			time.Sleep(100 * time.Millisecond)
+			err = orchestrator.Stop(ctx)
+			Expect(err).ToNot(HaveOccurred())
 		})
 
-		It("should handle no strategies registered", func() {
-			err := orchestrator.Start(ctx)
-			Expect(err).ToNot(HaveOccurred())
+		It("should propagate Start errors and roll back already-started strategies", func() {
+			started := mockStrategy.NewStrategy(GinkgoT())
+			started.EXPECT().GetName().Return(strategy.StrategyName("GoodStrategy")).Maybe()
+			started.EXPECT().Start(mock.Anything).Return(nil).Once()
+			started.EXPECT().Stop(mock.Anything).Return(nil).Maybe()
 
-			// Wait for ticker - should not panic with no strategies
-			time.Sleep(100 * time.Millisecond)
+			failing := mockStrategy.NewStrategy(GinkgoT())
+			failing.EXPECT().GetName().Return(strategy.StrategyName("BadStrategy")).Maybe()
+			failing.EXPECT().Start(mock.Anything).Return(errors.New("startup error")).Once()
+			failing.EXPECT().Stop(mock.Anything).Return(nil).Maybe()
+
+			strategyRegistry.RegisterStrategy(started)
+			strategyRegistry.RegisterStrategy(failing)
+
+			err := orchestrator.Start(ctx)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("BadStrategy"))
 		})
 	})
 
-	Describe("Panic Recovery", func() {
-		It("should recover from strategy panic", func() {
-			// Setup panicking strategy and normal strategy
-			panicStrat := mockStrategy.NewStrategy(GinkgoT())
-			normalStrat := mockStrategy.NewStrategy(GinkgoT())
+	Describe("End-to-end signal dispatch", func() {
+		It("a self-directed strategy fires on its own internal clock", func() {
+			// timerStrategy is a concrete self-directed strategy.
+			// It owns its goroutine via StartWithRunner and signals after a short delay.
+			emitted := make(chan struct{}, 1)
 
-			panicStrat.EXPECT().GetName().Return(strategy.StrategyName("PanicStrategy")).Maybe()
-			panicStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).RunAndReturn(func(ctx strategy.StrategyContext) ([]strategy.Signal, error) {
-				panic("intentional panic for testing")
-			}).Maybe()
-			panicStrat.EXPECT().ExecutionConfig().Return(nil)
-
-			normalStrat.EXPECT().GetName().Return(strategy.StrategyName("NormalStrategy")).Maybe()
-			normalStrat.EXPECT().GetSignals(mock.AnythingOfType("strategy.StrategyContext")).Return([]strategy.Signal{}, nil).Maybe()
-			normalStrat.EXPECT().ExecutionConfig().Return(nil)
-
-			strategyRegistry.RegisterStrategy(panicStrat)
-			strategyRegistry.RegisterStrategy(normalStrat)
+			ts := newTimerStrategy(emitted)
+			strategyRegistry.RegisterStrategy(ts)
 
 			err := orchestrator.Start(ctx)
 			Expect(err).ToNot(HaveOccurred())
 
-			// Wait for fixed ticker to trigger
-			time.Sleep(100 * time.Millisecond)
-
-			// Panic should be recovered - no crash
+			Eventually(emitted, "200ms").Should(Receive())
 		})
 	})
 })
+
+// timerStrategy is a minimal concrete strategy for testing.
+// It embeds BaseStrategy and fires once after a short delay, then exits.
+type timerStrategy struct {
+	strategy.BaseStrategy
+	emitted chan struct{}
+}
+
+func newTimerStrategy(emitted chan struct{}) *timerStrategy {
+	return &timerStrategy{
+		BaseStrategy: *strategy.NewBaseStrategy(strategy.BaseStrategyConfig{
+			Name:      "TimerStrategy",
+			RiskLevel: strategy.RiskLevelLow,
+			Type:      strategy.StrategyTypeTechnical,
+		}),
+		emitted: emitted,
+	}
+}
+
+// Start launches the strategy's run loop via BaseStrategy.StartWithRunner.
+// This is the pattern all concrete strategies follow.
+func (s *timerStrategy) Start(ctx context.Context) error {
+	return s.BaseStrategy.StartWithRunner(ctx, s.run)
+}
+
+func (s *timerStrategy) run(ctx context.Context) {
+	select {
+	case <-ctx.Done():
+		return
+	case <-time.After(20 * time.Millisecond):
+		s.emitted <- struct{}{}
+	}
+}

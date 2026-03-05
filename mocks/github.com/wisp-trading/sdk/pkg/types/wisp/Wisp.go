@@ -170,6 +170,39 @@ func (_c *Wisp_Asset_Call) RunAndReturn(run func(string) portfolio.Asset) *Wisp_
 	return _c
 }
 
+// Emit provides a mock function with given fields: signal
+func (_m *Wisp) Emit(signal strategy.Signal) {
+	_m.Called(signal)
+}
+
+// Wisp_Emit_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Emit'
+type Wisp_Emit_Call struct {
+	*mock.Call
+}
+
+// Emit is a helper method to define mock.On call
+//   - signal strategy.Signal
+func (_e *Wisp_Expecter) Emit(signal interface{}) *Wisp_Emit_Call {
+	return &Wisp_Emit_Call{Call: _e.mock.On("Emit", signal)}
+}
+
+func (_c *Wisp_Emit_Call) Run(run func(signal strategy.Signal)) *Wisp_Emit_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(strategy.Signal))
+	})
+	return _c
+}
+
+func (_c *Wisp_Emit_Call) Return() *Wisp_Emit_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *Wisp_Emit_Call) RunAndReturn(run func(strategy.Signal)) *Wisp_Emit_Call {
+	_c.Run(run)
+	return _c
+}
+
 // Indicators provides a mock function with no fields
 func (_m *Wisp) Indicators() analytics.Indicators {
 	ret := _m.Called()

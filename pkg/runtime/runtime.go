@@ -68,12 +68,11 @@ func (r *rt) Start(configPath string, wispPath string) error {
 	// Register assets
 	r.registerAssets(cfg.AssetConfigs)
 
-	// Boot in plugin mode with execution config from StartupConfig
+	// Boot in plugin mode
 	return r.boot(r.ctx, runtime.BootConfig{
-		Mode:            runtime.BootModePlugin,
-		StrategyPath:    cfg.PluginPath,
-		ConnectorNames:  connectorNames,
-		ExecutionConfig: cfg.ExecutionConfig,
+		Mode:           runtime.BootModePlugin,
+		StrategyPath:   cfg.PluginPath,
+		ConnectorNames: connectorNames,
 	})
 }
 
@@ -100,12 +99,11 @@ func (r *rt) StartStandalone(
 	// Register assets
 	r.registerAssets(cfg.AssetConfigs)
 
-	// Boot in standalone mode with execution config from StartupConfig
+	// Boot in standalone mode
 	return r.boot(r.ctx, runtime.BootConfig{
-		Mode:            runtime.BootModeStandalone,
-		Strategy:        strat,
-		ConnectorNames:  connectorNames,
-		ExecutionConfig: cfg.ExecutionConfig,
+		Mode:           runtime.BootModeStandalone,
+		Strategy:       strat,
+		ConnectorNames: connectorNames,
 	})
 }
 
@@ -182,12 +180,6 @@ func (r *rt) boot(ctx context.Context, cfg runtime.BootConfig) error {
 		if err != nil {
 			return fmt.Errorf("failed to load plugin: %w", err)
 		}
-	}
-
-	// Set execution config on strategy (before registration)
-	// Nil is fine - orchestrator will use defaults
-	if cfg.ExecutionConfig != nil {
-		strat.WithExecutionConfig(cfg.ExecutionConfig)
 	}
 
 	r.loadedStrategy = strat

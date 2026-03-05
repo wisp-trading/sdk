@@ -50,7 +50,7 @@ func (r *viewRegistry) getStrategyName() strategy.StrategyName {
 
 func (r *viewRegistry) GetPnLView() *monitoring.PnLView {
 	name := r.getStrategyName()
-	ctx := strategy.NewStrategyContext(context.Background(), name)
+	ctx := context.Background()
 	if name == "" {
 		return nil
 	}
@@ -77,8 +77,7 @@ func (r *viewRegistry) GetPositionsView() *strategy.StrategyExecution {
 		return nil
 	}
 
-	ctx := strategy.NewStrategyContext(context.Background(), name)
-	return r.wisp.Activity().Positions().GetStrategyExecution(ctx)
+	return r.wisp.Activity().Positions().GetStrategyExecution(name)
 }
 
 func (r *viewRegistry) GetOrderbookView(pair portfolio.Pair) *connector.OrderBook {
@@ -97,8 +96,7 @@ func (r *viewRegistry) GetRecentTrades(limit int) []connector.Trade {
 		return nil
 	}
 
-	ctx := strategy.NewStrategyContext(context.Background(), name)
-	trades := r.wisp.Activity().Positions().GetTradesForStrategy(ctx)
+	trades := r.wisp.Activity().Positions().GetTradesForStrategy(name)
 	if len(trades) <= limit {
 		return trades
 	}

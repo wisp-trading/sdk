@@ -344,6 +344,64 @@ func (_c *Connector_GetRecurringMarket_Call) RunAndReturn(run func(string, types
 	return _c
 }
 
+// GetTokensToRedeem provides a mock function with given fields: market
+func (_m *Connector) GetTokensToRedeem(market typesconnector.Market) ([]typesconnector.Balance, error) {
+	ret := _m.Called(market)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTokensToRedeem")
+	}
+
+	var r0 []typesconnector.Balance
+	var r1 error
+	if rf, ok := ret.Get(0).(func(typesconnector.Market) ([]typesconnector.Balance, error)); ok {
+		return rf(market)
+	}
+	if rf, ok := ret.Get(0).(func(typesconnector.Market) []typesconnector.Balance); ok {
+		r0 = rf(market)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]typesconnector.Balance)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(typesconnector.Market) error); ok {
+		r1 = rf(market)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Connector_GetTokensToRedeem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTokensToRedeem'
+type Connector_GetTokensToRedeem_Call struct {
+	*mock.Call
+}
+
+// GetTokensToRedeem is a helper method to define mock.On call
+//   - market typesconnector.Market
+func (_e *Connector_Expecter) GetTokensToRedeem(market interface{}) *Connector_GetTokensToRedeem_Call {
+	return &Connector_GetTokensToRedeem_Call{Call: _e.mock.On("GetTokensToRedeem", market)}
+}
+
+func (_c *Connector_GetTokensToRedeem_Call) Run(run func(market typesconnector.Market)) *Connector_GetTokensToRedeem_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(typesconnector.Market))
+	})
+	return _c
+}
+
+func (_c *Connector_GetTokensToRedeem_Call) Return(_a0 []typesconnector.Balance, _a1 error) *Connector_GetTokensToRedeem_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Connector_GetTokensToRedeem_Call) RunAndReturn(run func(typesconnector.Market) ([]typesconnector.Balance, error)) *Connector_GetTokensToRedeem_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Initialize provides a mock function with given fields: config
 func (_m *Connector) Initialize(config connector.Config) error {
 	ret := _m.Called(config)
@@ -594,6 +652,62 @@ func (_c *Connector_PlaceLimitOrders_Call) Return(_a0 []*connector.OrderResponse
 }
 
 func (_c *Connector_PlaceLimitOrders_Call) RunAndReturn(run func([]typesconnector.LimitOrder) ([]*connector.OrderResponse, error)) *Connector_PlaceLimitOrders_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Redeem provides a mock function with given fields: market
+func (_m *Connector) Redeem(market typesconnector.Market) (string, error) {
+	ret := _m.Called(market)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Redeem")
+	}
+
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(typesconnector.Market) (string, error)); ok {
+		return rf(market)
+	}
+	if rf, ok := ret.Get(0).(func(typesconnector.Market) string); ok {
+		r0 = rf(market)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(typesconnector.Market) error); ok {
+		r1 = rf(market)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Connector_Redeem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Redeem'
+type Connector_Redeem_Call struct {
+	*mock.Call
+}
+
+// Redeem is a helper method to define mock.On call
+//   - market typesconnector.Market
+func (_e *Connector_Expecter) Redeem(market interface{}) *Connector_Redeem_Call {
+	return &Connector_Redeem_Call{Call: _e.mock.On("Redeem", market)}
+}
+
+func (_c *Connector_Redeem_Call) Run(run func(market typesconnector.Market)) *Connector_Redeem_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(typesconnector.Market))
+	})
+	return _c
+}
+
+func (_c *Connector_Redeem_Call) Return(_a0 string, _a1 error) *Connector_Redeem_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Connector_Redeem_Call) RunAndReturn(run func(typesconnector.Market) (string, error)) *Connector_Redeem_Call {
 	_c.Call.Return(run)
 	return _c
 }

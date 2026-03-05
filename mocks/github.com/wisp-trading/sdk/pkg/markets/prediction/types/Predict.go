@@ -8,6 +8,10 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
+	numerical "github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
+
+	portfolio "github.com/wisp-trading/sdk/pkg/types/portfolio"
+
 	strategy "github.com/wisp-trading/sdk/pkg/types/strategy"
 
 	types "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
@@ -26,6 +30,63 @@ type Predict_Expecter struct {
 
 func (_m *Predict) EXPECT() *Predict_Expecter {
 	return &Predict_Expecter{mock: &_m.Mock}
+}
+
+// Balance provides a mock function with given fields: exchange, asset
+func (_m *Predict) Balance(exchange connector.ExchangeName, asset portfolio.Asset) (numerical.Decimal, bool) {
+	ret := _m.Called(exchange, asset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Balance")
+	}
+
+	var r0 numerical.Decimal
+	var r1 bool
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName, portfolio.Asset) (numerical.Decimal, bool)); ok {
+		return rf(exchange, asset)
+	}
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName, portfolio.Asset) numerical.Decimal); ok {
+		r0 = rf(exchange, asset)
+	} else {
+		r0 = ret.Get(0).(numerical.Decimal)
+	}
+
+	if rf, ok := ret.Get(1).(func(connector.ExchangeName, portfolio.Asset) bool); ok {
+		r1 = rf(exchange, asset)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+
+	return r0, r1
+}
+
+// Predict_Balance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Balance'
+type Predict_Balance_Call struct {
+	*mock.Call
+}
+
+// Balance is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
+//   - asset portfolio.Asset
+func (_e *Predict_Expecter) Balance(exchange interface{}, asset interface{}) *Predict_Balance_Call {
+	return &Predict_Balance_Call{Call: _e.mock.On("Balance", exchange, asset)}
+}
+
+func (_c *Predict_Balance_Call) Run(run func(exchange connector.ExchangeName, asset portfolio.Asset)) *Predict_Balance_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName), args[1].(portfolio.Asset))
+	})
+	return _c
+}
+
+func (_c *Predict_Balance_Call) Return(_a0 numerical.Decimal, _a1 bool) *Predict_Balance_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Predict_Balance_Call) RunAndReturn(run func(connector.ExchangeName, portfolio.Asset) (numerical.Decimal, bool)) *Predict_Balance_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // GetMarketBySlug provides a mock function with given fields: slug, exchange
@@ -139,6 +200,64 @@ func (_c *Predict_GetRecurringMarketBySlug_Call) Return(_a0 typesconnector.Marke
 }
 
 func (_c *Predict_GetRecurringMarketBySlug_Call) RunAndReturn(run func(string, typesconnector.RecurrenceInterval, connector.ExchangeName) (typesconnector.Market, error)) *Predict_GetRecurringMarketBySlug_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTokensToRedeem provides a mock function with given fields: market
+func (_m *Predict) GetTokensToRedeem(market typesconnector.Market) ([]typesconnector.Balance, error) {
+	ret := _m.Called(market)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTokensToRedeem")
+	}
+
+	var r0 []typesconnector.Balance
+	var r1 error
+	if rf, ok := ret.Get(0).(func(typesconnector.Market) ([]typesconnector.Balance, error)); ok {
+		return rf(market)
+	}
+	if rf, ok := ret.Get(0).(func(typesconnector.Market) []typesconnector.Balance); ok {
+		r0 = rf(market)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]typesconnector.Balance)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(typesconnector.Market) error); ok {
+		r1 = rf(market)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Predict_GetTokensToRedeem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTokensToRedeem'
+type Predict_GetTokensToRedeem_Call struct {
+	*mock.Call
+}
+
+// GetTokensToRedeem is a helper method to define mock.On call
+//   - market typesconnector.Market
+func (_e *Predict_Expecter) GetTokensToRedeem(market interface{}) *Predict_GetTokensToRedeem_Call {
+	return &Predict_GetTokensToRedeem_Call{Call: _e.mock.On("GetTokensToRedeem", market)}
+}
+
+func (_c *Predict_GetTokensToRedeem_Call) Run(run func(market typesconnector.Market)) *Predict_GetTokensToRedeem_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(typesconnector.Market))
+	})
+	return _c
+}
+
+func (_c *Predict_GetTokensToRedeem_Call) Return(_a0 []typesconnector.Balance, _a1 error) *Predict_GetTokensToRedeem_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Predict_GetTokensToRedeem_Call) RunAndReturn(run func(typesconnector.Market) ([]typesconnector.Balance, error)) *Predict_GetTokensToRedeem_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -297,6 +416,54 @@ func (_c *Predict_Orderbook_Call) RunAndReturn(run func(connector.ExchangeName, 
 	return _c
 }
 
+// Positions provides a mock function with given fields: strategyName
+func (_m *Predict) Positions(strategyName strategy.StrategyName) []types.PredictionOrder {
+	ret := _m.Called(strategyName)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Positions")
+	}
+
+	var r0 []types.PredictionOrder
+	if rf, ok := ret.Get(0).(func(strategy.StrategyName) []types.PredictionOrder); ok {
+		r0 = rf(strategyName)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]types.PredictionOrder)
+		}
+	}
+
+	return r0
+}
+
+// Predict_Positions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Positions'
+type Predict_Positions_Call struct {
+	*mock.Call
+}
+
+// Positions is a helper method to define mock.On call
+//   - strategyName strategy.StrategyName
+func (_e *Predict_Expecter) Positions(strategyName interface{}) *Predict_Positions_Call {
+	return &Predict_Positions_Call{Call: _e.mock.On("Positions", strategyName)}
+}
+
+func (_c *Predict_Positions_Call) Run(run func(strategyName strategy.StrategyName)) *Predict_Positions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(strategy.StrategyName))
+	})
+	return _c
+}
+
+func (_c *Predict_Positions_Call) Return(_a0 []types.PredictionOrder) *Predict_Positions_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Predict_Positions_Call) RunAndReturn(run func(strategy.StrategyName) []types.PredictionOrder) *Predict_Positions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // PredictionSignal provides a mock function with given fields: strategyName
 func (_m *Predict) PredictionSignal(strategyName strategy.StrategyName) types.PredictionSignalBuilder {
 	ret := _m.Called(strategyName)
@@ -341,6 +508,52 @@ func (_c *Predict_PredictionSignal_Call) Return(_a0 types.PredictionSignalBuilde
 }
 
 func (_c *Predict_PredictionSignal_Call) RunAndReturn(run func(strategy.StrategyName) types.PredictionSignalBuilder) *Predict_PredictionSignal_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Redeem provides a mock function with given fields: market
+func (_m *Predict) Redeem(market typesconnector.Market) error {
+	ret := _m.Called(market)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Redeem")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(typesconnector.Market) error); ok {
+		r0 = rf(market)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Predict_Redeem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Redeem'
+type Predict_Redeem_Call struct {
+	*mock.Call
+}
+
+// Redeem is a helper method to define mock.On call
+//   - market typesconnector.Market
+func (_e *Predict_Expecter) Redeem(market interface{}) *Predict_Redeem_Call {
+	return &Predict_Redeem_Call{Call: _e.mock.On("Redeem", market)}
+}
+
+func (_c *Predict_Redeem_Call) Run(run func(market typesconnector.Market)) *Predict_Redeem_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(typesconnector.Market))
+	})
+	return _c
+}
+
+func (_c *Predict_Redeem_Call) Return(_a0 error) *Predict_Redeem_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Predict_Redeem_Call) RunAndReturn(run func(typesconnector.Market) error) *Predict_Redeem_Call {
 	_c.Call.Return(run)
 	return _c
 }

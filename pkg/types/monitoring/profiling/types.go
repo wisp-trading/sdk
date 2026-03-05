@@ -9,10 +9,11 @@ type StrategyMetrics struct {
 	StrategyName     string
 	ExecutionTime    time.Duration
 	IndicatorMetrics map[string]IndicatorTiming
-	SignalGenTime    time.Duration
-	Timestamp        time.Time
-	Success          bool
-	Error            string
+	// SignalGenTime is the elapsed time from signal creation (GetTimestamp) to routing.
+	SignalGenTime time.Duration
+	Timestamp     time.Time
+	Success       bool
+	Error         string
 }
 
 // IndicatorTiming tracks timing for a specific indicator

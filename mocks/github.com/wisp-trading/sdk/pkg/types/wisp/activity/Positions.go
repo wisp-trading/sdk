@@ -3,8 +3,11 @@
 package activity
 
 import (
-	mock "github.com/stretchr/testify/mock"
+	context "context"
+
 	connector "github.com/wisp-trading/sdk/pkg/types/connector"
+
+	mock "github.com/stretchr/testify/mock"
 
 	strategy "github.com/wisp-trading/sdk/pkg/types/strategy"
 )
@@ -22,17 +25,17 @@ func (_m *Positions) EXPECT() *Positions_Expecter {
 	return &Positions_Expecter{mock: &_m.Mock}
 }
 
-// GetAllStrategyExecutions provides a mock function with given fields: ctx
-func (_m *Positions) GetAllStrategyExecutions(ctx strategy.StrategyContext) map[strategy.StrategyName]*strategy.StrategyExecution {
-	ret := _m.Called(ctx)
+// GetAllStrategyExecutions provides a mock function with no fields
+func (_m *Positions) GetAllStrategyExecutions() map[strategy.StrategyName]*strategy.StrategyExecution {
+	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetAllStrategyExecutions")
 	}
 
 	var r0 map[strategy.StrategyName]*strategy.StrategyExecution
-	if rf, ok := ret.Get(0).(func(strategy.StrategyContext) map[strategy.StrategyName]*strategy.StrategyExecution); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func() map[strategy.StrategyName]*strategy.StrategyExecution); ok {
+		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(map[strategy.StrategyName]*strategy.StrategyExecution)
@@ -48,14 +51,13 @@ type Positions_GetAllStrategyExecutions_Call struct {
 }
 
 // GetAllStrategyExecutions is a helper method to define mock.On call
-//   - ctx strategy.StrategyContext
-func (_e *Positions_Expecter) GetAllStrategyExecutions(ctx interface{}) *Positions_GetAllStrategyExecutions_Call {
-	return &Positions_GetAllStrategyExecutions_Call{Call: _e.mock.On("GetAllStrategyExecutions", ctx)}
+func (_e *Positions_Expecter) GetAllStrategyExecutions() *Positions_GetAllStrategyExecutions_Call {
+	return &Positions_GetAllStrategyExecutions_Call{Call: _e.mock.On("GetAllStrategyExecutions")}
 }
 
-func (_c *Positions_GetAllStrategyExecutions_Call) Run(run func(ctx strategy.StrategyContext)) *Positions_GetAllStrategyExecutions_Call {
+func (_c *Positions_GetAllStrategyExecutions_Call) Run(run func()) *Positions_GetAllStrategyExecutions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyContext))
+		run()
 	})
 	return _c
 }
@@ -65,22 +67,22 @@ func (_c *Positions_GetAllStrategyExecutions_Call) Return(_a0 map[strategy.Strat
 	return _c
 }
 
-func (_c *Positions_GetAllStrategyExecutions_Call) RunAndReturn(run func(strategy.StrategyContext) map[strategy.StrategyName]*strategy.StrategyExecution) *Positions_GetAllStrategyExecutions_Call {
+func (_c *Positions_GetAllStrategyExecutions_Call) RunAndReturn(run func() map[strategy.StrategyName]*strategy.StrategyExecution) *Positions_GetAllStrategyExecutions_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetStrategyExecution provides a mock function with given fields: ctx
-func (_m *Positions) GetStrategyExecution(ctx strategy.StrategyContext) *strategy.StrategyExecution {
-	ret := _m.Called(ctx)
+// GetStrategyExecution provides a mock function with given fields: name
+func (_m *Positions) GetStrategyExecution(name strategy.StrategyName) *strategy.StrategyExecution {
+	ret := _m.Called(name)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetStrategyExecution")
 	}
 
 	var r0 *strategy.StrategyExecution
-	if rf, ok := ret.Get(0).(func(strategy.StrategyContext) *strategy.StrategyExecution); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(strategy.StrategyName) *strategy.StrategyExecution); ok {
+		r0 = rf(name)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*strategy.StrategyExecution)
@@ -96,14 +98,14 @@ type Positions_GetStrategyExecution_Call struct {
 }
 
 // GetStrategyExecution is a helper method to define mock.On call
-//   - ctx strategy.StrategyContext
-func (_e *Positions_Expecter) GetStrategyExecution(ctx interface{}) *Positions_GetStrategyExecution_Call {
-	return &Positions_GetStrategyExecution_Call{Call: _e.mock.On("GetStrategyExecution", ctx)}
+//   - name strategy.StrategyName
+func (_e *Positions_Expecter) GetStrategyExecution(name interface{}) *Positions_GetStrategyExecution_Call {
+	return &Positions_GetStrategyExecution_Call{Call: _e.mock.On("GetStrategyExecution", name)}
 }
 
-func (_c *Positions_GetStrategyExecution_Call) Run(run func(ctx strategy.StrategyContext)) *Positions_GetStrategyExecution_Call {
+func (_c *Positions_GetStrategyExecution_Call) Run(run func(name strategy.StrategyName)) *Positions_GetStrategyExecution_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyContext))
+		run(args[0].(strategy.StrategyName))
 	})
 	return _c
 }
@@ -113,13 +115,13 @@ func (_c *Positions_GetStrategyExecution_Call) Return(_a0 *strategy.StrategyExec
 	return _c
 }
 
-func (_c *Positions_GetStrategyExecution_Call) RunAndReturn(run func(strategy.StrategyContext) *strategy.StrategyExecution) *Positions_GetStrategyExecution_Call {
+func (_c *Positions_GetStrategyExecution_Call) RunAndReturn(run func(strategy.StrategyName) *strategy.StrategyExecution) *Positions_GetStrategyExecution_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetStrategyForOrder provides a mock function with given fields: ctx, orderID
-func (_m *Positions) GetStrategyForOrder(ctx strategy.StrategyContext, orderID string) (strategy.StrategyName, bool) {
+func (_m *Positions) GetStrategyForOrder(ctx context.Context, orderID string) (strategy.StrategyName, bool) {
 	ret := _m.Called(ctx, orderID)
 
 	if len(ret) == 0 {
@@ -128,16 +130,16 @@ func (_m *Positions) GetStrategyForOrder(ctx strategy.StrategyContext, orderID s
 
 	var r0 strategy.StrategyName
 	var r1 bool
-	if rf, ok := ret.Get(0).(func(strategy.StrategyContext, string) (strategy.StrategyName, bool)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (strategy.StrategyName, bool)); ok {
 		return rf(ctx, orderID)
 	}
-	if rf, ok := ret.Get(0).(func(strategy.StrategyContext, string) strategy.StrategyName); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) strategy.StrategyName); ok {
 		r0 = rf(ctx, orderID)
 	} else {
 		r0 = ret.Get(0).(strategy.StrategyName)
 	}
 
-	if rf, ok := ret.Get(1).(func(strategy.StrategyContext, string) bool); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string) bool); ok {
 		r1 = rf(ctx, orderID)
 	} else {
 		r1 = ret.Get(1).(bool)
@@ -152,15 +154,15 @@ type Positions_GetStrategyForOrder_Call struct {
 }
 
 // GetStrategyForOrder is a helper method to define mock.On call
-//   - ctx strategy.StrategyContext
+//   - ctx context.Context
 //   - orderID string
 func (_e *Positions_Expecter) GetStrategyForOrder(ctx interface{}, orderID interface{}) *Positions_GetStrategyForOrder_Call {
 	return &Positions_GetStrategyForOrder_Call{Call: _e.mock.On("GetStrategyForOrder", ctx, orderID)}
 }
 
-func (_c *Positions_GetStrategyForOrder_Call) Run(run func(ctx strategy.StrategyContext, orderID string)) *Positions_GetStrategyForOrder_Call {
+func (_c *Positions_GetStrategyForOrder_Call) Run(run func(ctx context.Context, orderID string)) *Positions_GetStrategyForOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyContext), args[1].(string))
+		run(args[0].(context.Context), args[1].(string))
 	})
 	return _c
 }
@@ -170,13 +172,13 @@ func (_c *Positions_GetStrategyForOrder_Call) Return(_a0 strategy.StrategyName, 
 	return _c
 }
 
-func (_c *Positions_GetStrategyForOrder_Call) RunAndReturn(run func(strategy.StrategyContext, string) (strategy.StrategyName, bool)) *Positions_GetStrategyForOrder_Call {
+func (_c *Positions_GetStrategyForOrder_Call) RunAndReturn(run func(context.Context, string) (strategy.StrategyName, bool)) *Positions_GetStrategyForOrder_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetTotalOrderCount provides a mock function with given fields: ctx
-func (_m *Positions) GetTotalOrderCount(ctx strategy.StrategyContext) int64 {
+func (_m *Positions) GetTotalOrderCount(ctx context.Context) int64 {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
@@ -184,7 +186,7 @@ func (_m *Positions) GetTotalOrderCount(ctx strategy.StrategyContext) int64 {
 	}
 
 	var r0 int64
-	if rf, ok := ret.Get(0).(func(strategy.StrategyContext) int64); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
 		r0 = rf(ctx)
 	} else {
 		r0 = ret.Get(0).(int64)
@@ -199,14 +201,14 @@ type Positions_GetTotalOrderCount_Call struct {
 }
 
 // GetTotalOrderCount is a helper method to define mock.On call
-//   - ctx strategy.StrategyContext
+//   - ctx context.Context
 func (_e *Positions_Expecter) GetTotalOrderCount(ctx interface{}) *Positions_GetTotalOrderCount_Call {
 	return &Positions_GetTotalOrderCount_Call{Call: _e.mock.On("GetTotalOrderCount", ctx)}
 }
 
-func (_c *Positions_GetTotalOrderCount_Call) Run(run func(ctx strategy.StrategyContext)) *Positions_GetTotalOrderCount_Call {
+func (_c *Positions_GetTotalOrderCount_Call) Run(run func(ctx context.Context)) *Positions_GetTotalOrderCount_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyContext))
+		run(args[0].(context.Context))
 	})
 	return _c
 }
@@ -216,22 +218,22 @@ func (_c *Positions_GetTotalOrderCount_Call) Return(_a0 int64) *Positions_GetTot
 	return _c
 }
 
-func (_c *Positions_GetTotalOrderCount_Call) RunAndReturn(run func(strategy.StrategyContext) int64) *Positions_GetTotalOrderCount_Call {
+func (_c *Positions_GetTotalOrderCount_Call) RunAndReturn(run func(context.Context) int64) *Positions_GetTotalOrderCount_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetTradesForStrategy provides a mock function with given fields: ctx
-func (_m *Positions) GetTradesForStrategy(ctx strategy.StrategyContext) []connector.Trade {
-	ret := _m.Called(ctx)
+// GetTradesForStrategy provides a mock function with given fields: name
+func (_m *Positions) GetTradesForStrategy(name strategy.StrategyName) []connector.Trade {
+	ret := _m.Called(name)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetTradesForStrategy")
 	}
 
 	var r0 []connector.Trade
-	if rf, ok := ret.Get(0).(func(strategy.StrategyContext) []connector.Trade); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(strategy.StrategyName) []connector.Trade); ok {
+		r0 = rf(name)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Trade)
@@ -247,14 +249,14 @@ type Positions_GetTradesForStrategy_Call struct {
 }
 
 // GetTradesForStrategy is a helper method to define mock.On call
-//   - ctx strategy.StrategyContext
-func (_e *Positions_Expecter) GetTradesForStrategy(ctx interface{}) *Positions_GetTradesForStrategy_Call {
-	return &Positions_GetTradesForStrategy_Call{Call: _e.mock.On("GetTradesForStrategy", ctx)}
+//   - name strategy.StrategyName
+func (_e *Positions_Expecter) GetTradesForStrategy(name interface{}) *Positions_GetTradesForStrategy_Call {
+	return &Positions_GetTradesForStrategy_Call{Call: _e.mock.On("GetTradesForStrategy", name)}
 }
 
-func (_c *Positions_GetTradesForStrategy_Call) Run(run func(ctx strategy.StrategyContext)) *Positions_GetTradesForStrategy_Call {
+func (_c *Positions_GetTradesForStrategy_Call) Run(run func(name strategy.StrategyName)) *Positions_GetTradesForStrategy_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyContext))
+		run(args[0].(strategy.StrategyName))
 	})
 	return _c
 }
@@ -264,7 +266,7 @@ func (_c *Positions_GetTradesForStrategy_Call) Return(_a0 []connector.Trade) *Po
 	return _c
 }
 
-func (_c *Positions_GetTradesForStrategy_Call) RunAndReturn(run func(strategy.StrategyContext) []connector.Trade) *Positions_GetTradesForStrategy_Call {
+func (_c *Positions_GetTradesForStrategy_Call) RunAndReturn(run func(strategy.StrategyName) []connector.Trade) *Positions_GetTradesForStrategy_Call {
 	_c.Call.Return(run)
 	return _c
 }

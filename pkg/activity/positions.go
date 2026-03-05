@@ -1,6 +1,8 @@
 package activity
 
 import (
+	"context"
+
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	storeActivity "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -15,23 +17,23 @@ func NewPositions(store storeActivity.Positions) wispActivity.Positions {
 	return &positions{store: store}
 }
 
-func (p *positions) GetStrategyExecution(ctx strategy.StrategyContext) *strategy.StrategyExecution {
-	return p.store.GetStrategyExecution(ctx.StrategyName())
+func (p *positions) GetStrategyExecution(name strategy.StrategyName) *strategy.StrategyExecution {
+	return p.store.GetStrategyExecution(name)
 }
 
-func (p *positions) GetTradesForStrategy(ctx strategy.StrategyContext) []connector.Trade {
-	return p.store.GetTradesForStrategy(ctx.StrategyName())
+func (p *positions) GetTradesForStrategy(name strategy.StrategyName) []connector.Trade {
+	return p.store.GetTradesForStrategy(name)
 }
 
-func (p *positions) GetAllStrategyExecutions(ctx strategy.StrategyContext) map[strategy.StrategyName]*strategy.StrategyExecution {
+func (p *positions) GetAllStrategyExecutions() map[strategy.StrategyName]*strategy.StrategyExecution {
 	return p.store.GetAllStrategyExecutions()
 }
 
-func (p *positions) GetStrategyForOrder(ctx strategy.StrategyContext, orderID string) (strategy.StrategyName, bool) {
+func (p *positions) GetStrategyForOrder(_ context.Context, orderID string) (strategy.StrategyName, bool) {
 	return p.store.GetStrategyForOrder(orderID)
 }
 
-func (p *positions) GetTotalOrderCount(ctx strategy.StrategyContext) int64 {
+func (p *positions) GetTotalOrderCount(_ context.Context) int64 {
 	return p.store.GetTotalOrderCount()
 }
 

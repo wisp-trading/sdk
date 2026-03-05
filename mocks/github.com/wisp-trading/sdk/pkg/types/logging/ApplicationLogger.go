@@ -17,10 +17,10 @@ func (_m *ApplicationLogger) EXPECT() *ApplicationLogger_Expecter {
 	return &ApplicationLogger_Expecter{mock: &_m.Mock}
 }
 
-// Debug provides a mock function with given fields: msg, args
-func (_m *ApplicationLogger) Debug(msg string, args ...interface{}) {
+// Debug provides a mock function with given fields: format, args
+func (_m *ApplicationLogger) Debug(format string, args ...interface{}) {
 	var _ca []interface{}
-	_ca = append(_ca, msg)
+	_ca = append(_ca, format)
 	_ca = append(_ca, args...)
 	_m.Called(_ca...)
 }
@@ -31,14 +31,14 @@ type ApplicationLogger_Debug_Call struct {
 }
 
 // Debug is a helper method to define mock.On call
-//   - msg string
+//   - format string
 //   - args ...interface{}
-func (_e *ApplicationLogger_Expecter) Debug(msg interface{}, args ...interface{}) *ApplicationLogger_Debug_Call {
+func (_e *ApplicationLogger_Expecter) Debug(format interface{}, args ...interface{}) *ApplicationLogger_Debug_Call {
 	return &ApplicationLogger_Debug_Call{Call: _e.mock.On("Debug",
-		append([]interface{}{msg}, args...)...)}
+		append([]interface{}{format}, args...)...)}
 }
 
-func (_c *ApplicationLogger_Debug_Call) Run(run func(msg string, args ...interface{})) *ApplicationLogger_Debug_Call {
+func (_c *ApplicationLogger_Debug_Call) Run(run func(format string, args ...interface{})) *ApplicationLogger_Debug_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		variadicArgs := make([]interface{}, len(args)-1)
 		for i, a := range args[1:] {
@@ -61,10 +61,54 @@ func (_c *ApplicationLogger_Debug_Call) RunAndReturn(run func(string, ...interfa
 	return _c
 }
 
-// Error provides a mock function with given fields: msg, args
-func (_m *ApplicationLogger) Error(msg string, args ...interface{}) {
+// Debugf provides a mock function with given fields: msg, args
+func (_m *ApplicationLogger) Debugf(msg string, args ...interface{}) {
 	var _ca []interface{}
 	_ca = append(_ca, msg)
+	_ca = append(_ca, args...)
+	_m.Called(_ca...)
+}
+
+// ApplicationLogger_Debugf_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Debugf'
+type ApplicationLogger_Debugf_Call struct {
+	*mock.Call
+}
+
+// Debugf is a helper method to define mock.On call
+//   - msg string
+//   - args ...interface{}
+func (_e *ApplicationLogger_Expecter) Debugf(msg interface{}, args ...interface{}) *ApplicationLogger_Debugf_Call {
+	return &ApplicationLogger_Debugf_Call{Call: _e.mock.On("Debugf",
+		append([]interface{}{msg}, args...)...)}
+}
+
+func (_c *ApplicationLogger_Debugf_Call) Run(run func(msg string, args ...interface{})) *ApplicationLogger_Debugf_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]interface{}, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(interface{})
+			}
+		}
+		run(args[0].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ApplicationLogger_Debugf_Call) Return() *ApplicationLogger_Debugf_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *ApplicationLogger_Debugf_Call) RunAndReturn(run func(string, ...interface{})) *ApplicationLogger_Debugf_Call {
+	_c.Run(run)
+	return _c
+}
+
+// Error provides a mock function with given fields: format, args
+func (_m *ApplicationLogger) Error(format string, args ...interface{}) {
+	var _ca []interface{}
+	_ca = append(_ca, format)
 	_ca = append(_ca, args...)
 	_m.Called(_ca...)
 }
@@ -75,14 +119,14 @@ type ApplicationLogger_Error_Call struct {
 }
 
 // Error is a helper method to define mock.On call
-//   - msg string
+//   - format string
 //   - args ...interface{}
-func (_e *ApplicationLogger_Expecter) Error(msg interface{}, args ...interface{}) *ApplicationLogger_Error_Call {
+func (_e *ApplicationLogger_Expecter) Error(format interface{}, args ...interface{}) *ApplicationLogger_Error_Call {
 	return &ApplicationLogger_Error_Call{Call: _e.mock.On("Error",
-		append([]interface{}{msg}, args...)...)}
+		append([]interface{}{format}, args...)...)}
 }
 
-func (_c *ApplicationLogger_Error_Call) Run(run func(msg string, args ...interface{})) *ApplicationLogger_Error_Call {
+func (_c *ApplicationLogger_Error_Call) Run(run func(format string, args ...interface{})) *ApplicationLogger_Error_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		variadicArgs := make([]interface{}, len(args)-1)
 		for i, a := range args[1:] {
@@ -150,10 +194,54 @@ func (_c *ApplicationLogger_ErrorWithDebug_Call) RunAndReturn(run func(string, [
 	return _c
 }
 
-// Fatal provides a mock function with given fields: msg, args
-func (_m *ApplicationLogger) Fatal(msg string, args ...interface{}) {
+// Errorf provides a mock function with given fields: msg, args
+func (_m *ApplicationLogger) Errorf(msg string, args ...interface{}) {
 	var _ca []interface{}
 	_ca = append(_ca, msg)
+	_ca = append(_ca, args...)
+	_m.Called(_ca...)
+}
+
+// ApplicationLogger_Errorf_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Errorf'
+type ApplicationLogger_Errorf_Call struct {
+	*mock.Call
+}
+
+// Errorf is a helper method to define mock.On call
+//   - msg string
+//   - args ...interface{}
+func (_e *ApplicationLogger_Expecter) Errorf(msg interface{}, args ...interface{}) *ApplicationLogger_Errorf_Call {
+	return &ApplicationLogger_Errorf_Call{Call: _e.mock.On("Errorf",
+		append([]interface{}{msg}, args...)...)}
+}
+
+func (_c *ApplicationLogger_Errorf_Call) Run(run func(msg string, args ...interface{})) *ApplicationLogger_Errorf_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]interface{}, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(interface{})
+			}
+		}
+		run(args[0].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ApplicationLogger_Errorf_Call) Return() *ApplicationLogger_Errorf_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *ApplicationLogger_Errorf_Call) RunAndReturn(run func(string, ...interface{})) *ApplicationLogger_Errorf_Call {
+	_c.Run(run)
+	return _c
+}
+
+// Fatal provides a mock function with given fields: format, args
+func (_m *ApplicationLogger) Fatal(format string, args ...interface{}) {
+	var _ca []interface{}
+	_ca = append(_ca, format)
 	_ca = append(_ca, args...)
 	_m.Called(_ca...)
 }
@@ -164,14 +252,14 @@ type ApplicationLogger_Fatal_Call struct {
 }
 
 // Fatal is a helper method to define mock.On call
-//   - msg string
+//   - format string
 //   - args ...interface{}
-func (_e *ApplicationLogger_Expecter) Fatal(msg interface{}, args ...interface{}) *ApplicationLogger_Fatal_Call {
+func (_e *ApplicationLogger_Expecter) Fatal(format interface{}, args ...interface{}) *ApplicationLogger_Fatal_Call {
 	return &ApplicationLogger_Fatal_Call{Call: _e.mock.On("Fatal",
-		append([]interface{}{msg}, args...)...)}
+		append([]interface{}{format}, args...)...)}
 }
 
-func (_c *ApplicationLogger_Fatal_Call) Run(run func(msg string, args ...interface{})) *ApplicationLogger_Fatal_Call {
+func (_c *ApplicationLogger_Fatal_Call) Run(run func(format string, args ...interface{})) *ApplicationLogger_Fatal_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		variadicArgs := make([]interface{}, len(args)-1)
 		for i, a := range args[1:] {
@@ -194,10 +282,10 @@ func (_c *ApplicationLogger_Fatal_Call) RunAndReturn(run func(string, ...interfa
 	return _c
 }
 
-// Info provides a mock function with given fields: msg, args
-func (_m *ApplicationLogger) Info(msg string, args ...interface{}) {
+// Info provides a mock function with given fields: format, args
+func (_m *ApplicationLogger) Info(format string, args ...interface{}) {
 	var _ca []interface{}
-	_ca = append(_ca, msg)
+	_ca = append(_ca, format)
 	_ca = append(_ca, args...)
 	_m.Called(_ca...)
 }
@@ -208,14 +296,14 @@ type ApplicationLogger_Info_Call struct {
 }
 
 // Info is a helper method to define mock.On call
-//   - msg string
+//   - format string
 //   - args ...interface{}
-func (_e *ApplicationLogger_Expecter) Info(msg interface{}, args ...interface{}) *ApplicationLogger_Info_Call {
+func (_e *ApplicationLogger_Expecter) Info(format interface{}, args ...interface{}) *ApplicationLogger_Info_Call {
 	return &ApplicationLogger_Info_Call{Call: _e.mock.On("Info",
-		append([]interface{}{msg}, args...)...)}
+		append([]interface{}{format}, args...)...)}
 }
 
-func (_c *ApplicationLogger_Info_Call) Run(run func(msg string, args ...interface{})) *ApplicationLogger_Info_Call {
+func (_c *ApplicationLogger_Info_Call) Run(run func(format string, args ...interface{})) *ApplicationLogger_Info_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		variadicArgs := make([]interface{}, len(args)-1)
 		for i, a := range args[1:] {
@@ -238,10 +326,54 @@ func (_c *ApplicationLogger_Info_Call) RunAndReturn(run func(string, ...interfac
 	return _c
 }
 
-// Warn provides a mock function with given fields: msg, args
-func (_m *ApplicationLogger) Warn(msg string, args ...interface{}) {
+// Infof provides a mock function with given fields: msg, args
+func (_m *ApplicationLogger) Infof(msg string, args ...interface{}) {
 	var _ca []interface{}
 	_ca = append(_ca, msg)
+	_ca = append(_ca, args...)
+	_m.Called(_ca...)
+}
+
+// ApplicationLogger_Infof_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Infof'
+type ApplicationLogger_Infof_Call struct {
+	*mock.Call
+}
+
+// Infof is a helper method to define mock.On call
+//   - msg string
+//   - args ...interface{}
+func (_e *ApplicationLogger_Expecter) Infof(msg interface{}, args ...interface{}) *ApplicationLogger_Infof_Call {
+	return &ApplicationLogger_Infof_Call{Call: _e.mock.On("Infof",
+		append([]interface{}{msg}, args...)...)}
+}
+
+func (_c *ApplicationLogger_Infof_Call) Run(run func(msg string, args ...interface{})) *ApplicationLogger_Infof_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]interface{}, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(interface{})
+			}
+		}
+		run(args[0].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ApplicationLogger_Infof_Call) Return() *ApplicationLogger_Infof_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *ApplicationLogger_Infof_Call) RunAndReturn(run func(string, ...interface{})) *ApplicationLogger_Infof_Call {
+	_c.Run(run)
+	return _c
+}
+
+// Warn provides a mock function with given fields: format, args
+func (_m *ApplicationLogger) Warn(format string, args ...interface{}) {
+	var _ca []interface{}
+	_ca = append(_ca, format)
 	_ca = append(_ca, args...)
 	_m.Called(_ca...)
 }
@@ -252,14 +384,14 @@ type ApplicationLogger_Warn_Call struct {
 }
 
 // Warn is a helper method to define mock.On call
-//   - msg string
+//   - format string
 //   - args ...interface{}
-func (_e *ApplicationLogger_Expecter) Warn(msg interface{}, args ...interface{}) *ApplicationLogger_Warn_Call {
+func (_e *ApplicationLogger_Expecter) Warn(format interface{}, args ...interface{}) *ApplicationLogger_Warn_Call {
 	return &ApplicationLogger_Warn_Call{Call: _e.mock.On("Warn",
-		append([]interface{}{msg}, args...)...)}
+		append([]interface{}{format}, args...)...)}
 }
 
-func (_c *ApplicationLogger_Warn_Call) Run(run func(msg string, args ...interface{})) *ApplicationLogger_Warn_Call {
+func (_c *ApplicationLogger_Warn_Call) Run(run func(format string, args ...interface{})) *ApplicationLogger_Warn_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		variadicArgs := make([]interface{}, len(args)-1)
 		for i, a := range args[1:] {
@@ -278,6 +410,50 @@ func (_c *ApplicationLogger_Warn_Call) Return() *ApplicationLogger_Warn_Call {
 }
 
 func (_c *ApplicationLogger_Warn_Call) RunAndReturn(run func(string, ...interface{})) *ApplicationLogger_Warn_Call {
+	_c.Run(run)
+	return _c
+}
+
+// Warnf provides a mock function with given fields: msg, args
+func (_m *ApplicationLogger) Warnf(msg string, args ...interface{}) {
+	var _ca []interface{}
+	_ca = append(_ca, msg)
+	_ca = append(_ca, args...)
+	_m.Called(_ca...)
+}
+
+// ApplicationLogger_Warnf_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Warnf'
+type ApplicationLogger_Warnf_Call struct {
+	*mock.Call
+}
+
+// Warnf is a helper method to define mock.On call
+//   - msg string
+//   - args ...interface{}
+func (_e *ApplicationLogger_Expecter) Warnf(msg interface{}, args ...interface{}) *ApplicationLogger_Warnf_Call {
+	return &ApplicationLogger_Warnf_Call{Call: _e.mock.On("Warnf",
+		append([]interface{}{msg}, args...)...)}
+}
+
+func (_c *ApplicationLogger_Warnf_Call) Run(run func(msg string, args ...interface{})) *ApplicationLogger_Warnf_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]interface{}, len(args)-1)
+		for i, a := range args[1:] {
+			if a != nil {
+				variadicArgs[i] = a.(interface{})
+			}
+		}
+		run(args[0].(string), variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *ApplicationLogger_Warnf_Call) Return() *ApplicationLogger_Warnf_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *ApplicationLogger_Warnf_Call) RunAndReturn(run func(string, ...interface{})) *ApplicationLogger_Warnf_Call {
 	_c.Run(run)
 	return _c
 }
