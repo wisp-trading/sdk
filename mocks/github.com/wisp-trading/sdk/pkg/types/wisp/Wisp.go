@@ -12,7 +12,11 @@ import (
 
 	portfolio "github.com/wisp-trading/sdk/pkg/types/portfolio"
 
+	predictiontypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
+
 	strategy "github.com/wisp-trading/sdk/pkg/types/strategy"
+
+	types "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 
 	wisp "github.com/wisp-trading/sdk/pkg/types/wisp"
 )
@@ -391,50 +395,96 @@ func (_c *Wisp_Pair_Call) RunAndReturn(run func(portfolio.Asset, portfolio.Asset
 	return _c
 }
 
-// PerpSignal provides a mock function with given fields: strategyName
-func (_m *Wisp) PerpSignal(strategyName strategy.StrategyName) strategy.PerpSignalBuilder {
-	ret := _m.Called(strategyName)
+// Perp provides a mock function with no fields
+func (_m *Wisp) Perp() types.Perp {
+	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for PerpSignal")
+		panic("no return value specified for Perp")
 	}
 
-	var r0 strategy.PerpSignalBuilder
-	if rf, ok := ret.Get(0).(func(strategy.StrategyName) strategy.PerpSignalBuilder); ok {
-		r0 = rf(strategyName)
+	var r0 types.Perp
+	if rf, ok := ret.Get(0).(func() types.Perp); ok {
+		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(strategy.PerpSignalBuilder)
+			r0 = ret.Get(0).(types.Perp)
 		}
 	}
 
 	return r0
 }
 
-// Wisp_PerpSignal_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PerpSignal'
-type Wisp_PerpSignal_Call struct {
+// Wisp_Perp_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Perp'
+type Wisp_Perp_Call struct {
 	*mock.Call
 }
 
-// PerpSignal is a helper method to define mock.On call
-//   - strategyName strategy.StrategyName
-func (_e *Wisp_Expecter) PerpSignal(strategyName interface{}) *Wisp_PerpSignal_Call {
-	return &Wisp_PerpSignal_Call{Call: _e.mock.On("PerpSignal", strategyName)}
+// Perp is a helper method to define mock.On call
+func (_e *Wisp_Expecter) Perp() *Wisp_Perp_Call {
+	return &Wisp_Perp_Call{Call: _e.mock.On("Perp")}
 }
 
-func (_c *Wisp_PerpSignal_Call) Run(run func(strategyName strategy.StrategyName)) *Wisp_PerpSignal_Call {
+func (_c *Wisp_Perp_Call) Run(run func()) *Wisp_Perp_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyName))
+		run()
 	})
 	return _c
 }
 
-func (_c *Wisp_PerpSignal_Call) Return(_a0 strategy.PerpSignalBuilder) *Wisp_PerpSignal_Call {
+func (_c *Wisp_Perp_Call) Return(_a0 types.Perp) *Wisp_Perp_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *Wisp_PerpSignal_Call) RunAndReturn(run func(strategy.StrategyName) strategy.PerpSignalBuilder) *Wisp_PerpSignal_Call {
+func (_c *Wisp_Perp_Call) RunAndReturn(run func() types.Perp) *Wisp_Perp_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Predict provides a mock function with no fields
+func (_m *Wisp) Predict() predictiontypes.Predict {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Predict")
+	}
+
+	var r0 predictiontypes.Predict
+	if rf, ok := ret.Get(0).(func() predictiontypes.Predict); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(predictiontypes.Predict)
+		}
+	}
+
+	return r0
+}
+
+// Wisp_Predict_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Predict'
+type Wisp_Predict_Call struct {
+	*mock.Call
+}
+
+// Predict is a helper method to define mock.On call
+func (_e *Wisp_Expecter) Predict() *Wisp_Predict_Call {
+	return &Wisp_Predict_Call{Call: _e.mock.On("Predict")}
+}
+
+func (_c *Wisp_Predict_Call) Run(run func()) *Wisp_Predict_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Wisp_Predict_Call) Return(_a0 predictiontypes.Predict) *Wisp_Predict_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Wisp_Predict_Call) RunAndReturn(run func() predictiontypes.Predict) *Wisp_Predict_Call {
 	_c.Call.Return(run)
 	return _c
 }

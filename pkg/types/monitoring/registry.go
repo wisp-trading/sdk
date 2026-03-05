@@ -24,6 +24,10 @@ type ViewRegistry interface {
 	// Orderbook queries — one per market type
 	GetOrderbookView(pair portfolio.Pair) *connector.OrderBook
 	GetPredictionOrderbookView(exchange, marketID, outcomeID string) *connector.OrderBook
+
+	// Kline queries — one per market type
+	GetSpotKlines(pair portfolio.Pair, exchange, interval string, limit int) []connector.Kline
+	GetPerpKlines(pair portfolio.Pair, exchange, interval string, limit int) []connector.Kline
 }
 
 // MarketViews is the top-level response for /api/markets.
@@ -76,6 +80,12 @@ type ViewQuerier interface {
 
 	// QueryOrderbook retrieves a spot/perp order book — pair is "BTC-USDT"
 	QueryOrderbook(instanceID, pair, exchange string) (*connector.OrderBook, error)
+
+	// QuerySpotKlines retrieves kline/candlestick data for a spot pair.
+	QuerySpotKlines(instanceID, pair, exchange, interval string, limit int) ([]connector.Kline, error)
+
+	// QueryPerpKlines retrieves kline/candlestick data for a perp pair.
+	QueryPerpKlines(instanceID, pair, exchange, interval string, limit int) ([]connector.Kline, error)
 
 	// QueryPredictionOrderbook retrieves an order book for a specific prediction outcome
 	QueryPredictionOrderbook(instanceID, exchange, marketID, outcomeID string) (*connector.OrderBook, error)
