@@ -1,6 +1,7 @@
 package perp
 
 import (
+	"github.com/wisp-trading/sdk/pkg/markets/perp/executor"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/ingestor/realtime"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/store"
@@ -10,11 +11,12 @@ import (
 	"go.uber.org/fx"
 )
 
-// Module wires all perp market dependencies: store, ingestors, views, watchlist, and universe provider.
+// Module wires all perp market dependencies: store, ingestors, views, executor, watchlist, and universe provider.
 var Module = fx.Module("perp",
 	fx.Provide(
 		store.NewStore,
 		views.NewPerpViews,
+		executor.NewExecutor,
 		NewPerpWatchlist,
 		NewPerpUniverseProvider,
 	),

@@ -3,6 +3,7 @@ package executor
 import (
 	"fmt"
 
+	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
@@ -25,6 +26,7 @@ type executor struct {
 
 	// Domain-specific executors
 	predictionExecutor predTypes.SignalExecutor
+	perpExecutor       perpTypes.SignalExecutor
 }
 
 // NewExecutor creates a new default executor
@@ -35,8 +37,9 @@ func NewExecutor(
 	timeProvider temporal.TimeProvider,
 	hookRegistry registry.Hooks,
 	predictionExecutor predTypes.SignalExecutor,
+	perpExecutor perpTypes.SignalExecutor,
 ) execution.Executor {
-	logger.Info("📌 Initializing executor with hook registry")
+	logger.Info("Initializing executor with hook registry")
 
 	return &executor{
 		connectors:         connectors,
@@ -45,6 +48,7 @@ func NewExecutor(
 		timeProvider:       timeProvider,
 		hookRegistry:       hookRegistry,
 		predictionExecutor: predictionExecutor,
+		perpExecutor:       perpExecutor,
 	}
 }
 
@@ -121,19 +125,9 @@ func (e *executor) executeSpotSignal(ctx *execution.ExecutionContext, signal str
 	return nil
 }
 
-// executePerpSignal executes all actions in a perp signal
+// executePerpSignal delegates to the perp domain executor.
 func (e *executor) executePerpSignal(ctx *execution.ExecutionContext, signal strategy.PerpSignal, result *execution.ExecutionResult) error {
-	for i, action := range signal.GetActions() {
-		orderID, err := e.executePerpAction(signal.GetStrategy(), action)
-		if err != nil {
-			e.logger.Error("Failed to execute perp action %d for signal %s: %v", i, signal.GetID(), err)
-			return err
-		}
-		if orderID != "" {
-			result.OrderIDs = append(result.OrderIDs, orderID)
-		}
-	}
-	return nil
+	return e.perpExecutor.ExecutePerpSignal(signal, ctx, result)
 }
 
 // executePredictionSignal delegates to the prediction domain executor.
@@ -190,60 +184,6 @@ func (e *executor) executeSpotAction(strategyName strategy.StrategyName, action 
 
 	e.positions.AddOrderToStrategy(strategyName, order)
 	e.logger.Info("✅ Order recorded for strategy %s: %s", strategyName, orderResponse.OrderID)
-	return orderResponse.OrderID, nil
-}
-
-// executePerpAction executes a single perp action
-func (e *executor) executePerpAction(strategyName strategy.StrategyName, action *strategy.PerpAction) (string, error) {
-	switch action.ActionType {
-	case strategy.ActionHold:
-		e.logger.Info("📊 Holding perp position for %s", action.Pair.Symbol())
-		return "", nil
-	case strategy.ActionClose:
-		e.logger.Info("🔚 Close perp action noted for %s", action.Pair.Symbol())
-		return "", nil
-	}
-
-	exchange, exists := e.connectors.Connector(action.Exchange)
-	if !exists {
-		return "", fmt.Errorf("exchange %s not available", action.Exchange)
-	}
-
-	e.logger.Info(
-		"📈 Executing perp %s order: %s %s at price %s (leverage: %s) on %s",
-		action.ActionType,
-		action.Quantity.StringFixed(4),
-		action.Pair.Symbol(),
-		action.Price.StringFixed(2),
-		action.Leverage.StringFixed(1),
-		action.Exchange,
-	)
-
-	exec, ok := exchange.(connector.OrderExecutor)
-	if !ok {
-		return "", fmt.Errorf("exchange %s does not support order execution", action.Exchange)
-	}
-
-	side := e.getOrderSide(action.ActionType)
-	orderResponse, err := exec.PlaceLimitOrder(action.Pair, side, action.Quantity, action.Price)
-	if err != nil {
-		return "", fmt.Errorf("failed to place perp order: %w", err)
-	}
-
-	order := connector.Order{
-		Pair:      action.Pair,
-		ID:        orderResponse.OrderID,
-		Side:      side,
-		Quantity:  action.Quantity,
-		Price:     action.Price,
-		Status:    connector.OrderStatusPending,
-		Type:      connector.OrderTypeLimit,
-		CreatedAt: e.timeProvider.Now(),
-		UpdatedAt: e.timeProvider.Now(),
-	}
-
-	e.positions.AddOrderToStrategy(strategyName, order)
-	e.logger.Info("✅ Perp order recorded for strategy %s: %s", strategyName, orderResponse.OrderID)
 	return orderResponse.OrderID, nil
 }
 
