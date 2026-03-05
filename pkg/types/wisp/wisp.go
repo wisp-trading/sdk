@@ -58,7 +58,12 @@ type Wisp interface {
 	// PerpSignal creates a new signal builder for perpetual futures trading signals.
 	// Example: k.PerpSignal(strategyName).BuyLimitWithLeverage(pair, exchange, qty, price, leverage).Build()
 	PerpSignal(strategyName strategy.StrategyName) strategy.PerpSignalBuilder
-	
+
+	// Emit routes a signal directly to the executor via the SDK's SignalRouter.
+	// This is the primary way strategies dispatch signals in the self-directed model.
+	// Example: k.Emit(k.SpotSignal(s.GetName()).Buy(pair, exchange, qty).Build())
+	Emit(signal strategy.Signal)
+
 	// Features returns the ML feature aggregator for extracting market features.
 	// Provides access to 41+ features including market data, orderbook, technical indicators,
 	// volatility, volume, price metrics, and time-based features.

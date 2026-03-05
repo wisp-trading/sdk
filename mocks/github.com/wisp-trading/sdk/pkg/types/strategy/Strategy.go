@@ -3,7 +3,7 @@
 package strategy
 
 import (
-	time "time"
+	"context"
 
 	mock "github.com/stretchr/testify/mock"
 	strategy "github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -22,49 +22,47 @@ func (_m *Strategy) EXPECT() *Strategy_Expecter {
 	return &Strategy_Expecter{mock: &_m.Mock}
 }
 
-// ExecutionConfig provides a mock function with no fields
-func (_m *Strategy) ExecutionConfig() *strategy.ExecutionConfig {
+// GetName provides a mock function with no fields
+func (_m *Strategy) GetName() strategy.StrategyName {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for ExecutionConfig")
+		panic("no return value specified for GetName")
 	}
 
-	var r0 *strategy.ExecutionConfig
-	if rf, ok := ret.Get(0).(func() *strategy.ExecutionConfig); ok {
+	var r0 strategy.StrategyName
+	if rf, ok := ret.Get(0).(func() strategy.StrategyName); ok {
 		r0 = rf()
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*strategy.ExecutionConfig)
-		}
+		r0 = ret.Get(0).(strategy.StrategyName)
 	}
 
 	return r0
 }
 
-// Strategy_ExecutionConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ExecutionConfig'
-type Strategy_ExecutionConfig_Call struct {
+// Strategy_GetName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetName'
+type Strategy_GetName_Call struct {
 	*mock.Call
 }
 
-// ExecutionConfig is a helper method to define mock.On call
-func (_e *Strategy_Expecter) ExecutionConfig() *Strategy_ExecutionConfig_Call {
-	return &Strategy_ExecutionConfig_Call{Call: _e.mock.On("ExecutionConfig")}
+// GetName is a helper method to define mock.On call
+func (_e *Strategy_Expecter) GetName() *Strategy_GetName_Call {
+	return &Strategy_GetName_Call{Call: _e.mock.On("GetName")}
 }
 
-func (_c *Strategy_ExecutionConfig_Call) Run(run func()) *Strategy_ExecutionConfig_Call {
+func (_c *Strategy_GetName_Call) Run(run func()) *Strategy_GetName_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *Strategy_ExecutionConfig_Call) Return(_a0 *strategy.ExecutionConfig) *Strategy_ExecutionConfig_Call {
+func (_c *Strategy_GetName_Call) Return(_a0 strategy.StrategyName) *Strategy_GetName_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *Strategy_ExecutionConfig_Call) RunAndReturn(run func() *strategy.ExecutionConfig) *Strategy_ExecutionConfig_Call {
+func (_c *Strategy_GetName_Call) RunAndReturn(run func() strategy.StrategyName) *Strategy_GetName_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -114,96 +112,6 @@ func (_c *Strategy_GetDescription_Call) RunAndReturn(run func() string) *Strateg
 	return _c
 }
 
-// GetLastRunAt provides a mock function with no fields
-func (_m *Strategy) GetLastRunAt() time.Time {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetLastRunAt")
-	}
-
-	var r0 time.Time
-	if rf, ok := ret.Get(0).(func() time.Time); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(time.Time)
-	}
-
-	return r0
-}
-
-// Strategy_GetLastRunAt_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetLastRunAt'
-type Strategy_GetLastRunAt_Call struct {
-	*mock.Call
-}
-
-// GetLastRunAt is a helper method to define mock.On call
-func (_e *Strategy_Expecter) GetLastRunAt() *Strategy_GetLastRunAt_Call {
-	return &Strategy_GetLastRunAt_Call{Call: _e.mock.On("GetLastRunAt")}
-}
-
-func (_c *Strategy_GetLastRunAt_Call) Run(run func()) *Strategy_GetLastRunAt_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *Strategy_GetLastRunAt_Call) Return(_a0 time.Time) *Strategy_GetLastRunAt_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Strategy_GetLastRunAt_Call) RunAndReturn(run func() time.Time) *Strategy_GetLastRunAt_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetName provides a mock function with no fields
-func (_m *Strategy) GetName() strategy.StrategyName {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetName")
-	}
-
-	var r0 strategy.StrategyName
-	if rf, ok := ret.Get(0).(func() strategy.StrategyName); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(strategy.StrategyName)
-	}
-
-	return r0
-}
-
-// Strategy_GetName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetName'
-type Strategy_GetName_Call struct {
-	*mock.Call
-}
-
-// GetName is a helper method to define mock.On call
-func (_e *Strategy_Expecter) GetName() *Strategy_GetName_Call {
-	return &Strategy_GetName_Call{Call: _e.mock.On("GetName")}
-}
-
-func (_c *Strategy_GetName_Call) Run(run func()) *Strategy_GetName_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *Strategy_GetName_Call) Return(_a0 strategy.StrategyName) *Strategy_GetName_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Strategy_GetName_Call) RunAndReturn(run func() strategy.StrategyName) *Strategy_GetName_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetRiskLevel provides a mock function with no fields
 func (_m *Strategy) GetRiskLevel() strategy.RiskLevel {
 	ret := _m.Called()
@@ -245,64 +153,6 @@ func (_c *Strategy_GetRiskLevel_Call) Return(_a0 strategy.RiskLevel) *Strategy_G
 }
 
 func (_c *Strategy_GetRiskLevel_Call) RunAndReturn(run func() strategy.RiskLevel) *Strategy_GetRiskLevel_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetSignals provides a mock function with given fields: ctx
-func (_m *Strategy) GetSignals(ctx strategy.StrategyContext) ([]strategy.Signal, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetSignals")
-	}
-
-	var r0 []strategy.Signal
-	var r1 error
-	if rf, ok := ret.Get(0).(func(strategy.StrategyContext) ([]strategy.Signal, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(strategy.StrategyContext) []strategy.Signal); ok {
-		r0 = rf(ctx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]strategy.Signal)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(strategy.StrategyContext) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// Strategy_GetSignals_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSignals'
-type Strategy_GetSignals_Call struct {
-	*mock.Call
-}
-
-// GetSignals is a helper method to define mock.On call
-//   - ctx strategy.StrategyContext
-func (_e *Strategy_Expecter) GetSignals(ctx interface{}) *Strategy_GetSignals_Call {
-	return &Strategy_GetSignals_Call{Call: _e.mock.On("GetSignals", ctx)}
-}
-
-func (_c *Strategy_GetSignals_Call) Run(run func(ctx strategy.StrategyContext)) *Strategy_GetSignals_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyContext))
-	})
-	return _c
-}
-
-func (_c *Strategy_GetSignals_Call) Return(_a0 []strategy.Signal, _a1 error) *Strategy_GetSignals_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *Strategy_GetSignals_Call) RunAndReturn(run func(strategy.StrategyContext) ([]strategy.Signal, error)) *Strategy_GetSignals_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -352,36 +202,142 @@ func (_c *Strategy_GetStrategyType_Call) RunAndReturn(run func() strategy.Strate
 	return _c
 }
 
-// WithExecutionConfig provides a mock function with given fields: _a0
-func (_m *Strategy) WithExecutionConfig(_a0 *strategy.ExecutionConfig) {
-	_m.Called(_a0)
+// Start provides a mock function with given fields: ctx
+func (_m *Strategy) Start(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Start")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
-// Strategy_WithExecutionConfig_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'WithExecutionConfig'
-type Strategy_WithExecutionConfig_Call struct {
+// Strategy_Start_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Start'
+type Strategy_Start_Call struct {
 	*mock.Call
 }
 
-// WithExecutionConfig is a helper method to define mock.On call
-//   - _a0 *strategy.ExecutionConfig
-func (_e *Strategy_Expecter) WithExecutionConfig(_a0 interface{}) *Strategy_WithExecutionConfig_Call {
-	return &Strategy_WithExecutionConfig_Call{Call: _e.mock.On("WithExecutionConfig", _a0)}
+// Start is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *Strategy_Expecter) Start(ctx interface{}) *Strategy_Start_Call {
+	return &Strategy_Start_Call{Call: _e.mock.On("Start", ctx)}
 }
 
-func (_c *Strategy_WithExecutionConfig_Call) Run(run func(_a0 *strategy.ExecutionConfig)) *Strategy_WithExecutionConfig_Call {
+func (_c *Strategy_Start_Call) Run(run func(ctx context.Context)) *Strategy_Start_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*strategy.ExecutionConfig))
+		run(args[0].(context.Context))
 	})
 	return _c
 }
 
-func (_c *Strategy_WithExecutionConfig_Call) Return() *Strategy_WithExecutionConfig_Call {
-	_c.Call.Return()
+func (_c *Strategy_Start_Call) Return(_a0 error) *Strategy_Start_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *Strategy_WithExecutionConfig_Call) RunAndReturn(run func(*strategy.ExecutionConfig)) *Strategy_WithExecutionConfig_Call {
-	_c.Run(run)
+func (_c *Strategy_Start_Call) RunAndReturn(run func(context.Context) error) *Strategy_Start_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Stop provides a mock function with given fields: ctx
+func (_m *Strategy) Stop(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Stop")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Strategy_Stop_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Stop'
+type Strategy_Stop_Call struct {
+	*mock.Call
+}
+
+// Stop is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *Strategy_Expecter) Stop(ctx interface{}) *Strategy_Stop_Call {
+	return &Strategy_Stop_Call{Call: _e.mock.On("Stop", ctx)}
+}
+
+func (_c *Strategy_Stop_Call) Run(run func(ctx context.Context)) *Strategy_Stop_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *Strategy_Stop_Call) Return(_a0 error) *Strategy_Stop_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Strategy_Stop_Call) RunAndReturn(run func(context.Context) error) *Strategy_Stop_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Signals provides a mock function with no fields
+func (_m *Strategy) Signals() <-chan strategy.Signal {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Signals")
+	}
+
+	var r0 <-chan strategy.Signal
+	if rf, ok := ret.Get(0).(func() <-chan strategy.Signal); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan strategy.Signal)
+		}
+	}
+
+	return r0
+}
+
+// Strategy_Signals_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Signals'
+type Strategy_Signals_Call struct {
+	*mock.Call
+}
+
+// Signals is a helper method to define mock.On call
+func (_e *Strategy_Expecter) Signals() *Strategy_Signals_Call {
+	return &Strategy_Signals_Call{Call: _e.mock.On("Signals")}
+}
+
+func (_c *Strategy_Signals_Call) Run(run func()) *Strategy_Signals_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Strategy_Signals_Call) Return(_a0 <-chan strategy.Signal) *Strategy_Signals_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Strategy_Signals_Call) RunAndReturn(run func() <-chan strategy.Signal) *Strategy_Signals_Call {
+	_c.Call.Return(run)
 	return _c
 }
 

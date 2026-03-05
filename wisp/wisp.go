@@ -1,6 +1,7 @@
 package wisp
 
 import (
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -9,8 +10,8 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 )
 
-// Wisp is the base context object for strategy GetSignals methods.
-// It provides read-only access to market data, indicators, and analytics.
+// wisp is the SDK context object injected into strategies.
+// It provides access to market data, indicators, analytics, and signal dispatch.
 type wisp struct {
 	tradingLogger    logging.TradingLogger
 	universeProvider UniverseProvider
@@ -19,6 +20,7 @@ type wisp struct {
 	market           analytics.Market
 	signal           strategy.SignalFactory
 	activity         activity.Activity
+	router           execution.SignalRouter
 }
 
 // NewWisp creates a new Wisp context with injected services.
@@ -31,6 +33,7 @@ func NewWisp(
 	marketService analytics.Market,
 	signal strategy.SignalFactory,
 	activityService activity.Activity,
+	router execution.SignalRouter,
 ) wispTypes.Wisp {
 	return &wisp{
 		tradingLogger:    tradingLogger,
@@ -40,6 +43,7 @@ func NewWisp(
 		analytics:        analyticsService,
 		signal:           signal,
 		activity:         activityService,
+		router:           router,
 	}
 }
 
@@ -91,4 +95,10 @@ func (k *wisp) PerpSignal(strategyName strategy.StrategyName) strategy.PerpSigna
 // Data is cached since it does not change after initialization.
 func (k *wisp) Universe() wispTypes.Universe {
 	return k.universeProvider.Universe()
+}
+
+// Emit routes a signal directly to the executor via the SDK's SignalRouter.
+// This is the primary way strategies dispatch signals — non-blocking, fire and forget.
+func (k *wisp) Emit(signal strategy.Signal) {
+	k.router.Route(signal)
 }
