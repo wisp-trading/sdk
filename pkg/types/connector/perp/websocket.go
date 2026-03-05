@@ -31,5 +31,6 @@ type WebSocketConnector interface {
 	TradeUpdates() <-chan connector.Trade
 	PositionUpdates() <-chan Position
 	FundingRateUpdates() <-chan FundingRate
-	//AssetBalanceUpdates() <-chan AssetBalance
+	// AssetBalanceUpdates is intentionally excluded from the WebSocket interface.
+	// Account balance updates are polled via REST (AccountReader.GetMarginBalances).
 }

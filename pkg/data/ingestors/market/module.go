@@ -1,7 +1,6 @@
 package market
 
 import (
-	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/perp"
 	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/spot"
 	predictionRealtime "github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/realtime"
 	"github.com/wisp-trading/sdk/pkg/types/data/ingestors"
@@ -11,7 +10,6 @@ import (
 var Module = fx.Module("market_ingestor",
 	fx.Options(
 		spot.Module,
-		perp.Module,
 
 		// Prediction realtime factory (from domain package)
 		fx.Provide(

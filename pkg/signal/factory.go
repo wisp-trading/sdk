@@ -1,6 +1,7 @@
 package signal
 
 import (
+	perpSignal "github.com/wisp-trading/sdk/pkg/markets/perp/signal"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
@@ -27,10 +28,7 @@ func (f factory) NewSpot(strategyName strategy.StrategyName) strategy.SpotSignal
 }
 
 // NewPerp creates a new perpetual futures signal builder for a strategy.
+// Delegates to the perp domain signal package.
 func (f factory) NewPerp(strategyName strategy.StrategyName) strategy.PerpSignalBuilder {
-	return &perpBuilder{
-		strategyName: strategyName,
-		actions:      make([]*strategy.PerpAction, 0),
-		timeProvider: f.timeProvider,
-	}
+	return perpSignal.NewPerpBuilder(strategyName, f.timeProvider)
 }

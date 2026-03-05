@@ -1,6 +1,8 @@
 package wisp
 
 import (
+	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
+	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
@@ -13,65 +15,51 @@ import (
 // indicators, analytics, and trading functionality. It is injected into strategy
 // implementations and provides read-only access to all framework services.
 type Wisp interface {
-	// Universe returns the tradeable assets, instruments, and exchanges.
-	// Provides strategies with the complete trading universe available.
-	// Example: u := k.Universe(); for asset, instruments := range u.Assets { ... }
+	// Universe returns the tradeable spot assets and exchanges.
 	Universe() Universe
 
 	// Indicators returns the indicators service for technical analysis.
-	// Provides methods like RSI, SMA, EMA, MACD, etc.
 	Indicators() analytics.Indicators
 
 	// Analytics returns the analytics service for market analysis.
-	// Provides methods for volatility, trend analysis, and volume analysis.
 	Analytics() analytics.Analytics
 
 	// Market returns the market data service for accessing live and historical prices.
-	// Provides safe, read-only access to spot and perp market data across exchanges.
-	// Example: price, _ := k.Market().Price(ctx, btc, analytics.MarketOptions{Exchange: "binance"})
-	// Example: fundingRate, _ := k.Market().FundingRate(ctx, btc, "hyperliquid")
 	Market() analytics.Market
 
 	// Log returns the trading logger for strategy-specific logging.
-	// Use for recording trading decisions and strategy events.
 	Log() logging.TradingLogger
 
 	// Activity returns read-only access to positions, trades, and PNL data.
-	// Provides methods to query strategy executions, orders, and trade history.
-	// Example: k.Activity().Positions().GetStrategyExecution(strategyName)
 	Activity() activity.Activity
 
 	// Asset creates a new portfolio.Asset from a symbol string.
-	// Convenience method to avoid importing portfolio package in strategies.
-	// Example: btc := k.Pair("BTC")
 	Asset(symbol string) portfolio.Asset
 
-	// Pair creates a new portfolio.Pair from a symbol string.
-	// Convenience method to avoid importing portfolio package in strategies.
-	// Example: btc := k.Pair(base, quote)
+	// Pair creates a new portfolio.Pair from two assets.
 	Pair(base, quote portfolio.Asset) portfolio.Pair
 
 	// SpotSignal creates a new signal builder for spot market trading signals.
 	// Example: k.SpotSignal(strategyName).Buy(pair, exchange, qty).Build()
 	SpotSignal(strategyName strategy.StrategyName) strategy.SpotSignalBuilder
 
-	// PerpSignal creates a new signal builder for perpetual futures trading signals.
-	// Example: k.PerpSignal(strategyName).BuyLimitWithLeverage(pair, exchange, qty, price, leverage).Build()
-	PerpSignal(strategyName strategy.StrategyName) strategy.PerpSignalBuilder
-
-	// Emit routes a signal directly to the executor via the SDK's SignalRouter.
-	// This is the primary way strategies dispatch signals in the self-directed model.
-	// Example: k.Emit(k.SpotSignal(s.GetName()).Buy(pair, exchange, qty).Build())
+	// Emit routes a signal directly to the executor. Non-blocking.
 	Emit(signal strategy.Signal)
 
-	// Features returns the ML feature aggregator for extracting market features.
-	// Provides access to 41+ features including market data, orderbook, technical indicators,
-	// volatility, volume, price metrics, and time-based features.
-	// Example: featureMap, err := k.Features().Extract(asset)
-	//Features() features.FeatureAggregator
+	// Perp returns the perpetual futures domain context.
+	// Owns watchlist management, funding rates, positions, orderbooks, and signal creation.
+	// Example: wisp.Perp().WatchPair(exchange, btc)
+	// Example: wisp.Perp().Signal(strategyName).BuyLimit(pair, exchange, qty, price).Build()
+	Perp() perpTypes.Perp
+
+	// Predict returns the prediction market domain context.
+	// Owns market discovery, orderbooks, balances, positions, and signal creation.
+	// Example: wisp.Predict().WatchMarket(exchange, market)
+	// Example: wisp.Predict().Signal(strategyName).Buy(market, outcome, exchange, shares, maxPrice, expiry).Build()
+	Predict() predTypes.Predict
 }
 
-// Universe holds the tradeable assets and exchanges available to the strategy.
+// Universe holds the tradeable spot assets and exchanges available to the strategy.
 type Universe struct {
 	// Exchanges are the ready/initialized exchanges available for trading
 	Exchanges []connector.Exchange

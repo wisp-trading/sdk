@@ -15,6 +15,9 @@ type ConnectorRegistry interface {
 
 	Connector(name connector.ExchangeName) (connector.Connector, bool)
 
+	// ConnectorType returns the market type of a registered connector.
+	ConnectorType(name connector.ExchangeName) (connector.MarketType, bool)
+
 	// Direct getters (type-specific)
 	Spot(name connector.ExchangeName) (spot.Connector, bool)
 	Perp(name connector.ExchangeName) (perp.Connector, bool)

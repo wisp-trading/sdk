@@ -13,8 +13,10 @@ type StartupConfig struct {
 	// ConnectorConfigs are the initialized connector configurations
 	ConnectorConfigs map[connector.ExchangeName]connector.Config
 
-	// AssetConfigs maps assets to their required instruments
-	AssetConfigs map[connector.ExchangeName][]portfolio.Pair
+	// Assets maps each exchange to the pairs declared in config.
+	// The runtime routes these to the correct domain watchlist after
+	// connector types are known.
+	Assets map[connector.ExchangeName][]portfolio.Pair
 
 	// PluginPath is the path to the .so file (for plugin mode)
 	PluginPath string

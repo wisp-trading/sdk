@@ -74,32 +74,29 @@ func (l *startupConfigLoader) LoadForStrategy(
 	return &config.StartupConfig{
 		Strategy:         stratConfig,
 		ConnectorConfigs: connectorConfigs,
-		AssetConfigs:     assetConfigs,
+		Assets:           assetConfigs,
 		PluginPath:       pluginPath,
 		StrategyDir:      strategyDir,
 	}, nil
 }
 
-// convertAssets converts strategy config assets to instrument map
+// convertAssets converts strategy config assets to a flat exchange→pairs map.
+// Market type routing happens later in the runtime, after connector types are known.
 func (l *startupConfigLoader) convertAssets(
 	stratConfig *config.Strategy,
 ) map[connector.ExchangeName][]portfolio.Pair {
+	assets := make(map[connector.ExchangeName][]portfolio.Pair)
 
-	exchangeAssets := make(map[connector.ExchangeName][]portfolio.Pair)
-
-	// stratConfig.Assets is map[string][]Asset, where key is exchange name.
-	for exName, assets := range stratConfig.Assets {
+	for exName, assetList := range stratConfig.Assets {
 		exchange := connector.ExchangeName(exName)
-
-		for _, asset := range assets {
+		for _, asset := range assetList {
 			pair := portfolio.NewPair(
 				portfolio.NewAsset(asset.Base),
 				portfolio.NewAsset(asset.Quote),
 			)
-
-			exchangeAssets[exchange] = append(exchangeAssets[exchange], pair)
+			assets[exchange] = append(assets[exchange], pair)
 		}
 	}
 
-	return exchangeAssets
+	return assets
 }
