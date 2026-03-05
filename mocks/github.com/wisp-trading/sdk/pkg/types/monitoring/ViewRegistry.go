@@ -219,6 +219,57 @@ func (_c *ViewRegistry_GetOrderbookView_Call) RunAndReturn(run func(portfolio.Pa
 	return _c
 }
 
+// GetPerpKlines provides a mock function with given fields: pair, exchange, interval, limit
+func (_m *ViewRegistry) GetPerpKlines(pair portfolio.Pair, exchange string, interval string, limit int) []connector.Kline {
+	ret := _m.Called(pair, exchange, interval, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPerpKlines")
+	}
+
+	var r0 []connector.Kline
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string, string, int) []connector.Kline); ok {
+		r0 = rf(pair, exchange, interval, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector.Kline)
+		}
+	}
+
+	return r0
+}
+
+// ViewRegistry_GetPerpKlines_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPerpKlines'
+type ViewRegistry_GetPerpKlines_Call struct {
+	*mock.Call
+}
+
+// GetPerpKlines is a helper method to define mock.On call
+//   - pair portfolio.Pair
+//   - exchange string
+//   - interval string
+//   - limit int
+func (_e *ViewRegistry_Expecter) GetPerpKlines(pair interface{}, exchange interface{}, interval interface{}, limit interface{}) *ViewRegistry_GetPerpKlines_Call {
+	return &ViewRegistry_GetPerpKlines_Call{Call: _e.mock.On("GetPerpKlines", pair, exchange, interval, limit)}
+}
+
+func (_c *ViewRegistry_GetPerpKlines_Call) Run(run func(pair portfolio.Pair, exchange string, interval string, limit int)) *ViewRegistry_GetPerpKlines_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(portfolio.Pair), args[1].(string), args[2].(string), args[3].(int))
+	})
+	return _c
+}
+
+func (_c *ViewRegistry_GetPerpKlines_Call) Return(_a0 []connector.Kline) *ViewRegistry_GetPerpKlines_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ViewRegistry_GetPerpKlines_Call) RunAndReturn(run func(portfolio.Pair, string, string, int) []connector.Kline) *ViewRegistry_GetPerpKlines_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetPnLView provides a mock function with no fields
 func (_m *ViewRegistry) GetPnLView() *monitoring.PnLView {
 	ret := _m.Called()
@@ -502,6 +553,57 @@ func (_c *ViewRegistry_GetRecentTrades_Call) Return(_a0 []connector.Trade) *View
 }
 
 func (_c *ViewRegistry_GetRecentTrades_Call) RunAndReturn(run func(int) []connector.Trade) *ViewRegistry_GetRecentTrades_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetSpotKlines provides a mock function with given fields: pair, exchange, interval, limit
+func (_m *ViewRegistry) GetSpotKlines(pair portfolio.Pair, exchange string, interval string, limit int) []connector.Kline {
+	ret := _m.Called(pair, exchange, interval, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetSpotKlines")
+	}
+
+	var r0 []connector.Kline
+	if rf, ok := ret.Get(0).(func(portfolio.Pair, string, string, int) []connector.Kline); ok {
+		r0 = rf(pair, exchange, interval, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector.Kline)
+		}
+	}
+
+	return r0
+}
+
+// ViewRegistry_GetSpotKlines_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetSpotKlines'
+type ViewRegistry_GetSpotKlines_Call struct {
+	*mock.Call
+}
+
+// GetSpotKlines is a helper method to define mock.On call
+//   - pair portfolio.Pair
+//   - exchange string
+//   - interval string
+//   - limit int
+func (_e *ViewRegistry_Expecter) GetSpotKlines(pair interface{}, exchange interface{}, interval interface{}, limit interface{}) *ViewRegistry_GetSpotKlines_Call {
+	return &ViewRegistry_GetSpotKlines_Call{Call: _e.mock.On("GetSpotKlines", pair, exchange, interval, limit)}
+}
+
+func (_c *ViewRegistry_GetSpotKlines_Call) Run(run func(pair portfolio.Pair, exchange string, interval string, limit int)) *ViewRegistry_GetSpotKlines_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(portfolio.Pair), args[1].(string), args[2].(string), args[3].(int))
+	})
+	return _c
+}
+
+func (_c *ViewRegistry_GetSpotKlines_Call) Return(_a0 []connector.Kline) *ViewRegistry_GetSpotKlines_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ViewRegistry_GetSpotKlines_Call) RunAndReturn(run func(portfolio.Pair, string, string, int) []connector.Kline) *ViewRegistry_GetSpotKlines_Call {
 	_c.Call.Return(run)
 	return _c
 }

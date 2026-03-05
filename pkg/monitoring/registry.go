@@ -156,6 +156,14 @@ func (r *viewRegistry) GetPredictionOrderbookView(exchange, marketID, outcomeID 
 	)
 }
 
+func (r *viewRegistry) GetSpotKlines(pair portfolio.Pair, exchange, interval string, limit int) []connector.Kline {
+	return r.wisp.Market().Spot().GetKlines(pair, connector.ExchangeName(exchange), interval, limit)
+}
+
+func (r *viewRegistry) GetPerpKlines(pair portfolio.Pair, exchange, interval string, limit int) []connector.Kline {
+	return r.wisp.Market().Perp().GetKlines(pair, connector.ExchangeName(exchange), interval, limit)
+}
+
 func (r *viewRegistry) GetProfilingStats() *monitoring.ProfilingStats {
 	if r.profilingStore == nil {
 		return nil

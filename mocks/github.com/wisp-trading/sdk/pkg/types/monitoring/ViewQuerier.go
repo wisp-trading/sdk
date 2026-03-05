@@ -305,6 +305,68 @@ func (_c *ViewQuerier_QueryOrderbook_Call) RunAndReturn(run func(string, string,
 	return _c
 }
 
+// QueryPerpKlines provides a mock function with given fields: instanceID, pair, exchange, interval, limit
+func (_m *ViewQuerier) QueryPerpKlines(instanceID string, pair string, exchange string, interval string, limit int) ([]connector.Kline, error) {
+	ret := _m.Called(instanceID, pair, exchange, interval, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for QueryPerpKlines")
+	}
+
+	var r0 []connector.Kline
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, string, string, int) ([]connector.Kline, error)); ok {
+		return rf(instanceID, pair, exchange, interval, limit)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, string, string, int) []connector.Kline); ok {
+		r0 = rf(instanceID, pair, exchange, interval, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector.Kline)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, string, string, int) error); ok {
+		r1 = rf(instanceID, pair, exchange, interval, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ViewQuerier_QueryPerpKlines_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'QueryPerpKlines'
+type ViewQuerier_QueryPerpKlines_Call struct {
+	*mock.Call
+}
+
+// QueryPerpKlines is a helper method to define mock.On call
+//   - instanceID string
+//   - pair string
+//   - exchange string
+//   - interval string
+//   - limit int
+func (_e *ViewQuerier_Expecter) QueryPerpKlines(instanceID interface{}, pair interface{}, exchange interface{}, interval interface{}, limit interface{}) *ViewQuerier_QueryPerpKlines_Call {
+	return &ViewQuerier_QueryPerpKlines_Call{Call: _e.mock.On("QueryPerpKlines", instanceID, pair, exchange, interval, limit)}
+}
+
+func (_c *ViewQuerier_QueryPerpKlines_Call) Run(run func(instanceID string, pair string, exchange string, interval string, limit int)) *ViewQuerier_QueryPerpKlines_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].(string), args[3].(string), args[4].(int))
+	})
+	return _c
+}
+
+func (_c *ViewQuerier_QueryPerpKlines_Call) Return(_a0 []connector.Kline, _a1 error) *ViewQuerier_QueryPerpKlines_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ViewQuerier_QueryPerpKlines_Call) RunAndReturn(run func(string, string, string, string, int) ([]connector.Kline, error)) *ViewQuerier_QueryPerpKlines_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // QueryPnL provides a mock function with given fields: instanceID
 func (_m *ViewQuerier) QueryPnL(instanceID string) (*monitoring.PnLView, error) {
 	ret := _m.Called(instanceID)
@@ -654,6 +716,68 @@ func (_c *ViewQuerier_QueryRecentTrades_Call) Return(_a0 []connector.Trade, _a1 
 }
 
 func (_c *ViewQuerier_QueryRecentTrades_Call) RunAndReturn(run func(string, int) ([]connector.Trade, error)) *ViewQuerier_QueryRecentTrades_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// QuerySpotKlines provides a mock function with given fields: instanceID, pair, exchange, interval, limit
+func (_m *ViewQuerier) QuerySpotKlines(instanceID string, pair string, exchange string, interval string, limit int) ([]connector.Kline, error) {
+	ret := _m.Called(instanceID, pair, exchange, interval, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for QuerySpotKlines")
+	}
+
+	var r0 []connector.Kline
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, string, string, int) ([]connector.Kline, error)); ok {
+		return rf(instanceID, pair, exchange, interval, limit)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, string, string, int) []connector.Kline); ok {
+		r0 = rf(instanceID, pair, exchange, interval, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector.Kline)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, string, string, int) error); ok {
+		r1 = rf(instanceID, pair, exchange, interval, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ViewQuerier_QuerySpotKlines_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'QuerySpotKlines'
+type ViewQuerier_QuerySpotKlines_Call struct {
+	*mock.Call
+}
+
+// QuerySpotKlines is a helper method to define mock.On call
+//   - instanceID string
+//   - pair string
+//   - exchange string
+//   - interval string
+//   - limit int
+func (_e *ViewQuerier_Expecter) QuerySpotKlines(instanceID interface{}, pair interface{}, exchange interface{}, interval interface{}, limit interface{}) *ViewQuerier_QuerySpotKlines_Call {
+	return &ViewQuerier_QuerySpotKlines_Call{Call: _e.mock.On("QuerySpotKlines", instanceID, pair, exchange, interval, limit)}
+}
+
+func (_c *ViewQuerier_QuerySpotKlines_Call) Run(run func(instanceID string, pair string, exchange string, interval string, limit int)) *ViewQuerier_QuerySpotKlines_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(string), args[2].(string), args[3].(string), args[4].(int))
+	})
+	return _c
+}
+
+func (_c *ViewQuerier_QuerySpotKlines_Call) Return(_a0 []connector.Kline, _a1 error) *ViewQuerier_QuerySpotKlines_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ViewQuerier_QuerySpotKlines_Call) RunAndReturn(run func(string, string, string, string, int) ([]connector.Kline, error)) *ViewQuerier_QuerySpotKlines_Call {
 	_c.Call.Return(run)
 	return _c
 }

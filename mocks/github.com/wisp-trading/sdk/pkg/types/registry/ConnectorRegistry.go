@@ -86,6 +86,62 @@ func (_c *ConnectorRegistry_Connector_Call) RunAndReturn(run func(connector.Exch
 	return _c
 }
 
+// ConnectorType provides a mock function with given fields: name
+func (_m *ConnectorRegistry) ConnectorType(name connector.ExchangeName) (connector.MarketType, bool) {
+	ret := _m.Called(name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ConnectorType")
+	}
+
+	var r0 connector.MarketType
+	var r1 bool
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) (connector.MarketType, bool)); ok {
+		return rf(name)
+	}
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) connector.MarketType); ok {
+		r0 = rf(name)
+	} else {
+		r0 = ret.Get(0).(connector.MarketType)
+	}
+
+	if rf, ok := ret.Get(1).(func(connector.ExchangeName) bool); ok {
+		r1 = rf(name)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+
+	return r0, r1
+}
+
+// ConnectorRegistry_ConnectorType_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ConnectorType'
+type ConnectorRegistry_ConnectorType_Call struct {
+	*mock.Call
+}
+
+// ConnectorType is a helper method to define mock.On call
+//   - name connector.ExchangeName
+func (_e *ConnectorRegistry_Expecter) ConnectorType(name interface{}) *ConnectorRegistry_ConnectorType_Call {
+	return &ConnectorRegistry_ConnectorType_Call{Call: _e.mock.On("ConnectorType", name)}
+}
+
+func (_c *ConnectorRegistry_ConnectorType_Call) Run(run func(name connector.ExchangeName)) *ConnectorRegistry_ConnectorType_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName))
+	})
+	return _c
+}
+
+func (_c *ConnectorRegistry_ConnectorType_Call) Return(_a0 connector.MarketType, _a1 bool) *ConnectorRegistry_ConnectorType_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ConnectorRegistry_ConnectorType_Call) RunAndReturn(run func(connector.ExchangeName) (connector.MarketType, bool)) *ConnectorRegistry_ConnectorType_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Filter provides a mock function with given fields: opts
 func (_m *ConnectorRegistry) Filter(opts registry.FilterOptions) []connector.Connector {
 	ret := _m.Called(opts)

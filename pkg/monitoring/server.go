@@ -9,15 +9,9 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
 	"sync"
-	"time"
 
-	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
-	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
-	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
 // server implements the Server interface
@@ -51,7 +45,6 @@ func NewServer(
 		socketDir = filepath.Join(homeDir, ".wisp", "sockets")
 	}
 
-	// Check if socket directory exists
 	if err := os.MkdirAll(socketDir, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create socket directory: %w", err)
 	}
@@ -102,11 +95,13 @@ func (s *server) Start() error {
 	mux.HandleFunc("/shutdown", s.handleShutdown)
 	mux.HandleFunc("/api/pnl", s.handlePnL)
 	mux.HandleFunc("/api/positions", s.handlePositions)
-	mux.HandleFunc("/api/orderbook", s.handleOrderbook)
-	mux.HandleFunc("/api/orderbook/prediction", s.handlePredictionOrderbook)
 	mux.HandleFunc("/api/trades", s.handleTrades)
 	mux.HandleFunc("/api/metrics", s.handleMetrics)
 	mux.HandleFunc("/api/markets", s.handleMarkets)
+	mux.HandleFunc("/api/orderbook", s.handleOrderbook)
+	mux.HandleFunc("/api/orderbook/prediction", s.handlePredictionOrderbook)
+	mux.HandleFunc("/api/klines/spot", s.handleSpotKlines)
+	mux.HandleFunc("/api/klines/perp", s.handlePerpKlines)
 	mux.HandleFunc("/profiling/stats", s.handleProfilingStats)
 	mux.HandleFunc("/profiling/executions", s.handleProfilingExecutions)
 
@@ -144,7 +139,6 @@ func (s *server) Stop(ctx context.Context) error {
 		}
 	}
 
-	// Remove socket file
 	if err := os.Remove(s.socketPath); err != nil && !os.IsNotExist(err) {
 		errs = append(errs, fmt.Errorf("failed to remove socket: %w", err))
 	}
@@ -163,212 +157,7 @@ func (s *server) SocketPath() string {
 	return s.socketPath
 }
 
-// HTTP Handlers
-
-func (s *server) handleHealth(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	healthReport := s.viewRegistry.GetHealth()
-	if healthReport == nil {
-		healthReport = &health.SystemHealthReport{OverallState: health.StateConnected}
-	}
-
-	s.writeJSON(w, healthReport)
-}
-
-func (s *server) handlePnL(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	pnl := s.viewRegistry.GetPnLView()
-	if pnl == nil {
-		s.writeJSON(w, struct{}{})
-		return
-	}
-
-	s.writeJSON(w, pnl)
-}
-
-func (s *server) handlePositions(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	positions := s.viewRegistry.GetPositionsView()
-	if positions == nil {
-		s.writeJSON(w, struct{}{})
-		return
-	}
-
-	s.writeJSON(w, positions)
-}
-
-func (s *server) handleOrderbook(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	queryPair := r.URL.Query().Get("pair")
-	if queryPair == "" {
-		http.Error(w, "pair parameter required", http.StatusBadRequest)
-		return
-	}
-
-	parts := strings.Split(queryPair, "-")
-	if len(parts) != 2 {
-		http.Error(w, "invalid pair format, expected BASE-QUOTE", http.StatusBadRequest)
-		return
-	}
-
-	pair := portfolio.NewPair(
-		portfolio.NewAsset(parts[0]),
-		portfolio.NewAsset(parts[1]),
-	)
-
-	orderbook := s.viewRegistry.GetOrderbookView(pair)
-	if orderbook == nil {
-		http.Error(w, "orderbook not found", http.StatusNotFound)
-		return
-	}
-
-	s.writeJSON(w, orderbook)
-}
-
-func (s *server) handleTrades(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	limitStr := r.URL.Query().Get("limit")
-	limit := 50 // default
-	if limitStr != "" {
-		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-			limit = l
-		}
-	}
-
-	trades := s.viewRegistry.GetRecentTrades(limit)
-	if trades == nil {
-		trades = []connector.Trade{}
-	}
-
-	s.writeJSON(w, trades)
-}
-
-func (s *server) handleMetrics(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	metrics := s.viewRegistry.GetMetrics()
-	if metrics == nil {
-		s.writeJSON(w, &monitoring.StrategyMetrics{})
-		return
-	}
-
-	s.writeJSON(w, metrics)
-}
-
-func (s *server) handleMarkets(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	s.writeJSON(w, s.viewRegistry.GetMarketViews())
-}
-
-func (s *server) handlePredictionOrderbook(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	exchange := r.URL.Query().Get("exchange")
-	marketID := r.URL.Query().Get("market_id")
-	outcomeID := r.URL.Query().Get("outcome_id")
-
-	if exchange == "" || marketID == "" || outcomeID == "" {
-		http.Error(w, "exchange, market_id and outcome_id parameters required", http.StatusBadRequest)
-		return
-	}
-
-	ob := s.viewRegistry.GetPredictionOrderbookView(exchange, marketID, outcomeID)
-	if ob == nil {
-		http.Error(w, "orderbook not found", http.StatusNotFound)
-		return
-	}
-
-	s.writeJSON(w, ob)
-}
-
-func (s *server) handleProfilingStats(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	stats := s.viewRegistry.GetProfilingStats()
-	if stats == nil {
-		s.writeJSON(w, &monitoring.ProfilingStats{})
-		return
-	}
-
-	s.writeJSON(w, stats)
-}
-
-func (s *server) handleProfilingExecutions(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	limitStr := r.URL.Query().Get("limit")
-	limit := 50 // default
-	if limitStr != "" {
-		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-			limit = l
-		}
-	}
-
-	executions := s.viewRegistry.GetRecentExecutions(limit)
-	if executions == nil {
-		executions = []monitoring.ProfilingMetrics{}
-	}
-
-	s.writeJSON(w, executions)
-}
-
-func (s *server) handleShutdown(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// Send response before shutting down
-	s.writeJSON(w, map[string]string{"status": "shutting down"})
-
-	// Trigger graceful shutdown via context cancellation
-	// This will cause the main context to be cancelled, which the runtime monitors
-	// and triggers controller.Stop() with proper cleanup
-	if s.shutdownFunc != nil {
-		go func() {
-			// Give a moment for the HTTP response to be sent
-			time.Sleep(100 * time.Millisecond)
-			s.shutdownFunc() // Cancel the main context
-		}()
-	}
-}
-
-func (s *server) writeJSON(w http.ResponseWriter, data interface{}) {
+func (s *server) writeJSON(w http.ResponseWriter, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		http.Error(w, fmt.Sprintf("failed to encode response: %v", err), http.StatusInternalServerError)
