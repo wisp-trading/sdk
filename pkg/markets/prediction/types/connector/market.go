@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // Market represents a tradeable prediction market
@@ -74,3 +75,9 @@ const (
 	OutcomeTypeCategorical OutcomeType = "categorical"
 	OutcomeTypeScalar      OutcomeType = "scalar"
 )
+
+type Balance struct {
+	OutcomeID OutcomeID
+	Balance   numerical.Decimal
+	Allowance numerical.Decimal
+}

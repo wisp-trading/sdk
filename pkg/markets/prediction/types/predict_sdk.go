@@ -36,6 +36,8 @@ type Predict interface {
 	// Example: k.PredictionSignal(strategyName).Buy(market, outcome, exchange, shares, maxPrice, expiry).Build()
 	PredictionSignal(strategyName strategy.StrategyName) PredictionSignalBuilder
 
+	GetTokensToRedeem(market predictionconnector.Market) ([]predictionconnector.Balance, error)
+
 	// Redeem attempts to redeem winnings for a market. Returns an error if redemption fails.
 	Redeem(market predictionconnector.Market) error
 }

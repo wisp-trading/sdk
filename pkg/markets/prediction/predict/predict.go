@@ -137,3 +137,19 @@ func (p predict) Redeem(market predictionconnector.Market) error {
 
 	return nil
 }
+
+func (p predict) GetTokensToRedeem(market predictionconnector.Market) ([]predictionconnector.Balance, error) {
+	marketConnector, exists := p.connectorRegistry.Prediction(market.Exchange)
+
+	if !exists {
+		return nil, errors.New("connector not found for exchange: " + string(market.Exchange))
+	}
+
+	tokens, err := marketConnector.GetTokensToRedeem(market)
+
+	if err != nil {
+		return nil, errors.New("failed to get tokens to redeem for market: " + market.MarketID.String() + " on exchange: " + string(market.Exchange) + " error: " + err.Error())
+	}
+
+	return tokens, nil
+}
