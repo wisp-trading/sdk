@@ -3,9 +3,10 @@ package types
 import (
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	//"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 type Predict interface {
@@ -21,6 +22,12 @@ type Predict interface {
 		outcome predictionconnector.Outcome,
 	) (*connector.OrderBook, error)
 
+	// Balance returns the current balance for an asset on an exchange.
+	Balance(exchange connector.ExchangeName, asset portfolio.Asset) (numerical.Decimal, bool)
+
+	// Positions returns all orders recorded for the given strategy.
+	Positions(strategyName strategy.StrategyName) []PredictionOrder
+
 	// Log returns the trading logger for strategy-specific logging.
 	// Use for recording trading decisions and strategy events.
 	Log() logging.TradingLogger
@@ -28,4 +35,9 @@ type Predict interface {
 	// PredictionSignal creates a new signal builder for prediction market trading signals.
 	// Example: k.PredictionSignal(strategyName).Buy(market, outcome, exchange, shares, maxPrice, expiry).Build()
 	PredictionSignal(strategyName strategy.StrategyName) PredictionSignalBuilder
+
+	GetTokensToRedeem(market predictionconnector.Market) ([]predictionconnector.Balance, error)
+
+	// Redeem attempts to redeem winnings for a market. Returns an error if redemption fails.
+	Redeem(market predictionconnector.Market) error
 }

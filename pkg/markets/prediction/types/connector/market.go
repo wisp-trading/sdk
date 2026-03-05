@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // Market represents a tradeable prediction market
@@ -24,6 +25,7 @@ type Market struct {
 
 	// Timing
 	ResolutionTime *time.Time `json:"resolution_time,omitempty"`
+	StartTime      *time.Time `json:"start_time,omitempty"`
 
 	RecurringMarket *RecurringMarket `json:"recurring_market,omitempty"`
 }
@@ -73,3 +75,9 @@ const (
 	OutcomeTypeCategorical OutcomeType = "categorical"
 	OutcomeTypeScalar      OutcomeType = "scalar"
 )
+
+type Balance struct {
+	OutcomeID OutcomeID
+	Balance   numerical.Decimal
+	Allowance numerical.Decimal
+}

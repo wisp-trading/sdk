@@ -13,6 +13,7 @@ type Connector interface {
 	OrderExecutor
 	AccountReader
 
+	Redeem(market Market) (string, error)
 	GetMarket(slug string) (Market, error)
 	GetRecurringMarket(slug string, interval RecurrenceInterval) (Market, error)
 	GetOutcome(marketID, outcomeID string) Outcome

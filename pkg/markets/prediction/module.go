@@ -25,10 +25,10 @@ var Module = fx.Module("prediction",
 
 	// Ingestors
 	fx.Provide(
-		//fx.Annotate(
-		//	batch.NewFactory,
-		//	fx.ResultTags(`group:"batch_factories"`),
-		//),
+		fx.Annotate(
+			batch.NewFactory,
+			fx.ResultTags(`group:"batch_factories"`),
+		),
 		fx.Annotate(
 			realtime.NewFactory,
 			fx.ResultTags(`group:"realtime_factories"`),
@@ -37,14 +37,6 @@ var Module = fx.Module("prediction",
 
 	fx.Invoke(
 		registerStore,
-	),
-)
-
-// BatchModule exposes the batch factory separately for when batch ingestion is enabled.
-var BatchModule = fx.Provide(
-	fx.Annotate(
-		batch.NewFactory,
-		fx.ResultTags(`group:"batch_factories"`),
 	),
 )
 

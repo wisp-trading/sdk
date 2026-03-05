@@ -49,7 +49,7 @@ func NewOrchestrator(
 	strategyRegistry registry.StrategyRegistry,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
-	profilingStore profileTypes.ProfilingStore,   // Optional: can be nil
+	profilingStore profileTypes.ProfilingStore, // Optional: can be nil
 	anomalyDetector profileTypes.AnomalyDetector, // Optional: can be nil
 ) lifecycleTypes.Orchestrator {
 	return &orchestrator{

@@ -1,10 +1,7 @@
 package batch
 
 import (
-	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
-	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data"
 	batchTypes "github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
@@ -14,7 +11,6 @@ import (
 // factory creates batch ingestors for all registered prediction connectors.
 type factory struct {
 	connectorRegistry registry.ConnectorRegistry
-	marketWatchlist   data.MarketWatchlist
 	store             types.MarketStore
 	timeProvider      temporal.TimeProvider
 	logger            logging.ApplicationLogger
@@ -22,14 +18,12 @@ type factory struct {
 
 func NewFactory(
 	connectorRegistry registry.ConnectorRegistry,
-	marketWatchlist data.MarketWatchlist,
 	store types.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
 ) batchTypes.BatchIngestorFactory {
 	return &factory{
 		connectorRegistry: connectorRegistry,
-		marketWatchlist:   marketWatchlist,
 		store:             store,
 		timeProvider:      timeProvider,
 		logger:            logger,
@@ -46,14 +40,12 @@ func (f *factory) CreateIngestors() []batchTypes.BatchIngestor {
 		info := conn.GetConnectorInfo()
 		exchangeName := info.Name
 
-		ingestor := batch.NewBatchIngestor(
+		ingestor := NewPredictionBatchIngestor(
 			conn,
 			exchangeName,
-			connector.MarketTypePrediction,
-			f.marketWatchlist,
-			f.store,
-			f.timeProvider,
 			f.logger,
+			f.timeProvider,
+			NewBalanceCollectionExtension(f.store, f.logger),
 		)
 
 		ingestorList = append(ingestorList, ingestor)
