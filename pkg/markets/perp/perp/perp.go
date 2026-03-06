@@ -1,6 +1,8 @@
 package perp
 
 import (
+	storeTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
+	perpActivity "github.com/wisp-trading/sdk/pkg/markets/perp/activity"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/signal"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
@@ -20,6 +22,7 @@ type perp struct {
 	store             perpTypes.MarketStore
 	connectorRegistry registry.ConnectorRegistry
 	timeProvider      temporal.TimeProvider
+	pnl               perpTypes.PerpPNL
 }
 
 // NewPerp constructs the perp context object injected into strategies.
@@ -29,6 +32,7 @@ func NewPerp(
 	store perpTypes.MarketStore,
 	connectorRegistry registry.ConnectorRegistry,
 	timeProvider temporal.TimeProvider,
+	trades storeTypes.Trades,
 ) perpTypes.Perp {
 	return &perp{
 		tradingLogger:     tradingLogger,
@@ -36,6 +40,7 @@ func NewPerp(
 		store:             store,
 		connectorRegistry: connectorRegistry,
 		timeProvider:      timeProvider,
+		pnl:               perpActivity.NewPerpPNL(connectorRegistry, trades),
 	}
 }
 
@@ -93,7 +98,7 @@ func (p *perp) Position(exchange connector.ExchangeName, pair portfolio.Pair) (*
 
 // Positions returns all open positions across all exchanges for a strategy,
 // by querying every ready perp connector.
-func (p *perp) Positions(strategyName strategy.StrategyName) []perpConn.Position {
+func (p *perp) Positions() []perpConn.Position {
 	perpConnectors := p.connectorRegistry.FilterPerp(
 		registry.NewFilter().ReadyOnly().Build(),
 	)
@@ -135,6 +140,11 @@ func (p *perp) Signal(strategyName strategy.StrategyName) strategy.PerpSignalBui
 // Log returns the trading logger for strategy-specific logging.
 func (p *perp) Log() logging.TradingLogger {
 	return p.tradingLogger
+}
+
+// PNL returns the profit and loss calculator for the perp context.
+func (p *perp) PNL() perpTypes.PerpPNL {
+	return p.pnl
 }
 
 var _ perpTypes.Perp = (*perp)(nil)

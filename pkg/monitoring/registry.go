@@ -60,10 +60,10 @@ func (r *viewRegistry) GetPnLView() *monitoring.PnLView {
 	}
 
 	pnl := r.wisp.Activity().PNL()
-	realizedPnL := pnl.GetRealizedPNL(ctx, name)
-	unrealizedPnL, _ := pnl.GetUnrealizedPNL(ctx, name)
-	totalPnL, _ := pnl.GetTotalPNL(ctx)
-	totalFees := pnl.GetFeesByStrategy(ctx, name)
+	realizedPnL := pnl.TotalRealized(ctx)
+	unrealizedPnL := pnl.TotalUnrealized(ctx)
+	totalPnL := realizedPnL.Add(unrealizedPnL)
+	totalFees := pnl.TotalFees(ctx)
 
 	return &monitoring.PnLView{
 		StrategyName:  string(name),
@@ -75,13 +75,9 @@ func (r *viewRegistry) GetPnLView() *monitoring.PnLView {
 }
 
 func (r *viewRegistry) GetPositionsView() *strategy.StrategyExecution {
-	name := r.getStrategyName()
+	ctx := context.Background()
 
-	if name == "" {
-		return nil
-	}
-
-	return r.wisp.Activity().Positions().GetStrategyExecution(name)
+	return r.wisp.Activity().Positions().GetExecution(ctx)
 }
 
 // GetOrderbookView todo refactor here - need to be smarter - accept the exchange as an arg
@@ -92,12 +88,7 @@ func (r *viewRegistry) GetOrderbookView(pair portfolio.Pair) *connector.OrderBoo
 }
 
 func (r *viewRegistry) GetRecentTrades(limit int) []connector.Trade {
-	name := r.getStrategyName()
-	if name == "" {
-		return nil
-	}
-
-	trades := r.wisp.Activity().Positions().GetTradesForStrategy(name)
+	trades := r.wisp.Activity().Trades().GetAllTrades(context.Background())
 	if len(trades) <= limit {
 		return trades
 	}

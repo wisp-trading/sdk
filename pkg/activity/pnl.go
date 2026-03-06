@@ -3,278 +3,46 @@ package activity
 import (
 	"context"
 
-	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/portfolio"
-	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
+	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
-	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics/aggregator"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-// positionTracker tracks open position size and average entry price for an pair
-type positionTracker struct {
-	pair     portfolio.Pair
-	size     numerical.Decimal // Positive = long, negative = short
-	avgEntry numerical.Decimal
-}
-
-// addTrade updates the position based on a trade
-// Returns realized PNL if the trade closes or reduces a position
-func (pt *positionTracker) addTrade(trade connector.Trade) numerical.Decimal {
-	qty := trade.Quantity
-	price := trade.Price
-
-	// Determine signed quantity (positive for buys, negative for sells)
-	signedQty := qty
-	if trade.Side == connector.OrderSideSell {
-		signedQty = qty.Neg()
-	}
-
-	// Check if this trade is reducing or reversing the position
-	if pt.size.IsZero() {
-		// Opening new position
-		pt.size = signedQty
-		pt.avgEntry = price
-		return numerical.Zero()
-	}
-
-	// Same direction - adding to position
-	sameDirection := (pt.size.IsPositive() && signedQty.IsPositive()) ||
-		(pt.size.IsNegative() && signedQty.IsNegative())
-
-	if sameDirection {
-		// Calculate new weighted average entry
-		totalValue := pt.avgEntry.Mul(pt.size.Abs()).Add(price.Mul(qty))
-		pt.size = pt.size.Add(signedQty)
-		if !pt.size.IsZero() {
-			pt.avgEntry = totalValue.Div(pt.size.Abs())
-		}
-		return numerical.Zero()
-	}
-
-	// Opposite direction - closing/reducing position
-	closeQty := qty
-	if closeQty.GreaterThan(pt.size.Abs()) {
-		closeQty = pt.size.Abs()
-	}
-
-	// Calculate realized PNL on the closed portion
-	var realizedPnl numerical.Decimal
-	wasPositive := pt.size.IsPositive()
-	if wasPositive {
-		// Closing long: PNL = (exit_price - entry_price) * quantity
-		realizedPnl = price.Sub(pt.avgEntry).Mul(closeQty)
-	} else {
-		// Closing short: PNL = (entry_price - exit_price) * quantity
-		realizedPnl = pt.avgEntry.Sub(price).Mul(closeQty)
-	}
-
-	// Calculate new position size
-	newSize := pt.size.Add(signedQty)
-
-	// Check if position flipped direction
-	positionFlipped := !newSize.IsZero() &&
-		((wasPositive && newSize.IsNegative()) || (!wasPositive && newSize.IsPositive()))
-
-	if positionFlipped {
-		// New position starts at the trade price
-		pt.avgEntry = price
-	}
-
-	pt.size = newSize
-	return realizedPnl
-}
-
-// getUnrealizedPNL calculates unrealized PNL given current market price
-func (pt *positionTracker) getUnrealizedPNL(currentPrice numerical.Decimal) numerical.Decimal {
-	if pt.size.IsZero() {
-		return numerical.Zero()
-	}
-
-	if pt.size.IsPositive() {
-		// Long position: PNL = (current_price - entry_price) * size
-		return currentPrice.Sub(pt.avgEntry).Mul(pt.size)
-	}
-
-	// Short position: PNL = (entry_price - current_price) * |size|
-	return pt.avgEntry.Sub(currentPrice).Mul(pt.size.Abs())
-}
-
-// pnl provides PNL calculation functionality
+// pnl aggregates PNL across all market domains.
+// Each domain service is responsible for its own calculation.
 type pnl struct {
-	positions wispActivity.Positions
-	trades    wispActivity.Trades
-	market    aggregator.Market
+	spot    wispActivity.SpotPNL
+	perp    perpTypes.PerpPNL
+	predict predTypes.PredictionPNL
 }
 
-// NewPNL creates a new PNL calculator
-func NewPNL(positions wispActivity.Positions, trades wispActivity.Trades, market aggregator.Market) wispActivity.PNL {
-	return &pnl{
-		positions: positions,
-		trades:    trades,
-		market:    market,
-	}
+func NewPNL(
+	spot wispActivity.SpotPNL,
+	perp perpTypes.PerpPNL,
+	predict predTypes.PredictionPNL,
+) wispActivity.PNL {
+	return &pnl{spot: spot, perp: perp, predict: predict}
 }
 
-// calculateFromTrades processes trades and returns realized PNL and open positions
-func calculateFromTrades(trades []connector.Trade) (numerical.Decimal, map[string]*positionTracker) {
-	positions := make(map[string]*positionTracker)
-	realizedPnl := numerical.Zero()
+func (p *pnl) Spot() wispActivity.SpotPNL { return p.spot }
 
-	for _, trade := range trades {
-		symbol := trade.Pair.Symbol()
-		tracker, exists := positions[symbol]
-		if !exists {
-			tracker = &positionTracker{
-				pair:     trade.Pair,
-				size:     numerical.Zero(),
-				avgEntry: numerical.Zero(),
-			}
-			positions[symbol] = tracker
-		}
-
-		pnl := tracker.addTrade(trade)
-		realizedPnl = realizedPnl.Add(pnl)
-	}
-
-	return realizedPnl, positions
+func (p *pnl) TotalRealized(ctx context.Context) numerical.Decimal {
+	return p.spot.Realized(ctx).
+		Add(p.perp.Realized(ctx)).
+		Add(p.predict.Realized(ctx))
 }
 
-// GetRealizedPNL returns the realized PNL for a strategy (net of fees)
-func (p *pnl) GetRealizedPNL(_ context.Context, name strategy.StrategyName) numerical.Decimal {
-	trades := p.positions.GetTradesForStrategy(name)
-	realizedPnl, _ := calculateFromTrades(trades)
-
-	// Calculate fees inline to avoid extra call
-	fees := numerical.Zero()
-	for _, trade := range trades {
-		fees = fees.Add(trade.Fee)
-	}
-
-	return realizedPnl.Sub(fees)
+func (p *pnl) TotalUnrealized(ctx context.Context) numerical.Decimal {
+	return p.spot.Unrealized(ctx).
+		Add(p.perp.Unrealized(ctx)).
+		Add(p.predict.Unrealized(ctx))
 }
 
-// GetRealizedPNLByPair returns the realized PNL for a specific pair across all strategies
-func (p *pnl) GetRealizedPNLByPair(ctx context.Context, pair portfolio.Pair) numerical.Decimal {
-	trades := p.trades.GetTradesByPair(ctx, pair)
-	realizedPnl, _ := calculateFromTrades(trades)
-
-	// Subtract fees for this pair
-	fees := numerical.Zero()
-	for _, trade := range trades {
-		fees = fees.Add(trade.Fee)
-	}
-
-	return realizedPnl.Sub(fees)
-}
-
-// GetTotalRealizedPNL returns the total realized PNL across all strategies
-func (p *pnl) GetTotalRealizedPNL(ctx context.Context) numerical.Decimal {
-	allTrades := p.trades.GetAllTrades(ctx)
-	realizedPnl, _ := calculateFromTrades(allTrades)
-
-	// Calculate fees inline to avoid extra call
-	fees := numerical.Zero()
-	for _, trade := range allTrades {
-		fees = fees.Add(trade.Fee)
-	}
-
-	return realizedPnl.Sub(fees)
-}
-
-// GetUnrealizedPNL returns the unrealized PNL for a strategy
-func (p *pnl) GetUnrealizedPNL(ctx context.Context, name strategy.StrategyName) (numerical.Decimal, error) {
-	trades := p.positions.GetTradesForStrategy(name)
-	_, openPositions := calculateFromTrades(trades)
-
-	unrealizedPnl := numerical.Zero()
-	for _, tracker := range openPositions {
-		if tracker.size.IsZero() {
-			continue
-		}
-
-		currentPrice, err := p.market.Price(ctx, tracker.pair)
-		if err != nil {
-			return numerical.Zero(), err
-		}
-
-		unrealizedPnl = unrealizedPnl.Add(tracker.getUnrealizedPNL(currentPrice))
-	}
-
-	return unrealizedPnl, nil
-}
-
-// GetTotalUnrealizedPNL returns the total unrealized PNL across all strategies
-func (p *pnl) GetTotalUnrealizedPNL(ctx context.Context) (numerical.Decimal, error) {
-	allTrades := p.trades.GetAllTrades(ctx)
-	_, openPositions := calculateFromTrades(allTrades)
-
-	unrealizedPnl := numerical.Zero()
-	for _, tracker := range openPositions {
-		if tracker.size.IsZero() {
-			continue
-		}
-
-		currentPrice, err := p.market.Price(ctx, tracker.pair)
-		if err != nil {
-			return numerical.Zero(), err
-		}
-
-		unrealizedPnl = unrealizedPnl.Add(tracker.getUnrealizedPNL(currentPrice))
-	}
-
-	return unrealizedPnl, nil
-}
-
-// GetTotalPNL returns the total PNL (realized + unrealized)
-func (p *pnl) GetTotalPNL(ctx context.Context) (numerical.Decimal, error) {
-	// Fetch trades once and calculate everything from cached data
-	allTrades := p.trades.GetAllTrades(ctx)
-	realizedPnl, openPositions := calculateFromTrades(allTrades)
-
-	// Calculate fees inline
-	fees := numerical.Zero()
-	for _, trade := range allTrades {
-		fees = fees.Add(trade.Fee)
-	}
-	realized := realizedPnl.Sub(fees)
-
-	// Calculate unrealized PNL from open positions
-	unrealized := numerical.Zero()
-	for _, tracker := range openPositions {
-		if tracker.size.IsZero() {
-			continue
-		}
-
-		currentPrice, err := p.market.Price(ctx, tracker.pair)
-		if err != nil {
-			return numerical.Zero(), err
-		}
-
-		unrealized = unrealized.Add(tracker.getUnrealizedPNL(currentPrice))
-	}
-
-	return realized.Add(unrealized), nil
-}
-
-// GetTotalFees returns the total fees paid across all trades
-func (p *pnl) GetTotalFees(ctx context.Context) numerical.Decimal {
-	allTrades := p.trades.GetAllTrades(ctx)
-	totalFees := numerical.Zero()
-	for _, trade := range allTrades {
-		totalFees = totalFees.Add(trade.Fee)
-	}
-	return totalFees
-}
-
-// GetFeesByStrategy returns the total fees paid for a strategy
-func (p *pnl) GetFeesByStrategy(_ context.Context, name strategy.StrategyName) numerical.Decimal {
-	trades := p.positions.GetTradesForStrategy(name)
-	totalFees := numerical.Zero()
-	for _, trade := range trades {
-		totalFees = totalFees.Add(trade.Fee)
-	}
-	return totalFees
+func (p *pnl) TotalFees(ctx context.Context) numerical.Decimal {
+	return p.spot.Fees(ctx).
+		Add(p.perp.Fees(ctx)).
+		Add(p.predict.Fees(ctx))
 }
 
 var _ wispActivity.PNL = (*pnl)(nil)

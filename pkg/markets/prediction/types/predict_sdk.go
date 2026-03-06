@@ -25,11 +25,10 @@ type Predict interface {
 	// Balance returns the current balance for an asset on an exchange.
 	Balance(exchange connector.ExchangeName, asset portfolio.Asset) (numerical.Decimal, bool)
 
-	// Positions returns all orders recorded for the given strategy.
-	Positions(strategyName strategy.StrategyName) []PredictionOrder
+	// Positions returns all orders recorded for this instance.
+	Positions() []PredictionOrder
 
 	// Log returns the trading logger for strategy-specific logging.
-	// Use for recording trading decisions and strategy events.
 	Log() logging.TradingLogger
 
 	// PredictionSignal creates a new signal builder for prediction market trading signals.
@@ -40,4 +39,7 @@ type Predict interface {
 
 	// Redeem attempts to redeem winnings for a market. Returns an error if redemption fails.
 	Redeem(market predictionconnector.Market) error
+
+	// PNL returns profit and loss calculations for this prediction market instance.
+	PNL() PredictionPNL
 }

@@ -10,7 +10,6 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"

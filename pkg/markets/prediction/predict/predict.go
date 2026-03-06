@@ -3,6 +3,7 @@ package predict
 import (
 	"errors"
 
+	predActivity "github.com/wisp-trading/sdk/pkg/markets/prediction/activity"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
@@ -22,6 +23,7 @@ type predict struct {
 	store               types.MarketStore
 	predictionWatchlist types.PredictionWatchlist
 	connectorRegistry   registry.ConnectorRegistry
+	pnl                 types.PredictionPNL
 }
 
 // NewPredict constructs a new Predict instance with the provided dependencies.
@@ -40,6 +42,7 @@ func NewPredict(
 		predictionWatchlist: predictionWatchlist,
 		connectorRegistry:   connectorRegistry,
 		store:               store,
+		pnl:                 predActivity.NewPredictionPNL(store, store),
 	}
 }
 
@@ -117,9 +120,13 @@ func (p predict) Balance(exchange connector.ExchangeName, asset portfolio.Asset)
 	return p.store.GetBalance(exchange, asset)
 }
 
-// Positions returns all orders recorded for the given strategy.
-func (p predict) Positions(strategyName strategy.StrategyName) []types.PredictionOrder {
-	return p.store.GetOrdersByStrategy(strategyName)
+// Positions returns all orders recorded for this instance.
+func (p predict) Positions() []types.PredictionOrder {
+	return p.store.GetOrders()
+}
+
+func (p predict) PNL() types.PredictionPNL {
+	return p.pnl
 }
 
 func (p predict) Redeem(market predictionconnector.Market) error {

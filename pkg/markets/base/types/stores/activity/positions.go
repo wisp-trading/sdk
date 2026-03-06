@@ -4,37 +4,27 @@ import (
 	"time"
 
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 type UpdateKey string
-
 type LastUpdatedMap map[UpdateKey]time.Time
-type StrategyExecutionMap map[strategy.StrategyName]*strategy.StrategyExecution
 
+// Positions is the activity store for a single strategy instance.
+// Owns orders and trades directly — no strategy key, no StrategyExecution.
 type Positions interface {
-	// Strategy execution management
-	StoreStrategyExecution(strategy strategy.StrategyName, execution *strategy.StrategyExecution)
-	GetStrategyExecution(strategy strategy.StrategyName) *strategy.StrategyExecution
-	UpdateStrategyExecution(strategy strategy.StrategyName, updateFunc func(*strategy.StrategyExecution)) error
-
-	// Portfolio queries
-	GetAllStrategyExecutions() map[strategy.StrategyName]*strategy.StrategyExecution
+	// Orders
+	AddOrder(order connector.Order)
+	UpdateOrderStatus(orderID string, status connector.OrderStatus) error
 	GetTotalOrderCount() int64
 
-	// Order storage
-	AddOrderToStrategy(strategy strategy.StrategyName, order connector.Order)
-	UpdateOrderStatus(strategy strategy.StrategyName, orderID string, status connector.OrderStatus) error
-	GetStrategyForOrder(orderID string) (strategy.StrategyName, bool)
+	// Trades
+	AddTrade(trade connector.Trade)
+	GetTrades() []connector.Trade
 
-	// Trade storage
-	AddTradeToStrategy(strategy strategy.StrategyName, trade connector.Trade)
-	GetTradesForStrategy(strategy strategy.StrategyName) []connector.Trade
-
-	// Last updated tracking
+	// Metadata
 	GetLastUpdated() LastUpdatedMap
 	UpdateLastUpdated(key UpdateKey)
 
-	// Clear all data for simulation restart
+	// Clear for simulation restart
 	Clear()
 }

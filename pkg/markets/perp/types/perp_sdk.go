@@ -28,8 +28,8 @@ type Perp interface {
 	// Position returns the current open position for a pair on an exchange, if any.
 	Position(exchange connector.ExchangeName, pair portfolio.Pair) (*perpConn.Position, bool)
 
-	// Positions returns all open positions for a strategy.
-	Positions(strategyName strategy.StrategyName) []perpConn.Position
+	// Positions returns all open positions across all exchanges.
+	Positions() []perpConn.Position
 
 	// OrderBook returns the latest order book for a pair on a specific exchange.
 	OrderBook(exchange connector.ExchangeName, pair portfolio.Pair) (*connector.OrderBook, bool)
@@ -43,4 +43,7 @@ type Perp interface {
 
 	// Log returns the trading logger for strategy-specific logging.
 	Log() logging.TradingLogger
+
+	// PNL returns profit and loss calculations for this perp instance.
+	PNL() PerpPNL
 }

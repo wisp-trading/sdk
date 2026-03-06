@@ -1,6 +1,8 @@
 package position
 
 import (
+	"time"
+
 	portfolioTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 )
 
@@ -20,6 +22,6 @@ func (ds *dataStore) UpdateLastUpdated(key portfolioTypes.UpdateKey) {
 	for k, v := range current {
 		updated[k] = v
 	}
-	updated[key] = ds.timeProvider.Now()
+	updated[key] = time.Now()
 	ds.lastUpdated.Store(updated)
 }

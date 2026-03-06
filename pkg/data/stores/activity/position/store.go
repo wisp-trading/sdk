@@ -1,33 +1,26 @@
 package position
 
 import (
-	portfolioTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
-	"github.com/wisp-trading/sdk/pkg/types/temporal"
+	storeActivity "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
 
-func NewStore(timeProvider temporal.TimeProvider) portfolioTypes.Positions {
-	ds := &dataStore{
-		timeProvider: timeProvider,
-	}
-	ds.executions.Store(make(portfolioTypes.StrategyExecutionMap))
-	ds.lastUpdated.Store(make(portfolioTypes.LastUpdatedMap))
+func NewStore() storeActivity.Positions {
+	ds := &dataStore{}
+	ds.orders.Store([]connector.Order(nil))
+	ds.trades.Store([]connector.Trade(nil))
+	ds.ordersByID.Store(make(map[string]int))
+	ds.lastUpdated.Store(make(storeActivity.LastUpdatedMap))
 	return ds
 }
 
 func (ds *dataStore) Clear() {
 	ds.mutex.Lock()
 	defer ds.mutex.Unlock()
-
-	ds.executions.Store(make(portfolioTypes.StrategyExecutionMap))
-	ds.lastUpdated.Store(make(portfolioTypes.LastUpdatedMap))
+	ds.orders.Store([]connector.Order(nil))
+	ds.trades.Store([]connector.Trade(nil))
+	ds.ordersByID.Store(make(map[string]int))
+	ds.lastUpdated.Store(make(storeActivity.LastUpdatedMap))
 }
 
-// Helper methods to get typed data from atomic.Value
-func (ds *dataStore) getExecutions() portfolioTypes.StrategyExecutionMap {
-	if v := ds.executions.Load(); v != nil {
-		return v.(portfolioTypes.StrategyExecutionMap)
-	}
-	return make(portfolioTypes.StrategyExecutionMap)
-}
-
-var _ portfolioTypes.Positions = (*dataStore)(nil)
+var _ storeActivity.Positions = (*dataStore)(nil)

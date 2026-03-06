@@ -2,11 +2,14 @@ package spot
 
 import (
 	dataTypes "github.com/wisp-trading/sdk/pkg/markets/base/types"
+	storeTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
+	spotActivity "github.com/wisp-trading/sdk/pkg/markets/spot/activity"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
@@ -17,6 +20,7 @@ type spot struct {
 	watchlist     dataTypes.MarketWatchlist
 	store         spotTypes.MarketStore
 	signal        strategy.SignalFactory
+	pnl           wispActivity.SpotPNL
 }
 
 // NewSpot constructs the spot context object injected into strategies.
@@ -25,12 +29,14 @@ func NewSpot(
 	watchlist dataTypes.MarketWatchlist,
 	store spotTypes.MarketStore,
 	signal strategy.SignalFactory,
+	trades storeTypes.Trades,
 ) spotTypes.Spot {
 	return &spot{
 		tradingLogger: tradingLogger,
 		watchlist:     watchlist,
 		store:         store,
 		signal:        signal,
+		pnl:           spotActivity.NewSpotPNL(trades, store),
 	}
 }
 
@@ -75,6 +81,11 @@ func (s *spot) Signal(strategyName strategy.StrategyName) strategy.SpotSignalBui
 // Log returns the trading logger for strategy-specific logging.
 func (s *spot) Log() logging.TradingLogger {
 	return s.tradingLogger
+}
+
+// PNL returns the profit and loss calculator for the spot market.
+func (s *spot) PNL() wispActivity.SpotPNL {
+	return s.pnl
 }
 
 var _ spotTypes.Spot = (*spot)(nil)
