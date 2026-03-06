@@ -2,6 +2,7 @@ package spot
 
 import (
 	baseIngestor "github.com/wisp-trading/sdk/pkg/markets/base/ingestor"
+	spotActivity "github.com/wisp-trading/sdk/pkg/markets/spot/activity"
 	"github.com/wisp-trading/sdk/pkg/markets/spot/executor"
 	"github.com/wisp-trading/sdk/pkg/markets/spot/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/spot/ingestor/realtime"
@@ -20,6 +21,9 @@ var Module = fx.Module("spot",
 		executor.NewExecutor,
 		NewSpotWatchlist,
 		NewSpotUniverseProvider,
+		spotActivity.NewSpotPositions,
+		spotActivity.NewSpotTrades,
+		spotActivity.NewSpotPNL,
 		batch.NewFactory,
 		realtime.NewFactory,
 		fx.Annotate(

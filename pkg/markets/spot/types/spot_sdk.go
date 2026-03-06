@@ -5,7 +5,6 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
-	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
@@ -36,6 +35,6 @@ type Spot interface {
 	// Log returns the trading logger for strategy-specific logging.
 	Log() logging.TradingLogger
 
-	// PNL returns profit and loss calculations for this spot instance.
-	PNL() wispActivity.SpotPNL
+	// PNL returns profit and loss calculations for the spot domain.
+	PNL() SpotPNL
 }

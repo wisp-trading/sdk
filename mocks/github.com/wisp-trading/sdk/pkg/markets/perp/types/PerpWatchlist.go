@@ -3,8 +3,10 @@
 package types
 
 import (
-	mock "github.com/stretchr/testify/mock"
+	basetypes "github.com/wisp-trading/sdk/pkg/markets/base/types"
 	connector "github.com/wisp-trading/sdk/pkg/types/connector"
+
+	mock "github.com/stretchr/testify/mock"
 
 	portfolio "github.com/wisp-trading/sdk/pkg/types/portfolio"
 
@@ -141,19 +143,19 @@ func (_c *PerpWatchlist_RequirePair_Call) RunAndReturn(run func(connector.Exchan
 }
 
 // Subscribe provides a mock function with given fields: exchange
-func (_m *PerpWatchlist) Subscribe(exchange connector.ExchangeName) chan types.PerpWatchEvent {
+func (_m *PerpWatchlist) Subscribe(exchange connector.ExchangeName) chan basetypes.MarketWatchEvent {
 	ret := _m.Called(exchange)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Subscribe")
 	}
 
-	var r0 chan types.PerpWatchEvent
-	if rf, ok := ret.Get(0).(func(connector.ExchangeName) chan types.PerpWatchEvent); ok {
+	var r0 chan basetypes.MarketWatchEvent
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) chan basetypes.MarketWatchEvent); ok {
 		r0 = rf(exchange)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(chan types.PerpWatchEvent)
+			r0 = ret.Get(0).(chan basetypes.MarketWatchEvent)
 		}
 	}
 
@@ -178,12 +180,60 @@ func (_c *PerpWatchlist_Subscribe_Call) Run(run func(exchange connector.Exchange
 	return _c
 }
 
-func (_c *PerpWatchlist_Subscribe_Call) Return(_a0 chan types.PerpWatchEvent) *PerpWatchlist_Subscribe_Call {
+func (_c *PerpWatchlist_Subscribe_Call) Return(_a0 chan basetypes.MarketWatchEvent) *PerpWatchlist_Subscribe_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *PerpWatchlist_Subscribe_Call) RunAndReturn(run func(connector.ExchangeName) chan types.PerpWatchEvent) *PerpWatchlist_Subscribe_Call {
+func (_c *PerpWatchlist_Subscribe_Call) RunAndReturn(run func(connector.ExchangeName) chan basetypes.MarketWatchEvent) *PerpWatchlist_Subscribe_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SubscribePerp provides a mock function with given fields: exchange
+func (_m *PerpWatchlist) SubscribePerp(exchange connector.ExchangeName) chan types.PerpWatchEvent {
+	ret := _m.Called(exchange)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SubscribePerp")
+	}
+
+	var r0 chan types.PerpWatchEvent
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) chan types.PerpWatchEvent); ok {
+		r0 = rf(exchange)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(chan types.PerpWatchEvent)
+		}
+	}
+
+	return r0
+}
+
+// PerpWatchlist_SubscribePerp_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SubscribePerp'
+type PerpWatchlist_SubscribePerp_Call struct {
+	*mock.Call
+}
+
+// SubscribePerp is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
+func (_e *PerpWatchlist_Expecter) SubscribePerp(exchange interface{}) *PerpWatchlist_SubscribePerp_Call {
+	return &PerpWatchlist_SubscribePerp_Call{Call: _e.mock.On("SubscribePerp", exchange)}
+}
+
+func (_c *PerpWatchlist_SubscribePerp_Call) Run(run func(exchange connector.ExchangeName)) *PerpWatchlist_SubscribePerp_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName))
+	})
+	return _c
+}
+
+func (_c *PerpWatchlist_SubscribePerp_Call) Return(_a0 chan types.PerpWatchEvent) *PerpWatchlist_SubscribePerp_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *PerpWatchlist_SubscribePerp_Call) RunAndReturn(run func(connector.ExchangeName) chan types.PerpWatchEvent) *PerpWatchlist_SubscribePerp_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -217,6 +267,39 @@ func (_c *PerpWatchlist_Unsubscribe_Call) Return() *PerpWatchlist_Unsubscribe_Ca
 }
 
 func (_c *PerpWatchlist_Unsubscribe_Call) RunAndReturn(run func(connector.ExchangeName)) *PerpWatchlist_Unsubscribe_Call {
+	_c.Run(run)
+	return _c
+}
+
+// UnsubscribePerp provides a mock function with given fields: exchange
+func (_m *PerpWatchlist) UnsubscribePerp(exchange connector.ExchangeName) {
+	_m.Called(exchange)
+}
+
+// PerpWatchlist_UnsubscribePerp_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UnsubscribePerp'
+type PerpWatchlist_UnsubscribePerp_Call struct {
+	*mock.Call
+}
+
+// UnsubscribePerp is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
+func (_e *PerpWatchlist_Expecter) UnsubscribePerp(exchange interface{}) *PerpWatchlist_UnsubscribePerp_Call {
+	return &PerpWatchlist_UnsubscribePerp_Call{Call: _e.mock.On("UnsubscribePerp", exchange)}
+}
+
+func (_c *PerpWatchlist_UnsubscribePerp_Call) Run(run func(exchange connector.ExchangeName)) *PerpWatchlist_UnsubscribePerp_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName))
+	})
+	return _c
+}
+
+func (_c *PerpWatchlist_UnsubscribePerp_Call) Return() *PerpWatchlist_UnsubscribePerp_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *PerpWatchlist_UnsubscribePerp_Call) RunAndReturn(run func(connector.ExchangeName)) *PerpWatchlist_UnsubscribePerp_Call {
 	_c.Run(run)
 	return _c
 }

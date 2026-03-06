@@ -3,7 +3,6 @@ package predict
 import (
 	"errors"
 
-	predActivity "github.com/wisp-trading/sdk/pkg/markets/prediction/activity"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
@@ -34,6 +33,7 @@ func NewPredict(
 	store types.MarketStore,
 	predictionWatchlist types.PredictionWatchlist,
 	connectorRegistry registry.ConnectorRegistry,
+	pnl types.PredictionPNL,
 ) types.Predict {
 	return &predict{
 		applicationLogger:   applicationLogger,
@@ -42,7 +42,7 @@ func NewPredict(
 		predictionWatchlist: predictionWatchlist,
 		connectorRegistry:   connectorRegistry,
 		store:               store,
-		pnl:                 predActivity.NewPredictionPNL(store, store),
+		pnl:                 pnl,
 	}
 }
 

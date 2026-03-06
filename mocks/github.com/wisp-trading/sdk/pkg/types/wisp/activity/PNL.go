@@ -5,10 +5,7 @@ package activity
 import (
 	context "context"
 
-	activity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
-
 	mock "github.com/stretchr/testify/mock"
-
 	numerical "github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
@@ -23,53 +20,6 @@ type PNL_Expecter struct {
 
 func (_m *PNL) EXPECT() *PNL_Expecter {
 	return &PNL_Expecter{mock: &_m.Mock}
-}
-
-// Spot provides a mock function with no fields
-func (_m *PNL) Spot() activity.SpotPNL {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for Spot")
-	}
-
-	var r0 activity.SpotPNL
-	if rf, ok := ret.Get(0).(func() activity.SpotPNL); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(activity.SpotPNL)
-		}
-	}
-
-	return r0
-}
-
-// PNL_Spot_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Spot'
-type PNL_Spot_Call struct {
-	*mock.Call
-}
-
-// Spot is a helper method to define mock.On call
-func (_e *PNL_Expecter) Spot() *PNL_Spot_Call {
-	return &PNL_Spot_Call{Call: _e.mock.On("Spot")}
-}
-
-func (_c *PNL_Spot_Call) Run(run func()) *PNL_Spot_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *PNL_Spot_Call) Return(_a0 activity.SpotPNL) *PNL_Spot_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *PNL_Spot_Call) RunAndReturn(run func() activity.SpotPNL) *PNL_Spot_Call {
-	_c.Call.Return(run)
-	return _c
 }
 
 // TotalFees provides a mock function with given fields: ctx

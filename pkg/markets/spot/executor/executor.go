@@ -3,7 +3,6 @@ package executor
 import (
 	"fmt"
 
-	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/execution"
@@ -15,16 +14,16 @@ import (
 
 type executor struct {
 	connectors   registry.ConnectorRegistry
-	positions    activity.Positions
-	trades       activity.Trades
+	positions    spotTypes.SpotPositions
+	trades       spotTypes.SpotTrades
 	logger       logging.ApplicationLogger
 	timeProvider temporal.TimeProvider
 }
 
 func NewExecutor(
 	connectors registry.ConnectorRegistry,
-	positions activity.Positions,
-	trades activity.Trades,
+	positions spotTypes.SpotPositions,
+	trades spotTypes.SpotTrades,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 ) spotTypes.SignalExecutor {

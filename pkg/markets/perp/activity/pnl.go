@@ -3,7 +3,6 @@ package activity
 import (
 	"context"
 
-	storeTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
@@ -12,13 +11,12 @@ import (
 )
 
 // perpPNL sources PNL directly from live connector positions.
-// The exchange owns realized/unrealized — we don't recalculate.
 type perpPNL struct {
 	connectors registry.ConnectorRegistry
-	trades     storeTypes.Trades
+	trades     perpTypes.PerpTrades
 }
 
-func NewPerpPNL(connectors registry.ConnectorRegistry, trades storeTypes.Trades) perpTypes.PerpPNL {
+func NewPerpPNL(connectors registry.ConnectorRegistry, trades perpTypes.PerpTrades) perpTypes.PerpPNL {
 	return &perpPNL{connectors: connectors, trades: trades}
 }
 

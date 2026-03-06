@@ -2,6 +2,7 @@ package perp
 
 import (
 	baseIngestor "github.com/wisp-trading/sdk/pkg/markets/base/ingestor"
+	perpActivity "github.com/wisp-trading/sdk/pkg/markets/perp/activity"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/executor"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/ingestor/realtime"
@@ -20,6 +21,9 @@ var Module = fx.Module("perp",
 		executor.NewExecutor,
 		NewPerpWatchlist,
 		NewPerpUniverseProvider,
+		perpActivity.NewPerpPositions,
+		perpActivity.NewPerpTrades,
+		perpActivity.NewPerpPNL,
 		batch.NewFactory,
 		realtime.NewFactory,
 		fx.Annotate(

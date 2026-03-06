@@ -2,6 +2,7 @@ package prediction
 
 import (
 	baseIngestor "github.com/wisp-trading/sdk/pkg/markets/base/ingestor"
+	predActivity "github.com/wisp-trading/sdk/pkg/markets/prediction/activity"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/executor"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/realtime"
@@ -22,6 +23,7 @@ var Module = fx.Module("prediction",
 		executor.NewExecutor,
 		NewPredictionWatchlist,
 		NewPredictionUniverseProvider,
+		predActivity.NewPredictionPNL,
 		batch.NewFactory,
 		realtime.NewFactory,
 		fx.Annotate(

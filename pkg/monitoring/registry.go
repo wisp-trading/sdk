@@ -4,8 +4,9 @@ import (
 	"context"
 
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
-	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
+	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
+	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
@@ -21,8 +22,9 @@ type viewRegistry struct {
 	health           health.HealthStore
 	strategyRegistry registry.StrategyRegistry
 	profilingStore   profiling.ProfilingStore
-	predictionViews  types.PredictionViews
+	predictionViews  predTypes.PredictionViews
 	perpViews        perpTypes.PerpViews
+	spotViews        spotTypes.SpotViews
 }
 
 func NewViewRegistry(
@@ -30,8 +32,9 @@ func NewViewRegistry(
 	wisp wisp.Wisp,
 	strategyRegistry registry.StrategyRegistry,
 	profilingStore profiling.ProfilingStore,
-	predictionViews types.PredictionViews,
+	predictionViews predTypes.PredictionViews,
 	perpViews perpTypes.PerpViews,
+	spotViews spotTypes.SpotViews,
 ) monitoring.ViewRegistry {
 	return &viewRegistry{
 		health:           health,
@@ -40,6 +43,7 @@ func NewViewRegistry(
 		profilingStore:   profilingStore,
 		predictionViews:  predictionViews,
 		perpViews:        perpViews,
+		spotViews:        spotViews,
 	}
 }
 
@@ -110,20 +114,9 @@ func (r *viewRegistry) GetHealth() *health.SystemHealthReport {
 // Spot comes from wisp.Universe(); perp and prediction are delegated to their
 // respective views packages which own those domains.
 func (r *viewRegistry) GetMarketViews() *monitoring.MarketViews {
-	universe := r.wisp.Universe()
 	views := &monitoring.MarketViews{}
 
-	for _, ex := range universe.Exchanges {
-		pairs := universe.Assets[ex.Name]
-		for _, pair := range pairs {
-			if ex.MarketType == connector.MarketTypeSpot {
-				views.Spot = append(views.Spot, monitoring.SpotMarketView{
-					Exchange: string(ex.Name),
-					Pair:     pair.Symbol(),
-				})
-			}
-		}
-	}
+	views.Spot = r.spotViews.GetMarketViews()
 
 	// Perp is owned by the perp views package
 	views.Perp = r.perpViews.GetMarketViews()

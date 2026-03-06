@@ -4,56 +4,60 @@ import (
 	"context"
 	"time"
 
-	storeActivity "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
+	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
+	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-// trades wraps the internal trade store with read-only access
+// trades aggregates trade history across spot and perp domains.
 type trades struct {
-	store storeActivity.Trades
+	spot spotTypes.SpotTrades
+	perp perpTypes.PerpTrades
 }
 
-// NewTrades creates a new read-only trades accessor
-func NewTrades(store storeActivity.Trades) wispActivity.Trades {
-	return &trades{store: store}
+func NewTrades(
+	spot spotTypes.SpotTrades,
+	perp perpTypes.PerpTrades,
+) wispActivity.Trades {
+	return &trades{spot: spot, perp: perp}
 }
 
-// GetAllTrades retrieves all trades
-func (t *trades) GetAllTrades(ctx context.Context) []connector.Trade {
-	return t.store.GetAllTrades()
+func (t *trades) GetAllTrades(_ context.Context) []connector.Trade {
+	all := t.spot.GetAllTrades()
+	return append(all, t.perp.GetAllTrades()...)
 }
 
-// GetTradesByExchange retrieves trades for a specific exchange
-func (t *trades) GetTradesByExchange(ctx context.Context, exchange connector.ExchangeName) []connector.Trade {
-	return t.store.GetTradesByExchange(exchange)
+func (t *trades) GetTradesByExchange(_ context.Context, exchange connector.ExchangeName) []connector.Trade {
+	all := t.spot.GetTradesByExchange(exchange)
+	return append(all, t.perp.GetTradesByExchange(exchange)...)
 }
 
-// GetTradesByPair retrieves trades for a specific pair
-func (t *trades) GetTradesByPair(ctx context.Context, pair portfolio.Pair) []connector.Trade {
-	return t.store.GetTradesByPair(pair)
+func (t *trades) GetTradesByPair(_ context.Context, pair portfolio.Pair) []connector.Trade {
+	all := t.spot.GetTradesByPair(pair)
+	return append(all, t.perp.GetTradesByPair(pair)...)
 }
 
-// GetTradesSince retrieves trades since a specific time
-func (t *trades) GetTradesSince(ctx context.Context, since time.Time) []connector.Trade {
-	return t.store.GetTradesSince(since)
+func (t *trades) GetTradesSince(_ context.Context, since time.Time) []connector.Trade {
+	all := t.spot.GetTradesSince(since)
+	return append(all, t.perp.GetTradesSince(since)...)
 }
 
-// GetTradeByID retrieves a trade by ID
-func (t *trades) GetTradeByID(ctx context.Context, tradeID string) *connector.Trade {
-	return t.store.GetTradeByID(tradeID)
+func (t *trades) GetTradeByID(_ context.Context, tradeID string) *connector.Trade {
+	if tr := t.spot.GetTradeByID(tradeID); tr != nil {
+		return tr
+	}
+	return t.perp.GetTradeByID(tradeID)
 }
 
-// GetTradeCount returns the total number of trades
-func (t *trades) GetTradeCount(ctx context.Context) int {
-	return t.store.GetTradeCount()
+func (t *trades) GetTradeCount(_ context.Context) int {
+	return t.spot.GetTradeCount() + t.perp.GetTradeCount()
 }
 
-// GetTotalVolume calculates total volume for a specific pair
-func (t *trades) GetTotalVolume(ctx context.Context, pair portfolio.Pair) numerical.Decimal {
-	return t.store.GetTotalVolume(pair)
+func (t *trades) GetTotalVolume(_ context.Context, pair portfolio.Pair) numerical.Decimal {
+	return t.spot.GetTotalVolume(pair).Add(t.perp.GetTotalVolume(pair))
 }
 
 var _ wispActivity.Trades = (*trades)(nil)

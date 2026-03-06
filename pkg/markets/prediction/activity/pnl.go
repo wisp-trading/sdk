@@ -10,19 +10,23 @@ import (
 )
 
 type predictionPNL struct {
-	positions predTypes.PositionsStoreExtension
-	orderbook predTypes.OrderBookStoreExtension
+	store predTypes.MarketStore
 }
 
-func NewPredictionPNL(
-	positions predTypes.PositionsStoreExtension,
-	orderbook predTypes.OrderBookStoreExtension,
-) predTypes.PredictionPNL {
-	return &predictionPNL{positions: positions, orderbook: orderbook}
+func NewPredictionPNL(store predTypes.MarketStore) predTypes.PredictionPNL {
+	return &predictionPNL{store: store}
+}
+
+func (p *predictionPNL) positions() predTypes.PositionsStoreExtension {
+	return p.store.(predTypes.PositionsStoreExtension)
+}
+
+func (p *predictionPNL) orderbook() predTypes.OrderBookStoreExtension {
+	return p.store.(predTypes.OrderBookStoreExtension)
 }
 
 func (p *predictionPNL) Positions(_ context.Context) []predTypes.PredictionPositionPNL {
-	orders := p.positions.GetOrders()
+	orders := p.positions().GetOrders()
 	results := make([]predTypes.PredictionPositionPNL, 0, len(orders))
 	for _, order := range orders {
 		unrealized := p.impliedValue(order)
@@ -41,7 +45,7 @@ func (p *predictionPNL) Positions(_ context.Context) []predTypes.PredictionPosit
 
 func (p *predictionPNL) Realized(_ context.Context) numerical.Decimal {
 	total := numerical.Zero()
-	for _, order := range p.positions.GetOrders() {
+	for _, order := range p.positions().GetOrders() {
 		if order.Status == connector.OrderStatusFilled {
 			total = total.Add(order.RealizedPnL)
 		}
@@ -51,7 +55,7 @@ func (p *predictionPNL) Realized(_ context.Context) numerical.Decimal {
 
 func (p *predictionPNL) Unrealized(_ context.Context) numerical.Decimal {
 	total := numerical.Zero()
-	for _, order := range p.positions.GetOrders() {
+	for _, order := range p.positions().GetOrders() {
 		total = total.Add(p.impliedValue(order))
 	}
 	return total
@@ -59,7 +63,7 @@ func (p *predictionPNL) Unrealized(_ context.Context) numerical.Decimal {
 
 func (p *predictionPNL) Fees(_ context.Context) numerical.Decimal {
 	total := numerical.Zero()
-	for _, order := range p.positions.GetOrders() {
+	for _, order := range p.positions().GetOrders() {
 		total = total.Add(order.Fee)
 	}
 	return total
@@ -70,7 +74,7 @@ func (p *predictionPNL) impliedValue(order predTypes.PredictionOrder) numerical.
 		return numerical.Zero()
 	}
 
-	ob := p.orderbook.GetOrderBook(order.Exchange, predConn.MarketID(order.MarketSlug), order.OutcomeID)
+	ob := p.orderbook().GetOrderBook(order.Exchange, predConn.MarketID(order.MarketSlug), order.OutcomeID)
 	if ob == nil || len(ob.Bids) == 0 || len(ob.Asks) == 0 {
 		return numerical.Zero()
 	}

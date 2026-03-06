@@ -2,7 +2,6 @@ package perp
 
 import (
 	storeTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
-	perpActivity "github.com/wisp-trading/sdk/pkg/markets/perp/activity"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/signal"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
@@ -33,6 +32,7 @@ func NewPerp(
 	connectorRegistry registry.ConnectorRegistry,
 	timeProvider temporal.TimeProvider,
 	trades storeTypes.Trades,
+	pnl perpTypes.PerpPNL,
 ) perpTypes.Perp {
 	return &perp{
 		tradingLogger:     tradingLogger,
@@ -40,7 +40,7 @@ func NewPerp(
 		store:             store,
 		connectorRegistry: connectorRegistry,
 		timeProvider:      timeProvider,
-		pnl:               perpActivity.NewPerpPNL(connectorRegistry, trades),
+		pnl:               pnl,
 	}
 }
 

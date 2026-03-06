@@ -3,8 +3,10 @@
 package types
 
 import (
-	mock "github.com/stretchr/testify/mock"
+	basetypes "github.com/wisp-trading/sdk/pkg/markets/base/types"
 	connector "github.com/wisp-trading/sdk/pkg/types/connector"
+
+	mock "github.com/stretchr/testify/mock"
 
 	portfolio "github.com/wisp-trading/sdk/pkg/types/portfolio"
 
@@ -141,19 +143,19 @@ func (_c *SpotWatchlist_RequirePair_Call) RunAndReturn(run func(connector.Exchan
 }
 
 // Subscribe provides a mock function with given fields: exchange
-func (_m *SpotWatchlist) Subscribe(exchange connector.ExchangeName) chan types.SpotWatchEvent {
+func (_m *SpotWatchlist) Subscribe(exchange connector.ExchangeName) chan basetypes.MarketWatchEvent {
 	ret := _m.Called(exchange)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Subscribe")
 	}
 
-	var r0 chan types.SpotWatchEvent
-	if rf, ok := ret.Get(0).(func(connector.ExchangeName) chan types.SpotWatchEvent); ok {
+	var r0 chan basetypes.MarketWatchEvent
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) chan basetypes.MarketWatchEvent); ok {
 		r0 = rf(exchange)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(chan types.SpotWatchEvent)
+			r0 = ret.Get(0).(chan basetypes.MarketWatchEvent)
 		}
 	}
 
@@ -178,12 +180,60 @@ func (_c *SpotWatchlist_Subscribe_Call) Run(run func(exchange connector.Exchange
 	return _c
 }
 
-func (_c *SpotWatchlist_Subscribe_Call) Return(_a0 chan types.SpotWatchEvent) *SpotWatchlist_Subscribe_Call {
+func (_c *SpotWatchlist_Subscribe_Call) Return(_a0 chan basetypes.MarketWatchEvent) *SpotWatchlist_Subscribe_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *SpotWatchlist_Subscribe_Call) RunAndReturn(run func(connector.ExchangeName) chan types.SpotWatchEvent) *SpotWatchlist_Subscribe_Call {
+func (_c *SpotWatchlist_Subscribe_Call) RunAndReturn(run func(connector.ExchangeName) chan basetypes.MarketWatchEvent) *SpotWatchlist_Subscribe_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SubscribeSpot provides a mock function with given fields: exchange
+func (_m *SpotWatchlist) SubscribeSpot(exchange connector.ExchangeName) chan types.SpotWatchEvent {
+	ret := _m.Called(exchange)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SubscribeSpot")
+	}
+
+	var r0 chan types.SpotWatchEvent
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) chan types.SpotWatchEvent); ok {
+		r0 = rf(exchange)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(chan types.SpotWatchEvent)
+		}
+	}
+
+	return r0
+}
+
+// SpotWatchlist_SubscribeSpot_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SubscribeSpot'
+type SpotWatchlist_SubscribeSpot_Call struct {
+	*mock.Call
+}
+
+// SubscribeSpot is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
+func (_e *SpotWatchlist_Expecter) SubscribeSpot(exchange interface{}) *SpotWatchlist_SubscribeSpot_Call {
+	return &SpotWatchlist_SubscribeSpot_Call{Call: _e.mock.On("SubscribeSpot", exchange)}
+}
+
+func (_c *SpotWatchlist_SubscribeSpot_Call) Run(run func(exchange connector.ExchangeName)) *SpotWatchlist_SubscribeSpot_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName))
+	})
+	return _c
+}
+
+func (_c *SpotWatchlist_SubscribeSpot_Call) Return(_a0 chan types.SpotWatchEvent) *SpotWatchlist_SubscribeSpot_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *SpotWatchlist_SubscribeSpot_Call) RunAndReturn(run func(connector.ExchangeName) chan types.SpotWatchEvent) *SpotWatchlist_SubscribeSpot_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -217,6 +267,39 @@ func (_c *SpotWatchlist_Unsubscribe_Call) Return() *SpotWatchlist_Unsubscribe_Ca
 }
 
 func (_c *SpotWatchlist_Unsubscribe_Call) RunAndReturn(run func(connector.ExchangeName)) *SpotWatchlist_Unsubscribe_Call {
+	_c.Run(run)
+	return _c
+}
+
+// UnsubscribeSpot provides a mock function with given fields: exchange
+func (_m *SpotWatchlist) UnsubscribeSpot(exchange connector.ExchangeName) {
+	_m.Called(exchange)
+}
+
+// SpotWatchlist_UnsubscribeSpot_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UnsubscribeSpot'
+type SpotWatchlist_UnsubscribeSpot_Call struct {
+	*mock.Call
+}
+
+// UnsubscribeSpot is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
+func (_e *SpotWatchlist_Expecter) UnsubscribeSpot(exchange interface{}) *SpotWatchlist_UnsubscribeSpot_Call {
+	return &SpotWatchlist_UnsubscribeSpot_Call{Call: _e.mock.On("UnsubscribeSpot", exchange)}
+}
+
+func (_c *SpotWatchlist_UnsubscribeSpot_Call) Run(run func(exchange connector.ExchangeName)) *SpotWatchlist_UnsubscribeSpot_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName))
+	})
+	return _c
+}
+
+func (_c *SpotWatchlist_UnsubscribeSpot_Call) Return() *SpotWatchlist_UnsubscribeSpot_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *SpotWatchlist_UnsubscribeSpot_Call) RunAndReturn(run func(connector.ExchangeName)) *SpotWatchlist_UnsubscribeSpot_Call {
 	_c.Run(run)
 	return _c
 }

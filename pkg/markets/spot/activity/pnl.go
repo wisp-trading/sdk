@@ -3,30 +3,27 @@ package activity
 import (
 	"context"
 
-	storeTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
-	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-// spotPNL calculates PNL from the spot trade store and current prices in the spot market store.
 type spotPNL struct {
-	trades storeTypes.Trades
+	trades spotTypes.SpotTrades
 	store  spotTypes.MarketStore
 }
 
-func NewSpotPNL(trades storeTypes.Trades, store spotTypes.MarketStore) wispActivity.SpotPNL {
+func NewSpotPNL(trades spotTypes.SpotTrades, store spotTypes.MarketStore) spotTypes.SpotPNL {
 	return &spotPNL{trades: trades, store: store}
 }
 
-func (s *spotPNL) Positions(_ context.Context) []wispActivity.PositionPNL {
+func (s *spotPNL) Positions(_ context.Context) []spotTypes.PositionPNL {
 	trackers := buildTrackers(s.trades.GetAllTrades())
-	results := make([]wispActivity.PositionPNL, 0, len(trackers))
+	results := make([]spotTypes.PositionPNL, 0, len(trackers))
 	for _, t := range trackers {
 		unrealized := s.unrealizedForTracker(t)
-		results = append(results, wispActivity.PositionPNL{
+		results = append(results, spotTypes.PositionPNL{
 			Pair:       t.pair,
 			Exchange:   t.exchange,
 			Realized:   t.realized,
@@ -72,7 +69,7 @@ func (s *spotPNL) unrealizedForTracker(t *positionTracker) numerical.Decimal {
 	return t.avgEntry.Sub(price.Price).Mul(t.size.Abs())
 }
 
-var _ wispActivity.SpotPNL = (*spotPNL)(nil)
+var _ spotTypes.SpotPNL = (*spotPNL)(nil)
 
 // ============================================================
 // Shared position tracking helpers — used by spot (perp owns its own via connector)

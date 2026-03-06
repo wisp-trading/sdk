@@ -4,7 +4,6 @@ import (
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
-	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -16,8 +15,6 @@ import (
 // indicators, analytics, and trading functionality. It is injected into strategy
 // implementations and provides read-only access to all framework services.
 type Wisp interface {
-	// Universe returns the tradeable spot assets and exchanges.
-	Universe() Universe
 
 	// Indicators returns the indicators service for technical analysis.
 	Indicators() analytics.Indicators
@@ -57,13 +54,4 @@ type Wisp interface {
 	// Example: wisp.Predict().WatchMarket(exchange, market)
 	// Example: wisp.Predict().Signal(strategyName).Buy(market, outcome, exchange, shares, maxPrice, expiry).Build()
 	Predict() predTypes.Predict
-}
-
-// Universe holds the tradeable spot assets and exchanges available to the strategy.
-type Universe struct {
-	// Exchanges are the ready/initialized exchanges available for trading
-	Exchanges []connector.Exchange
-
-	// Assets maps each tradeable pair to the list of exchanges
-	Assets map[connector.ExchangeName][]portfolio.Pair
 }

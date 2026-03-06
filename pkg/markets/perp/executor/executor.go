@@ -3,7 +3,6 @@ package executor
 import (
 	"fmt"
 
-	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
@@ -16,8 +15,8 @@ import (
 
 type executor struct {
 	connectors   registry.ConnectorRegistry
-	positions    activity.Positions
-	trades       activity.Trades
+	positions    perpTypes.PerpPositions
+	trades       perpTypes.PerpTrades
 	logger       logging.ApplicationLogger
 	timeProvider temporal.TimeProvider
 }
@@ -25,8 +24,8 @@ type executor struct {
 // NewExecutor creates a new perp market executor.
 func NewExecutor(
 	connectors registry.ConnectorRegistry,
-	positions activity.Positions,
-	trades activity.Trades,
+	positions perpTypes.PerpPositions,
+	trades perpTypes.PerpTrades,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 ) perpTypes.SignalExecutor {
