@@ -1,7 +1,6 @@
 package execution
 
 import (
-	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
@@ -17,13 +16,10 @@ type HookPlugin interface {
 	CreateHooks() []ExecutionHook
 }
 
-// Executor is the core interface for executing trading signals
+// Executor is the core interface for executing trading signals.
 type Executor interface {
-	// ExecuteSignal processes a trading signal and executes the associated actions
+	// ExecuteSignal processes a trading signal and routes it to the correct domain executor.
 	ExecuteSignal(signal strategy.Signal) error
-
-	// HandleTradeExecution is called when a trade executes on the exchange
-	HandleTradeExecution(trade connector.Trade) error
 }
 
 // ExecutionHook defines the interface for execution hooks

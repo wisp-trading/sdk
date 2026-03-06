@@ -36,6 +36,9 @@ type PositionsStoreExtension interface {
 	// GetOrders returns all orders recorded for this instance.
 	GetOrders() []PredictionOrder
 
+	// GetOrdersByExchange returns all orders placed on a specific exchange.
+	GetOrdersByExchange(exchange connector.ExchangeName) []PredictionOrder
+
 	// UpdateOrderStatus updates the status of an existing order.
 	UpdateOrderStatus(orderID string, status connector.OrderStatus) error
 

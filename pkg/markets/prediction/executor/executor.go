@@ -87,18 +87,17 @@ func (e *executor) executeAction(strategyName strategy.StrategyName, action *pre
 		return "", fmt.Errorf("failed to place prediction order on %s: %w", action.Exchange, err)
 	}
 
-	e.store.AddOrder(strategyName, predTypes.PredictionOrder{
-		ID:           resp.OrderID,
-		StrategyName: strategyName,
-		Exchange:     action.Exchange,
-		MarketSlug:   action.Market.Slug,
-		OutcomeID:    action.Outcome.OutcomeID,
-		Side:         side,
-		Shares:       action.Shares,
-		Price:        action.MaxPrice,
-		Status:       connector.OrderStatusPending,
-		CreatedAt:    e.timeProvider.Now(),
-		UpdatedAt:    e.timeProvider.Now(),
+	e.store.AddOrder(predTypes.PredictionOrder{
+		ID:         resp.OrderID,
+		Exchange:   action.Exchange,
+		MarketSlug: action.Market.Slug,
+		OutcomeID:  action.Outcome.OutcomeID,
+		Side:       side,
+		Shares:     action.Shares,
+		Price:      action.MaxPrice,
+		Status:     connector.OrderStatusPending,
+		CreatedAt:  e.timeProvider.Now(),
+		UpdatedAt:  e.timeProvider.Now(),
 	})
 
 	e.logger.Info(

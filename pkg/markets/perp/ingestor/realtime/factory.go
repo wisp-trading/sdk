@@ -1,7 +1,7 @@
 package realtime
 
 import (
-	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/real_time"
+	"github.com/wisp-trading/sdk/pkg/markets/base/ingestor/realtime"
 	realtimeTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
@@ -42,15 +42,15 @@ func (f *factory) CreateIngestors() []realtimeTypes.RealtimeIngestor {
 		exchangeName := info.Name
 
 		// Create extensions for perp markets
-		obExt := real_time.NewOrderBookExtension(f.store, f.logger)
-		klineExt := real_time.NewKlineExtension(f.store, f.logger, []string{"1m", "5m", "15m", "1h"})
+		obExt := realtime.NewOrderBookExtension(f.store, f.logger)
+		klineExt := realtime.NewKlineExtension(f.store, f.logger, []string{"1m", "5m", "15m", "1h"})
 		fundingExt := NewFundingRateExtension(f.store, f.logger)
 
 		// Adapt PerpWatchlist to the MarketWatchlist interface expected by the base ingestor
 		watchlistAdapter := newWatchlistAdapter(f.watchlist)
 
 		// Base ingestor + perp extensions
-		ingestor := real_time.NewRealtimeIngestor(
+		ingestor := realtime.NewRealtimeIngestor(
 			wsConn,
 			exchangeName,
 			connector.MarketTypePerp,

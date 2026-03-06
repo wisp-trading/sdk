@@ -74,10 +74,9 @@ func (r *viewRegistry) GetPnLView() *monitoring.PnLView {
 	}
 }
 
+// todo need to rework cli flow
 func (r *viewRegistry) GetPositionsView() *strategy.StrategyExecution {
-	ctx := context.Background()
-
-	return r.wisp.Activity().Positions().GetExecution(ctx)
+	return nil
 }
 
 // GetOrderbookView todo refactor here - need to be smarter - accept the exchange as an arg

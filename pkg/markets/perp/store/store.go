@@ -1,10 +1,10 @@
 package store
 
 import (
-	"github.com/wisp-trading/sdk/pkg/data/stores/market/store"
-	storeExtensions "github.com/wisp-trading/sdk/pkg/data/stores/market/store/extensions"
+	"github.com/wisp-trading/sdk/pkg/markets/base/store"
+	"github.com/wisp-trading/sdk/pkg/markets/base/store/extensions"
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
-	"github.com/wisp-trading/sdk/pkg/markets/perp/store/extensions"
+	perpExtensions "github.com/wisp-trading/sdk/pkg/markets/perp/store/extensions"
 	domainTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
@@ -22,12 +22,12 @@ func NewStore(timeProvider temporal.TimeProvider) domainTypes.MarketStore {
 
 	return &perpStore{
 		MarketStore: baseStore,
-		OrderBookStoreExtension: storeExtensions.NewOrderBookExtension(
+		OrderBookStoreExtension: extensions.NewOrderBookExtension(
 			baseStore.UpdatePairPrice,
 			baseStore.UpdateLastUpdated,
 		),
-		KlineStoreExtension:       storeExtensions.NewKlineExtension(),
-		FundingRateStoreExtension: extensions.NewFundingRateExtension(),
+		KlineStoreExtension:       extensions.NewKlineExtension(),
+		FundingRateStoreExtension: perpExtensions.NewFundingRateExtension(),
 	}
 }
 

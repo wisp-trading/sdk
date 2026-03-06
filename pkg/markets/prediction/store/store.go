@@ -1,7 +1,7 @@
 package store
 
 import (
-	"github.com/wisp-trading/sdk/pkg/data/stores/market/store"
+	"github.com/wisp-trading/sdk/pkg/markets/base/store"
 	marketTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/store/extensions"
 	domainTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"

@@ -1,7 +1,6 @@
 package spot
 
 import (
-	dataTypes "github.com/wisp-trading/sdk/pkg/markets/base/types"
 	storeTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 	spotActivity "github.com/wisp-trading/sdk/pkg/markets/spot/activity"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
@@ -17,7 +16,7 @@ import (
 // Injected into strategies via wisp.Spot().
 type spot struct {
 	tradingLogger logging.TradingLogger
-	watchlist     dataTypes.MarketWatchlist
+	watchlist     spotTypes.SpotWatchlist
 	store         spotTypes.MarketStore
 	signal        strategy.SignalFactory
 	pnl           wispActivity.SpotPNL
@@ -26,7 +25,7 @@ type spot struct {
 // NewSpot constructs the spot context object injected into strategies.
 func NewSpot(
 	tradingLogger logging.TradingLogger,
-	watchlist dataTypes.MarketWatchlist,
+	watchlist spotTypes.SpotWatchlist,
 	store spotTypes.MarketStore,
 	signal strategy.SignalFactory,
 	trades storeTypes.Trades,

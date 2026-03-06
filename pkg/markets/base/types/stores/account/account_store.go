@@ -18,9 +18,6 @@ type AccountStore interface {
 	UpdateMarginInfo(exchange connector.ExchangeName, margin MarginInfo)
 	GetMarginInfo(exchange connector.ExchangeName) *MarginInfo
 	GetAllMarginInfo() map[connector.ExchangeName]MarginInfo
-
-	// Clear all data
-	Clear()
 }
 
 // MarginInfo contains margin-specific account data

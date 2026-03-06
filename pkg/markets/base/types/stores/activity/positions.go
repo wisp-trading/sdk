@@ -24,7 +24,4 @@ type Positions interface {
 	// Metadata
 	GetLastUpdated() LastUpdatedMap
 	UpdateLastUpdated(key UpdateKey)
-
-	// Clear for simulation restart
-	Clear()
 }
