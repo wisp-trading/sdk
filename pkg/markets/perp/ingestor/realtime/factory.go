@@ -22,7 +22,7 @@ func NewFactory(
 	watchlist perpTypes.PerpWatchlist,
 	store perpTypes.MarketStore,
 	logger logging.ApplicationLogger,
-) realtimeTypes.RealtimeIngestorFactory {
+) perpTypes.PerpRealtimeIngestorFactory {
 	return &factory{
 		connectorRegistry: connectorRegistry,
 		watchlist:         watchlist,

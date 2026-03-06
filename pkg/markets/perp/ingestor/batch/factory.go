@@ -25,7 +25,7 @@ func NewFactory(
 	store perpTypes.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
-) batchTypes.BatchIngestorFactory {
+) perpTypes.PerpBatchIngestorFactory {
 	return &factory{
 		connectorRegistry: connectorRegistry,
 		watchlist:         watchlist,

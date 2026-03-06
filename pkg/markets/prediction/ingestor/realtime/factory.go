@@ -1,7 +1,7 @@
 package realtime
 
 import (
-	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
+	realtimeTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
@@ -21,7 +21,7 @@ func NewFactory(
 	watchlist types.PredictionWatchlist,
 	logger logging.ApplicationLogger,
 	store types.MarketStore,
-) realtime.RealtimeIngestorFactory {
+) types.PredictionRealtimeIngestorFactory {
 	return &factory{
 		connectorRegistry: connectorRegistry,
 		watchlist:         watchlist,
@@ -31,12 +31,12 @@ func NewFactory(
 }
 
 // CreateIngestors creates one realtime ingestor per registered prediction WebSocket connector.
-func (f *factory) CreateIngestors() []realtime.RealtimeIngestor {
+func (f *factory) CreateIngestors() []realtimeTypes.RealtimeIngestor {
 	predictionWSConnectors := f.connectorRegistry.FilterPrediction(
 		registry.NewFilter().ReadyOnly().WebSocketOnly().Build(),
 	)
 
-	realtimeIngestors := make([]realtime.RealtimeIngestor, 0, len(predictionWSConnectors))
+	realtimeIngestors := make([]realtimeTypes.RealtimeIngestor, 0, len(predictionWSConnectors))
 
 	for _, wsConn := range predictionWSConnectors {
 		info := wsConn.GetConnectorInfo()

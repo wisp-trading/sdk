@@ -21,7 +21,7 @@ func NewFactory(
 	store types.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
-) batchTypes.BatchIngestorFactory {
+) types.PredictionBatchIngestorFactory {
 	return &factory{
 		connectorRegistry: connectorRegistry,
 		store:             store,
