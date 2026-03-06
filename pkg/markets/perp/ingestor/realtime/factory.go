@@ -46,15 +46,12 @@ func (f *factory) CreateIngestors() []realtimeTypes.RealtimeIngestor {
 		klineExt := realtime.NewKlineExtension(f.store, f.logger, []string{"1m", "5m", "15m", "1h"})
 		fundingExt := NewFundingRateExtension(f.store, f.logger)
 
-		// Adapt PerpWatchlist to the MarketWatchlist interface expected by the base ingestor
-		watchlistAdapter := newWatchlistAdapter(f.watchlist)
-
-		// Base ingestor + perp extensions
+		// PerpWatchlist embeds MarketWatchlist — pass directly to base ingestor.
 		ingestor := realtime.NewRealtimeIngestor(
 			wsConn,
 			exchangeName,
 			connector.MarketTypePerp,
-			watchlistAdapter,
+			f.watchlist,
 			f.logger,
 			obExt,
 			klineExt,

@@ -68,15 +68,12 @@ func (f *factory) CreateIngestors() []batchTypes.BatchIngestor {
 		priceExt := batch.NewPriceExtension(marketDataReader, f.store, f.logger)
 		orderbookExt := batch.NewOrderBookExtension(marketDataReader, f.store, f.logger, 20)
 
-		// Adapt PerpWatchlist to the MarketWatchlist interface expected by the base ingestor
-		watchlistAdapter := newWatchlistAdapter(f.watchlist)
-
-		// Base ingestor + perp extensions
+		// PerpWatchlist embeds MarketWatchlist — pass directly to base ingestor.
 		ingestor := batch.NewBatchIngestor(
 			conn,
 			exchangeName,
 			connector.MarketTypePerp,
-			watchlistAdapter,
+			f.watchlist,
 			f.store,
 			f.timeProvider,
 			f.logger,

@@ -61,7 +61,7 @@ func TestPerpActionWithLeverage(t *testing.T) {
 		Leverage: numerical.NewFromInt(10),
 	}
 
-	if action.GetMarketType() != "perpetual" {
+	if action.GetMarketType() != connector.MarketTypePerp {
 		t.Errorf("Expected perpetual, got %v", action.GetMarketType())
 	}
 
@@ -140,7 +140,7 @@ func TestPolymorphicActionInterface(t *testing.T) {
 		t.Errorf("Expected spot, got %v", actions[0].GetMarketType())
 	}
 
-	if actions[1].GetMarketType() != "perpetual" {
+	if actions[1].GetMarketType() != connector.MarketTypePerp {
 		t.Errorf("Expected perpetual, got %v", actions[1].GetMarketType())
 	}
 }

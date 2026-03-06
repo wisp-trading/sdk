@@ -1,6 +1,7 @@
 package types
 
 import (
+	baseTypes "github.com/wisp-trading/sdk/pkg/markets/base/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
@@ -18,13 +19,12 @@ type SpotWatchEvent struct {
 	Type     SpotWatchEventType
 }
 
-// SpotWatchlist manages the set of pairs registered by strategies for spot markets.
+// SpotWatchlist embeds the base MarketWatchlist so it satisfies the base ingestor.
+// SubscribeSpot provides a typed channel for domain-level consumers.
 type SpotWatchlist interface {
-	RequirePair(exchange connector.ExchangeName, pair portfolio.Pair)
-	ReleasePair(exchange connector.ExchangeName, pair portfolio.Pair)
-	GetRequiredPairs(exchange connector.ExchangeName) []portfolio.Pair
-	Subscribe(exchange connector.ExchangeName) chan SpotWatchEvent
-	Unsubscribe(exchange connector.ExchangeName)
+	baseTypes.MarketWatchlist
+	SubscribeSpot(exchange connector.ExchangeName) chan SpotWatchEvent
+	UnsubscribeSpot(exchange connector.ExchangeName)
 }
 
 // SpotUniverse holds the live set of spot exchanges and their watched pairs.

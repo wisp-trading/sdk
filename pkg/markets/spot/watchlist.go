@@ -3,6 +3,7 @@ package spot
 import (
 	"sync"
 
+	baseTypes "github.com/wisp-trading/sdk/pkg/markets/base/types"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
@@ -14,15 +15,17 @@ type pairKey struct {
 }
 
 type spotWatchlist struct {
-	mu       sync.RWMutex
-	pairs    map[pairKey]portfolio.Pair
-	watchers map[connector.ExchangeName]chan spotTypes.SpotWatchEvent
+	mu           sync.RWMutex
+	pairs        map[pairKey]portfolio.Pair
+	baseWatchers map[connector.ExchangeName]chan baseTypes.MarketWatchEvent
+	spotWatchers map[connector.ExchangeName]chan spotTypes.SpotWatchEvent
 }
 
 func NewSpotWatchlist() spotTypes.SpotWatchlist {
 	return &spotWatchlist{
-		pairs:    make(map[pairKey]portfolio.Pair),
-		watchers: make(map[connector.ExchangeName]chan spotTypes.SpotWatchEvent),
+		pairs:        make(map[pairKey]portfolio.Pair),
+		baseWatchers: make(map[connector.ExchangeName]chan baseTypes.MarketWatchEvent),
+		spotWatchers: make(map[connector.ExchangeName]chan spotTypes.SpotWatchEvent),
 	}
 }
 
@@ -35,7 +38,11 @@ func (w *spotWatchlist) RequirePair(exchange connector.ExchangeName, pair portfo
 		return
 	}
 	w.pairs[key] = pair
-	w.emitEventLocked(spotTypes.SpotWatchEvent{Exchange: exchange, Pair: pair, Type: spotTypes.SpotPairAdded})
+	w.emitBaseLocked(baseTypes.MarketWatchEvent{
+		Requirement: baseTypes.PairRequirement{Exchange: exchange, Pair: pair},
+		Type:        baseTypes.PairAdded,
+	})
+	w.emitSpotLocked(spotTypes.SpotWatchEvent{Exchange: exchange, Pair: pair, Type: spotTypes.SpotPairAdded})
 }
 
 func (w *spotWatchlist) ReleasePair(exchange connector.ExchangeName, pair portfolio.Pair) {
@@ -47,7 +54,11 @@ func (w *spotWatchlist) ReleasePair(exchange connector.ExchangeName, pair portfo
 		return
 	}
 	delete(w.pairs, key)
-	w.emitEventLocked(spotTypes.SpotWatchEvent{Exchange: exchange, Pair: pair, Type: spotTypes.SpotPairRemoved})
+	w.emitBaseLocked(baseTypes.MarketWatchEvent{
+		Requirement: baseTypes.PairRequirement{Exchange: exchange, Pair: pair},
+		Type:        baseTypes.PairRemoved,
+	})
+	w.emitSpotLocked(spotTypes.SpotWatchEvent{Exchange: exchange, Pair: pair, Type: spotTypes.SpotPairRemoved})
 }
 
 func (w *spotWatchlist) GetRequiredPairs(exchange connector.ExchangeName) []portfolio.Pair {
@@ -63,15 +74,16 @@ func (w *spotWatchlist) GetRequiredPairs(exchange connector.ExchangeName) []port
 	return out
 }
 
-func (w *spotWatchlist) Subscribe(exchange connector.ExchangeName) chan spotTypes.SpotWatchEvent {
+// Subscribe satisfies base MarketWatchlist — used by the base ingestor.
+func (w *spotWatchlist) Subscribe(exchange connector.ExchangeName) chan baseTypes.MarketWatchEvent {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	if ch, ok := w.watchers[exchange]; ok {
+	if ch, ok := w.baseWatchers[exchange]; ok {
 		return ch
 	}
-	ch := make(chan spotTypes.SpotWatchEvent, 128)
-	w.watchers[exchange] = ch
+	ch := make(chan baseTypes.MarketWatchEvent, 128)
+	w.baseWatchers[exchange] = ch
 	return ch
 }
 
@@ -79,21 +91,51 @@ func (w *spotWatchlist) Unsubscribe(exchange connector.ExchangeName) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	ch, ok := w.watchers[exchange]
-	if !ok {
-		return
+	if ch, ok := w.baseWatchers[exchange]; ok {
+		delete(w.baseWatchers, exchange)
+		close(ch)
 	}
-	delete(w.watchers, exchange)
-	close(ch)
 }
 
-func (w *spotWatchlist) emitEventLocked(ev spotTypes.SpotWatchEvent) {
-	ch, ok := w.watchers[ev.Exchange]
-	if !ok {
-		return
+// SubscribeSpot provides a typed channel for domain-level consumers.
+func (w *spotWatchlist) SubscribeSpot(exchange connector.ExchangeName) chan spotTypes.SpotWatchEvent {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	if ch, ok := w.spotWatchers[exchange]; ok {
+		return ch
 	}
-	select {
-	case ch <- ev:
-	default:
+	ch := make(chan spotTypes.SpotWatchEvent, 128)
+	w.spotWatchers[exchange] = ch
+	return ch
+}
+
+func (w *spotWatchlist) UnsubscribeSpot(exchange connector.ExchangeName) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	if ch, ok := w.spotWatchers[exchange]; ok {
+		delete(w.spotWatchers, exchange)
+		close(ch)
 	}
 }
+
+func (w *spotWatchlist) emitBaseLocked(ev baseTypes.MarketWatchEvent) {
+	if ch, ok := w.baseWatchers[ev.Requirement.Exchange]; ok {
+		select {
+		case ch <- ev:
+		default:
+		}
+	}
+}
+
+func (w *spotWatchlist) emitSpotLocked(ev spotTypes.SpotWatchEvent) {
+	if ch, ok := w.spotWatchers[ev.Exchange]; ok {
+		select {
+		case ch <- ev:
+		default:
+		}
+	}
+}
+
+var _ spotTypes.SpotWatchlist = (*spotWatchlist)(nil)

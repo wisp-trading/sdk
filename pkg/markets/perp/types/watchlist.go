@@ -1,6 +1,7 @@
 package types
 
 import (
+	baseTypes "github.com/wisp-trading/sdk/pkg/markets/base/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
@@ -20,21 +21,12 @@ type PerpWatchEvent struct {
 	Type     PerpWatchEventType
 }
 
-// PerpWatchlist manages the set of pairs explicitly registered by strategies for perp markets.
-// It is the perp-domain equivalent of data.MarketWatchlist.
+// PerpWatchlist embeds the base MarketWatchlist so it satisfies the base ingestor.
+// SubscribePerp provides a typed channel for domain-level consumers.
 type PerpWatchlist interface {
-	// RequirePair adds a pair to the perp watchlist.
-	RequirePair(exchange connector.ExchangeName, pair portfolio.Pair)
-	// ReleasePair removes a pair from the perp watchlist.
-	ReleasePair(exchange connector.ExchangeName, pair portfolio.Pair)
-
-	// GetRequiredPairs returns all currently required pairs for an exchange.
-	GetRequiredPairs(exchange connector.ExchangeName) []portfolio.Pair
-
-	// Subscribe returns a channel that emits events when pairs are added/removed for an exchange.
-	Subscribe(exchange connector.ExchangeName) chan PerpWatchEvent
-	// Unsubscribe stops sending events and closes the channel for an exchange.
-	Unsubscribe(exchange connector.ExchangeName)
+	baseTypes.MarketWatchlist
+	SubscribePerp(exchange connector.ExchangeName) chan PerpWatchEvent
+	UnsubscribePerp(exchange connector.ExchangeName)
 }
 
 // PerpUniverse holds the live set of perp exchanges and their watched pairs.

@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/mock"
 	mockSpotConnector "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/spot"
-	"github.com/wisp-trading/sdk/pkg/markets/base/types"
+	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	lifecycleTypes "github.com/wisp-trading/sdk/pkg/types/lifecycle"
@@ -38,7 +38,7 @@ var _ = Describe("LifecycleController", func() {
 		app               *fxtest.App
 		controller        lifecycleTypes.Controller
 		connectorRegistry registryTypes.ConnectorRegistry
-		marketWatchlist   types.MarketWatchlist
+		marketWatchlist   spotTypes.SpotWatchlist
 		ctx               context.Context
 		cancel            context.CancelFunc
 		btcPair           portfolio.Pair
