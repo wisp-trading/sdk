@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/market"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
@@ -29,7 +28,7 @@ type Action interface {
 	GetType() ActionType
 
 	// GetMarketType returns the market type this action is for
-	GetMarketType() market.MarketType
+	GetMarketType() connector.MarketType
 
 	// GetExchange returns the exchange to execute on
 	GetExchange() connector.ExchangeName
@@ -76,8 +75,8 @@ type PerpAction struct {
 }
 
 // GetMarketType returns perpetual
-func (a *PerpAction) GetMarketType() market.MarketType {
-	return market.MarketTypePerp
+func (a *PerpAction) GetMarketType() connector.MarketType {
+	return connector.MarketTypePerp
 }
 
 // Validate checks if the perp action is valid
