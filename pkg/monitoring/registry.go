@@ -84,14 +84,11 @@ func (r *viewRegistry) GetPositionsView() *strategy.StrategyExecution {
 	return r.wisp.Activity().Positions().GetStrategyExecution(name)
 }
 
+// GetOrderbookView todo refactor here - need to be smarter - accept the exchange as an arg
 func (r *viewRegistry) GetOrderbookView(pair portfolio.Pair) *connector.OrderBook {
-	ctx := context.Background()
+	r.wisp.Log().Info("GetOrderbookView called with pair: %s", pair.Symbol())
 
-	ob, err := r.wisp.Market().OrderBook(ctx, pair)
-	if err != nil {
-		return nil
-	}
-	return ob
+	return nil
 }
 
 func (r *viewRegistry) GetRecentTrades(limit int) []connector.Trade {
@@ -156,12 +153,12 @@ func (r *viewRegistry) GetPredictionOrderbookView(exchange, marketID, outcomeID 
 	)
 }
 
-func (r *viewRegistry) GetSpotKlines(pair portfolio.Pair, exchange, interval string, limit int) []connector.Kline {
-	return r.wisp.Market().Spot().GetKlines(pair, connector.ExchangeName(exchange), interval, limit)
+func (r *viewRegistry) GetSpotKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline {
+	return r.wisp.Spot().Klines(exchange, pair, interval, limit)
 }
 
-func (r *viewRegistry) GetPerpKlines(pair portfolio.Pair, exchange, interval string, limit int) []connector.Kline {
-	return r.wisp.Market().Perp().GetKlines(pair, connector.ExchangeName(exchange), interval, limit)
+func (r *viewRegistry) GetPerpKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline {
+	return r.wisp.Perp().Klines(exchange, pair, interval, limit)
 }
 
 func (r *viewRegistry) GetProfilingStats() *monitoring.ProfilingStats {

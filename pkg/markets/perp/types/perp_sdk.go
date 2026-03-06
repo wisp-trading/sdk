@@ -34,6 +34,9 @@ type Perp interface {
 	// OrderBook returns the latest order book for a pair on a specific exchange.
 	OrderBook(exchange connector.ExchangeName, pair portfolio.Pair) (*connector.OrderBook, bool)
 
+	// Klines returns historical kline data for a pair on a specific exchange.
+	Klines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline
+
 	// Signal creates a new perp signal builder for the given strategy.
 	// Example: wisp.Perp().Signal(strategyName).BuyLimit(pair, exchange, qty, price).Build()
 	Signal(strategyName strategy.StrategyName) strategy.PerpSignalBuilder

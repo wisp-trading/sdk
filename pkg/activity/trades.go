@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
+	storeActivity "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	storeActivity "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"

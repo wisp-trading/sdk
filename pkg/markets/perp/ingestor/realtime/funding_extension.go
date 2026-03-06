@@ -3,11 +3,11 @@ package realtime
 import (
 	"context"
 
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
-	"github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )

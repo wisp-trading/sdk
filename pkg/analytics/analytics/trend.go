@@ -1,38 +1,21 @@
 package analytics
 
 import (
-	"context"
 	"fmt"
-	"time"
 
-	"github.com/wisp-trading/sdk/pkg/monitoring/profiling"
-	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 	analyticsTypes "github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // Trend analyzes the price trend for an asset using linear regression.
 // Returns trend direction and strength.
-func (s *analytics) Trend(ctx context.Context, asset portfolio.Pair, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.TrendResult, error) {
-	start := time.Now()
-	defer func() {
-		if profCtx := profiling.FromContext(ctx); profCtx != nil {
-			profCtx.RecordIndicator("Trend", time.Since(start))
-		}
-	}()
-
-	options := s.parseOptions(opts...)
-
-	prices, err := s.fetchClosePrices(ctx, asset, period, options)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(prices) < 2 {
+func (s *analytics) Trend(klines []connector.Kline) (*analyticsTypes.TrendResult, error) {
+	if len(klines) < 2 {
 		return nil, fmt.Errorf("insufficient data for trend calculation")
 	}
 
-	// Calculate linear regression
+	prices := extractClose(klines)
 	n := float64(len(prices))
 	var sumX, sumY, sumXY, sumX2 float64
 
@@ -67,7 +50,7 @@ func (s *analytics) Trend(ctx context.Context, asset portfolio.Pair, period int,
 
 	// Determine direction based on slope
 	// Use a threshold to avoid calling tiny slopes a trend
-	slopeThreshold := 0.01
+	const slopeThreshold = 0.01
 	var direction analyticsTypes.TrendDirection
 
 	if slope > slopeThreshold && rSquared > 0.3 {
@@ -83,4 +66,13 @@ func (s *analytics) Trend(ctx context.Context, asset portfolio.Pair, period int,
 		Strength:  strength,
 		Slope:     slopeDecimal,
 	}, nil
+}
+
+// extractClose is a helper function to extract close prices from klines.
+func extractClose(klines []connector.Kline) []float64 {
+	prices := make([]float64, len(klines))
+	for i, kline := range klines {
+		prices[i] = kline.Close
+	}
+	return prices
 }

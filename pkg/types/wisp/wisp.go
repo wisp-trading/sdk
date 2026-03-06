@@ -3,6 +3,7 @@ package wisp
 import (
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
+	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
@@ -24,9 +25,6 @@ type Wisp interface {
 	// Analytics returns the analytics service for market analysis.
 	Analytics() analytics.Analytics
 
-	// Market returns the market data service for accessing live and historical prices.
-	Market() analytics.Market
-
 	// Log returns the trading logger for strategy-specific logging.
 	Log() logging.TradingLogger
 
@@ -39,12 +37,14 @@ type Wisp interface {
 	// Pair creates a new portfolio.Pair from two assets.
 	Pair(base, quote portfolio.Asset) portfolio.Pair
 
-	// SpotSignal creates a new signal builder for spot market trading signals.
-	// Example: k.SpotSignal(strategyName).Buy(pair, exchange, qty).Build()
-	SpotSignal(strategyName strategy.StrategyName) strategy.SpotSignalBuilder
-
 	// Emit routes a signal directly to the executor. Non-blocking.
 	Emit(signal strategy.Signal)
+
+	// Spot returns the spot market domain context.
+	// Owns watchlist management, orderbooks, balances, positions, and signal creation.
+	// Example: wisp.Spot().WatchPair(exchange, btc)
+	// Example: wisp.Spot().Signal(strategyName).BuyLimit(pair, exchange, qty, price).Build()
+	Spot() spotTypes.Spot
 
 	// Perp returns the perpetual futures domain context.
 	// Owns watchlist management, funding rates, positions, orderbooks, and signal creation.

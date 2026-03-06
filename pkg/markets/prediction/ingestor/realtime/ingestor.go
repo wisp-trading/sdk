@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 )
 

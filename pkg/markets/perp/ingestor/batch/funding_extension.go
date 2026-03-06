@@ -1,10 +1,10 @@
 package batch
 
 import (
+	batchTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/batch"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
-	batchTypes "github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )

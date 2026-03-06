@@ -9,11 +9,11 @@ import (
 	"github.com/stretchr/testify/mock"
 	mockSpotConnector "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/spot"
 	spotBatch "github.com/wisp-trading/sdk/pkg/data/ingestors/market/spot/batch"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/batch"
+	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
-	spotTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/spot"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	registryTypes "github.com/wisp-trading/sdk/pkg/types/registry"
@@ -36,7 +36,7 @@ var _ = Describe("Spot BatchIngestor", func() {
 		app               *fxtest.App
 		store             spotTypes.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
-		marketWatchlist   data.MarketWatchlist
+		marketWatchlist   types.MarketWatchlist
 		factory           batch.BatchIngestorFactory
 		timeProvider      temporal.TimeProvider
 		logger            logging.ApplicationLogger

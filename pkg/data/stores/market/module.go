@@ -2,8 +2,8 @@ package market
 
 import (
 	"github.com/wisp-trading/sdk/pkg/data/stores/market/spot"
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
-	spotTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/spot"
+	marketTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
+	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"go.uber.org/fx"
 )
 

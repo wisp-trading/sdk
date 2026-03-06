@@ -3,8 +3,8 @@ package data
 import (
 	"sync"
 
+	"github.com/wisp-trading/sdk/pkg/markets/base/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
@@ -21,13 +21,13 @@ type marketWatchlist struct {
 	pairs map[pairKey]portfolio.Pair
 
 	// exactly one channel per exchange
-	watchers map[connector.ExchangeName]chan data.MarketWatchEvent
+	watchers map[connector.ExchangeName]chan types.MarketWatchEvent
 }
 
-func NewMarketWatchlist() data.MarketWatchlist {
+func NewMarketWatchlist() types.MarketWatchlist {
 	return &marketWatchlist{
 		pairs:    make(map[pairKey]portfolio.Pair),
-		watchers: make(map[connector.ExchangeName]chan data.MarketWatchEvent),
+		watchers: make(map[connector.ExchangeName]chan types.MarketWatchEvent),
 	}
 }
 
@@ -47,12 +47,12 @@ func (w *marketWatchlist) RequirePair(exchange connector.ExchangeName, pair port
 
 	w.pairs[key] = pair
 
-	w.emitEventLocked(data.MarketWatchEvent{
-		Requirement: data.PairRequirement{
+	w.emitEventLocked(types.MarketWatchEvent{
+		Requirement: types.PairRequirement{
 			Exchange: exchange,
 			Pair:     pair,
 		},
-		Type: data.PairAdded,
+		Type: types.PairAdded,
 	})
 }
 
@@ -72,12 +72,12 @@ func (w *marketWatchlist) ReleasePair(exchange connector.ExchangeName, pair port
 
 	delete(w.pairs, key)
 
-	w.emitEventLocked(data.MarketWatchEvent{
-		Requirement: data.PairRequirement{
+	w.emitEventLocked(types.MarketWatchEvent{
+		Requirement: types.PairRequirement{
 			Exchange: exchange,
 			Pair:     pair,
 		},
-		Type: data.PairRemoved,
+		Type: types.PairRemoved,
 	})
 }
 
@@ -95,7 +95,7 @@ func (w *marketWatchlist) GetRequiredPairs(exchange connector.ExchangeName) []po
 	return out
 }
 
-func (w *marketWatchlist) Subscribe(exchange connector.ExchangeName) chan data.MarketWatchEvent {
+func (w *marketWatchlist) Subscribe(exchange connector.ExchangeName) chan types.MarketWatchEvent {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
@@ -104,7 +104,7 @@ func (w *marketWatchlist) Subscribe(exchange connector.ExchangeName) chan data.M
 		return ch
 	}
 
-	ch := make(chan data.MarketWatchEvent, 128)
+	ch := make(chan types.MarketWatchEvent, 128)
 	w.watchers[exchange] = ch
 	return ch
 }
@@ -122,7 +122,7 @@ func (w *marketWatchlist) Unsubscribe(exchange connector.ExchangeName) {
 	close(ch)
 }
 
-func (w *marketWatchlist) emitEventLocked(ev data.MarketWatchEvent) {
+func (w *marketWatchlist) emitEventLocked(ev types.MarketWatchEvent) {
 	ex := ev.Requirement.Exchange
 
 	ch, ok := w.watchers[ex]

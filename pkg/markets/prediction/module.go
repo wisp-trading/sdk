@@ -1,6 +1,7 @@
 package prediction
 
 import (
+	marketTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/executor"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/realtime"
@@ -8,7 +9,6 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/store"
 	domainTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/views"
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"go.uber.org/fx"
 )
 

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors"
+	activity2 "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors"
-	"github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
@@ -16,8 +16,8 @@ import (
 
 // coordinator handles trade backfill on startup
 type coordinator struct {
-	positionStore     activity.Positions
-	tradeStore        activity.Trades
+	positionStore     activity2.Positions
+	tradeStore        activity2.Trades
 	connectorRegistry registry.ConnectorRegistry
 	logger            logging.ApplicationLogger
 
@@ -28,8 +28,8 @@ type coordinator struct {
 }
 
 func NewCoordinator(
-	positionStore activity.Positions,
-	tradeStore activity.Trades,
+	positionStore activity2.Positions,
+	tradeStore activity2.Trades,
 	connectorRegistry registry.ConnectorRegistry,
 	logger logging.ApplicationLogger,
 ) ingestors.PositionCoordinator {

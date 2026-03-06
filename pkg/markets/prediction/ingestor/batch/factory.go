@@ -1,8 +1,8 @@
 package batch
 
 import (
+	batchTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
-	batchTypes "github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"

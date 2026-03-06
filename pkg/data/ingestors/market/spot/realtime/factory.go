@@ -2,10 +2,10 @@ package realtime
 
 import (
 	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/real_time"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
+	spotStore "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
-	spotStore "github.com/wisp-trading/sdk/pkg/types/data/stores/market/spot"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
@@ -13,14 +13,14 @@ import (
 // factory creates realtime ingestors for all registered spot WebSocket connectors
 type factory struct {
 	connectorRegistry registry.ConnectorRegistry
-	marketWatchlist   data.MarketWatchlist
+	marketWatchlist   types.MarketWatchlist
 	store             spotStore.MarketStore
 	logger            logging.ApplicationLogger
 }
 
 func NewFactory(
 	connectorRegistry registry.ConnectorRegistry,
-	marketWatchlist data.MarketWatchlist,
+	marketWatchlist types.MarketWatchlist,
 	store spotStore.MarketStore,
 	logger logging.ApplicationLogger,
 ) realtime.RealtimeIngestorFactory {

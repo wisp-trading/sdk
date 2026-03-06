@@ -7,8 +7,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/wisp-trading/sdk/pkg/data/stores/market/store/extensions"
+	marketTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 

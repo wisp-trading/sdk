@@ -5,10 +5,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/wisp-trading/sdk/pkg/markets/base/types"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/batch"
+	marketTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
@@ -19,7 +19,7 @@ type batchIngestor struct {
 	conn            connector.Connector
 	exchangeName    connector.ExchangeName
 	marketType      connector.MarketType
-	marketWatchlist data.MarketWatchlist
+	marketWatchlist types.MarketWatchlist
 	store           marketTypes.MarketStore
 	logger          logging.ApplicationLogger
 	timeProvider    temporal.TimeProvider
@@ -41,7 +41,7 @@ func NewBatchIngestor(
 	conn connector.Connector,
 	exchangeName connector.ExchangeName,
 	marketType connector.MarketType,
-	marketWatchlist data.MarketWatchlist,
+	marketWatchlist types.MarketWatchlist,
 	store marketTypes.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,

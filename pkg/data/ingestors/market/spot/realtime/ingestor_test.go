@@ -9,11 +9,11 @@ import (
 	"github.com/stretchr/testify/mock"
 	mockSpotConnector "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/spot"
 	spotRealtime "github.com/wisp-trading/sdk/pkg/data/ingestors/market/spot/realtime"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
+	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
-	spotTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/spot"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	registryTypes "github.com/wisp-trading/sdk/pkg/types/registry"
@@ -35,7 +35,7 @@ var _ = Describe("Spot RealtimeIngestor", func() {
 		app               *fxtest.App
 		store             spotTypes.MarketStore
 		connectorRegistry registryTypes.ConnectorRegistry
-		marketWatchlist   data.MarketWatchlist
+		marketWatchlist   types.MarketWatchlist
 		factory           realtime.RealtimeIngestorFactory
 		logger            logging.ApplicationLogger
 		ctx               context.Context

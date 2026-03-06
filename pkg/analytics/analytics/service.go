@@ -4,13 +4,11 @@ import (
 	analyticsTypes "github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 )
 
-// analytics provides user-friendly methods for market analytics.
-// It delegates market data access to the Market service which handles spot/perp routing.
-type analytics struct {
-	market analyticsTypes.Market
-}
+// analytics is the concrete implementation of analyticsTypes.Analytics.
+// All methods are pure functions — no market or store access occurs here.
+type analytics struct{}
 
-// NewAnalyticsService creates a new analytics service
-func NewAnalyticsService(market analyticsTypes.Market) analyticsTypes.Analytics {
-	return &analytics{market: market}
+// NewAnalyticsService creates a new analytics service.
+func NewAnalyticsService() analyticsTypes.Analytics {
+	return &analytics{}
 }

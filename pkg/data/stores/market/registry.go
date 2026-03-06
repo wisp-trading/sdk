@@ -3,36 +3,37 @@ package market
 import (
 	"sync"
 
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	market2 "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
 
 // marketRegistry is the concrete implementation of MarketRegistry
 type marketRegistry struct {
 	mu     sync.RWMutex
-	stores map[marketTypes.MarketType]marketTypes.MarketStore
+	stores map[connector.MarketType]market2.MarketStore
 }
 
 // NewMarketRegistry creates a new market registry
-func NewMarketRegistry() marketTypes.MarketRegistry {
+func NewMarketRegistry() market2.MarketRegistry {
 	return &marketRegistry{
-		stores: make(map[marketTypes.MarketType]marketTypes.MarketStore),
+		stores: make(map[connector.MarketType]market2.MarketStore),
 	}
 }
 
 // Get returns the store for a specific market type
-func (r *marketRegistry) Get(marketType marketTypes.MarketType) marketTypes.MarketStore {
+func (r *marketRegistry) Get(marketType connector.MarketType) market2.MarketStore {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	return r.stores[marketType]
 }
 
 // GetAll returns all registered market stores
-func (r *marketRegistry) GetAll() map[marketTypes.MarketType]marketTypes.MarketStore {
+func (r *marketRegistry) GetAll() map[connector.MarketType]market2.MarketStore {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	// Return a copy to avoid race conditions
-	result := make(map[marketTypes.MarketType]marketTypes.MarketStore, len(r.stores))
+	result := make(map[connector.MarketType]market2.MarketStore, len(r.stores))
 	for k, v := range r.stores {
 		result[k] = v
 	}
@@ -40,18 +41,18 @@ func (r *marketRegistry) GetAll() map[marketTypes.MarketType]marketTypes.MarketS
 }
 
 // Register adds a market store to the registry
-func (r *marketRegistry) Register(store marketTypes.MarketStore) {
+func (r *marketRegistry) Register(store market2.MarketStore) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.stores[store.MarketType()] = store
 }
 
 // Types returns all registered market types
-func (r *marketRegistry) Types() []marketTypes.MarketType {
+func (r *marketRegistry) Types() []connector.MarketType {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	types := make([]marketTypes.MarketType, 0, len(r.stores))
+	types := make([]connector.MarketType, 0, len(r.stores))
 	for t := range r.stores {
 		types = append(types, t)
 	}

@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
+	marketTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 

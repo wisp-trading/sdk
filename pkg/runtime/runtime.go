@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/wisp-trading/sdk/pkg/markets/base/types"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	configTypes "github.com/wisp-trading/sdk/pkg/types/config"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/lifecycle"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/plugin"
@@ -19,7 +19,7 @@ import (
 type rt struct {
 	pluginManager     plugin.Manager
 	connectorRegistry registry.ConnectorRegistry
-	marketWatchlist   data.MarketWatchlist
+	marketWatchlist   types.MarketWatchlist
 	perpWatchlist     perpTypes.PerpWatchlist
 	strategyRegistry  registry.StrategyRegistry
 	configLoader      configTypes.StartupConfigLoader
@@ -33,7 +33,7 @@ type rt struct {
 func NewRuntime(
 	pluginManager plugin.Manager,
 	connectorRegistry registry.ConnectorRegistry,
-	marketWatchlist data.MarketWatchlist,
+	marketWatchlist types.MarketWatchlist,
 	perpWatchlist perpTypes.PerpWatchlist,
 	strategyRegistry registry.StrategyRegistry,
 	configLoader configTypes.StartupConfigLoader,

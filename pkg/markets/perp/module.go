@@ -1,13 +1,13 @@
 package perp
 
 import (
+	marketTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/executor"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/ingestor/realtime"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/store"
 	domainTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/views"
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"go.uber.org/fx"
 )
 

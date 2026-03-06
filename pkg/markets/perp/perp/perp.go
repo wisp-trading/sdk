@@ -123,6 +123,10 @@ func (p *perp) OrderBook(exchange connector.ExchangeName, pair portfolio.Pair) (
 	return ob, true
 }
 
+func (p *perp) Klines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline {
+	return p.store.GetKlines(pair, exchange, interval, limit)
+}
+
 // Signal creates a new perp signal builder for the given strategy.
 func (p *perp) Signal(strategyName strategy.StrategyName) strategy.PerpSignalBuilder {
 	return signal.NewPerpBuilder(strategyName, p.timeProvider)

@@ -47,10 +47,11 @@ func (s *server) handleKlines(w http.ResponseWriter, r *http.Request, isPerp boo
 	}
 
 	var klines []connector.Kline
+	exchangeName := connector.ExchangeName(exchange)
 	if isPerp {
-		klines = s.viewRegistry.GetPerpKlines(pair, exchange, interval, limit)
+		klines = s.viewRegistry.GetPerpKlines(exchangeName, pair, interval, limit)
 	} else {
-		klines = s.viewRegistry.GetSpotKlines(pair, exchange, interval, limit)
+		klines = s.viewRegistry.GetSpotKlines(exchangeName, pair, interval, limit)
 	}
 
 	if klines == nil {

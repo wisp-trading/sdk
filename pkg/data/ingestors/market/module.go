@@ -2,8 +2,8 @@ package market
 
 import (
 	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/spot"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors"
 	predictionRealtime "github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/realtime"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors"
 	"go.uber.org/fx"
 )
 

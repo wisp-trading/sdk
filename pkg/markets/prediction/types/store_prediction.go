@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 )
 
 // MarketStore handles prediction market data storage.

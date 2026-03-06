@@ -3,16 +3,17 @@ package spot
 import (
 	"github.com/wisp-trading/sdk/pkg/data/stores/market/store"
 	storeExtensions "github.com/wisp-trading/sdk/pkg/data/stores/market/store/extensions"
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
-	spotTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market/spot"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
+	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 // spotStore composes base store with extensions
 type spotStore struct {
-	marketTypes.MarketStore
-	marketTypes.OrderBookStoreExtension
-	marketTypes.KlineStoreExtension
+	market.MarketStore
+	market.OrderBookStoreExtension
+	market.KlineStoreExtension
 }
 
 func NewStore(timeProvider temporal.TimeProvider) spotTypes.MarketStore {
@@ -29,6 +30,6 @@ func NewStore(timeProvider temporal.TimeProvider) spotTypes.MarketStore {
 	}
 }
 
-func (s *spotStore) MarketType() marketTypes.MarketType {
-	return marketTypes.MarketTypeSpot
+func (s *spotStore) MarketType() connector.MarketType {
+	return connector.MarketTypeSpot
 }

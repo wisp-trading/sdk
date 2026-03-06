@@ -2,9 +2,10 @@ package store
 
 import (
 	"github.com/wisp-trading/sdk/pkg/data/stores/market/store"
+	marketTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/store/extensions"
 	domainTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
@@ -26,6 +27,6 @@ func NewStore(timeProvider temporal.TimeProvider) domainTypes.MarketStore {
 	}
 }
 
-func (s *predictionStore) MarketType() marketTypes.MarketType {
-	return marketTypes.MarketTypePrediction
+func (s *predictionStore) MarketType() connector.MarketType {
+	return connector.MarketTypePrediction
 }

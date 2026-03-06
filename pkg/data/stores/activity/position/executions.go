@@ -3,7 +3,7 @@ package position
 import (
 	"fmt"
 
-	portfolioTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
+	portfolioTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 

@@ -6,8 +6,8 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )

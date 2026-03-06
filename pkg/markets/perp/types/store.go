@@ -1,25 +1,25 @@
 package types
 
 import (
+	market2 "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
-	market "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
 // MarketStore handles perpetual market data storage.
 // Embeds base MarketStore and all perp-specific extensions.
 type MarketStore interface {
-	market.MarketStore
-	market.OrderBookStoreExtension
-	market.KlineStoreExtension
+	market2.MarketStore
+	market2.OrderBookStoreExtension
+	market2.KlineStoreExtension
 	FundingRateStoreExtension
 }
 
 // Perp-specific data keys
 const (
-	DataKeyFundingRates      market.DataKey = "funding_rates"
-	DataKeyHistoricalFunding market.DataKey = "historical_funding"
+	DataKeyFundingRates      market2.DataKey = "funding_rates"
+	DataKeyHistoricalFunding market2.DataKey = "historical_funding"
 )
 
 // Perp-specific type aliases
@@ -28,7 +28,7 @@ type HistoricalFundingMap map[connector.ExchangeName][]perpConn.HistoricalFundin
 
 // FundingRateStoreExtension is the perp-specific store extension for funding rate data.
 type FundingRateStoreExtension interface {
-	market.StoreExtension
+	market2.StoreExtension
 
 	// Current funding rates
 	UpdateFundingRate(asset portfolio.Pair, exchange connector.ExchangeName, rate perpConn.FundingRate)

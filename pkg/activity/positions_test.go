@@ -5,9 +5,9 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	storeActivity "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	storeActivity "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"

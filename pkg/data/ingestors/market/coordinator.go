@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/batch"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )

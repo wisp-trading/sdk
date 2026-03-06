@@ -6,9 +6,10 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	storeActivity "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -22,9 +23,9 @@ var _ = Describe("PNL", func() {
 	var (
 		app            *fxtest.App
 		pnl            wispActivity.PNL
-		positionStore  storeActivity.Positions
-		tradesStore    storeActivity.Trades
-		marketRegistry marketTypes.MarketRegistry
+		positionStore  activity.Positions
+		tradesStore    activity.Trades
+		marketRegistry market.MarketRegistry
 		ctx            context.Context
 		btc            = portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))
 		eth            = portfolio.NewPair(portfolio.NewAsset("ETH"), portfolio.NewAsset("USDT"))

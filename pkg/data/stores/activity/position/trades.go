@@ -1,8 +1,8 @@
 package position
 
 import (
+	portfolioTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	portfolioTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 

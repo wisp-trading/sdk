@@ -1,8 +1,8 @@
 package wisp
 
 import (
+	"github.com/wisp-trading/sdk/pkg/markets/base/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 	wispTypes "github.com/wisp-trading/sdk/pkg/types/wisp"
@@ -14,11 +14,11 @@ type UniverseProvider interface {
 }
 
 type universeProvider struct {
-	marketWatchlist   data.MarketWatchlist
+	marketWatchlist   types.MarketWatchlist
 	connectorRegistry registry.ConnectorRegistry
 }
 
-func NewUniverseProvider(marketWatchlist data.MarketWatchlist, connectorRegistry registry.ConnectorRegistry) UniverseProvider {
+func NewUniverseProvider(marketWatchlist types.MarketWatchlist, connectorRegistry registry.ConnectorRegistry) UniverseProvider {
 	return &universeProvider{
 		marketWatchlist:   marketWatchlist,
 		connectorRegistry: connectorRegistry,

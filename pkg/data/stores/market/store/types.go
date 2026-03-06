@@ -3,7 +3,8 @@ package store
 import (
 	"sync"
 
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	marketTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
@@ -19,6 +20,6 @@ type dataStore struct {
 	extensions []marketTypes.StoreExtension
 }
 
-func (ds *dataStore) MarketType() marketTypes.MarketType {
-	return marketTypes.MarketTypeUnknown
+func (ds *dataStore) MarketType() connector.MarketType {
+	return connector.MarketTypeUnknown
 }

@@ -1,24 +1,39 @@
 package analytics
 
 import (
-	"context"
-
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
+// Analytics provides higher-level market analysis built on top of kline data.
+//
+// All methods are pure functions — callers are responsible for fetching klines
+// (e.g. via wisp.Spot().Klines(...) or wisp.Perp().Klines(...)) and passing them in.
+// This keeps data fetching explicit and avoids hidden store access inside analytics calls.
+//
+// Example:
+//
+//	klines := wisp.Spot().Klines(exchange, btc, "1h", 60)
+//	trend, _    := wisp.Analytics().Trend(klines)
+//	vol, _      := wisp.Analytics().Volatility(klines, "1h")
+//	change, _   := wisp.Analytics().GetPriceChange(klines)
+//
+// TODO: Implement equivalent analytics directly on wisp.Spot() and wisp.Perp() domain objects
+// so strategies can call e.g. wisp.Spot().Trend(exchange, btc, "1h", 60) without managing
+// kline fetching themselves. Shared computation logic should live under markets/base.
 type Analytics interface {
-	Volatility(ctx context.Context, asset portfolio.Pair, period int, opts ...AnalyticsOptions) (numerical.Decimal, error)
-	Trend(ctx context.Context, asset portfolio.Pair, period int, opts ...AnalyticsOptions) (*TrendResult, error)
-	VolumeAnalysis(ctx context.Context, asset portfolio.Pair, period int, opts ...AnalyticsOptions) (*VolumeAnalysis, error)
-	GetPriceChange(ctx context.Context, asset portfolio.Pair, period int, opts ...AnalyticsOptions) (*PriceChange, error)
-}
+	// Volatility calculates annualised volatility (std dev of returns) from the provided klines.
+	// interval is used to derive the annualisation factor (e.g. "1h", "4h", "1d").
+	Volatility(klines []connector.Kline, interval string) (numerical.Decimal, error)
 
-// AnalyticsOptions configures analytics calculations
-type AnalyticsOptions struct {
-	Exchange connector.ExchangeName
-	Interval string
+	// Trend analyses price trend via linear regression over the provided klines.
+	Trend(klines []connector.Kline) (*TrendResult, error)
+
+	// VolumeAnalysis detects volume patterns and spikes from the provided klines.
+	VolumeAnalysis(klines []connector.Kline) (*VolumeAnalysis, error)
+
+	// GetPriceChange calculates price statistics over the provided klines.
+	GetPriceChange(klines []connector.Kline) (*PriceChange, error)
 }
 
 // TrendDirection represents the trend direction

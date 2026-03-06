@@ -3,8 +3,8 @@ package activity
 import (
 	"context"
 
+	storeActivity "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	storeActivity "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
 )

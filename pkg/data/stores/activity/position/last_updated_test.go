@@ -6,8 +6,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/wisp-trading/sdk/pkg/data/stores/activity/position"
+	activityTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 	timeProvider "github.com/wisp-trading/sdk/pkg/runtime/time"
-	activityTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 

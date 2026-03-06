@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/wisp-trading/sdk/pkg/markets/base/types"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
@@ -18,7 +18,7 @@ type realtimeIngestor struct {
 	wsCapable       connector.WebSocketCapable
 	exchangeName    connector.ExchangeName
 	marketType      connector.MarketType
-	marketWatchlist data.MarketWatchlist
+	marketWatchlist types.MarketWatchlist
 	logger          logging.ApplicationLogger
 
 	// State
@@ -28,7 +28,7 @@ type realtimeIngestor struct {
 	mu       sync.RWMutex
 
 	// Watchlist subscription
-	eventsChan <-chan data.MarketWatchEvent
+	eventsChan <-chan types.MarketWatchEvent
 
 	// Extension point for market-specific WebSocket subscriptions
 	extensions []realtime.WebSocketExtension
@@ -38,7 +38,7 @@ func NewRealtimeIngestor(
 	conn interface{},
 	exchangeName connector.ExchangeName,
 	marketType connector.MarketType,
-	marketWatchlist data.MarketWatchlist,
+	marketWatchlist types.MarketWatchlist,
 	logger logging.ApplicationLogger,
 	extensions ...realtime.WebSocketExtension,
 ) realtime.RealtimeIngestor {
@@ -101,7 +101,7 @@ func (ri *realtimeIngestor) Start(ctx context.Context) error {
 	return nil
 }
 
-func (ri *realtimeIngestor) runWatchlistLoop(events <-chan data.MarketWatchEvent) {
+func (ri *realtimeIngestor) runWatchlistLoop(events <-chan types.MarketWatchEvent) {
 	defer ri.marketWatchlist.Unsubscribe(ri.exchangeName)
 
 	for {
@@ -114,7 +114,7 @@ func (ri *realtimeIngestor) runWatchlistLoop(events <-chan data.MarketWatchEvent
 			}
 
 			switch ev.Type {
-			case data.PairAdded:
+			case types.PairAdded:
 				for _, ext := range ri.extensions {
 					if err := ext.Subscribe(ri.conn, ri.exchangeName, []portfolio.Pair{ev.Requirement.Pair}); err != nil {
 						ri.logger.Error(
@@ -125,7 +125,7 @@ func (ri *realtimeIngestor) runWatchlistLoop(events <-chan data.MarketWatchEvent
 						)
 					}
 				}
-			case data.PairRemoved:
+			case types.PairRemoved:
 				for _, ext := range ri.extensions {
 					if err := ext.Unsubscribe(ri.conn, ri.exchangeName); err != nil {
 						ri.logger.Warn(

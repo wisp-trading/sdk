@@ -3,10 +3,10 @@ package executor
 import (
 	"fmt"
 
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/activity"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"

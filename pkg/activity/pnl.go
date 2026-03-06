@@ -7,7 +7,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	wispActivity "github.com/wisp-trading/sdk/pkg/types/wisp/activity"
-	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics/aggregator"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
@@ -104,11 +104,11 @@ func (pt *positionTracker) getUnrealizedPNL(currentPrice numerical.Decimal) nume
 type pnl struct {
 	positions wispActivity.Positions
 	trades    wispActivity.Trades
-	market    analytics.Market
+	market    aggregator.Market
 }
 
 // NewPNL creates a new PNL calculator
-func NewPNL(positions wispActivity.Positions, trades wispActivity.Trades, market analytics.Market) wispActivity.PNL {
+func NewPNL(positions wispActivity.Positions, trades wispActivity.Trades, market aggregator.Market) wispActivity.PNL {
 	return &pnl{
 		positions: positions,
 		trades:    trades,

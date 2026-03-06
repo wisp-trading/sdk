@@ -3,9 +3,9 @@ package types
 import (
 	"time"
 
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )

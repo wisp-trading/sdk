@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors"
+	ingestors2 "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors"
 	lifecycleTypes "github.com/wisp-trading/sdk/pkg/types/lifecycle"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	monitoringTypes "github.com/wisp-trading/sdk/pkg/types/monitoring"
@@ -17,8 +17,8 @@ import (
 // controller implements the Controller interface for controlling SDK lifecycle
 type controller struct {
 	// Component references
-	marketCoordinator   ingestors.MarketDataCoordinator
-	positionCoordinator ingestors.PositionCoordinator
+	marketCoordinator   ingestors2.MarketDataCoordinator
+	positionCoordinator ingestors2.PositionCoordinator
 	connectorRegistry   registry.ConnectorRegistry
 	healthStore         health.HealthStore
 	orchestrator        lifecycleTypes.Orchestrator
@@ -35,8 +35,8 @@ type controller struct {
 
 // NewController creates a new SDK lifecycle controller
 func NewController(
-	marketCoordinator ingestors.MarketDataCoordinator,
-	positionCoordinator ingestors.PositionCoordinator,
+	marketCoordinator ingestors2.MarketDataCoordinator,
+	positionCoordinator ingestors2.PositionCoordinator,
 	connectorRegistry registry.ConnectorRegistry,
 	healthStore health.HealthStore,
 	orchestrator lifecycleTypes.Orchestrator,

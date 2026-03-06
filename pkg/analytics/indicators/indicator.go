@@ -1,68 +1,30 @@
-// Package indicators provides user-friendly methods for calculating technical indicators.
-//
-// This package wraps the low-level indicator calculations in pkg/analytics/indicators
-// and handles all data fetching automatically. Users never need to manually extract
-// klines or manage data - just call the indicator methods with an asset and period.
-//
-// Example usage:
-//
-//	btc := s.k.Pair("BTC")
-//	rsi := s.k.Indicators.RSI(btc, 14)
-//	sma := s.k.Indicators.SMA(btc, 50)
-//	macd := s.k.Indicators.MACD(btc, 12, 26, 9)
-//
-// All indicator methods support optional configuration:
-//
-//	// Use specific exchange
-//	rsi := s.k.Indicators.RSI(btc, 14, indicators.analytics.IndicatorOptions{
-//	    Exchange: "binance",
-//	})
-//
-//	// Use different timeframe
-//	sma := s.k.Indicators.SMA(btc, 200, indicators.analytics.IndicatorOptions{
-//	    Interval: "4h",
-//	})
+// Package indicators provides technical indicator calculations.
+// All methods are pure functions — callers are responsible for fetching klines
+// (e.g. via wisp.Spot().Klines(...) or wisp.Perp().Klines(...)) and passing them in.
 package indicators
 
 import (
-	"context"
-	"fmt"
-	"time"
-
-	"github.com/wisp-trading/sdk/pkg/monitoring/profiling"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-const (
-	// Fetch 2x period to ensure sufficient data for calculations
-	dataMultiplier = 2
-)
+// indicators is the concrete implementation of analytics.Indicators.
+type indicators struct{}
 
-// IndicatorService provides user-friendly methods for technical indicators.
-// All methods handle data fetching internally - users never manually extract klines.
-type indicators struct {
-	market analytics.Market
+// NewIndicators creates a new Indicators service.
+func NewIndicators() analytics.Indicators {
+	return &indicators{}
 }
 
-// NewIndicators creates a new IndicatorService
-func NewIndicators(market analytics.Market) analytics.Indicators {
-	return &indicators{
-		market: market,
-	}
-}
-
-// SMA calculates the Simple Moving Average for an asset.
+// SMA calculates the Simple Moving Average from the provided klines.
 //
 // The Simple Moving Average is the average price over a specified number of periods.
 // It's used to identify trends and smooth out price fluctuations.
 //
 // Parameters:
-//   - asset: The asset to calculate SMA for (e.g., btc from s.k.Pair("BTC"))
+//   - klines: The kline data to calculate SMA from
 //   - period: Number of periods to average (e.g., 20, 50, 200)
-//   - opts: Optional exchange and interval configuration
 //
 // Returns the latest SMA value.
 //
@@ -78,32 +40,19 @@ func NewIndicators(market analytics.Market) analytics.Indicators {
 //   - Fetches price data from the exchange
 //   - Calculates the moving average
 //   - Returns the current value
-func (s *indicators) SMA(ctx context.Context, asset portfolio.Pair, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
-	start := time.Now()
-	defer func() {
-		if profCtx := profiling.FromContext(ctx); profCtx != nil {
-			profCtx.RecordIndicator("SMA", time.Since(start))
-		}
-	}()
-
-	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	return SMA(prices, period)
+func (s *indicators) SMA(klines []connector.Kline, period int) (numerical.Decimal, error) {
+	return SMA(extractClose(klines), period)
 }
 
-// EMA calculates the Exponential Moving Average for an asset.
+// EMA calculates the Exponential Moving Average from the provided klines.
 //
 // The Exponential Moving Average gives more weight to recent prices, making it more
 // responsive to new information than SMA. Commonly used for trend identification
 // and dynamic support/resistance levels.
 //
 // Parameters:
-//   - asset: The asset to calculate EMA for
+//   - klines: The kline data to calculate EMA from
 //   - period: Number of periods (e.g., 12, 20, 50, 200)
-//   - opts: Optional exchange and interval configuration
 //
 // Returns the latest EMA value.
 //
@@ -123,23 +72,11 @@ func (s *indicators) SMA(ctx context.Context, asset portfolio.Pair, period int, 
 //   - Fetches historical price data
 //   - Applies exponential weighting
 //   - Returns the current EMA value
-func (s *indicators) EMA(ctx context.Context, asset portfolio.Pair, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
-	start := time.Now()
-	defer func() {
-		if profCtx := profiling.FromContext(ctx); profCtx != nil {
-			profCtx.RecordIndicator("EMA", time.Since(start))
-		}
-	}()
-
-	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	return EMA(prices, period)
+func (s *indicators) EMA(klines []connector.Kline, period int) (numerical.Decimal, error) {
+	return EMA(extractClose(klines), period)
 }
 
-// RSI calculates the Relative Strength Index for an asset.
+// RSI calculates the Relative Strength Index from the provided klines.
 //
 // RSI is a momentum oscillator that measures the speed and magnitude of price changes.
 // Values range from 0 to 100:
@@ -148,9 +85,8 @@ func (s *indicators) EMA(ctx context.Context, asset portfolio.Pair, period int, 
 //   - RSI = 50: Neutral
 //
 // Parameters:
-//   - asset: The asset to calculate RSI for
+//   - klines: The kline data to calculate RSI from
 //   - period: Number of periods (typically 14)
-//   - opts: Optional exchange and interval configuration
 //
 // Returns the latest RSI value (0-100).
 //
@@ -173,23 +109,11 @@ func (s *indicators) EMA(ctx context.Context, asset portfolio.Pair, period int, 
 //   - Fetches price history
 //   - Calculates gains and losses
 //   - Computes the RSI value
-func (s *indicators) RSI(ctx context.Context, asset portfolio.Pair, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
-	start := time.Now()
-	defer func() {
-		if profCtx := profiling.FromContext(ctx); profCtx != nil {
-			profCtx.RecordIndicator("RSI", time.Since(start))
-		}
-	}()
-
-	prices, err := s.fetchClosePrices(asset, (period+1)*dataMultiplier, opts...)
-	if err != nil {
-		return numerical.Zero(), err
-	}
-
-	return RSI(prices, period)
+func (s *indicators) RSI(klines []connector.Kline, period int) (numerical.Decimal, error) {
+	return RSI(extractClose(klines), period)
 }
 
-// MACD calculates the Moving Average Convergence Divergence indicator.
+// MACD calculates the Moving Average Convergence Divergence from the provided klines.
 //
 // MACD is a trend-following momentum indicator that shows the relationship between
 // two exponential moving averages. It consists of:
@@ -198,11 +122,10 @@ func (s *indicators) RSI(ctx context.Context, asset portfolio.Pair, period int, 
 //   - Histogram: Difference between MACD and Signal lines
 //
 // Parameters:
-//   - asset: The asset to calculate MACD for
+//   - klines: The kline data to calculate MACD from
 //   - fastPeriod: Fast EMA period (typically 12)
 //   - slowPeriod: Slow EMA period (typically 26)
 //   - signalPeriod: Signal line period (typically 9)
-//   - opts: Optional exchange and interval configuration
 //
 // Returns a MACDResult containing MACD, Signal, and Histogram values.
 //
@@ -226,29 +149,15 @@ func (s *indicators) RSI(ctx context.Context, asset portfolio.Pair, period int, 
 //   - MACD < Signal: Bearish momentum
 //   - Histogram growing: Momentum strengthening
 //   - Histogram shrinking: Momentum weakening
-func (s *indicators) MACD(ctx context.Context, asset portfolio.Pair, fastPeriod, slowPeriod, signalPeriod int, opts ...analytics.IndicatorOptions) (*analytics.MACDResult, error) {
-	start := time.Now()
-	defer func() {
-		if profCtx := profiling.FromContext(ctx); profCtx != nil {
-			profCtx.RecordIndicator("MACD", time.Since(start))
-		}
-	}()
-
-	requiredData := (slowPeriod + signalPeriod) * dataMultiplier
-	prices, err := s.fetchClosePrices(asset, requiredData, opts...)
+func (s *indicators) MACD(klines []connector.Kline, fastPeriod, slowPeriod, signalPeriod int) (*analytics.MACDResult, error) {
+	result, err := MACD(extractClose(klines), fastPeriod, slowPeriod, signalPeriod)
 	if err != nil {
 		return nil, err
 	}
-
-	macdResult, err := MACD(prices, fastPeriod, slowPeriod, signalPeriod)
-	if err != nil {
-		return nil, err
-	}
-
-	return &macdResult, nil
+	return &result, nil
 }
 
-// BollingerBands calculates Bollinger Bands for an asset.
+// BollingerBands calculates Bollinger Bands from the provided klines.
 //
 // Bollinger Bands consist of three lines that envelope price action:
 //   - Middle Band: Simple Moving Average
@@ -258,10 +167,9 @@ func (s *indicators) MACD(ctx context.Context, asset portfolio.Pair, fastPeriod,
 // They measure volatility and identify overbought/oversold conditions.
 //
 // Parameters:
-//   - asset: The asset to calculate Bollinger Bands for
+//   - klines: The kline data to calculate Bollinger Bands from
 //   - period: Number of periods for SMA and std dev calculation (typically 20)
 //   - stdDev: Standard deviation multiplier (typically 2.0)
-//   - opts: Optional exchange and interval configuration
 //
 // Returns a BollingerBandsResult containing Upper, Middle, and Lower band values.
 //
@@ -286,28 +194,15 @@ func (s *indicators) MACD(ctx context.Context, asset portfolio.Pair, fastPeriod,
 //   - Price near lower band: Oversold
 //   - Bands narrowing: Low volatility (potential breakout)
 //   - Bands widening: High volatility
-func (s *indicators) BollingerBands(ctx context.Context, asset portfolio.Pair, period int, stdDev float64, opts ...analytics.IndicatorOptions) (*analytics.BollingerBandsResult, error) {
-	start := time.Now()
-	defer func() {
-		if profCtx := profiling.FromContext(ctx); profCtx != nil {
-			profCtx.RecordIndicator("BollingerBands", time.Since(start))
-		}
-	}()
-
-	prices, err := s.fetchClosePrices(asset, period*dataMultiplier, opts...)
+func (s *indicators) BollingerBands(klines []connector.Kline, period int, stdDev float64) (*analytics.BollingerBandsResult, error) {
+	result, err := BollingerBands(extractClose(klines), period, stdDev)
 	if err != nil {
 		return nil, err
 	}
-
-	bbResult, err := BollingerBands(prices, period, stdDev)
-	if err != nil {
-		return nil, err
-	}
-
-	return &bbResult, nil
+	return &result, nil
 }
 
-// Stochastic calculates the Stochastic Oscillator for an asset.
+// Stochastic calculates the Stochastic Oscillator from the provided klines.
 //
 // The Stochastic Oscillator compares a closing price to its price range over a period.
 // It consists of two lines:
@@ -319,10 +214,9 @@ func (s *indicators) BollingerBands(ctx context.Context, asset portfolio.Pair, p
 //   - < 20: Oversold
 //
 // Parameters:
-//   - asset: The asset to calculate Stochastic for
+//   - klines: The kline data to calculate Stochastic from
 //   - kPeriod: Lookback period for %K calculation (typically 14)
 //   - dPeriod: Smoothing period for %D calculation (typically 3)
-//   - opts: Optional exchange and interval configuration
 //
 // Returns a StochasticResult containing K and D values.
 //
@@ -348,50 +242,16 @@ func (s *indicators) BollingerBands(ctx context.Context, asset portfolio.Pair, p
 //   - %K crosses below %D: Bearish signal
 //   - Both in oversold zone: Potential reversal up
 //   - Both in overbought zone: Potential reversal down
-func (s *indicators) Stochastic(ctx context.Context, asset portfolio.Pair, kPeriod, dPeriod int, opts ...analytics.IndicatorOptions) (*analytics.StochasticResult, error) {
-	start := time.Now()
-	defer func() {
-		if profCtx := profiling.FromContext(ctx); profCtx != nil {
-			profCtx.RecordIndicator("Stochastic", time.Since(start))
-		}
-	}()
-
-	options := s.parseOptions(opts...)
-	exchange := options.Exchange
-	interval := options.Interval
-
-	if exchange == "" {
-		exchange = s.getDefaultExchange(asset)
-		if exchange == "" {
-			return nil, fmt.Errorf("no exchange data available for asset %s", asset.Symbol())
-		}
-	}
-
-	requiredData := (kPeriod + dPeriod) * dataMultiplier
-	klines := s.market.Klines(asset, exchange, interval, requiredData)
-	if len(klines) == 0 {
-		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
-	}
-
-	highs := make([]float64, len(klines))
-	lows := make([]float64, len(klines))
-	closes := make([]float64, len(klines))
-
-	for i, kline := range klines {
-		highs[i] = kline.High
-		lows[i] = kline.Low
-		closes[i] = kline.Close
-	}
-
-	stochResult, err := Stochastic(highs, lows, closes, kPeriod, dPeriod)
+func (s *indicators) Stochastic(klines []connector.Kline, kPeriod, dPeriod int) (*analytics.StochasticResult, error) {
+	highs, lows, closes := extractHLC(klines)
+	result, err := Stochastic(highs, lows, closes, kPeriod, dPeriod)
 	if err != nil {
 		return nil, err
 	}
-
-	return &stochResult, nil
+	return &result, nil
 }
 
-// ATR calculates the Average True Range for an asset.
+// ATR calculates the Average True Range from the provided klines.
 //
 // ATR measures market volatility by calculating the average range between
 // high and low prices over a period. Higher ATR indicates higher volatility.
@@ -402,9 +262,8 @@ func (s *indicators) Stochastic(ctx context.Context, asset portfolio.Pair, kPeri
 //   - Identifying breakouts (ATR expanding)
 //
 // Parameters:
-//   - asset: The asset to calculate ATR for
+//   - klines: The kline data to calculate ATR from
 //   - period: Number of periods to average (typically 14)
-//   - opts: Optional exchange and interval configuration
 //
 // Returns the latest ATR value in the asset's price units.
 //
@@ -429,91 +288,31 @@ func (s *indicators) Stochastic(ctx context.Context, asset portfolio.Pair, kPeri
 //   - Low ATR: Low volatility, price consolidation
 //   - Rising ATR: Volatility increasing
 //   - Falling ATR: Volatility decreasing
-func (s *indicators) ATR(ctx context.Context, asset portfolio.Pair, period int, opts ...analytics.IndicatorOptions) (numerical.Decimal, error) {
-	start := time.Now()
-	defer func() {
-		if profCtx := profiling.FromContext(ctx); profCtx != nil {
-			profCtx.RecordIndicator("ATR", time.Since(start))
-		}
-	}()
-
-	options := s.parseOptions(opts...)
-	exchange := options.Exchange
-	interval := options.Interval
-
-	if exchange == "" {
-		exchange = s.getDefaultExchange(asset)
-		if exchange == "" {
-			return numerical.Zero(), fmt.Errorf("no exchange data available for asset %s", asset.Symbol())
-		}
-	}
-
-	// Fetch klines (need high, low, close)
-	requiredData := period * dataMultiplier
-	klines := s.market.Klines(asset, exchange, interval, requiredData)
-	if len(klines) == 0 {
-		return numerical.Zero(), fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
-	}
-
-	// Extract high, low, close prices
-	highs := make([]float64, len(klines))
-	lows := make([]float64, len(klines))
-	closes := make([]float64, len(klines))
-
-	for i, kline := range klines {
-		highs[i] = kline.High
-		lows[i] = kline.Low
-		closes[i] = kline.Close
-	}
-
+func (s *indicators) ATR(klines []connector.Kline, period int) (numerical.Decimal, error) {
+	highs, lows, closes := extractHLC(klines)
 	return ATR(highs, lows, closes, period)
 }
 
-// fetchClosePrices is a helper that fetches klines and extracts close prices as float64
-func (s *indicators) fetchClosePrices(asset portfolio.Pair, limit int, opts ...analytics.IndicatorOptions) ([]float64, error) {
-	options := s.parseOptions(opts...)
-	exchange := options.Exchange
-	interval := options.Interval
+// ============================================================
+// Internal helpers
+// ============================================================
 
-	if exchange == "" {
-		exchange = s.getDefaultExchange(asset)
-		if exchange == "" {
-			return nil, fmt.Errorf("no exchange data available for asset %s", asset.Symbol())
-		}
-	}
-
-	klines := s.market.Klines(asset, exchange, interval, limit)
-	if len(klines) == 0 {
-		return nil, fmt.Errorf("no kline data available for asset %s on exchange %s", asset.Symbol(), exchange)
-	}
-
+func extractClose(klines []connector.Kline) []float64 {
 	prices := make([]float64, len(klines))
-	for i, kline := range klines {
-		prices[i] = kline.Close
+	for i, k := range klines {
+		prices[i] = k.Close
 	}
-
-	return prices, nil
+	return prices
 }
 
-// getDefaultExchange returns the first available exchange for an asset
-func (s *indicators) getDefaultExchange(asset portfolio.Pair) connector.ExchangeName {
-	priceMap := s.market.Prices(context.Background(), asset)
-	for exchange := range priceMap {
-		return exchange
+func extractHLC(klines []connector.Kline) (highs, lows, closes []float64) {
+	highs = make([]float64, len(klines))
+	lows = make([]float64, len(klines))
+	closes = make([]float64, len(klines))
+	for i, k := range klines {
+		highs[i] = k.High
+		lows[i] = k.Low
+		closes[i] = k.Close
 	}
-	return ""
-}
-
-// parseOptions extracts options with defaults
-func (s *indicators) parseOptions(opts ...analytics.IndicatorOptions) analytics.IndicatorOptions {
-	if len(opts) > 0 {
-		options := opts[0]
-		if options.Interval == "" {
-			options.Interval = analytics.DefaultInterval
-		}
-		return options
-	}
-	return analytics.IndicatorOptions{
-		Interval: analytics.DefaultInterval,
-	}
+	return
 }

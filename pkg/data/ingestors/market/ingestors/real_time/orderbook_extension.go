@@ -4,9 +4,9 @@ import (
 	"context"
 	"sync"
 
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
-	"github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )

@@ -7,8 +7,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/wisp-trading/sdk/pkg/data/stores/market/store/extensions"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
@@ -21,11 +21,11 @@ var _ = Describe("OrderBookExtension - Unit Tests", func() {
 	}
 
 	var (
-		extension           marketTypes.OrderBookStoreExtension
+		extension           market.OrderBookStoreExtension
 		btc                 portfolio.Pair
 		eth                 portfolio.Pair
 		priceUpdates        []priceUpdate
-		metadataUpdates     []marketTypes.UpdateKey
+		metadataUpdates     []market.UpdateKey
 		priceUpdateMutex    sync.Mutex
 		metadataUpdateMutex sync.Mutex
 	)
@@ -42,7 +42,7 @@ var _ = Describe("OrderBookExtension - Unit Tests", func() {
 	}
 
 	// Helper to capture metadata updates
-	captureMetadataUpdate := func(key marketTypes.UpdateKey) {
+	captureMetadataUpdate := func(key market.UpdateKey) {
 		metadataUpdateMutex.Lock()
 		defer metadataUpdateMutex.Unlock()
 		metadataUpdates = append(metadataUpdates, key)
@@ -51,7 +51,7 @@ var _ = Describe("OrderBookExtension - Unit Tests", func() {
 	BeforeEach(func() {
 		// Reset captured updates
 		priceUpdates = []priceUpdate{}
-		metadataUpdates = []marketTypes.UpdateKey{}
+		metadataUpdates = []market.UpdateKey{}
 
 		// Create extension with callbacks
 		extension = extensions.NewOrderBookExtension(
@@ -141,7 +141,7 @@ var _ = Describe("OrderBookExtension - Unit Tests", func() {
 
 				Expect(metadataUpdates).To(HaveLen(1))
 				update := metadataUpdates[0]
-				Expect(update.DataType).To(Equal(marketTypes.DataKeyOrderBooks))
+				Expect(update.DataType).To(Equal(market.DataKeyOrderBooks))
 				Expect(update.Pair.Symbol()).To(Equal(btc.Symbol()))
 				Expect(update.Exchange).To(Equal(connector.ExchangeName("hyperliquid")))
 			})
