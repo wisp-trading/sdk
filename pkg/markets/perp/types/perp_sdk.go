@@ -7,6 +7,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 // Perp is the domain-scoped context object for perpetual futures strategies.
@@ -25,6 +26,12 @@ type Perp interface {
 
 	// FundingRates returns the funding rate across all exchanges for a pair.
 	FundingRates(pair portfolio.Pair) map[connector.ExchangeName]perpConn.FundingRate
+
+	// Price returns the current mark price for a pair on a specific exchange.
+	Price(exchange connector.ExchangeName, pair portfolio.Pair) (numerical.Decimal, bool)
+
+	// Prices returns the current mark price for a pair across all exchanges.
+	Prices(pair portfolio.Pair) map[connector.ExchangeName]numerical.Decimal
 
 	// Position returns the current open position for a pair on an exchange, if any.
 	Position(exchange connector.ExchangeName, pair portfolio.Pair) (*perpConn.Position, bool)

@@ -44,13 +44,21 @@ func (s *spot) UnwatchPair(exchange connector.ExchangeName, pair portfolio.Pair)
 	s.watchlist.ReleasePair(exchange, pair)
 }
 
-// Price returns the current price for a pair on a specific exchange.
 func (s *spot) Price(exchange connector.ExchangeName, pair portfolio.Pair) (numerical.Decimal, bool) {
 	price := s.store.GetPairPrice(pair, exchange)
 	if price == nil {
 		return numerical.Zero(), false
 	}
 	return price.Price, true
+}
+
+func (s *spot) Prices(pair portfolio.Pair) map[connector.ExchangeName]numerical.Decimal {
+	priceMap := s.store.GetPairPrices(pair)
+	out := make(map[connector.ExchangeName]numerical.Decimal, len(priceMap))
+	for exchange, p := range priceMap {
+		out[exchange] = p.Price
+	}
+	return out
 }
 
 // OrderBook returns the latest order book for a pair on a specific exchange.

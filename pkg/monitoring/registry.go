@@ -90,12 +90,9 @@ func (r *viewRegistry) GetOrderbookView(pair portfolio.Pair) *connector.OrderBoo
 	return nil
 }
 
+// / todo need to rework cli flow
 func (r *viewRegistry) GetRecentTrades(limit int) []connector.Trade {
-	trades := r.wisp.Activity().Trades().GetAllTrades(context.Background())
-	if len(trades) <= limit {
-		return trades
-	}
-	return trades[len(trades)-limit:]
+	return nil
 }
 
 func (r *viewRegistry) GetMetrics() *monitoring.StrategyMetrics {

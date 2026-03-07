@@ -23,6 +23,9 @@ type Spot interface {
 	// Price returns the current price for a pair on a specific exchange.
 	Price(exchange connector.ExchangeName, pair portfolio.Pair) (numerical.Decimal, bool)
 
+	// Prices returns the current price for a pair across all exchanges.
+	Prices(pair portfolio.Pair) map[connector.ExchangeName]numerical.Decimal
+
 	// OrderBook returns the latest order book for a pair on a specific exchange.
 	OrderBook(exchange connector.ExchangeName, pair portfolio.Pair) (*connector.OrderBook, bool)
 

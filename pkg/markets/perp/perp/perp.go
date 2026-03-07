@@ -10,6 +10,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 type perp struct {
@@ -58,6 +59,25 @@ func (p *perp) FundingRate(exchange connector.ExchangeName, pair portfolio.Pair)
 // FundingRates returns the funding rate across all exchanges for a pair.
 func (p *perp) FundingRates(pair portfolio.Pair) map[connector.ExchangeName]perpConn.FundingRate {
 	return p.store.GetFundingRatesForAsset(pair)
+}
+
+// Price returns the current mark price for a pair on a specific exchange.
+func (p *perp) Price(exchange connector.ExchangeName, pair portfolio.Pair) (numerical.Decimal, bool) {
+	price := p.store.GetPairPrice(pair, exchange)
+	if price == nil {
+		return numerical.Zero(), false
+	}
+	return price.Price, true
+}
+
+// Prices returns the current mark price for a pair across all exchanges.
+func (p *perp) Prices(pair portfolio.Pair) map[connector.ExchangeName]numerical.Decimal {
+	priceMap := p.store.GetPairPrices(pair)
+	out := make(map[connector.ExchangeName]numerical.Decimal, len(priceMap))
+	for exchange, price := range priceMap {
+		out[exchange] = price.Price
+	}
+	return out
 }
 
 // Position returns a single live position for a specific exchange + pair from the store.
