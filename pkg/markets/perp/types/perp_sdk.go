@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
@@ -28,8 +29,11 @@ type Perp interface {
 	// Position returns the current open position for a pair on an exchange, if any.
 	Position(exchange connector.ExchangeName, pair portfolio.Pair) (*perpConn.Position, bool)
 
-	// Positions returns all open positions across all exchanges.
-	Positions() []perpConn.Position
+	// Positions returns live perp positions from the store.
+	// Optionally filter by exchange and/or pair: wisp.Perp().Positions()
+	//   wisp.Perp().Positions(market.ActivityQuery{Exchange: &exchange})
+	//   wisp.Perp().Positions(market.ActivityQuery{Pair: &pair})
+	Positions(q ...market.ActivityQuery) []perpConn.Position
 
 	// OrderBook returns the latest order book for a pair on a specific exchange.
 	OrderBook(exchange connector.ExchangeName, pair portfolio.Pair) (*connector.OrderBook, bool)
@@ -38,11 +42,14 @@ type Perp interface {
 	Klines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline
 
 	// Signal creates a new perp signal builder for the given strategy.
-	// Example: wisp.Perp().Signal(strategyName).BuyLimit(pair, exchange, qty, price).Build()
 	Signal(strategyName strategy.StrategyName) strategy.PerpSignalBuilder
 
 	// Log returns the trading logger for strategy-specific logging.
 	Log() logging.TradingLogger
+
+	// Trades returns all trades executed in the perp domain.
+	// Optionally filter by exchange and/or pair.
+	Trades(q ...market.ActivityQuery) []connector.Trade
 
 	// PNL returns profit and loss calculations for this perp instance.
 	PNL() PerpPNL

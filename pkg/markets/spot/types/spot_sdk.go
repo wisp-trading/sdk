@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
@@ -29,11 +30,21 @@ type Spot interface {
 	Klines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline
 
 	// Signal creates a new spot signal builder for the given strategy.
-	// Example: wisp.Spot().Signal(strategyName).Buy(pair, exchange, qty).Build()
 	Signal(strategyName strategy.StrategyName) strategy.SpotSignalBuilder
 
 	// Log returns the trading logger for strategy-specific logging.
 	Log() logging.TradingLogger
+
+	// Trades returns all trades executed in the spot domain.
+	// Optionally filter by exchange and/or pair:
+	//   wisp.Spot().Trades()
+	//   wisp.Spot().Trades(market.ActivityQuery{Exchange: &exchange})
+	//   wisp.Spot().Trades(market.ActivityQuery{Pair: &pair})
+	Trades(q ...market.ActivityQuery) []connector.Trade
+
+	// Positions returns all placed orders in the spot domain.
+	// Optionally filter by exchange and/or pair.
+	Positions(q ...market.ActivityQuery) []connector.Order
 
 	// PNL returns profit and loss calculations for the spot domain.
 	PNL() SpotPNL

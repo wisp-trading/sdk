@@ -74,7 +74,7 @@ func (p *predictionPNL) impliedValue(order predTypes.PredictionOrder) numerical.
 		return numerical.Zero()
 	}
 
-	ob := p.orderbook().GetOrderBook(order.Exchange, predConn.MarketID(order.MarketSlug), order.OutcomeID)
+	ob := p.orderbook().GetOrderBook(order.Exchange, predConn.MarketID(order.MarketID), order.OutcomeID)
 	if ob == nil || len(ob.Bids) == 0 || len(ob.Asks) == 0 {
 		return numerical.Zero()
 	}

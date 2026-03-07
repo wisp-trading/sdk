@@ -10,16 +10,15 @@ import (
 )
 
 type spotPNL struct {
-	trades spotTypes.SpotTrades
-	store  spotTypes.MarketStore
+	store spotTypes.MarketStore
 }
 
-func NewSpotPNL(trades spotTypes.SpotTrades, store spotTypes.MarketStore) spotTypes.SpotPNL {
-	return &spotPNL{trades: trades, store: store}
+func NewSpotPNL(store spotTypes.MarketStore) spotTypes.SpotPNL {
+	return &spotPNL{store: store}
 }
 
 func (s *spotPNL) Positions(_ context.Context) []spotTypes.PositionPNL {
-	trackers := buildTrackers(s.trades.GetAllTrades())
+	trackers := buildTrackers(s.store.GetAllTrades())
 	results := make([]spotTypes.PositionPNL, 0, len(trackers))
 	for _, t := range trackers {
 		unrealized := s.unrealizedForTracker(t)
@@ -35,7 +34,7 @@ func (s *spotPNL) Positions(_ context.Context) []spotTypes.PositionPNL {
 }
 
 func (s *spotPNL) Realized(_ context.Context) numerical.Decimal {
-	trades := s.trades.GetAllTrades()
+	trades := s.store.GetAllTrades()
 	realized := numerical.Zero()
 	for _, t := range buildTrackers(trades) {
 		realized = realized.Add(t.realized)
@@ -45,14 +44,14 @@ func (s *spotPNL) Realized(_ context.Context) numerical.Decimal {
 
 func (s *spotPNL) Unrealized(_ context.Context) numerical.Decimal {
 	total := numerical.Zero()
-	for _, t := range buildTrackers(s.trades.GetAllTrades()) {
+	for _, t := range buildTrackers(s.store.GetAllTrades()) {
 		total = total.Add(s.unrealizedForTracker(t))
 	}
 	return total
 }
 
 func (s *spotPNL) Fees(_ context.Context) numerical.Decimal {
-	return sumTradeFees(s.trades.GetAllTrades())
+	return sumTradeFees(s.store.GetAllTrades())
 }
 
 func (s *spotPNL) unrealizedForTracker(t *positionTracker) numerical.Decimal {

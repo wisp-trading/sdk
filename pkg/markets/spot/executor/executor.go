@@ -14,23 +14,20 @@ import (
 
 type executor struct {
 	connectors   registry.ConnectorRegistry
-	positions    spotTypes.SpotPositions
-	trades       spotTypes.SpotTrades
+	store        spotTypes.MarketStore
 	logger       logging.ApplicationLogger
 	timeProvider temporal.TimeProvider
 }
 
 func NewExecutor(
 	connectors registry.ConnectorRegistry,
-	positions spotTypes.SpotPositions,
-	trades spotTypes.SpotTrades,
+	store spotTypes.MarketStore,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 ) spotTypes.SignalExecutor {
 	return &executor{
 		connectors:   connectors,
-		positions:    positions,
-		trades:       trades,
+		store:        store,
 		logger:       logger,
 		timeProvider: timeProvider,
 	}
@@ -60,14 +57,14 @@ func (e *executor) ExecuteSpotSignal(
 
 // HandleTrade records an inbound spot trade fill and marks the order filled.
 func (e *executor) HandleTrade(trade connector.Trade) error {
-	e.trades.AddTrade(trade)
+	e.store.AddTrade(trade)
 
 	orderID := trade.OrderID
 	if orderID == "" {
 		orderID = trade.ID
 	}
 
-	if err := e.positions.UpdateOrderStatus(orderID, connector.OrderStatusFilled); err != nil {
+	if err := e.store.UpdateOrderStatus(orderID, connector.OrderStatusFilled); err != nil {
 		e.logger.Debug("Could not mark spot order %s filled: %v", orderID, err)
 	}
 
@@ -110,7 +107,7 @@ func (e *executor) executeAction(action *strategy.SpotAction) (string, error) {
 		return "", fmt.Errorf("failed to place spot order on %s: %w", action.Exchange, err)
 	}
 
-	e.positions.AddOrder(connector.Order{
+	e.store.AddOrder(connector.Order{
 		Pair:      action.Pair,
 		ID:        resp.OrderID,
 		Side:      side,

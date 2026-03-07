@@ -13,6 +13,8 @@ type spotStore struct {
 	market.MarketStore
 	market.OrderBookStoreExtension
 	market.KlineStoreExtension
+	market.TradesStoreExtension
+	market.PositionsStoreExtension
 }
 
 func NewStore(timeProvider temporal.TimeProvider) spotTypes.MarketStore {
@@ -22,6 +24,8 @@ func NewStore(timeProvider temporal.TimeProvider) spotTypes.MarketStore {
 		MarketStore:             base,
 		OrderBookStoreExtension: extensions.NewOrderBookExtension(base.UpdatePairPrice, base.UpdateLastUpdated),
 		KlineStoreExtension:     extensions.NewKlineExtension(),
+		TradesStoreExtension:    extensions.NewTradesExtension(),
+		PositionsStoreExtension: extensions.NewPositionsExtension(),
 	}
 }
 

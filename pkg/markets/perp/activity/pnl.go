@@ -5,23 +5,19 @@ import (
 
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
-	"github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-// perpPNL sources PNL directly from live connector positions.
 type perpPNL struct {
-	connectors registry.ConnectorRegistry
-	trades     perpTypes.PerpTrades
+	store perpTypes.MarketStore
 }
 
-func NewPerpPNL(connectors registry.ConnectorRegistry, trades perpTypes.PerpTrades) perpTypes.PerpPNL {
-	return &perpPNL{connectors: connectors, trades: trades}
+func NewPerpPNL(store perpTypes.MarketStore) perpTypes.PerpPNL {
+	return &perpPNL{store: store}
 }
 
 func (p *perpPNL) Positions(_ context.Context) []perpTypes.PerpPositionPNL {
-	positions := p.livePositions()
+	positions := p.store.GetPositions()
 	results := make([]perpTypes.PerpPositionPNL, 0, len(positions))
 	for _, pos := range positions {
 		results = append(results, perpTypes.PerpPositionPNL{
@@ -35,7 +31,7 @@ func (p *perpPNL) Positions(_ context.Context) []perpTypes.PerpPositionPNL {
 
 func (p *perpPNL) Realized(_ context.Context) numerical.Decimal {
 	total := numerical.Zero()
-	for _, pos := range p.livePositions() {
+	for _, pos := range p.store.GetPositions() {
 		total = total.Add(pos.RealizedPnL)
 	}
 	return total
@@ -43,37 +39,15 @@ func (p *perpPNL) Realized(_ context.Context) numerical.Decimal {
 
 func (p *perpPNL) Unrealized(_ context.Context) numerical.Decimal {
 	total := numerical.Zero()
-	for _, pos := range p.livePositions() {
+	for _, pos := range p.store.GetPositions() {
 		total = total.Add(pos.UnrealizedPnL)
 	}
 	return total
 }
 
 func (p *perpPNL) Fees(_ context.Context) numerical.Decimal {
-	return sumTradeFees(p.trades.GetAllTrades())
+	return sumTradeFees(p.store.GetAllTrades())
 }
-
-// livePositions fetches current open positions across all ready perp connectors.
-func (p *perpPNL) livePositions() []perpConn.Position {
-	perpConnectors := p.connectors.FilterPerp(
-		registry.NewFilter().ReadyOnly().Build(),
-	)
-	var all []perpConn.Position
-	for _, conn := range perpConnectors {
-		pm, ok := conn.(perpConn.PositionManager)
-		if !ok {
-			continue
-		}
-		positions, err := pm.GetPositions()
-		if err != nil {
-			continue
-		}
-		all = append(all, positions...)
-	}
-	return all
-}
-
-var _ perpTypes.PerpPNL = (*perpPNL)(nil)
 
 func sumTradeFees(trades []connector.Trade) numerical.Decimal {
 	total := numerical.Zero()
@@ -82,3 +56,5 @@ func sumTradeFees(trades []connector.Trade) numerical.Decimal {
 	}
 	return total
 }
+
+var _ perpTypes.PerpPNL = (*perpPNL)(nil)

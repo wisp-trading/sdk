@@ -1,6 +1,7 @@
 package spot
 
 import (
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
@@ -74,6 +75,20 @@ func (s *spot) Signal(strategyName strategy.StrategyName) strategy.SpotSignalBui
 // Log returns the trading logger for strategy-specific logging.
 func (s *spot) Log() logging.TradingLogger {
 	return s.tradingLogger
+}
+
+func (s *spot) Trades(q ...market.ActivityQuery) []connector.Trade {
+	if len(q) > 0 {
+		return s.store.QueryTrades(q[0])
+	}
+	return s.store.GetAllTrades()
+}
+
+func (s *spot) Positions(q ...market.ActivityQuery) []connector.Order {
+	if len(q) > 0 {
+		return s.store.QueryOrders(q[0])
+	}
+	return s.store.GetOrders()
 }
 
 func (s *spot) PNL() spotTypes.SpotPNL {

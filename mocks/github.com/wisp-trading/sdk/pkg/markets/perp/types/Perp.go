@@ -6,6 +6,8 @@ import (
 	connector "github.com/wisp-trading/sdk/pkg/types/connector"
 	logging "github.com/wisp-trading/sdk/pkg/types/logging"
 
+	market "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
+
 	mock "github.com/stretchr/testify/mock"
 
 	perp "github.com/wisp-trading/sdk/pkg/types/connector/perp"
@@ -400,17 +402,23 @@ func (_c *Perp_Position_Call) RunAndReturn(run func(connector.ExchangeName, port
 	return _c
 }
 
-// Positions provides a mock function with no fields
-func (_m *Perp) Positions() []perp.Position {
-	ret := _m.Called()
+// Positions provides a mock function with given fields: q
+func (_m *Perp) Positions(q ...market.ActivityQuery) []perp.Position {
+	_va := make([]interface{}, len(q))
+	for _i := range q {
+		_va[_i] = q[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Positions")
 	}
 
 	var r0 []perp.Position
-	if rf, ok := ret.Get(0).(func() []perp.Position); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(...market.ActivityQuery) []perp.Position); ok {
+		r0 = rf(q...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]perp.Position)
@@ -426,13 +434,21 @@ type Perp_Positions_Call struct {
 }
 
 // Positions is a helper method to define mock.On call
-func (_e *Perp_Expecter) Positions() *Perp_Positions_Call {
-	return &Perp_Positions_Call{Call: _e.mock.On("Positions")}
+//   - q ...market.ActivityQuery
+func (_e *Perp_Expecter) Positions(q ...interface{}) *Perp_Positions_Call {
+	return &Perp_Positions_Call{Call: _e.mock.On("Positions",
+		append([]interface{}{}, q...)...)}
 }
 
-func (_c *Perp_Positions_Call) Run(run func()) *Perp_Positions_Call {
+func (_c *Perp_Positions_Call) Run(run func(q ...market.ActivityQuery)) *Perp_Positions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		variadicArgs := make([]market.ActivityQuery, len(args)-0)
+		for i, a := range args[0:] {
+			if a != nil {
+				variadicArgs[i] = a.(market.ActivityQuery)
+			}
+		}
+		run(variadicArgs...)
 	})
 	return _c
 }
@@ -442,7 +458,7 @@ func (_c *Perp_Positions_Call) Return(_a0 []perp.Position) *Perp_Positions_Call 
 	return _c
 }
 
-func (_c *Perp_Positions_Call) RunAndReturn(run func() []perp.Position) *Perp_Positions_Call {
+func (_c *Perp_Positions_Call) RunAndReturn(run func(...market.ActivityQuery) []perp.Position) *Perp_Positions_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -491,6 +507,67 @@ func (_c *Perp_Signal_Call) Return(_a0 strategy.PerpSignalBuilder) *Perp_Signal_
 }
 
 func (_c *Perp_Signal_Call) RunAndReturn(run func(strategy.StrategyName) strategy.PerpSignalBuilder) *Perp_Signal_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Trades provides a mock function with given fields: q
+func (_m *Perp) Trades(q ...market.ActivityQuery) []connector.Trade {
+	_va := make([]interface{}, len(q))
+	for _i := range q {
+		_va[_i] = q[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Trades")
+	}
+
+	var r0 []connector.Trade
+	if rf, ok := ret.Get(0).(func(...market.ActivityQuery) []connector.Trade); ok {
+		r0 = rf(q...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector.Trade)
+		}
+	}
+
+	return r0
+}
+
+// Perp_Trades_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Trades'
+type Perp_Trades_Call struct {
+	*mock.Call
+}
+
+// Trades is a helper method to define mock.On call
+//   - q ...market.ActivityQuery
+func (_e *Perp_Expecter) Trades(q ...interface{}) *Perp_Trades_Call {
+	return &Perp_Trades_Call{Call: _e.mock.On("Trades",
+		append([]interface{}{}, q...)...)}
+}
+
+func (_c *Perp_Trades_Call) Run(run func(q ...market.ActivityQuery)) *Perp_Trades_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		variadicArgs := make([]market.ActivityQuery, len(args)-0)
+		for i, a := range args[0:] {
+			if a != nil {
+				variadicArgs[i] = a.(market.ActivityQuery)
+			}
+		}
+		run(variadicArgs...)
+	})
+	return _c
+}
+
+func (_c *Perp_Trades_Call) Return(_a0 []connector.Trade) *Perp_Trades_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Perp_Trades_Call) RunAndReturn(run func(...market.ActivityQuery) []connector.Trade) *Perp_Trades_Call {
 	_c.Call.Return(run)
 	return _c
 }

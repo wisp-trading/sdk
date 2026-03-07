@@ -91,11 +91,6 @@ func (p predict) Markets() []predictionconnector.Market {
 	panic("implement me")
 }
 
-func (p predict) Orderbooks(market predictionconnector.Market) (map[predictionconnector.Outcome]predictionconnector.OrderBook, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (p predict) Orderbook(exchange connector.ExchangeName, market predictionconnector.Market, outcome predictionconnector.Outcome) (*connector.OrderBook, error) {
 	book := p.store.GetOrderBook(exchange, market.MarketID, outcome.OutcomeID)
 
@@ -120,8 +115,12 @@ func (p predict) Balance(exchange connector.ExchangeName, asset portfolio.Asset)
 	return p.store.GetBalance(exchange, asset)
 }
 
-// Positions returns all orders recorded for this instance.
-func (p predict) Positions() []types.PredictionOrder {
+// Positions returns orders from the store.
+// Optionally filter by exchange and/or market slug.
+func (p predict) Positions(q ...types.PredictionActivityQuery) []types.PredictionOrder {
+	if len(q) > 0 {
+		return p.store.QueryOrders(q[0])
+	}
 	return p.store.GetOrders()
 }
 

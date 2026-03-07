@@ -84,3 +84,22 @@ func (e *predictionPositionsExtension) UpdateRealizedPnL(orderID string, realize
 	e.orders[orderID] = order
 	return nil
 }
+
+func (e *predictionPositionsExtension) QueryOrders(q predictionTypes.PredictionActivityQuery) []predictionTypes.PredictionOrder {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+
+	var out []predictionTypes.PredictionOrder
+	for _, order := range e.orders {
+		if q.Exchange != nil && order.Exchange != *q.Exchange {
+			continue
+		}
+		if q.MarketID != nil && order.MarketID != *q.MarketID {
+			continue
+		}
+		out = append(out, order)
+	}
+	return out
+}
+
+var _ predictionTypes.PositionsStoreExtension = (*predictionPositionsExtension)(nil)

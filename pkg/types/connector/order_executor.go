@@ -98,6 +98,7 @@ type Order struct {
 	// Deprecated: use Pair instead
 	Symbol       string            `json:"symbol"`
 	Pair         portfolio.Pair    `json:"pair"`
+	Exchange     ExchangeName      `json:"exchange"`
 	Side         OrderSide         `json:"side"`
 	Type         OrderType         `json:"type"`
 	Status       OrderStatus       `json:"status"`

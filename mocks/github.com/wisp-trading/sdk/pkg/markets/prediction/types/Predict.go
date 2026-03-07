@@ -463,17 +463,23 @@ func (_c *Predict_PNL_Call) RunAndReturn(run func() types.PredictionPNL) *Predic
 	return _c
 }
 
-// Positions provides a mock function with no fields
-func (_m *Predict) Positions() []types.PredictionOrder {
-	ret := _m.Called()
+// Positions provides a mock function with given fields: q
+func (_m *Predict) Positions(q ...types.PredictionActivityQuery) []types.PredictionOrder {
+	_va := make([]interface{}, len(q))
+	for _i := range q {
+		_va[_i] = q[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Positions")
 	}
 
 	var r0 []types.PredictionOrder
-	if rf, ok := ret.Get(0).(func() []types.PredictionOrder); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(...types.PredictionActivityQuery) []types.PredictionOrder); ok {
+		r0 = rf(q...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]types.PredictionOrder)
@@ -489,13 +495,21 @@ type Predict_Positions_Call struct {
 }
 
 // Positions is a helper method to define mock.On call
-func (_e *Predict_Expecter) Positions() *Predict_Positions_Call {
-	return &Predict_Positions_Call{Call: _e.mock.On("Positions")}
+//   - q ...types.PredictionActivityQuery
+func (_e *Predict_Expecter) Positions(q ...interface{}) *Predict_Positions_Call {
+	return &Predict_Positions_Call{Call: _e.mock.On("Positions",
+		append([]interface{}{}, q...)...)}
 }
 
-func (_c *Predict_Positions_Call) Run(run func()) *Predict_Positions_Call {
+func (_c *Predict_Positions_Call) Run(run func(q ...types.PredictionActivityQuery)) *Predict_Positions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run()
+		variadicArgs := make([]types.PredictionActivityQuery, len(args)-0)
+		for i, a := range args[0:] {
+			if a != nil {
+				variadicArgs[i] = a.(types.PredictionActivityQuery)
+			}
+		}
+		run(variadicArgs...)
 	})
 	return _c
 }
@@ -505,7 +519,7 @@ func (_c *Predict_Positions_Call) Return(_a0 []types.PredictionOrder) *Predict_P
 	return _c
 }
 
-func (_c *Predict_Positions_Call) RunAndReturn(run func() []types.PredictionOrder) *Predict_Positions_Call {
+func (_c *Predict_Positions_Call) RunAndReturn(run func(...types.PredictionActivityQuery) []types.PredictionOrder) *Predict_Positions_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -15,8 +15,7 @@ import (
 
 type executor struct {
 	connectors   registry.ConnectorRegistry
-	positions    perpTypes.PerpPositions
-	trades       perpTypes.PerpTrades
+	store        perpTypes.MarketStore
 	logger       logging.ApplicationLogger
 	timeProvider temporal.TimeProvider
 }
@@ -24,16 +23,14 @@ type executor struct {
 // NewExecutor creates a new perp market executor.
 func NewExecutor(
 	connectors registry.ConnectorRegistry,
-	positions perpTypes.PerpPositions,
-	trades perpTypes.PerpTrades,
+	store perpTypes.MarketStore,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 ) perpTypes.SignalExecutor {
 	logger.Info("Initializing perp executor")
 	return &executor{
 		connectors:   connectors,
-		positions:    positions,
-		trades:       trades,
+		store:        store,
 		logger:       logger,
 		timeProvider: timeProvider,
 	}
@@ -64,20 +61,10 @@ func (e *executor) ExecutePerpSignal(
 	return nil
 }
 
-// HandleTrade records an inbound perp trade fill and marks the order filled.
+// HandleTrade records an inbound perp trade fill into the trades store.
 func (e *executor) HandleTrade(trade connector.Trade) error {
-	e.trades.AddTrade(trade)
-
-	orderID := trade.OrderID
-	if orderID == "" {
-		orderID = trade.ID
-	}
-
-	if err := e.positions.UpdateOrderStatus(orderID, connector.OrderStatusFilled); err != nil {
-		e.logger.Debug("Could not mark perp order %s filled: %v", orderID, err)
-	}
-
-	e.logger.Info("Perp trade recorded: %s (order: %s, pair: %s)", trade.ID, orderID, trade.Pair.Symbol())
+	e.store.AddTrade(trade)
+	e.logger.Info("Perp trade recorded: %s (order: %s, pair: %s)", trade.ID, trade.OrderID, trade.Pair.Symbol())
 	return nil
 }
 
@@ -120,18 +107,6 @@ func (e *executor) executeAction(action *strategy.PerpAction) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to place perp order on %s: %w", action.Exchange, err)
 	}
-
-	e.positions.AddOrder(connector.Order{
-		Pair:      action.Pair,
-		ID:        resp.OrderID,
-		Side:      side,
-		Quantity:  action.Quantity,
-		Price:     action.Price,
-		Status:    connector.OrderStatusPending,
-		Type:      connector.OrderTypeLimit,
-		CreatedAt: e.timeProvider.Now(),
-		UpdatedAt: e.timeProvider.Now(),
-	})
 
 	e.logger.Info("Perp order placed: %s (pair: %s, side: %s)", resp.OrderID, action.Pair.Symbol(), side)
 

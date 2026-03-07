@@ -45,6 +45,7 @@ func (f *factory) CreateIngestors() []realtimeTypes.RealtimeIngestor {
 		obExt := realtime.NewOrderBookExtension(f.store, f.logger)
 		klineExt := realtime.NewKlineExtension(f.store, f.logger, []string{"1m", "5m", "15m", "1h"})
 		fundingExt := NewFundingRateExtension(f.store, f.logger)
+		positionsExt := NewPositionsExtension(f.store, f.logger)
 
 		// PerpWatchlist embeds MarketWatchlist — pass directly to base ingestor.
 		ingestor := realtime.NewRealtimeIngestor(
@@ -56,6 +57,7 @@ func (f *factory) CreateIngestors() []realtimeTypes.RealtimeIngestor {
 			obExt,
 			klineExt,
 			fundingExt,
+			positionsExt,
 		)
 
 		realtimeIngestors = append(realtimeIngestors, ingestor)

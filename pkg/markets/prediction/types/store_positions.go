@@ -14,7 +14,7 @@ import (
 type PredictionOrder struct {
 	ID          string                        `json:"id"`
 	Exchange    connector.ExchangeName        `json:"exchange"`
-	MarketSlug  string                        `json:"market_slug"`
+	MarketID    predictionconnector.MarketID  `json:"market_id"`
 	OutcomeID   predictionconnector.OutcomeID `json:"outcome_id"`
 	Side        connector.OrderSide           `json:"side"`
 	Shares      numerical.Decimal             `json:"shares"`
@@ -24,6 +24,12 @@ type PredictionOrder struct {
 	Status      connector.OrderStatus         `json:"status"`
 	CreatedAt   time.Time                     `json:"created_at"`
 	UpdatedAt   time.Time                     `json:"updated_at"`
+}
+
+// PredictionActivityQuery filters prediction orders by exchange and/or market slug.
+type PredictionActivityQuery struct {
+	Exchange *connector.ExchangeName
+	MarketID *predictionconnector.MarketID
 }
 
 // PositionsStoreExtension tracks prediction market orders for this instance.
@@ -38,6 +44,9 @@ type PositionsStoreExtension interface {
 
 	// GetOrdersByExchange returns all orders placed on a specific exchange.
 	GetOrdersByExchange(exchange connector.ExchangeName) []PredictionOrder
+
+	// QueryOrders returns orders matching the given query (exchange and/or market slug filter).
+	QueryOrders(q PredictionActivityQuery) []PredictionOrder
 
 	// UpdateOrderStatus updates the status of an existing order.
 	UpdateOrderStatus(orderID string, status connector.OrderStatus) error

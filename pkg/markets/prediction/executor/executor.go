@@ -88,16 +88,16 @@ func (e *executor) executeAction(strategyName strategy.StrategyName, action *pre
 	}
 
 	e.store.AddOrder(predTypes.PredictionOrder{
-		ID:         resp.OrderID,
-		Exchange:   action.Exchange,
-		MarketSlug: action.Market.Slug,
-		OutcomeID:  action.Outcome.OutcomeID,
-		Side:       side,
-		Shares:     action.Shares,
-		Price:      action.MaxPrice,
-		Status:     connector.OrderStatusPending,
-		CreatedAt:  e.timeProvider.Now(),
-		UpdatedAt:  e.timeProvider.Now(),
+		ID:        resp.OrderID,
+		Exchange:  action.Exchange,
+		MarketID:  action.Market.MarketID,
+		OutcomeID: action.Outcome.OutcomeID,
+		Side:      side,
+		Shares:    action.Shares,
+		Price:     action.MaxPrice,
+		Status:    connector.OrderStatusPending,
+		CreatedAt: e.timeProvider.Now(),
+		UpdatedAt: e.timeProvider.Now(),
 	})
 
 	e.logger.Info(

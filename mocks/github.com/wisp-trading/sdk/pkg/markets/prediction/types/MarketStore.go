@@ -503,6 +503,54 @@ func (_c *MarketStore_MarketType_Call) RunAndReturn(run func() connector.MarketT
 	return _c
 }
 
+// QueryOrders provides a mock function with given fields: q
+func (_m *MarketStore) QueryOrders(q types.PredictionActivityQuery) []types.PredictionOrder {
+	ret := _m.Called(q)
+
+	if len(ret) == 0 {
+		panic("no return value specified for QueryOrders")
+	}
+
+	var r0 []types.PredictionOrder
+	if rf, ok := ret.Get(0).(func(types.PredictionActivityQuery) []types.PredictionOrder); ok {
+		r0 = rf(q)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]types.PredictionOrder)
+		}
+	}
+
+	return r0
+}
+
+// MarketStore_QueryOrders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'QueryOrders'
+type MarketStore_QueryOrders_Call struct {
+	*mock.Call
+}
+
+// QueryOrders is a helper method to define mock.On call
+//   - q types.PredictionActivityQuery
+func (_e *MarketStore_Expecter) QueryOrders(q interface{}) *MarketStore_QueryOrders_Call {
+	return &MarketStore_QueryOrders_Call{Call: _e.mock.On("QueryOrders", q)}
+}
+
+func (_c *MarketStore_QueryOrders_Call) Run(run func(q types.PredictionActivityQuery)) *MarketStore_QueryOrders_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(types.PredictionActivityQuery))
+	})
+	return _c
+}
+
+func (_c *MarketStore_QueryOrders_Call) Return(_a0 []types.PredictionOrder) *MarketStore_QueryOrders_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MarketStore_QueryOrders_Call) RunAndReturn(run func(types.PredictionActivityQuery) []types.PredictionOrder) *MarketStore_QueryOrders_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateBalance provides a mock function with given fields: exchange, asset, balance
 func (_m *MarketStore) UpdateBalance(exchange connector.ExchangeName, asset portfolio.Asset, balance numerical.Decimal) {
 	_m.Called(exchange, asset, balance)
