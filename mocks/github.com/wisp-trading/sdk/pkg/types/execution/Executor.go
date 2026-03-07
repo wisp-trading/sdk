@@ -3,10 +3,7 @@
 package execution
 
 import (
-	connector "github.com/wisp-trading/sdk/pkg/types/connector"
-
 	mock "github.com/stretchr/testify/mock"
-
 	strategy "github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
@@ -65,52 +62,6 @@ func (_c *Executor_ExecuteSignal_Call) Return(_a0 error) *Executor_ExecuteSignal
 }
 
 func (_c *Executor_ExecuteSignal_Call) RunAndReturn(run func(strategy.Signal) error) *Executor_ExecuteSignal_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// HandleTradeExecution provides a mock function with given fields: trade
-func (_m *Executor) HandleTradeExecution(trade connector.Trade) error {
-	ret := _m.Called(trade)
-
-	if len(ret) == 0 {
-		panic("no return value specified for HandleTradeExecution")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(connector.Trade) error); ok {
-		r0 = rf(trade)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// Executor_HandleTradeExecution_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HandleTradeExecution'
-type Executor_HandleTradeExecution_Call struct {
-	*mock.Call
-}
-
-// HandleTradeExecution is a helper method to define mock.On call
-//   - trade connector.Trade
-func (_e *Executor_Expecter) HandleTradeExecution(trade interface{}) *Executor_HandleTradeExecution_Call {
-	return &Executor_HandleTradeExecution_Call{Call: _e.mock.On("HandleTradeExecution", trade)}
-}
-
-func (_c *Executor_HandleTradeExecution_Call) Run(run func(trade connector.Trade)) *Executor_HandleTradeExecution_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(connector.Trade))
-	})
-	return _c
-}
-
-func (_c *Executor_HandleTradeExecution_Call) Return(_a0 error) *Executor_HandleTradeExecution_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Executor_HandleTradeExecution_Call) RunAndReturn(run func(connector.Trade) error) *Executor_HandleTradeExecution_Call {
 	_c.Call.Return(run)
 	return _c
 }

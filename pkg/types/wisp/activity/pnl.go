@@ -3,26 +3,18 @@ package activity
 import (
 	"context"
 
-	"github.com/wisp-trading/sdk/pkg/types/portfolio"
-	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-// PNL provides profit and loss calculations
+// PNL aggregates PNL totals across all market domains.
 type PNL interface {
-	GetRealizedPNL(ctx context.Context, name strategy.StrategyName) numerical.Decimal
-	GetFeesByStrategy(ctx context.Context, name strategy.StrategyName) numerical.Decimal
 
-	// GetRealizedPNLByPair Global realized PNL across all strategies.
-	GetRealizedPNLByPair(ctx context.Context, asset portfolio.Pair) numerical.Decimal
-	GetTotalRealizedPNL(ctx context.Context) numerical.Decimal
+	// TotalRealized returns realized PNL summed across all domains.
+	TotalRealized(ctx context.Context) numerical.Decimal
 
-	GetUnrealizedPNL(ctx context.Context, name strategy.StrategyName) (numerical.Decimal, error)
-	GetTotalUnrealizedPNL(ctx context.Context) (numerical.Decimal, error)
+	// TotalUnrealized returns unrealized PNL summed across all domains.
+	TotalUnrealized(ctx context.Context) numerical.Decimal
 
-	// GetTotalPNL Combined global PNL.
-	GetTotalPNL(ctx context.Context) (numerical.Decimal, error)
-
-	// GetTotalFees Fee tracking — global.
-	GetTotalFees(ctx context.Context) numerical.Decimal
+	// TotalFees returns fees summed across all domains.
+	TotalFees(ctx context.Context) numerical.Decimal
 }

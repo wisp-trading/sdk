@@ -6,10 +6,9 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
-	realtimeTypes "github.com/wisp-trading/sdk/pkg/types/data/ingestors/realtime"
-
+	realtimeTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/realtime"
+	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	prediction "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
 	"github.com/wisp-trading/sdk/pkg/types/connector"

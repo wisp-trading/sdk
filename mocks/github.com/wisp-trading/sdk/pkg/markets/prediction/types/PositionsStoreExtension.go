@@ -6,7 +6,7 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	connector "github.com/wisp-trading/sdk/pkg/types/connector"
 
-	strategy "github.com/wisp-trading/sdk/pkg/types/strategy"
+	numerical "github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 
 	types "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 )
@@ -24,9 +24,9 @@ func (_m *PositionsStoreExtension) EXPECT() *PositionsStoreExtension_Expecter {
 	return &PositionsStoreExtension_Expecter{mock: &_m.Mock}
 }
 
-// AddOrder provides a mock function with given fields: _a0, order
-func (_m *PositionsStoreExtension) AddOrder(_a0 strategy.StrategyName, order types.PredictionOrder) {
-	_m.Called(_a0, order)
+// AddOrder provides a mock function with given fields: order
+func (_m *PositionsStoreExtension) AddOrder(order types.PredictionOrder) {
+	_m.Called(order)
 }
 
 // PositionsStoreExtension_AddOrder_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddOrder'
@@ -35,15 +35,14 @@ type PositionsStoreExtension_AddOrder_Call struct {
 }
 
 // AddOrder is a helper method to define mock.On call
-//   - _a0 strategy.StrategyName
 //   - order types.PredictionOrder
-func (_e *PositionsStoreExtension_Expecter) AddOrder(_a0 interface{}, order interface{}) *PositionsStoreExtension_AddOrder_Call {
-	return &PositionsStoreExtension_AddOrder_Call{Call: _e.mock.On("AddOrder", _a0, order)}
+func (_e *PositionsStoreExtension_Expecter) AddOrder(order interface{}) *PositionsStoreExtension_AddOrder_Call {
+	return &PositionsStoreExtension_AddOrder_Call{Call: _e.mock.On("AddOrder", order)}
 }
 
-func (_c *PositionsStoreExtension_AddOrder_Call) Run(run func(_a0 strategy.StrategyName, order types.PredictionOrder)) *PositionsStoreExtension_AddOrder_Call {
+func (_c *PositionsStoreExtension_AddOrder_Call) Run(run func(order types.PredictionOrder)) *PositionsStoreExtension_AddOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyName), args[1].(types.PredictionOrder))
+		run(args[0].(types.PredictionOrder))
 	})
 	return _c
 }
@@ -53,22 +52,22 @@ func (_c *PositionsStoreExtension_AddOrder_Call) Return() *PositionsStoreExtensi
 	return _c
 }
 
-func (_c *PositionsStoreExtension_AddOrder_Call) RunAndReturn(run func(strategy.StrategyName, types.PredictionOrder)) *PositionsStoreExtension_AddOrder_Call {
+func (_c *PositionsStoreExtension_AddOrder_Call) RunAndReturn(run func(types.PredictionOrder)) *PositionsStoreExtension_AddOrder_Call {
 	_c.Run(run)
 	return _c
 }
 
-// GetOrdersByStrategy provides a mock function with given fields: _a0
-func (_m *PositionsStoreExtension) GetOrdersByStrategy(_a0 strategy.StrategyName) []types.PredictionOrder {
-	ret := _m.Called(_a0)
+// GetOrders provides a mock function with no fields
+func (_m *PositionsStoreExtension) GetOrders() []types.PredictionOrder {
+	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetOrdersByStrategy")
+		panic("no return value specified for GetOrders")
 	}
 
 	var r0 []types.PredictionOrder
-	if rf, ok := ret.Get(0).(func(strategy.StrategyName) []types.PredictionOrder); ok {
-		r0 = rf(_a0)
+	if rf, ok := ret.Get(0).(func() []types.PredictionOrder); ok {
+		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]types.PredictionOrder)
@@ -78,86 +77,125 @@ func (_m *PositionsStoreExtension) GetOrdersByStrategy(_a0 strategy.StrategyName
 	return r0
 }
 
-// PositionsStoreExtension_GetOrdersByStrategy_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrdersByStrategy'
-type PositionsStoreExtension_GetOrdersByStrategy_Call struct {
+// PositionsStoreExtension_GetOrders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrders'
+type PositionsStoreExtension_GetOrders_Call struct {
 	*mock.Call
 }
 
-// GetOrdersByStrategy is a helper method to define mock.On call
-//   - _a0 strategy.StrategyName
-func (_e *PositionsStoreExtension_Expecter) GetOrdersByStrategy(_a0 interface{}) *PositionsStoreExtension_GetOrdersByStrategy_Call {
-	return &PositionsStoreExtension_GetOrdersByStrategy_Call{Call: _e.mock.On("GetOrdersByStrategy", _a0)}
+// GetOrders is a helper method to define mock.On call
+func (_e *PositionsStoreExtension_Expecter) GetOrders() *PositionsStoreExtension_GetOrders_Call {
+	return &PositionsStoreExtension_GetOrders_Call{Call: _e.mock.On("GetOrders")}
 }
 
-func (_c *PositionsStoreExtension_GetOrdersByStrategy_Call) Run(run func(_a0 strategy.StrategyName)) *PositionsStoreExtension_GetOrdersByStrategy_Call {
+func (_c *PositionsStoreExtension_GetOrders_Call) Run(run func()) *PositionsStoreExtension_GetOrders_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyName))
+		run()
 	})
 	return _c
 }
 
-func (_c *PositionsStoreExtension_GetOrdersByStrategy_Call) Return(_a0 []types.PredictionOrder) *PositionsStoreExtension_GetOrdersByStrategy_Call {
+func (_c *PositionsStoreExtension_GetOrders_Call) Return(_a0 []types.PredictionOrder) *PositionsStoreExtension_GetOrders_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *PositionsStoreExtension_GetOrdersByStrategy_Call) RunAndReturn(run func(strategy.StrategyName) []types.PredictionOrder) *PositionsStoreExtension_GetOrdersByStrategy_Call {
+func (_c *PositionsStoreExtension_GetOrders_Call) RunAndReturn(run func() []types.PredictionOrder) *PositionsStoreExtension_GetOrders_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetStrategyForOrder provides a mock function with given fields: orderID
-func (_m *PositionsStoreExtension) GetStrategyForOrder(orderID string) (strategy.StrategyName, bool) {
-	ret := _m.Called(orderID)
+// GetOrdersByExchange provides a mock function with given fields: exchange
+func (_m *PositionsStoreExtension) GetOrdersByExchange(exchange connector.ExchangeName) []types.PredictionOrder {
+	ret := _m.Called(exchange)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetStrategyForOrder")
+		panic("no return value specified for GetOrdersByExchange")
 	}
 
-	var r0 strategy.StrategyName
-	var r1 bool
-	if rf, ok := ret.Get(0).(func(string) (strategy.StrategyName, bool)); ok {
-		return rf(orderID)
-	}
-	if rf, ok := ret.Get(0).(func(string) strategy.StrategyName); ok {
-		r0 = rf(orderID)
+	var r0 []types.PredictionOrder
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) []types.PredictionOrder); ok {
+		r0 = rf(exchange)
 	} else {
-		r0 = ret.Get(0).(strategy.StrategyName)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]types.PredictionOrder)
+		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string) bool); ok {
-		r1 = rf(orderID)
-	} else {
-		r1 = ret.Get(1).(bool)
-	}
-
-	return r0, r1
+	return r0
 }
 
-// PositionsStoreExtension_GetStrategyForOrder_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetStrategyForOrder'
-type PositionsStoreExtension_GetStrategyForOrder_Call struct {
+// PositionsStoreExtension_GetOrdersByExchange_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrdersByExchange'
+type PositionsStoreExtension_GetOrdersByExchange_Call struct {
 	*mock.Call
 }
 
-// GetStrategyForOrder is a helper method to define mock.On call
-//   - orderID string
-func (_e *PositionsStoreExtension_Expecter) GetStrategyForOrder(orderID interface{}) *PositionsStoreExtension_GetStrategyForOrder_Call {
-	return &PositionsStoreExtension_GetStrategyForOrder_Call{Call: _e.mock.On("GetStrategyForOrder", orderID)}
+// GetOrdersByExchange is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
+func (_e *PositionsStoreExtension_Expecter) GetOrdersByExchange(exchange interface{}) *PositionsStoreExtension_GetOrdersByExchange_Call {
+	return &PositionsStoreExtension_GetOrdersByExchange_Call{Call: _e.mock.On("GetOrdersByExchange", exchange)}
 }
 
-func (_c *PositionsStoreExtension_GetStrategyForOrder_Call) Run(run func(orderID string)) *PositionsStoreExtension_GetStrategyForOrder_Call {
+func (_c *PositionsStoreExtension_GetOrdersByExchange_Call) Run(run func(exchange connector.ExchangeName)) *PositionsStoreExtension_GetOrdersByExchange_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
+		run(args[0].(connector.ExchangeName))
 	})
 	return _c
 }
 
-func (_c *PositionsStoreExtension_GetStrategyForOrder_Call) Return(_a0 strategy.StrategyName, _a1 bool) *PositionsStoreExtension_GetStrategyForOrder_Call {
-	_c.Call.Return(_a0, _a1)
+func (_c *PositionsStoreExtension_GetOrdersByExchange_Call) Return(_a0 []types.PredictionOrder) *PositionsStoreExtension_GetOrdersByExchange_Call {
+	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *PositionsStoreExtension_GetStrategyForOrder_Call) RunAndReturn(run func(string) (strategy.StrategyName, bool)) *PositionsStoreExtension_GetStrategyForOrder_Call {
+func (_c *PositionsStoreExtension_GetOrdersByExchange_Call) RunAndReturn(run func(connector.ExchangeName) []types.PredictionOrder) *PositionsStoreExtension_GetOrdersByExchange_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// QueryOrders provides a mock function with given fields: q
+func (_m *PositionsStoreExtension) QueryOrders(q types.PredictionActivityQuery) []types.PredictionOrder {
+	ret := _m.Called(q)
+
+	if len(ret) == 0 {
+		panic("no return value specified for QueryOrders")
+	}
+
+	var r0 []types.PredictionOrder
+	if rf, ok := ret.Get(0).(func(types.PredictionActivityQuery) []types.PredictionOrder); ok {
+		r0 = rf(q)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]types.PredictionOrder)
+		}
+	}
+
+	return r0
+}
+
+// PositionsStoreExtension_QueryOrders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'QueryOrders'
+type PositionsStoreExtension_QueryOrders_Call struct {
+	*mock.Call
+}
+
+// QueryOrders is a helper method to define mock.On call
+//   - q types.PredictionActivityQuery
+func (_e *PositionsStoreExtension_Expecter) QueryOrders(q interface{}) *PositionsStoreExtension_QueryOrders_Call {
+	return &PositionsStoreExtension_QueryOrders_Call{Call: _e.mock.On("QueryOrders", q)}
+}
+
+func (_c *PositionsStoreExtension_QueryOrders_Call) Run(run func(q types.PredictionActivityQuery)) *PositionsStoreExtension_QueryOrders_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(types.PredictionActivityQuery))
+	})
+	return _c
+}
+
+func (_c *PositionsStoreExtension_QueryOrders_Call) Return(_a0 []types.PredictionOrder) *PositionsStoreExtension_QueryOrders_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *PositionsStoreExtension_QueryOrders_Call) RunAndReturn(run func(types.PredictionActivityQuery) []types.PredictionOrder) *PositionsStoreExtension_QueryOrders_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -205,6 +243,53 @@ func (_c *PositionsStoreExtension_UpdateOrderStatus_Call) Return(_a0 error) *Pos
 }
 
 func (_c *PositionsStoreExtension_UpdateOrderStatus_Call) RunAndReturn(run func(string, connector.OrderStatus) error) *PositionsStoreExtension_UpdateOrderStatus_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UpdateRealizedPnL provides a mock function with given fields: orderID, realized
+func (_m *PositionsStoreExtension) UpdateRealizedPnL(orderID string, realized numerical.Decimal) error {
+	ret := _m.Called(orderID, realized)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateRealizedPnL")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, numerical.Decimal) error); ok {
+		r0 = rf(orderID, realized)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// PositionsStoreExtension_UpdateRealizedPnL_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateRealizedPnL'
+type PositionsStoreExtension_UpdateRealizedPnL_Call struct {
+	*mock.Call
+}
+
+// UpdateRealizedPnL is a helper method to define mock.On call
+//   - orderID string
+//   - realized numerical.Decimal
+func (_e *PositionsStoreExtension_Expecter) UpdateRealizedPnL(orderID interface{}, realized interface{}) *PositionsStoreExtension_UpdateRealizedPnL_Call {
+	return &PositionsStoreExtension_UpdateRealizedPnL_Call{Call: _e.mock.On("UpdateRealizedPnL", orderID, realized)}
+}
+
+func (_c *PositionsStoreExtension_UpdateRealizedPnL_Call) Run(run func(orderID string, realized numerical.Decimal)) *PositionsStoreExtension_UpdateRealizedPnL_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(numerical.Decimal))
+	})
+	return _c
+}
+
+func (_c *PositionsStoreExtension_UpdateRealizedPnL_Call) Return(_a0 error) *PositionsStoreExtension_UpdateRealizedPnL_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *PositionsStoreExtension_UpdateRealizedPnL_Call) RunAndReturn(run func(string, numerical.Decimal) error) *PositionsStoreExtension_UpdateRealizedPnL_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -3,16 +3,14 @@
 package types
 
 import (
+	market "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	connector "github.com/wisp-trading/sdk/pkg/types/connector"
-	market "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 
 	mock "github.com/stretchr/testify/mock"
 
 	numerical "github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 
 	portfolio "github.com/wisp-trading/sdk/pkg/types/portfolio"
-
-	strategy "github.com/wisp-trading/sdk/pkg/types/strategy"
 
 	types "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 
@@ -32,9 +30,9 @@ func (_m *MarketStore) EXPECT() *MarketStore_Expecter {
 	return &MarketStore_Expecter{mock: &_m.Mock}
 }
 
-// AddOrder provides a mock function with given fields: _a0, order
-func (_m *MarketStore) AddOrder(_a0 strategy.StrategyName, order types.PredictionOrder) {
-	_m.Called(_a0, order)
+// AddOrder provides a mock function with given fields: order
+func (_m *MarketStore) AddOrder(order types.PredictionOrder) {
+	_m.Called(order)
 }
 
 // MarketStore_AddOrder_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddOrder'
@@ -43,15 +41,14 @@ type MarketStore_AddOrder_Call struct {
 }
 
 // AddOrder is a helper method to define mock.On call
-//   - _a0 strategy.StrategyName
 //   - order types.PredictionOrder
-func (_e *MarketStore_Expecter) AddOrder(_a0 interface{}, order interface{}) *MarketStore_AddOrder_Call {
-	return &MarketStore_AddOrder_Call{Call: _e.mock.On("AddOrder", _a0, order)}
+func (_e *MarketStore_Expecter) AddOrder(order interface{}) *MarketStore_AddOrder_Call {
+	return &MarketStore_AddOrder_Call{Call: _e.mock.On("AddOrder", order)}
 }
 
-func (_c *MarketStore_AddOrder_Call) Run(run func(_a0 strategy.StrategyName, order types.PredictionOrder)) *MarketStore_AddOrder_Call {
+func (_c *MarketStore_AddOrder_Call) Run(run func(order types.PredictionOrder)) *MarketStore_AddOrder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyName), args[1].(types.PredictionOrder))
+		run(args[0].(types.PredictionOrder))
 	})
 	return _c
 }
@@ -61,7 +58,7 @@ func (_c *MarketStore_AddOrder_Call) Return() *MarketStore_AddOrder_Call {
 	return _c
 }
 
-func (_c *MarketStore_AddOrder_Call) RunAndReturn(run func(strategy.StrategyName, types.PredictionOrder)) *MarketStore_AddOrder_Call {
+func (_c *MarketStore_AddOrder_Call) RunAndReturn(run func(types.PredictionOrder)) *MarketStore_AddOrder_Call {
 	_c.Run(run)
 	return _c
 }
@@ -269,17 +266,17 @@ func (_c *MarketStore_GetOrderBook_Call) RunAndReturn(run func(connector.Exchang
 	return _c
 }
 
-// GetOrdersByStrategy provides a mock function with given fields: _a0
-func (_m *MarketStore) GetOrdersByStrategy(_a0 strategy.StrategyName) []types.PredictionOrder {
-	ret := _m.Called(_a0)
+// GetOrders provides a mock function with no fields
+func (_m *MarketStore) GetOrders() []types.PredictionOrder {
+	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetOrdersByStrategy")
+		panic("no return value specified for GetOrders")
 	}
 
 	var r0 []types.PredictionOrder
-	if rf, ok := ret.Get(0).(func(strategy.StrategyName) []types.PredictionOrder); ok {
-		r0 = rf(_a0)
+	if rf, ok := ret.Get(0).(func() []types.PredictionOrder); ok {
+		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]types.PredictionOrder)
@@ -289,30 +286,77 @@ func (_m *MarketStore) GetOrdersByStrategy(_a0 strategy.StrategyName) []types.Pr
 	return r0
 }
 
-// MarketStore_GetOrdersByStrategy_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrdersByStrategy'
-type MarketStore_GetOrdersByStrategy_Call struct {
+// MarketStore_GetOrders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrders'
+type MarketStore_GetOrders_Call struct {
 	*mock.Call
 }
 
-// GetOrdersByStrategy is a helper method to define mock.On call
-//   - _a0 strategy.StrategyName
-func (_e *MarketStore_Expecter) GetOrdersByStrategy(_a0 interface{}) *MarketStore_GetOrdersByStrategy_Call {
-	return &MarketStore_GetOrdersByStrategy_Call{Call: _e.mock.On("GetOrdersByStrategy", _a0)}
+// GetOrders is a helper method to define mock.On call
+func (_e *MarketStore_Expecter) GetOrders() *MarketStore_GetOrders_Call {
+	return &MarketStore_GetOrders_Call{Call: _e.mock.On("GetOrders")}
 }
 
-func (_c *MarketStore_GetOrdersByStrategy_Call) Run(run func(_a0 strategy.StrategyName)) *MarketStore_GetOrdersByStrategy_Call {
+func (_c *MarketStore_GetOrders_Call) Run(run func()) *MarketStore_GetOrders_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyName))
+		run()
 	})
 	return _c
 }
 
-func (_c *MarketStore_GetOrdersByStrategy_Call) Return(_a0 []types.PredictionOrder) *MarketStore_GetOrdersByStrategy_Call {
+func (_c *MarketStore_GetOrders_Call) Return(_a0 []types.PredictionOrder) *MarketStore_GetOrders_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MarketStore_GetOrdersByStrategy_Call) RunAndReturn(run func(strategy.StrategyName) []types.PredictionOrder) *MarketStore_GetOrdersByStrategy_Call {
+func (_c *MarketStore_GetOrders_Call) RunAndReturn(run func() []types.PredictionOrder) *MarketStore_GetOrders_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetOrdersByExchange provides a mock function with given fields: exchange
+func (_m *MarketStore) GetOrdersByExchange(exchange connector.ExchangeName) []types.PredictionOrder {
+	ret := _m.Called(exchange)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOrdersByExchange")
+	}
+
+	var r0 []types.PredictionOrder
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName) []types.PredictionOrder); ok {
+		r0 = rf(exchange)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]types.PredictionOrder)
+		}
+	}
+
+	return r0
+}
+
+// MarketStore_GetOrdersByExchange_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrdersByExchange'
+type MarketStore_GetOrdersByExchange_Call struct {
+	*mock.Call
+}
+
+// GetOrdersByExchange is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
+func (_e *MarketStore_Expecter) GetOrdersByExchange(exchange interface{}) *MarketStore_GetOrdersByExchange_Call {
+	return &MarketStore_GetOrdersByExchange_Call{Call: _e.mock.On("GetOrdersByExchange", exchange)}
+}
+
+func (_c *MarketStore_GetOrdersByExchange_Call) Run(run func(exchange connector.ExchangeName)) *MarketStore_GetOrdersByExchange_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName))
+	})
+	return _c
+}
+
+func (_c *MarketStore_GetOrdersByExchange_Call) Return(_a0 []types.PredictionOrder) *MarketStore_GetOrdersByExchange_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MarketStore_GetOrdersByExchange_Call) RunAndReturn(run func(connector.ExchangeName) []types.PredictionOrder) *MarketStore_GetOrdersByExchange_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -414,75 +458,19 @@ func (_c *MarketStore_GetPairPrices_Call) RunAndReturn(run func(portfolio.Pair) 
 	return _c
 }
 
-// GetStrategyForOrder provides a mock function with given fields: orderID
-func (_m *MarketStore) GetStrategyForOrder(orderID string) (strategy.StrategyName, bool) {
-	ret := _m.Called(orderID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetStrategyForOrder")
-	}
-
-	var r0 strategy.StrategyName
-	var r1 bool
-	if rf, ok := ret.Get(0).(func(string) (strategy.StrategyName, bool)); ok {
-		return rf(orderID)
-	}
-	if rf, ok := ret.Get(0).(func(string) strategy.StrategyName); ok {
-		r0 = rf(orderID)
-	} else {
-		r0 = ret.Get(0).(strategy.StrategyName)
-	}
-
-	if rf, ok := ret.Get(1).(func(string) bool); ok {
-		r1 = rf(orderID)
-	} else {
-		r1 = ret.Get(1).(bool)
-	}
-
-	return r0, r1
-}
-
-// MarketStore_GetStrategyForOrder_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetStrategyForOrder'
-type MarketStore_GetStrategyForOrder_Call struct {
-	*mock.Call
-}
-
-// GetStrategyForOrder is a helper method to define mock.On call
-//   - orderID string
-func (_e *MarketStore_Expecter) GetStrategyForOrder(orderID interface{}) *MarketStore_GetStrategyForOrder_Call {
-	return &MarketStore_GetStrategyForOrder_Call{Call: _e.mock.On("GetStrategyForOrder", orderID)}
-}
-
-func (_c *MarketStore_GetStrategyForOrder_Call) Run(run func(orderID string)) *MarketStore_GetStrategyForOrder_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(string))
-	})
-	return _c
-}
-
-func (_c *MarketStore_GetStrategyForOrder_Call) Return(_a0 strategy.StrategyName, _a1 bool) *MarketStore_GetStrategyForOrder_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MarketStore_GetStrategyForOrder_Call) RunAndReturn(run func(string) (strategy.StrategyName, bool)) *MarketStore_GetStrategyForOrder_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // MarketType provides a mock function with no fields
-func (_m *MarketStore) MarketType() market.MarketType {
+func (_m *MarketStore) MarketType() connector.MarketType {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for MarketType")
 	}
 
-	var r0 market.MarketType
-	if rf, ok := ret.Get(0).(func() market.MarketType); ok {
+	var r0 connector.MarketType
+	if rf, ok := ret.Get(0).(func() connector.MarketType); ok {
 		r0 = rf()
 	} else {
-		r0 = ret.Get(0).(market.MarketType)
+		r0 = ret.Get(0).(connector.MarketType)
 	}
 
 	return r0
@@ -505,12 +493,60 @@ func (_c *MarketStore_MarketType_Call) Run(run func()) *MarketStore_MarketType_C
 	return _c
 }
 
-func (_c *MarketStore_MarketType_Call) Return(_a0 market.MarketType) *MarketStore_MarketType_Call {
+func (_c *MarketStore_MarketType_Call) Return(_a0 connector.MarketType) *MarketStore_MarketType_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MarketStore_MarketType_Call) RunAndReturn(run func() market.MarketType) *MarketStore_MarketType_Call {
+func (_c *MarketStore_MarketType_Call) RunAndReturn(run func() connector.MarketType) *MarketStore_MarketType_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// QueryOrders provides a mock function with given fields: q
+func (_m *MarketStore) QueryOrders(q types.PredictionActivityQuery) []types.PredictionOrder {
+	ret := _m.Called(q)
+
+	if len(ret) == 0 {
+		panic("no return value specified for QueryOrders")
+	}
+
+	var r0 []types.PredictionOrder
+	if rf, ok := ret.Get(0).(func(types.PredictionActivityQuery) []types.PredictionOrder); ok {
+		r0 = rf(q)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]types.PredictionOrder)
+		}
+	}
+
+	return r0
+}
+
+// MarketStore_QueryOrders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'QueryOrders'
+type MarketStore_QueryOrders_Call struct {
+	*mock.Call
+}
+
+// QueryOrders is a helper method to define mock.On call
+//   - q types.PredictionActivityQuery
+func (_e *MarketStore_Expecter) QueryOrders(q interface{}) *MarketStore_QueryOrders_Call {
+	return &MarketStore_QueryOrders_Call{Call: _e.mock.On("QueryOrders", q)}
+}
+
+func (_c *MarketStore_QueryOrders_Call) Run(run func(q types.PredictionActivityQuery)) *MarketStore_QueryOrders_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(types.PredictionActivityQuery))
+	})
+	return _c
+}
+
+func (_c *MarketStore_QueryOrders_Call) Return(_a0 []types.PredictionOrder) *MarketStore_QueryOrders_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MarketStore_QueryOrders_Call) RunAndReturn(run func(types.PredictionActivityQuery) []types.PredictionOrder) *MarketStore_QueryOrders_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -732,6 +768,53 @@ func (_c *MarketStore_UpdatePairPrices_Call) Return() *MarketStore_UpdatePairPri
 
 func (_c *MarketStore_UpdatePairPrices_Call) RunAndReturn(run func(portfolio.Pair, market.PriceMap)) *MarketStore_UpdatePairPrices_Call {
 	_c.Run(run)
+	return _c
+}
+
+// UpdateRealizedPnL provides a mock function with given fields: orderID, realized
+func (_m *MarketStore) UpdateRealizedPnL(orderID string, realized numerical.Decimal) error {
+	ret := _m.Called(orderID, realized)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateRealizedPnL")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, numerical.Decimal) error); ok {
+		r0 = rf(orderID, realized)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MarketStore_UpdateRealizedPnL_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateRealizedPnL'
+type MarketStore_UpdateRealizedPnL_Call struct {
+	*mock.Call
+}
+
+// UpdateRealizedPnL is a helper method to define mock.On call
+//   - orderID string
+//   - realized numerical.Decimal
+func (_e *MarketStore_Expecter) UpdateRealizedPnL(orderID interface{}, realized interface{}) *MarketStore_UpdateRealizedPnL_Call {
+	return &MarketStore_UpdateRealizedPnL_Call{Call: _e.mock.On("UpdateRealizedPnL", orderID, realized)}
+}
+
+func (_c *MarketStore_UpdateRealizedPnL_Call) Run(run func(orderID string, realized numerical.Decimal)) *MarketStore_UpdateRealizedPnL_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string), args[1].(numerical.Decimal))
+	})
+	return _c
+}
+
+func (_c *MarketStore_UpdateRealizedPnL_Call) Return(_a0 error) *MarketStore_UpdateRealizedPnL_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MarketStore_UpdateRealizedPnL_Call) RunAndReturn(run func(string, numerical.Decimal) error) *MarketStore_UpdateRealizedPnL_Call {
+	_c.Call.Return(run)
 	return _c
 }
 

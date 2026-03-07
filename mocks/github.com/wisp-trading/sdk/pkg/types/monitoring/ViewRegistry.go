@@ -219,17 +219,17 @@ func (_c *ViewRegistry_GetOrderbookView_Call) RunAndReturn(run func(portfolio.Pa
 	return _c
 }
 
-// GetPerpKlines provides a mock function with given fields: pair, exchange, interval, limit
-func (_m *ViewRegistry) GetPerpKlines(pair portfolio.Pair, exchange string, interval string, limit int) []connector.Kline {
-	ret := _m.Called(pair, exchange, interval, limit)
+// GetPerpKlines provides a mock function with given fields: exchange, pair, interval, limit
+func (_m *ViewRegistry) GetPerpKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline {
+	ret := _m.Called(exchange, pair, interval, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetPerpKlines")
 	}
 
 	var r0 []connector.Kline
-	if rf, ok := ret.Get(0).(func(portfolio.Pair, string, string, int) []connector.Kline); ok {
-		r0 = rf(pair, exchange, interval, limit)
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName, portfolio.Pair, string, int) []connector.Kline); ok {
+		r0 = rf(exchange, pair, interval, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Kline)
@@ -245,17 +245,17 @@ type ViewRegistry_GetPerpKlines_Call struct {
 }
 
 // GetPerpKlines is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
 //   - pair portfolio.Pair
-//   - exchange string
 //   - interval string
 //   - limit int
-func (_e *ViewRegistry_Expecter) GetPerpKlines(pair interface{}, exchange interface{}, interval interface{}, limit interface{}) *ViewRegistry_GetPerpKlines_Call {
-	return &ViewRegistry_GetPerpKlines_Call{Call: _e.mock.On("GetPerpKlines", pair, exchange, interval, limit)}
+func (_e *ViewRegistry_Expecter) GetPerpKlines(exchange interface{}, pair interface{}, interval interface{}, limit interface{}) *ViewRegistry_GetPerpKlines_Call {
+	return &ViewRegistry_GetPerpKlines_Call{Call: _e.mock.On("GetPerpKlines", exchange, pair, interval, limit)}
 }
 
-func (_c *ViewRegistry_GetPerpKlines_Call) Run(run func(pair portfolio.Pair, exchange string, interval string, limit int)) *ViewRegistry_GetPerpKlines_Call {
+func (_c *ViewRegistry_GetPerpKlines_Call) Run(run func(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int)) *ViewRegistry_GetPerpKlines_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Pair), args[1].(string), args[2].(string), args[3].(int))
+		run(args[0].(connector.ExchangeName), args[1].(portfolio.Pair), args[2].(string), args[3].(int))
 	})
 	return _c
 }
@@ -265,7 +265,7 @@ func (_c *ViewRegistry_GetPerpKlines_Call) Return(_a0 []connector.Kline) *ViewRe
 	return _c
 }
 
-func (_c *ViewRegistry_GetPerpKlines_Call) RunAndReturn(run func(portfolio.Pair, string, string, int) []connector.Kline) *ViewRegistry_GetPerpKlines_Call {
+func (_c *ViewRegistry_GetPerpKlines_Call) RunAndReturn(run func(connector.ExchangeName, portfolio.Pair, string, int) []connector.Kline) *ViewRegistry_GetPerpKlines_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -557,17 +557,17 @@ func (_c *ViewRegistry_GetRecentTrades_Call) RunAndReturn(run func(int) []connec
 	return _c
 }
 
-// GetSpotKlines provides a mock function with given fields: pair, exchange, interval, limit
-func (_m *ViewRegistry) GetSpotKlines(pair portfolio.Pair, exchange string, interval string, limit int) []connector.Kline {
-	ret := _m.Called(pair, exchange, interval, limit)
+// GetSpotKlines provides a mock function with given fields: exchange, pair, interval, limit
+func (_m *ViewRegistry) GetSpotKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline {
+	ret := _m.Called(exchange, pair, interval, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetSpotKlines")
 	}
 
 	var r0 []connector.Kline
-	if rf, ok := ret.Get(0).(func(portfolio.Pair, string, string, int) []connector.Kline); ok {
-		r0 = rf(pair, exchange, interval, limit)
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName, portfolio.Pair, string, int) []connector.Kline); ok {
+		r0 = rf(exchange, pair, interval, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]connector.Kline)
@@ -583,17 +583,17 @@ type ViewRegistry_GetSpotKlines_Call struct {
 }
 
 // GetSpotKlines is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
 //   - pair portfolio.Pair
-//   - exchange string
 //   - interval string
 //   - limit int
-func (_e *ViewRegistry_Expecter) GetSpotKlines(pair interface{}, exchange interface{}, interval interface{}, limit interface{}) *ViewRegistry_GetSpotKlines_Call {
-	return &ViewRegistry_GetSpotKlines_Call{Call: _e.mock.On("GetSpotKlines", pair, exchange, interval, limit)}
+func (_e *ViewRegistry_Expecter) GetSpotKlines(exchange interface{}, pair interface{}, interval interface{}, limit interface{}) *ViewRegistry_GetSpotKlines_Call {
+	return &ViewRegistry_GetSpotKlines_Call{Call: _e.mock.On("GetSpotKlines", exchange, pair, interval, limit)}
 }
 
-func (_c *ViewRegistry_GetSpotKlines_Call) Run(run func(pair portfolio.Pair, exchange string, interval string, limit int)) *ViewRegistry_GetSpotKlines_Call {
+func (_c *ViewRegistry_GetSpotKlines_Call) Run(run func(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int)) *ViewRegistry_GetSpotKlines_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(portfolio.Pair), args[1].(string), args[2].(string), args[3].(int))
+		run(args[0].(connector.ExchangeName), args[1].(portfolio.Pair), args[2].(string), args[3].(int))
 	})
 	return _c
 }
@@ -603,7 +603,7 @@ func (_c *ViewRegistry_GetSpotKlines_Call) Return(_a0 []connector.Kline) *ViewRe
 	return _c
 }
 
-func (_c *ViewRegistry_GetSpotKlines_Call) RunAndReturn(run func(portfolio.Pair, string, string, int) []connector.Kline) *ViewRegistry_GetSpotKlines_Call {
+func (_c *ViewRegistry_GetSpotKlines_Call) RunAndReturn(run func(connector.ExchangeName, portfolio.Pair, string, int) []connector.Kline) *ViewRegistry_GetSpotKlines_Call {
 	_c.Call.Return(run)
 	return _c
 }

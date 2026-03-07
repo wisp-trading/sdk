@@ -1,10 +1,10 @@
 package batch
 
 import (
-	"github.com/wisp-trading/sdk/pkg/data/ingestors/market/ingestors/batch"
+	"github.com/wisp-trading/sdk/pkg/markets/base/ingestor/batch"
+	batchTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/batch"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	batchTypes "github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
@@ -25,7 +25,7 @@ func NewFactory(
 	store perpTypes.MarketStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
-) batchTypes.BatchIngestorFactory {
+) perpTypes.PerpBatchIngestorFactory {
 	return &factory{
 		connectorRegistry: connectorRegistry,
 		watchlist:         watchlist,
@@ -68,15 +68,12 @@ func (f *factory) CreateIngestors() []batchTypes.BatchIngestor {
 		priceExt := batch.NewPriceExtension(marketDataReader, f.store, f.logger)
 		orderbookExt := batch.NewOrderBookExtension(marketDataReader, f.store, f.logger, 20)
 
-		// Adapt PerpWatchlist to the MarketWatchlist interface expected by the base ingestor
-		watchlistAdapter := newWatchlistAdapter(f.watchlist)
-
-		// Base ingestor + perp extensions
+		// PerpWatchlist embeds MarketWatchlist — pass directly to base ingestor.
 		ingestor := batch.NewBatchIngestor(
 			conn,
 			exchangeName,
 			connector.MarketTypePerp,
-			watchlistAdapter,
+			f.watchlist,
 			f.store,
 			f.timeProvider,
 			f.logger,

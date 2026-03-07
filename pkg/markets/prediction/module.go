@@ -1,18 +1,20 @@
 package prediction
 
 import (
+	baseIngestor "github.com/wisp-trading/sdk/pkg/markets/base/ingestor"
+	predActivity "github.com/wisp-trading/sdk/pkg/markets/prediction/activity"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/executor"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/realtime"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/signal"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/store"
-	domainTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
+	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/views"
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	lifecycleTypes "github.com/wisp-trading/sdk/pkg/types/lifecycle"
+	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"go.uber.org/fx"
 )
 
-// Module wires all prediction market dependencies: store, ingestors, views, and executor.
 var Module = fx.Module("prediction",
 	fx.Provide(
 		store.NewStore,
@@ -21,29 +23,20 @@ var Module = fx.Module("prediction",
 		executor.NewExecutor,
 		NewPredictionWatchlist,
 		NewPredictionUniverseProvider,
-	),
-
-	// Ingestors
-	fx.Provide(
+		predActivity.NewPredictionPNL,
+		batch.NewFactory,
+		realtime.NewFactory,
 		fx.Annotate(
-			batch.NewFactory,
-			fx.ResultTags(`group:"batch_factories"`),
+			newPredictionDomainLifecycle,
+			fx.ResultTags(`group:"domain_lifecycles"`),
 		),
-		fx.Annotate(
-			realtime.NewFactory,
-			fx.ResultTags(`group:"realtime_factories"`),
-		),
-	),
-
-	fx.Invoke(
-		registerStore,
 	),
 )
 
-// registerStore registers the prediction store with the market registry.
-func registerStore(
-	registry marketTypes.MarketRegistry,
-	predictionStore domainTypes.MarketStore,
-) {
-	registry.Register(predictionStore)
+func newPredictionDomainLifecycle(
+	batchFactory predTypes.PredictionBatchIngestorFactory,
+	realtimeFactory predTypes.PredictionRealtimeIngestorFactory,
+	logger logging.ApplicationLogger,
+) lifecycleTypes.DomainLifecycle {
+	return baseIngestor.NewDomainCoordinator("prediction", nil, batchFactory, realtimeFactory, logger)
 }

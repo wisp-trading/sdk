@@ -3,7 +3,7 @@ package wisp
 import (
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
-	"github.com/wisp-trading/sdk/pkg/types/connector"
+	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -15,17 +15,12 @@ import (
 // indicators, analytics, and trading functionality. It is injected into strategy
 // implementations and provides read-only access to all framework services.
 type Wisp interface {
-	// Universe returns the tradeable spot assets and exchanges.
-	Universe() Universe
 
 	// Indicators returns the indicators service for technical analysis.
 	Indicators() analytics.Indicators
 
 	// Analytics returns the analytics service for market analysis.
 	Analytics() analytics.Analytics
-
-	// Market returns the market data service for accessing live and historical prices.
-	Market() analytics.Market
 
 	// Log returns the trading logger for strategy-specific logging.
 	Log() logging.TradingLogger
@@ -39,12 +34,14 @@ type Wisp interface {
 	// Pair creates a new portfolio.Pair from two assets.
 	Pair(base, quote portfolio.Asset) portfolio.Pair
 
-	// SpotSignal creates a new signal builder for spot market trading signals.
-	// Example: k.SpotSignal(strategyName).Buy(pair, exchange, qty).Build()
-	SpotSignal(strategyName strategy.StrategyName) strategy.SpotSignalBuilder
-
 	// Emit routes a signal directly to the executor. Non-blocking.
 	Emit(signal strategy.Signal)
+
+	// Spot returns the spot market domain context.
+	// Owns watchlist management, orderbooks, balances, positions, and signal creation.
+	// Example: wisp.Spot().WatchPair(exchange, btc)
+	// Example: wisp.Spot().Signal(strategyName).BuyLimit(pair, exchange, qty, price).Build()
+	Spot() spotTypes.Spot
 
 	// Perp returns the perpetual futures domain context.
 	// Owns watchlist management, funding rates, positions, orderbooks, and signal creation.
@@ -57,13 +54,4 @@ type Wisp interface {
 	// Example: wisp.Predict().WatchMarket(exchange, market)
 	// Example: wisp.Predict().Signal(strategyName).Buy(market, outcome, exchange, shares, maxPrice, expiry).Build()
 	Predict() predTypes.Predict
-}
-
-// Universe holds the tradeable spot assets and exchanges available to the strategy.
-type Universe struct {
-	// Exchanges are the ready/initialized exchanges available for trading
-	Exchanges []connector.Exchange
-
-	// Assets maps each tradeable pair to the list of exchanges
-	Assets map[connector.ExchangeName][]portfolio.Pair
 }

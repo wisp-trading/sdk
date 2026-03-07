@@ -8,9 +8,10 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/mock"
 	mockSpotConnector "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/spot"
+	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	sdkTesting "github.com/wisp-trading/sdk/pkg/testing"
+	"github.com/wisp-trading/sdk/pkg/types/config"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data"
 	lifecycleTypes "github.com/wisp-trading/sdk/pkg/types/lifecycle"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	registryTypes "github.com/wisp-trading/sdk/pkg/types/registry"
@@ -38,10 +39,11 @@ var _ = Describe("LifecycleController", func() {
 		app               *fxtest.App
 		controller        lifecycleTypes.Controller
 		connectorRegistry registryTypes.ConnectorRegistry
-		marketWatchlist   data.MarketWatchlist
+		marketWatchlist   spotTypes.SpotWatchlist
 		ctx               context.Context
 		cancel            context.CancelFunc
 		btcPair           portfolio.Pair
+		cfg               *config.StartupConfig
 	)
 
 	BeforeEach(func() {
@@ -52,6 +54,7 @@ var _ = Describe("LifecycleController", func() {
 		)
 		Expect(app.Start(context.Background())).To(Succeed())
 		ctx, cancel = context.WithCancel(context.Background())
+		cfg = &config.StartupConfig{}
 
 		btcPair = portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))
 	})
@@ -79,7 +82,7 @@ var _ = Describe("LifecycleController", func() {
 				marketWatchlist.RequirePair(exchangeName, btcPair)
 
 				// Start
-				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))
+				err := controller.Start(ctx, strategy.StrategyName("test-strategy"), cfg)
 				Expect(err).ToNot(HaveOccurred())
 
 				// Should be ready
@@ -89,7 +92,7 @@ var _ = Describe("LifecycleController", func() {
 
 			It("should fail if no connectors are registered", func() {
 				// Try to start without any connectors
-				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))
+				err := controller.Start(ctx, strategy.StrategyName("test-strategy"), cfg)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("no connectors marked as ready"))
 			})
@@ -104,7 +107,7 @@ var _ = Describe("LifecycleController", func() {
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
 				marketWatchlist.RequirePair(exchangeName, btcPair)
 
-				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))
+				err := controller.Start(ctx, strategy.StrategyName("test-strategy"), cfg)
 				Expect(err).ToNot(HaveOccurred())
 			})
 
@@ -145,7 +148,7 @@ var _ = Describe("LifecycleController", func() {
 			// Start in background
 			go func() {
 				time.Sleep(100 * time.Millisecond)
-				_ = controller.Start(ctx, strategy.StrategyName("test-strategy"))
+				_ = controller.Start(ctx, strategy.StrategyName("test-strategy"), cfg)
 			}()
 
 			// Wait for ready with timeout
@@ -178,11 +181,11 @@ var _ = Describe("LifecycleController", func() {
 				marketWatchlist.RequirePair(exchangeName, btcPair)
 
 				// First start
-				err := controller.Start(ctx, strategy.StrategyName("test-strategy"))
+				err := controller.Start(ctx, strategy.StrategyName("test-strategy"), cfg)
 				Expect(err).ToNot(HaveOccurred())
 
 				// Second start should fail
-				err = controller.Start(ctx, strategy.StrategyName("test-strategy"))
+				err = controller.Start(ctx, strategy.StrategyName("test-strategy"), cfg)
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("cannot start"))
 			})

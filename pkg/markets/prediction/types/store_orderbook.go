@@ -1,9 +1,9 @@
 package types
 
 import (
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/data/stores/market"
 )
 
 // OutcomeOrderBookMap One market has N outcomes, each with an order book

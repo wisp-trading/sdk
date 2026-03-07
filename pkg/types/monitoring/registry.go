@@ -25,9 +25,9 @@ type ViewRegistry interface {
 	GetOrderbookView(pair portfolio.Pair) *connector.OrderBook
 	GetPredictionOrderbookView(exchange, marketID, outcomeID string) *connector.OrderBook
 
-	// Kline queries — one per market type
-	GetSpotKlines(pair portfolio.Pair, exchange, interval string, limit int) []connector.Kline
-	GetPerpKlines(pair portfolio.Pair, exchange, interval string, limit int) []connector.Kline
+	// GetSpotKlines Kline queries
+	GetSpotKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline
+	GetPerpKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline
 }
 
 // MarketViews is the top-level response for /api/markets.

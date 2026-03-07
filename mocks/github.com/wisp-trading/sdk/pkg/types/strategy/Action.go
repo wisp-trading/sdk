@@ -3,10 +3,8 @@
 package strategy
 
 import (
-	connector "github.com/wisp-trading/sdk/pkg/types/connector"
-	market "github.com/wisp-trading/sdk/pkg/types/market"
-
 	mock "github.com/stretchr/testify/mock"
+	connector "github.com/wisp-trading/sdk/pkg/types/connector"
 
 	strategy "github.com/wisp-trading/sdk/pkg/types/strategy"
 )
@@ -70,18 +68,18 @@ func (_c *Action_GetExchange_Call) RunAndReturn(run func() connector.ExchangeNam
 }
 
 // GetMarketType provides a mock function with no fields
-func (_m *Action) GetMarketType() market.MarketType {
+func (_m *Action) GetMarketType() connector.MarketType {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetMarketType")
 	}
 
-	var r0 market.MarketType
-	if rf, ok := ret.Get(0).(func() market.MarketType); ok {
+	var r0 connector.MarketType
+	if rf, ok := ret.Get(0).(func() connector.MarketType); ok {
 		r0 = rf()
 	} else {
-		r0 = ret.Get(0).(market.MarketType)
+		r0 = ret.Get(0).(connector.MarketType)
 	}
 
 	return r0
@@ -104,12 +102,12 @@ func (_c *Action_GetMarketType_Call) Run(run func()) *Action_GetMarketType_Call 
 	return _c
 }
 
-func (_c *Action_GetMarketType_Call) Return(_a0 market.MarketType) *Action_GetMarketType_Call {
+func (_c *Action_GetMarketType_Call) Return(_a0 connector.MarketType) *Action_GetMarketType_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *Action_GetMarketType_Call) RunAndReturn(run func() market.MarketType) *Action_GetMarketType_Call {
+func (_c *Action_GetMarketType_Call) RunAndReturn(run func() connector.MarketType) *Action_GetMarketType_Call {
 	_c.Call.Return(run)
 	return _c
 }

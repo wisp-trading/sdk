@@ -25,4 +25,5 @@ const (
 	MarketTypeOptions    MarketType = "options"
 	MarketTypePrediction MarketType = "prediction"
 	MarketTypeNFT        MarketType = "nft"
+	MarketTypeUnknown    MarketType = "unknown"
 )

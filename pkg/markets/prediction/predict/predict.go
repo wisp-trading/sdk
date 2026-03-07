@@ -22,6 +22,7 @@ type predict struct {
 	store               types.MarketStore
 	predictionWatchlist types.PredictionWatchlist
 	connectorRegistry   registry.ConnectorRegistry
+	pnl                 types.PredictionPNL
 }
 
 // NewPredict constructs a new Predict instance with the provided dependencies.
@@ -32,6 +33,7 @@ func NewPredict(
 	store types.MarketStore,
 	predictionWatchlist types.PredictionWatchlist,
 	connectorRegistry registry.ConnectorRegistry,
+	pnl types.PredictionPNL,
 ) types.Predict {
 	return &predict{
 		applicationLogger:   applicationLogger,
@@ -40,6 +42,7 @@ func NewPredict(
 		predictionWatchlist: predictionWatchlist,
 		connectorRegistry:   connectorRegistry,
 		store:               store,
+		pnl:                 pnl,
 	}
 }
 
@@ -88,11 +91,6 @@ func (p predict) Markets() []predictionconnector.Market {
 	panic("implement me")
 }
 
-func (p predict) Orderbooks(market predictionconnector.Market) (map[predictionconnector.Outcome]predictionconnector.OrderBook, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (p predict) Orderbook(exchange connector.ExchangeName, market predictionconnector.Market, outcome predictionconnector.Outcome) (*connector.OrderBook, error) {
 	book := p.store.GetOrderBook(exchange, market.MarketID, outcome.OutcomeID)
 
@@ -117,9 +115,17 @@ func (p predict) Balance(exchange connector.ExchangeName, asset portfolio.Asset)
 	return p.store.GetBalance(exchange, asset)
 }
 
-// Positions returns all orders recorded for the given strategy.
-func (p predict) Positions(strategyName strategy.StrategyName) []types.PredictionOrder {
-	return p.store.GetOrdersByStrategy(strategyName)
+// Positions returns orders from the store.
+// Optionally filter by exchange and/or market slug.
+func (p predict) Positions(q ...types.PredictionActivityQuery) []types.PredictionOrder {
+	if len(q) > 0 {
+		return p.store.QueryOrders(q[0])
+	}
+	return p.store.GetOrders()
+}
+
+func (p predict) PNL() types.PredictionPNL {
+	return p.pnl
 }
 
 func (p predict) Redeem(market predictionconnector.Market) error {

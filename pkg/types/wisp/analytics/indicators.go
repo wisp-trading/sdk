@@ -1,30 +1,45 @@
 package analytics
 
 import (
-	"context"
-
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
+// Indicators provides technical indicator calculations.
+//
+// Two usage patterns are supported:
+//
+// 1. Fetch-and-compute — supply an asset, exchange, and period. The service fetches
+// klines from the appropriate store and runs the calculation. Use this for simple
+// single-indicator strategies.
+//
+// 2. Compute-only () — supply pre-fetched []connector.Kline directly.
+// The service runs the calculation as a pure function with no store access. Use
+// this when multiple indicators share the same kline window in a single tick,
+// avoiding redundant store reads.
+//
+// Example — compute-only pattern:
+//
+//	klines := wisp.Market().Spot().GetKlines(btc, "binance", analytics.Interval1Hour, 60)
+//	rsi, _  := wisp.Indicators().RSI(klines, 14)
+//	macd, _ := wisp.Indicators().MACD(klines, 12, 26, 9)
+//	bb, _   := wisp.Indicators().BollingerBands(klines, 20, 2.0)
 type Indicators interface {
-	ATR(ctx context.Context, asset portfolio.Pair, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
-	SMA(ctx context.Context, asset portfolio.Pair, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
-	EMA(ctx context.Context, asset portfolio.Pair, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
-	RSI(ctx context.Context, asset portfolio.Pair, period int, opts ...IndicatorOptions) (numerical.Decimal, error)
-	MACD(ctx context.Context, asset portfolio.Pair, fastPeriod, slowPeriod, signalPeriod int, opts ...IndicatorOptions) (*MACDResult, error)
-	BollingerBands(ctx context.Context, asset portfolio.Pair, period int, stdDev float64, opts ...IndicatorOptions) (*BollingerBandsResult, error)
-	Stochastic(ctx context.Context, asset portfolio.Pair, kPeriod, dPeriod int, opts ...IndicatorOptions) (*StochasticResult, error)
+	ATR(klines []connector.Kline, period int) (numerical.Decimal, error)
+	SMA(klines []connector.Kline, period int) (numerical.Decimal, error)
+	EMA(klines []connector.Kline, period int) (numerical.Decimal, error)
+	RSI(klines []connector.Kline, period int) (numerical.Decimal, error)
+	MACD(klines []connector.Kline, fastPeriod, slowPeriod, signalPeriod int) (*MACDResult, error)
+	BollingerBands(klines []connector.Kline, period int, stdDev float64) (*BollingerBandsResult, error)
+	Stochastic(klines []connector.Kline, kPeriod, dPeriod int) (*StochasticResult, error)
 }
 
-// IndicatorOptions configures indicator calculations.
-// All fields are optional. If not specified, Wisp uses sensible defaults:
-// - Exchange: First available exchange with data for the asset
-// - Interval: 1h (hourly candles)
+// IndicatorOptions configures fetch-and-compute indicator calls.
+// Exchange is required — the caller must know which market and exchange the data
+// should come from. Use wisp.Market().Spot() or wisp.Market().Perp() to discover
+// available exchanges for an asset.
 type IndicatorOptions struct {
-	// Exchange specifies which exchange to fetch data from.
-	// If empty, Wisp automatically selects the first available exchange.
+	// Exchange specifies which exchange to fetch kline data from. Required.
 	Exchange connector.ExchangeName
 
 	// Interval specifies the timeframe for calculations (e.g., "1h", "4h", "1d").

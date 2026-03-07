@@ -4,6 +4,7 @@ import (
 	"time"
 
 	mockPerpConnector "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	batchTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/batch"
 	perpDomain "github.com/wisp-trading/sdk/pkg/markets/perp"
 	perpBatch "github.com/wisp-trading/sdk/pkg/markets/perp/ingestor/batch"
 	perpStore "github.com/wisp-trading/sdk/pkg/markets/perp/store"
@@ -12,7 +13,6 @@ import (
 	timeProvider "github.com/wisp-trading/sdk/pkg/runtime/time"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
-	batchTypes "github.com/wisp-trading/sdk/pkg/types/data/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	registryTypes "github.com/wisp-trading/sdk/pkg/types/registry"

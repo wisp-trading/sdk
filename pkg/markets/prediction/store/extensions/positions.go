@@ -7,58 +7,52 @@ import (
 
 	predictionTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
 type predictionPositionsExtension struct {
 	mu     sync.RWMutex
 	orders map[string]predictionTypes.PredictionOrder // orderID → order
-	index  map[strategy.StrategyName][]string         // strategy → []orderID
 }
 
 // NewPredictionPositionsExtension returns a new PositionsStoreExtension.
 func NewPredictionPositionsExtension() predictionTypes.PositionsStoreExtension {
 	return &predictionPositionsExtension{
 		orders: make(map[string]predictionTypes.PredictionOrder),
-		index:  make(map[strategy.StrategyName][]string),
 	}
 }
 
-func (e *predictionPositionsExtension) AddOrder(strat strategy.StrategyName, order predictionTypes.PredictionOrder) {
+func (e *predictionPositionsExtension) AddOrder(order predictionTypes.PredictionOrder) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
 	e.orders[order.ID] = order
-	e.index[strat] = append(e.index[strat], order.ID)
 }
 
-func (e *predictionPositionsExtension) GetOrdersByStrategy(strat strategy.StrategyName) []predictionTypes.PredictionOrder {
+// GetOrders returns all orders across all exchanges.
+func (e *predictionPositionsExtension) GetOrders() []predictionTypes.PredictionOrder {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 
-	ids, ok := e.index[strat]
-	if !ok {
-		return nil
-	}
-
-	result := make([]predictionTypes.PredictionOrder, 0, len(ids))
-	for _, id := range ids {
-		if order, exists := e.orders[id]; exists {
-			result = append(result, order)
-		}
+	result := make([]predictionTypes.PredictionOrder, 0, len(e.orders))
+	for _, order := range e.orders {
+		result = append(result, order)
 	}
 	return result
 }
 
-func (e *predictionPositionsExtension) GetStrategyForOrder(orderID string) (strategy.StrategyName, bool) {
+// GetOrdersByExchange returns all orders placed on a specific exchange.
+func (e *predictionPositionsExtension) GetOrdersByExchange(exchange connector.ExchangeName) []predictionTypes.PredictionOrder {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 
-	order, exists := e.orders[orderID]
-	if !exists {
-		return "", false
+	result := make([]predictionTypes.PredictionOrder, 0)
+	for _, order := range e.orders {
+		if order.Exchange == exchange {
+			result = append(result, order)
+		}
 	}
-	return order.StrategyName, true
+	return result
 }
 
 func (e *predictionPositionsExtension) UpdateOrderStatus(orderID string, status connector.OrderStatus) error {
@@ -75,3 +69,37 @@ func (e *predictionPositionsExtension) UpdateOrderStatus(orderID string, status 
 	e.orders[orderID] = order
 	return nil
 }
+
+func (e *predictionPositionsExtension) UpdateRealizedPnL(orderID string, realized numerical.Decimal) error {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+
+	order, exists := e.orders[orderID]
+	if !exists {
+		return fmt.Errorf("order %s not found", orderID)
+	}
+
+	order.RealizedPnL = realized
+	order.UpdatedAt = time.Now()
+	e.orders[orderID] = order
+	return nil
+}
+
+func (e *predictionPositionsExtension) QueryOrders(q predictionTypes.PredictionActivityQuery) []predictionTypes.PredictionOrder {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+
+	var out []predictionTypes.PredictionOrder
+	for _, order := range e.orders {
+		if q.Exchange != nil && order.Exchange != *q.Exchange {
+			continue
+		}
+		if q.MarketID != nil && order.MarketID != *q.MarketID {
+			continue
+		}
+		out = append(out, order)
+	}
+	return out
+}
+
+var _ predictionTypes.PositionsStoreExtension = (*predictionPositionsExtension)(nil)

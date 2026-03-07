@@ -3,7 +3,7 @@ package strategy
 import (
 	"fmt"
 
-	"github.com/wisp-trading/sdk/pkg/types/market"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
@@ -17,8 +17,8 @@ type SpotAction struct {
 }
 
 // GetMarketType returns spot
-func (a *SpotAction) GetMarketType() market.MarketType {
-	return market.MarketTypeSpot
+func (a *SpotAction) GetMarketType() connector.MarketType {
+	return connector.MarketTypeSpot
 }
 
 // Validate checks if the spot action is valid

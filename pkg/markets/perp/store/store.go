@@ -1,35 +1,37 @@
 package store
 
 import (
-	"github.com/wisp-trading/sdk/pkg/data/stores/market/store"
-	storeExtensions "github.com/wisp-trading/sdk/pkg/data/stores/market/store/extensions"
-	"github.com/wisp-trading/sdk/pkg/markets/perp/store/extensions"
+	"github.com/wisp-trading/sdk/pkg/markets/base/store"
+	"github.com/wisp-trading/sdk/pkg/markets/base/store/extensions"
+	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
+	perpExtensions "github.com/wisp-trading/sdk/pkg/markets/perp/store/extensions"
 	domainTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
-	marketTypes "github.com/wisp-trading/sdk/pkg/types/data/stores/market"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 type perpStore struct {
-	marketTypes.MarketStore
-	marketTypes.OrderBookStoreExtension
-	marketTypes.KlineStoreExtension
+	market.MarketStore
+	market.OrderBookStoreExtension
+	market.KlineStoreExtension
+	market.TradesStoreExtension
 	domainTypes.FundingRateStoreExtension
+	domainTypes.PerpPositionsStoreExtension
 }
 
 func NewStore(timeProvider temporal.TimeProvider) domainTypes.MarketStore {
 	baseStore := store.NewStore(timeProvider)
 
 	return &perpStore{
-		MarketStore: baseStore,
-		OrderBookStoreExtension: storeExtensions.NewOrderBookExtension(
-			baseStore.UpdatePairPrice,
-			baseStore.UpdateLastUpdated,
-		),
-		KlineStoreExtension:       storeExtensions.NewKlineExtension(),
-		FundingRateStoreExtension: extensions.NewFundingRateExtension(),
+		MarketStore:                 baseStore,
+		OrderBookStoreExtension:     extensions.NewOrderBookExtension(baseStore.UpdatePairPrice, baseStore.UpdateLastUpdated),
+		KlineStoreExtension:         extensions.NewKlineExtension(),
+		TradesStoreExtension:        extensions.NewTradesExtension(),
+		FundingRateStoreExtension:   perpExtensions.NewFundingRateExtension(),
+		PerpPositionsStoreExtension: perpExtensions.NewPerpPositionsExtension(),
 	}
 }
 
-func (ps *perpStore) MarketType() marketTypes.MarketType {
-	return marketTypes.MarketTypePerp
+func (ps *perpStore) MarketType() connector.MarketType {
+	return connector.MarketTypePerp
 }

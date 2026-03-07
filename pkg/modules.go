@@ -5,11 +5,11 @@ import (
 	"github.com/wisp-trading/sdk/pkg/adapters"
 	"github.com/wisp-trading/sdk/pkg/analytics"
 	"github.com/wisp-trading/sdk/pkg/config"
-	"github.com/wisp-trading/sdk/pkg/data"
 	"github.com/wisp-trading/sdk/pkg/executor"
 	"github.com/wisp-trading/sdk/pkg/lifecycle"
 	"github.com/wisp-trading/sdk/pkg/markets/perp"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction"
+	"github.com/wisp-trading/sdk/pkg/markets/spot"
 	"github.com/wisp-trading/sdk/pkg/monitoring"
 	"github.com/wisp-trading/sdk/pkg/plugin"
 	"github.com/wisp-trading/sdk/pkg/registry"
@@ -30,7 +30,7 @@ var Module = fx.Options(
 	runtime.Module,
 	signal.Module,
 	executor.Module,
-	data.Module,
 	prediction.Module,
 	perp.Module,
+	spot.Module,
 )

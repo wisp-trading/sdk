@@ -6,7 +6,6 @@ import (
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
-	"github.com/wisp-trading/sdk/pkg/types/data/stores/activity"
 	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
@@ -14,12 +13,9 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
-// executor handles execution of perp market signals.
-// It owns position tracking via activity.Positions and enforces
-// perp-specific concerns: leverage, margin type, connector capability checks.
 type executor struct {
 	connectors   registry.ConnectorRegistry
-	positions    activity.Positions
+	store        perpTypes.MarketStore
 	logger       logging.ApplicationLogger
 	timeProvider temporal.TimeProvider
 }
@@ -27,14 +23,14 @@ type executor struct {
 // NewExecutor creates a new perp market executor.
 func NewExecutor(
 	connectors registry.ConnectorRegistry,
-	positions activity.Positions,
+	store perpTypes.MarketStore,
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 ) perpTypes.SignalExecutor {
 	logger.Info("Initializing perp executor")
 	return &executor{
 		connectors:   connectors,
-		positions:    positions,
+		store:        store,
 		logger:       logger,
 		timeProvider: timeProvider,
 	}
@@ -47,14 +43,12 @@ func (e *executor) ExecutePerpSignal(
 	ctx *execution.ExecutionContext,
 	result *execution.ExecutionResult,
 ) error {
-	actions := signal.GetActions()
-
-	for i, action := range actions {
+	for i, action := range signal.GetActions() {
 		if err := action.Validate(); err != nil {
 			return fmt.Errorf("perp action %d invalid: %w", i, err)
 		}
 
-		orderID, err := e.executeAction(signal.GetStrategy(), action)
+		orderID, err := e.executeAction(action)
 		if err != nil {
 			return fmt.Errorf("perp action %d failed: %w", i, err)
 		}
@@ -67,7 +61,14 @@ func (e *executor) ExecutePerpSignal(
 	return nil
 }
 
-func (e *executor) executeAction(strategyName strategy.StrategyName, action *strategy.PerpAction) (string, error) {
+// HandleTrade records an inbound perp trade fill into the trades store.
+func (e *executor) HandleTrade(trade connector.Trade) error {
+	e.store.AddTrade(trade)
+	e.logger.Info("Perp trade recorded: %s (order: %s, pair: %s)", trade.ID, trade.OrderID, trade.Pair.Symbol())
+	return nil
+}
+
+func (e *executor) executeAction(action *strategy.PerpAction) (string, error) {
 	switch action.ActionType {
 	case strategy.ActionHold:
 		e.logger.Info("Holding perp position for %s", action.Pair.Symbol())
@@ -82,30 +83,21 @@ func (e *executor) executeAction(strategyName strategy.StrategyName, action *str
 		return "", fmt.Errorf("exchange %s not available", action.Exchange)
 	}
 
-	// Prefer a perp-aware connector for leverage support
 	perpConnector, isPerpConn := conn.(perpConn.Connector)
 
 	side := getSide(action.ActionType)
 
-	e.logger.Info(
-		"Executing perp %s order: %s %s @ %s (leverage: %s) on %s",
-		action.ActionType,
-		action.Quantity.StringFixed(4),
-		action.Pair.Symbol(),
-		action.Price.StringFixed(2),
-		action.Leverage.StringFixed(1),
-		action.Exchange,
+	e.logger.Info("Executing perp %s order: %s %s @ %s (leverage: %s) on %s",
+		action.ActionType, action.Quantity.StringFixed(4), action.Pair.Symbol(),
+		action.Price.StringFixed(2), action.Leverage.StringFixed(1), action.Exchange,
 	)
 
-	// Set leverage if the connector supports it and leverage is specified
 	if isPerpConn && !action.Leverage.IsZero() {
 		if err := e.setLeverage(perpConnector, action); err != nil {
-			// Non-fatal: log and proceed — connector may manage leverage itself
 			e.logger.Warn("Could not set leverage for %s on %s: %v", action.Pair.Symbol(), action.Exchange, err)
 		}
 	}
 
-	// Fall back to the base OrderExecutor interface for order placement
 	exec, ok := conn.(connector.OrderExecutor)
 	if !ok {
 		return "", fmt.Errorf("exchange %s does not support order execution", action.Exchange)
@@ -116,43 +108,16 @@ func (e *executor) executeAction(strategyName strategy.StrategyName, action *str
 		return "", fmt.Errorf("failed to place perp order on %s: %w", action.Exchange, err)
 	}
 
-	order := connector.Order{
-		Pair:      action.Pair,
-		ID:        resp.OrderID,
-		Side:      side,
-		Quantity:  action.Quantity,
-		Price:     action.Price,
-		Status:    connector.OrderStatusPending,
-		Type:      connector.OrderTypeLimit,
-		CreatedAt: e.timeProvider.Now(),
-		UpdatedAt: e.timeProvider.Now(),
-	}
-
-	e.positions.AddOrderToStrategy(strategyName, order)
-
-	e.logger.Info(
-		"Perp order %s placed (strategy: %s, pair: %s, side: %s, qty: %s @ %s)",
-		resp.OrderID,
-		strategyName,
-		action.Pair.Symbol(),
-		side,
-		action.Quantity.StringFixed(4),
-		action.Price.StringFixed(2),
-	)
+	e.logger.Info("Perp order placed: %s (pair: %s, side: %s)", resp.OrderID, action.Pair.Symbol(), side)
 
 	return resp.OrderID, nil
 }
 
-// setLeverage attempts to configure leverage on the connector before order placement.
-// Not all connectors support this — callers should treat errors as non-fatal.
 func (e *executor) setLeverage(conn perpConn.Connector, action *strategy.PerpAction) error {
-	// GetPerpSymbol translates the portfolio.Pair to the exchange-native symbol
 	symbol := conn.GetPerpSymbol(action.Pair)
 	if symbol == "" {
 		return fmt.Errorf("could not resolve perp symbol for %s", action.Pair.Symbol())
 	}
-	// Leverage configuration is exchange-specific; log intent and return nil
-	// if the connector doesn't expose a SetLeverage method yet.
 	e.logger.Debug("Leverage %s requested for %s (%s) on %s",
 		action.Leverage.StringFixed(1), action.Pair.Symbol(), symbol, action.Exchange)
 	return nil

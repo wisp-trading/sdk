@@ -3,6 +3,7 @@ package lifecycle
 import (
 	"context"
 
+	"github.com/wisp-trading/sdk/pkg/types/config"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
@@ -38,8 +39,10 @@ func (s State) String() string {
 // This is used by the application layer (orchestrator), never exposed to strategy authors.
 // It operates at the infrastructure level, below the Wisp/WispExecutor APIs.
 type Controller interface {
-	// Start starts the SDK and all its components
-	Start(ctx context.Context, name strategy.StrategyName) error
+	// Start starts the SDK and all its components.
+	// StartupConfig is loaded once by the runtime and passed through so each
+	// domain can seed itself without any graph or CLI coupling.
+	Start(ctx context.Context, name strategy.StrategyName, cfg *config.StartupConfig) error
 
 	// Stop gracefully shuts down the SDK
 	Stop(ctx context.Context) error

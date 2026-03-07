@@ -3,8 +3,10 @@
 package types
 
 import (
-	mock "github.com/stretchr/testify/mock"
+	connector "github.com/wisp-trading/sdk/pkg/types/connector"
 	execution "github.com/wisp-trading/sdk/pkg/types/execution"
+
+	mock "github.com/stretchr/testify/mock"
 
 	strategy "github.com/wisp-trading/sdk/pkg/types/strategy"
 )
@@ -66,6 +68,52 @@ func (_c *SignalExecutor_ExecutePerpSignal_Call) Return(_a0 error) *SignalExecut
 }
 
 func (_c *SignalExecutor_ExecutePerpSignal_Call) RunAndReturn(run func(strategy.PerpSignal, *execution.ExecutionContext, *execution.ExecutionResult) error) *SignalExecutor_ExecutePerpSignal_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// HandleTrade provides a mock function with given fields: trade
+func (_m *SignalExecutor) HandleTrade(trade connector.Trade) error {
+	ret := _m.Called(trade)
+
+	if len(ret) == 0 {
+		panic("no return value specified for HandleTrade")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(connector.Trade) error); ok {
+		r0 = rf(trade)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SignalExecutor_HandleTrade_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HandleTrade'
+type SignalExecutor_HandleTrade_Call struct {
+	*mock.Call
+}
+
+// HandleTrade is a helper method to define mock.On call
+//   - trade connector.Trade
+func (_e *SignalExecutor_Expecter) HandleTrade(trade interface{}) *SignalExecutor_HandleTrade_Call {
+	return &SignalExecutor_HandleTrade_Call{Call: _e.mock.On("HandleTrade", trade)}
+}
+
+func (_c *SignalExecutor_HandleTrade_Call) Run(run func(trade connector.Trade)) *SignalExecutor_HandleTrade_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.Trade))
+	})
+	return _c
+}
+
+func (_c *SignalExecutor_HandleTrade_Call) Return(_a0 error) *SignalExecutor_HandleTrade_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *SignalExecutor_HandleTrade_Call) RunAndReturn(run func(connector.Trade) error) *SignalExecutor_HandleTrade_Call {
 	_c.Call.Return(run)
 	return _c
 }

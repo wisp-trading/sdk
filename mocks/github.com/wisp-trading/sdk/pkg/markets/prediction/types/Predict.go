@@ -416,17 +416,70 @@ func (_c *Predict_Orderbook_Call) RunAndReturn(run func(connector.ExchangeName, 
 	return _c
 }
 
-// Positions provides a mock function with given fields: strategyName
-func (_m *Predict) Positions(strategyName strategy.StrategyName) []types.PredictionOrder {
-	ret := _m.Called(strategyName)
+// PNL provides a mock function with no fields
+func (_m *Predict) PNL() types.PredictionPNL {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for PNL")
+	}
+
+	var r0 types.PredictionPNL
+	if rf, ok := ret.Get(0).(func() types.PredictionPNL); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(types.PredictionPNL)
+		}
+	}
+
+	return r0
+}
+
+// Predict_PNL_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PNL'
+type Predict_PNL_Call struct {
+	*mock.Call
+}
+
+// PNL is a helper method to define mock.On call
+func (_e *Predict_Expecter) PNL() *Predict_PNL_Call {
+	return &Predict_PNL_Call{Call: _e.mock.On("PNL")}
+}
+
+func (_c *Predict_PNL_Call) Run(run func()) *Predict_PNL_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Predict_PNL_Call) Return(_a0 types.PredictionPNL) *Predict_PNL_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Predict_PNL_Call) RunAndReturn(run func() types.PredictionPNL) *Predict_PNL_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Positions provides a mock function with given fields: q
+func (_m *Predict) Positions(q ...types.PredictionActivityQuery) []types.PredictionOrder {
+	_va := make([]interface{}, len(q))
+	for _i := range q {
+		_va[_i] = q[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Positions")
 	}
 
 	var r0 []types.PredictionOrder
-	if rf, ok := ret.Get(0).(func(strategy.StrategyName) []types.PredictionOrder); ok {
-		r0 = rf(strategyName)
+	if rf, ok := ret.Get(0).(func(...types.PredictionActivityQuery) []types.PredictionOrder); ok {
+		r0 = rf(q...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]types.PredictionOrder)
@@ -442,14 +495,21 @@ type Predict_Positions_Call struct {
 }
 
 // Positions is a helper method to define mock.On call
-//   - strategyName strategy.StrategyName
-func (_e *Predict_Expecter) Positions(strategyName interface{}) *Predict_Positions_Call {
-	return &Predict_Positions_Call{Call: _e.mock.On("Positions", strategyName)}
+//   - q ...types.PredictionActivityQuery
+func (_e *Predict_Expecter) Positions(q ...interface{}) *Predict_Positions_Call {
+	return &Predict_Positions_Call{Call: _e.mock.On("Positions",
+		append([]interface{}{}, q...)...)}
 }
 
-func (_c *Predict_Positions_Call) Run(run func(strategyName strategy.StrategyName)) *Predict_Positions_Call {
+func (_c *Predict_Positions_Call) Run(run func(q ...types.PredictionActivityQuery)) *Predict_Positions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(strategy.StrategyName))
+		variadicArgs := make([]types.PredictionActivityQuery, len(args)-0)
+		for i, a := range args[0:] {
+			if a != nil {
+				variadicArgs[i] = a.(types.PredictionActivityQuery)
+			}
+		}
+		run(variadicArgs...)
 	})
 	return _c
 }
@@ -459,7 +519,7 @@ func (_c *Predict_Positions_Call) Return(_a0 []types.PredictionOrder) *Predict_P
 	return _c
 }
 
-func (_c *Predict_Positions_Call) RunAndReturn(run func(strategy.StrategyName) []types.PredictionOrder) *Predict_Positions_Call {
+func (_c *Predict_Positions_Call) RunAndReturn(run func(...types.PredictionActivityQuery) []types.PredictionOrder) *Predict_Positions_Call {
 	_c.Call.Return(run)
 	return _c
 }

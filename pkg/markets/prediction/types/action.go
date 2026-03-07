@@ -3,8 +3,8 @@ package types
 import (
 	"fmt"
 
-	"github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/market"
+	predictionConnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
@@ -12,16 +12,16 @@ import (
 // PredictionAction represents an action for prediction markets
 type PredictionAction struct {
 	strategy.BaseAction
-	Market     connector.Market  `json:"market"`
-	Outcome    connector.Outcome `json:"outcome"`
-	Shares     numerical.Decimal `json:"shares"`
-	MaxPrice   numerical.Decimal `json:"max_price"`  // Probability (0.0-1.0)
-	Expiration int64             `json:"expiration"` // Unix timestamp
+	Market     predictionConnector.Market  `json:"market"`
+	Outcome    predictionConnector.Outcome `json:"outcome"`
+	Shares     numerical.Decimal           `json:"shares"`
+	MaxPrice   numerical.Decimal           `json:"max_price"`  // Probability (0.0-1.0)
+	Expiration int64                       `json:"expiration"` // Unix timestamp
 }
 
 // GetMarketType returns prediction
-func (a *PredictionAction) GetMarketType() market.MarketType {
-	return market.MarketTypePrediction
+func (a *PredictionAction) GetMarketType() connector.MarketType {
+	return connector.MarketTypePrediction
 }
 
 // Validate checks if the prediction action is valid

@@ -4,8 +4,9 @@ import (
 	"context"
 
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
-	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
+	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
+	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
@@ -21,8 +22,9 @@ type viewRegistry struct {
 	health           health.HealthStore
 	strategyRegistry registry.StrategyRegistry
 	profilingStore   profiling.ProfilingStore
-	predictionViews  types.PredictionViews
+	predictionViews  predTypes.PredictionViews
 	perpViews        perpTypes.PerpViews
+	spotViews        spotTypes.SpotViews
 }
 
 func NewViewRegistry(
@@ -30,8 +32,9 @@ func NewViewRegistry(
 	wisp wisp.Wisp,
 	strategyRegistry registry.StrategyRegistry,
 	profilingStore profiling.ProfilingStore,
-	predictionViews types.PredictionViews,
+	predictionViews predTypes.PredictionViews,
 	perpViews perpTypes.PerpViews,
+	spotViews spotTypes.SpotViews,
 ) monitoring.ViewRegistry {
 	return &viewRegistry{
 		health:           health,
@@ -40,6 +43,7 @@ func NewViewRegistry(
 		profilingStore:   profilingStore,
 		predictionViews:  predictionViews,
 		perpViews:        perpViews,
+		spotViews:        spotViews,
 	}
 }
 
@@ -60,10 +64,10 @@ func (r *viewRegistry) GetPnLView() *monitoring.PnLView {
 	}
 
 	pnl := r.wisp.Activity().PNL()
-	realizedPnL := pnl.GetRealizedPNL(ctx, name)
-	unrealizedPnL, _ := pnl.GetUnrealizedPNL(ctx, name)
-	totalPnL, _ := pnl.GetTotalPNL(ctx)
-	totalFees := pnl.GetFeesByStrategy(ctx, name)
+	realizedPnL := pnl.TotalRealized(ctx)
+	unrealizedPnL := pnl.TotalUnrealized(ctx)
+	totalPnL := realizedPnL.Add(unrealizedPnL)
+	totalFees := pnl.TotalFees(ctx)
 
 	return &monitoring.PnLView{
 		StrategyName:  string(name),
@@ -74,37 +78,21 @@ func (r *viewRegistry) GetPnLView() *monitoring.PnLView {
 	}
 }
 
+// todo need to rework cli flow
 func (r *viewRegistry) GetPositionsView() *strategy.StrategyExecution {
-	name := r.getStrategyName()
-
-	if name == "" {
-		return nil
-	}
-
-	return r.wisp.Activity().Positions().GetStrategyExecution(name)
+	return nil
 }
 
+// GetOrderbookView todo refactor here - need to be smarter - accept the exchange as an arg
 func (r *viewRegistry) GetOrderbookView(pair portfolio.Pair) *connector.OrderBook {
-	ctx := context.Background()
+	r.wisp.Log().Info("GetOrderbookView called with pair: %s", pair.Symbol())
 
-	ob, err := r.wisp.Market().OrderBook(ctx, pair)
-	if err != nil {
-		return nil
-	}
-	return ob
+	return nil
 }
 
+// / todo need to rework cli flow
 func (r *viewRegistry) GetRecentTrades(limit int) []connector.Trade {
-	name := r.getStrategyName()
-	if name == "" {
-		return nil
-	}
-
-	trades := r.wisp.Activity().Positions().GetTradesForStrategy(name)
-	if len(trades) <= limit {
-		return trades
-	}
-	return trades[len(trades)-limit:]
+	return nil
 }
 
 func (r *viewRegistry) GetMetrics() *monitoring.StrategyMetrics {
@@ -123,20 +111,9 @@ func (r *viewRegistry) GetHealth() *health.SystemHealthReport {
 // Spot comes from wisp.Universe(); perp and prediction are delegated to their
 // respective views packages which own those domains.
 func (r *viewRegistry) GetMarketViews() *monitoring.MarketViews {
-	universe := r.wisp.Universe()
 	views := &monitoring.MarketViews{}
 
-	for _, ex := range universe.Exchanges {
-		pairs := universe.Assets[ex.Name]
-		for _, pair := range pairs {
-			if ex.MarketType == connector.MarketTypeSpot {
-				views.Spot = append(views.Spot, monitoring.SpotMarketView{
-					Exchange: string(ex.Name),
-					Pair:     pair.Symbol(),
-				})
-			}
-		}
-	}
+	views.Spot = r.spotViews.GetMarketViews()
 
 	// Perp is owned by the perp views package
 	views.Perp = r.perpViews.GetMarketViews()
@@ -156,12 +133,12 @@ func (r *viewRegistry) GetPredictionOrderbookView(exchange, marketID, outcomeID 
 	)
 }
 
-func (r *viewRegistry) GetSpotKlines(pair portfolio.Pair, exchange, interval string, limit int) []connector.Kline {
-	return r.wisp.Market().Spot().GetKlines(pair, connector.ExchangeName(exchange), interval, limit)
+func (r *viewRegistry) GetSpotKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline {
+	return r.wisp.Spot().Klines(exchange, pair, interval, limit)
 }
 
-func (r *viewRegistry) GetPerpKlines(pair portfolio.Pair, exchange, interval string, limit int) []connector.Kline {
-	return r.wisp.Market().Perp().GetKlines(pair, connector.ExchangeName(exchange), interval, limit)
+func (r *viewRegistry) GetPerpKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline {
+	return r.wisp.Perp().Klines(exchange, pair, interval, limit)
 }
 
 func (r *viewRegistry) GetProfilingStats() *monitoring.ProfilingStats {

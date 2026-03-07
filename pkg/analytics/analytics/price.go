@@ -1,32 +1,15 @@
 package analytics
 
 import (
-	"context"
 	"fmt"
-	"time"
 
-	"github.com/wisp-trading/sdk/pkg/monitoring/profiling"
-	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 	analyticsTypes "github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-// GetPriceChange calculates price statistics over a period.
-func (s *analytics) GetPriceChange(ctx context.Context, asset portfolio.Pair, period int, opts ...analyticsTypes.AnalyticsOptions) (*analyticsTypes.PriceChange, error) {
-	start := time.Now()
-	defer func() {
-		if profCtx := profiling.FromContext(ctx); profCtx != nil {
-			profCtx.RecordIndicator("GetPriceChange", time.Since(start))
-		}
-	}()
-
-	options := s.parseOptions(opts...)
-
-	klines, err := s.fetchKlines(ctx, asset, period, options)
-	if err != nil {
-		return nil, err
-	}
-
+// GetPriceChange calculates price statistics from the provided klines.
+func (s *analytics) GetPriceChange(klines []connector.Kline) (*analyticsTypes.PriceChange, error) {
 	if len(klines) < 2 {
 		return nil, fmt.Errorf("insufficient kline data for price change calculation")
 	}
@@ -34,16 +17,14 @@ func (s *analytics) GetPriceChange(ctx context.Context, asset portfolio.Pair, pe
 	startPrice := klines[0].Open
 	endPrice := klines[len(klines)-1].Close
 
-	// Find high and low
 	highPrice := klines[0].High
 	lowPrice := klines[0].Low
-
-	for _, kline := range klines {
-		if kline.High > highPrice {
-			highPrice = kline.High
+	for _, k := range klines {
+		if k.High > highPrice {
+			highPrice = k.High
 		}
-		if kline.Low < lowPrice {
-			lowPrice = kline.Low
+		if k.Low < lowPrice {
+			lowPrice = k.Low
 		}
 	}
 
