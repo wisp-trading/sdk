@@ -354,6 +354,54 @@ func (_c *Spot_Price_Call) RunAndReturn(run func(connector.ExchangeName, portfol
 	return _c
 }
 
+// Prices provides a mock function with given fields: pair
+func (_m *Spot) Prices(pair portfolio.Pair) map[connector.ExchangeName]numerical.Decimal {
+	ret := _m.Called(pair)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Prices")
+	}
+
+	var r0 map[connector.ExchangeName]numerical.Decimal
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) map[connector.ExchangeName]numerical.Decimal); ok {
+		r0 = rf(pair)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[connector.ExchangeName]numerical.Decimal)
+		}
+	}
+
+	return r0
+}
+
+// Spot_Prices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Prices'
+type Spot_Prices_Call struct {
+	*mock.Call
+}
+
+// Prices is a helper method to define mock.On call
+//   - pair portfolio.Pair
+func (_e *Spot_Expecter) Prices(pair interface{}) *Spot_Prices_Call {
+	return &Spot_Prices_Call{Call: _e.mock.On("Prices", pair)}
+}
+
+func (_c *Spot_Prices_Call) Run(run func(pair portfolio.Pair)) *Spot_Prices_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(portfolio.Pair))
+	})
+	return _c
+}
+
+func (_c *Spot_Prices_Call) Return(_a0 map[connector.ExchangeName]numerical.Decimal) *Spot_Prices_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Spot_Prices_Call) RunAndReturn(run func(portfolio.Pair) map[connector.ExchangeName]numerical.Decimal) *Spot_Prices_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Signal provides a mock function with given fields: strategyName
 func (_m *Spot) Signal(strategyName strategy.StrategyName) strategy.SpotSignalBuilder {
 	ret := _m.Called(strategyName)

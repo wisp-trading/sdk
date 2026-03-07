@@ -24,6 +24,7 @@ var Module = fx.Module("spot",
 		spotActivity.NewSpotPNL,
 		batch.NewFactory,
 		realtime.NewFactory,
+		newSpotAssetLoader,
 		fx.Annotate(
 			newSpotDomainLifecycle,
 			fx.ResultTags(`group:"domain_lifecycles"`),
@@ -32,9 +33,10 @@ var Module = fx.Module("spot",
 )
 
 func newSpotDomainLifecycle(
+	assetLoader spotTypes.AssetLoader,
 	batchFactory spotTypes.SpotBatchIngestorFactory,
 	realtimeFactory spotTypes.SpotRealtimeIngestorFactory,
 	logger logging.ApplicationLogger,
 ) lifecycleTypes.DomainLifecycle {
-	return baseIngestor.NewDomainCoordinator("spot", batchFactory, realtimeFactory, logger)
+	return baseIngestor.NewDomainCoordinator("spot", assetLoader, batchFactory, realtimeFactory, logger)
 }

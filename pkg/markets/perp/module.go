@@ -24,6 +24,7 @@ var Module = fx.Module("perp",
 		perpActivity.NewPerpPNL,
 		batch.NewFactory,
 		realtime.NewFactory,
+		newPerpAssetLoader,
 		fx.Annotate(
 			newPerpDomainLifecycle,
 			fx.ResultTags(`group:"domain_lifecycles"`),
@@ -32,9 +33,10 @@ var Module = fx.Module("perp",
 )
 
 func newPerpDomainLifecycle(
+	assetLoader perpTypes.AssetLoader,
 	batchFactory perpTypes.PerpBatchIngestorFactory,
 	realtimeFactory perpTypes.PerpRealtimeIngestorFactory,
 	logger logging.ApplicationLogger,
 ) lifecycleTypes.DomainLifecycle {
-	return baseIngestor.NewDomainCoordinator("perp", batchFactory, realtimeFactory, logger)
+	return baseIngestor.NewDomainCoordinator("perp", assetLoader, batchFactory, realtimeFactory, logger)
 }

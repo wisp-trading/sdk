@@ -10,6 +10,8 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
+	numerical "github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
+
 	perp "github.com/wisp-trading/sdk/pkg/types/connector/perp"
 
 	portfolio "github.com/wisp-trading/sdk/pkg/types/portfolio"
@@ -459,6 +461,111 @@ func (_c *Perp_Positions_Call) Return(_a0 []perp.Position) *Perp_Positions_Call 
 }
 
 func (_c *Perp_Positions_Call) RunAndReturn(run func(...market.ActivityQuery) []perp.Position) *Perp_Positions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Price provides a mock function with given fields: exchange, pair
+func (_m *Perp) Price(exchange connector.ExchangeName, pair portfolio.Pair) (numerical.Decimal, bool) {
+	ret := _m.Called(exchange, pair)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Price")
+	}
+
+	var r0 numerical.Decimal
+	var r1 bool
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName, portfolio.Pair) (numerical.Decimal, bool)); ok {
+		return rf(exchange, pair)
+	}
+	if rf, ok := ret.Get(0).(func(connector.ExchangeName, portfolio.Pair) numerical.Decimal); ok {
+		r0 = rf(exchange, pair)
+	} else {
+		r0 = ret.Get(0).(numerical.Decimal)
+	}
+
+	if rf, ok := ret.Get(1).(func(connector.ExchangeName, portfolio.Pair) bool); ok {
+		r1 = rf(exchange, pair)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+
+	return r0, r1
+}
+
+// Perp_Price_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Price'
+type Perp_Price_Call struct {
+	*mock.Call
+}
+
+// Price is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
+//   - pair portfolio.Pair
+func (_e *Perp_Expecter) Price(exchange interface{}, pair interface{}) *Perp_Price_Call {
+	return &Perp_Price_Call{Call: _e.mock.On("Price", exchange, pair)}
+}
+
+func (_c *Perp_Price_Call) Run(run func(exchange connector.ExchangeName, pair portfolio.Pair)) *Perp_Price_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(connector.ExchangeName), args[1].(portfolio.Pair))
+	})
+	return _c
+}
+
+func (_c *Perp_Price_Call) Return(_a0 numerical.Decimal, _a1 bool) *Perp_Price_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *Perp_Price_Call) RunAndReturn(run func(connector.ExchangeName, portfolio.Pair) (numerical.Decimal, bool)) *Perp_Price_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Prices provides a mock function with given fields: pair
+func (_m *Perp) Prices(pair portfolio.Pair) map[connector.ExchangeName]numerical.Decimal {
+	ret := _m.Called(pair)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Prices")
+	}
+
+	var r0 map[connector.ExchangeName]numerical.Decimal
+	if rf, ok := ret.Get(0).(func(portfolio.Pair) map[connector.ExchangeName]numerical.Decimal); ok {
+		r0 = rf(pair)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[connector.ExchangeName]numerical.Decimal)
+		}
+	}
+
+	return r0
+}
+
+// Perp_Prices_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Prices'
+type Perp_Prices_Call struct {
+	*mock.Call
+}
+
+// Prices is a helper method to define mock.On call
+//   - pair portfolio.Pair
+func (_e *Perp_Expecter) Prices(pair interface{}) *Perp_Prices_Call {
+	return &Perp_Prices_Call{Call: _e.mock.On("Prices", pair)}
+}
+
+func (_c *Perp_Prices_Call) Run(run func(pair portfolio.Pair)) *Perp_Prices_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(portfolio.Pair))
+	})
+	return _c
+}
+
+func (_c *Perp_Prices_Call) Return(_a0 map[connector.ExchangeName]numerical.Decimal) *Perp_Prices_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Perp_Prices_Call) RunAndReturn(run func(portfolio.Pair) map[connector.ExchangeName]numerical.Decimal) *Perp_Prices_Call {
 	_c.Call.Return(run)
 	return _c
 }

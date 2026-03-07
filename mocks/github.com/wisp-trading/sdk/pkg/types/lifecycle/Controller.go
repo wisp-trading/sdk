@@ -5,8 +5,11 @@ package lifecycle
 import (
 	context "context"
 
-	mock "github.com/stretchr/testify/mock"
+	config "github.com/wisp-trading/sdk/pkg/types/config"
+
 	lifecycle "github.com/wisp-trading/sdk/pkg/types/lifecycle"
+
+	mock "github.com/stretchr/testify/mock"
 
 	strategy "github.com/wisp-trading/sdk/pkg/types/strategy"
 )
@@ -69,17 +72,17 @@ func (_c *Controller_IsReady_Call) RunAndReturn(run func() bool) *Controller_IsR
 	return _c
 }
 
-// Start provides a mock function with given fields: ctx, name
-func (_m *Controller) Start(ctx context.Context, name strategy.StrategyName) error {
-	ret := _m.Called(ctx, name)
+// Start provides a mock function with given fields: ctx, name, cfg
+func (_m *Controller) Start(ctx context.Context, name strategy.StrategyName, cfg *config.StartupConfig) error {
+	ret := _m.Called(ctx, name, cfg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Start")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, strategy.StrategyName) error); ok {
-		r0 = rf(ctx, name)
+	if rf, ok := ret.Get(0).(func(context.Context, strategy.StrategyName, *config.StartupConfig) error); ok {
+		r0 = rf(ctx, name, cfg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -95,13 +98,14 @@ type Controller_Start_Call struct {
 // Start is a helper method to define mock.On call
 //   - ctx context.Context
 //   - name strategy.StrategyName
-func (_e *Controller_Expecter) Start(ctx interface{}, name interface{}) *Controller_Start_Call {
-	return &Controller_Start_Call{Call: _e.mock.On("Start", ctx, name)}
+//   - cfg *config.StartupConfig
+func (_e *Controller_Expecter) Start(ctx interface{}, name interface{}, cfg interface{}) *Controller_Start_Call {
+	return &Controller_Start_Call{Call: _e.mock.On("Start", ctx, name, cfg)}
 }
 
-func (_c *Controller_Start_Call) Run(run func(ctx context.Context, name strategy.StrategyName)) *Controller_Start_Call {
+func (_c *Controller_Start_Call) Run(run func(ctx context.Context, name strategy.StrategyName, cfg *config.StartupConfig)) *Controller_Start_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(strategy.StrategyName))
+		run(args[0].(context.Context), args[1].(strategy.StrategyName), args[2].(*config.StartupConfig))
 	})
 	return _c
 }
@@ -111,7 +115,7 @@ func (_c *Controller_Start_Call) Return(_a0 error) *Controller_Start_Call {
 	return _c
 }
 
-func (_c *Controller_Start_Call) RunAndReturn(run func(context.Context, strategy.StrategyName) error) *Controller_Start_Call {
+func (_c *Controller_Start_Call) RunAndReturn(run func(context.Context, strategy.StrategyName, *config.StartupConfig) error) *Controller_Start_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -6,8 +6,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/wisp-trading/sdk/pkg/markets/base/types"
 	batchTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/batch"
 	realtimeTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
+	configTypes "github.com/wisp-trading/sdk/pkg/types/config"
 	lifecycleTypes "github.com/wisp-trading/sdk/pkg/types/lifecycle"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 )
@@ -16,6 +18,7 @@ const defaultBatchInterval = 30 * time.Second
 
 type domainCoordinator struct {
 	name            string
+	assetLoader     types.AssetLoader
 	batchFactory    batchTypes.BatchIngestorFactory
 	realtimeFactory realtimeTypes.RealtimeIngestorFactory
 	logger          logging.ApplicationLogger
@@ -26,14 +29,18 @@ type domainCoordinator struct {
 	rtCancel       context.CancelFunc
 }
 
+// NewDomainCoordinator creates a coordinator. assetLoader may be nil for domains
+// that register watchlist entries dynamically at runtime (e.g. prediction).
 func NewDomainCoordinator(
 	name string,
+	assetLoader types.AssetLoader,
 	batchFactory batchTypes.BatchIngestorFactory,
 	realtimeFactory realtimeTypes.RealtimeIngestorFactory,
 	logger logging.ApplicationLogger,
 ) lifecycleTypes.DomainLifecycle {
 	return &domainCoordinator{
 		name:            name,
+		assetLoader:     assetLoader,
 		batchFactory:    batchFactory,
 		realtimeFactory: realtimeFactory,
 		logger:          logger,
@@ -42,9 +49,16 @@ func NewDomainCoordinator(
 
 func (c *domainCoordinator) Name() string { return c.name }
 
-func (c *domainCoordinator) Start(ctx context.Context) error {
+func (c *domainCoordinator) Start(ctx context.Context, cfg *configTypes.StartupConfig) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
+	// Load domain assets into the watchlist before any ingestor asks for pairs.
+	if c.assetLoader != nil && cfg != nil {
+		if err := c.assetLoader.Load(cfg); err != nil {
+			return fmt.Errorf("%s asset load failed: %w", c.name, err)
+		}
+	}
 
 	c.logger.Info("Starting %s ingestors...", c.name)
 

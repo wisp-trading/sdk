@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 
+	configTypes "github.com/wisp-trading/sdk/pkg/types/config"
 	lifecycleTypes "github.com/wisp-trading/sdk/pkg/types/lifecycle"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	monitoringTypes "github.com/wisp-trading/sdk/pkg/types/monitoring"
@@ -53,7 +54,7 @@ func NewController(p controllerParams) lifecycleTypes.Controller {
 	}
 }
 
-func (c *controller) Start(ctx context.Context, strategyName strategy.StrategyName) error {
+func (c *controller) Start(ctx context.Context, strategyName strategy.StrategyName, cfg *configTypes.StartupConfig) error {
 	c.stateMu.Lock()
 	if c.state != lifecycleTypes.StateCreated && c.state != lifecycleTypes.StateStopped {
 		current := c.state
@@ -73,7 +74,7 @@ func (c *controller) Start(ctx context.Context, strategyName strategy.StrategyNa
 	// Start each domain in order — spot, perp, prediction each own their ingestors.
 	for _, domain := range c.domains {
 		c.logger.Info("  ⚡ Starting %s...", domain.Name())
-		if err := domain.Start(ctx); err != nil {
+		if err := domain.Start(ctx, cfg); err != nil {
 			c.setState(lifecycleTypes.StateCreated)
 			return fmt.Errorf("failed to start %s: %w", domain.Name(), err)
 		}

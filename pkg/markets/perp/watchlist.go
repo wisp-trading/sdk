@@ -15,54 +15,53 @@ type pairKey struct {
 }
 
 type perpWatchlist struct {
-	mu           sync.RWMutex
-	pairs        map[pairKey]portfolio.Pair
-	baseWatchers map[connector.ExchangeName]chan baseTypes.MarketWatchEvent
-	perpWatchers map[connector.ExchangeName]chan perpTypes.PerpWatchEvent
+	mu       sync.RWMutex
+	pairs    map[pairKey]portfolio.Pair
+	watchers map[connector.ExchangeName]chan baseTypes.MarketWatchEvent
 }
 
-// NewPerpWatchlist creates a new perp-domain watchlist.
+// NewPerpWatchlist creates a new empty perp-domain watchlist.
 func NewPerpWatchlist() perpTypes.PerpWatchlist {
 	return &perpWatchlist{
-		pairs:        make(map[pairKey]portfolio.Pair),
-		baseWatchers: make(map[connector.ExchangeName]chan baseTypes.MarketWatchEvent),
-		perpWatchers: make(map[connector.ExchangeName]chan perpTypes.PerpWatchEvent),
+		pairs:    make(map[pairKey]portfolio.Pair),
+		watchers: make(map[connector.ExchangeName]chan baseTypes.MarketWatchEvent),
 	}
 }
 
 func (w *perpWatchlist) RequirePair(exchange connector.ExchangeName, pair portfolio.Pair) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
+
 	key := pairKey{Exchange: exchange, Symbol: pair.Symbol()}
 	if _, exists := w.pairs[key]; exists {
 		return
 	}
 	w.pairs[key] = pair
-	w.emitBaseLocked(baseTypes.MarketWatchEvent{
+	w.emitLocked(baseTypes.MarketWatchEvent{
 		Requirement: baseTypes.PairRequirement{Exchange: exchange, Pair: pair},
 		Type:        baseTypes.PairAdded,
 	})
-	w.emitPerpLocked(perpTypes.PerpWatchEvent{Exchange: exchange, Pair: pair, Type: perpTypes.PerpPairAdded})
 }
 
 func (w *perpWatchlist) ReleasePair(exchange connector.ExchangeName, pair portfolio.Pair) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
+
 	key := pairKey{Exchange: exchange, Symbol: pair.Symbol()}
 	if _, exists := w.pairs[key]; !exists {
 		return
 	}
 	delete(w.pairs, key)
-	w.emitBaseLocked(baseTypes.MarketWatchEvent{
+	w.emitLocked(baseTypes.MarketWatchEvent{
 		Requirement: baseTypes.PairRequirement{Exchange: exchange, Pair: pair},
 		Type:        baseTypes.PairRemoved,
 	})
-	w.emitPerpLocked(perpTypes.PerpWatchEvent{Exchange: exchange, Pair: pair, Type: perpTypes.PerpPairRemoved})
 }
 
 func (w *perpWatchlist) GetRequiredPairs(exchange connector.ExchangeName) []portfolio.Pair {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
+
 	out := make([]portfolio.Pair, 0)
 	for key, pair := range w.pairs {
 		if key.Exchange == exchange {
@@ -75,54 +74,27 @@ func (w *perpWatchlist) GetRequiredPairs(exchange connector.ExchangeName) []port
 func (w *perpWatchlist) Subscribe(exchange connector.ExchangeName) chan baseTypes.MarketWatchEvent {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	if ch, ok := w.baseWatchers[exchange]; ok {
+
+	if ch, ok := w.watchers[exchange]; ok {
 		return ch
 	}
 	ch := make(chan baseTypes.MarketWatchEvent, 128)
-	w.baseWatchers[exchange] = ch
+	w.watchers[exchange] = ch
 	return ch
 }
 
 func (w *perpWatchlist) Unsubscribe(exchange connector.ExchangeName) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	if ch, ok := w.baseWatchers[exchange]; ok {
-		delete(w.baseWatchers, exchange)
+
+	if ch, ok := w.watchers[exchange]; ok {
+		delete(w.watchers, exchange)
 		close(ch)
 	}
 }
 
-func (w *perpWatchlist) SubscribePerp(exchange connector.ExchangeName) chan perpTypes.PerpWatchEvent {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-	if ch, ok := w.perpWatchers[exchange]; ok {
-		return ch
-	}
-	ch := make(chan perpTypes.PerpWatchEvent, 128)
-	w.perpWatchers[exchange] = ch
-	return ch
-}
-
-func (w *perpWatchlist) UnsubscribePerp(exchange connector.ExchangeName) {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-	if ch, ok := w.perpWatchers[exchange]; ok {
-		delete(w.perpWatchers, exchange)
-		close(ch)
-	}
-}
-
-func (w *perpWatchlist) emitBaseLocked(ev baseTypes.MarketWatchEvent) {
-	if ch, ok := w.baseWatchers[ev.Requirement.Exchange]; ok {
-		select {
-		case ch <- ev:
-		default:
-		}
-	}
-}
-
-func (w *perpWatchlist) emitPerpLocked(ev perpTypes.PerpWatchEvent) {
-	if ch, ok := w.perpWatchers[ev.Exchange]; ok {
+func (w *perpWatchlist) emitLocked(ev baseTypes.MarketWatchEvent) {
+	if ch, ok := w.watchers[ev.Requirement.Exchange]; ok {
 		select {
 		case ch <- ev:
 		default:

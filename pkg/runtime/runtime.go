@@ -4,23 +4,19 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/wisp-trading/sdk/pkg/markets/base/types"
-	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	configTypes "github.com/wisp-trading/sdk/pkg/types/config"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/lifecycle"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/plugin"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
-	"github.com/wisp-trading/sdk/pkg/types/runtime"
+	runtimeTypes "github.com/wisp-trading/sdk/pkg/types/runtime"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
 type rt struct {
 	pluginManager     plugin.Manager
 	connectorRegistry registry.ConnectorRegistry
-	marketWatchlist   types.MarketWatchlist
-	perpWatchlist     perpTypes.PerpWatchlist
 	strategyRegistry  registry.StrategyRegistry
 	configLoader      configTypes.StartupConfigLoader
 	controller        lifecycle.Controller
@@ -33,18 +29,14 @@ type rt struct {
 func NewRuntime(
 	pluginManager plugin.Manager,
 	connectorRegistry registry.ConnectorRegistry,
-	marketWatchlist types.MarketWatchlist,
-	perpWatchlist perpTypes.PerpWatchlist,
 	strategyRegistry registry.StrategyRegistry,
 	configLoader configTypes.StartupConfigLoader,
 	controller lifecycle.Controller,
 	logger logging.ApplicationLogger,
-) runtime.Runtime {
+) runtimeTypes.Runtime {
 	return &rt{
 		pluginManager:     pluginManager,
 		connectorRegistry: connectorRegistry,
-		marketWatchlist:   marketWatchlist,
-		perpWatchlist:     perpWatchlist,
 		strategyRegistry:  strategyRegistry,
 		configLoader:      configLoader,
 		controller:        controller,
@@ -52,7 +44,7 @@ func NewRuntime(
 	}
 }
 
-// Start runs a strategy in plugin mode
+// Start runs a strategy in plugin mode.
 func (r *rt) Start(configPath string, wispPath string) error {
 	r.ctx, r.cancel = context.WithCancel(context.Background())
 
@@ -61,21 +53,17 @@ func (r *rt) Start(configPath string, wispPath string) error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	connectorNames, err := r.initializeConnectors(cfg.ConnectorConfigs)
-	if err != nil {
+	if _, err := r.initializeConnectors(cfg.ConnectorConfigs); err != nil {
 		return err
 	}
 
-	r.registerAssets(cfg)
-
-	return r.boot(r.ctx, runtime.BootConfig{
-		Mode:           runtime.BootModePlugin,
-		StrategyPath:   cfg.PluginPath,
-		ConnectorNames: connectorNames,
+	return r.boot(r.ctx, cfg, runtimeTypes.BootConfig{
+		Mode:         runtimeTypes.BootModePlugin,
+		StrategyPath: cfg.PluginPath,
 	})
 }
 
-// StartStandalone runs a strategy in standalone mode (debuggable)
+// StartStandalone runs a strategy in standalone mode (debuggable).
 func (r *rt) StartStandalone(
 	strat strategy.Strategy,
 	configPath string,
@@ -88,21 +76,17 @@ func (r *rt) StartStandalone(
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	connectorNames, err := r.initializeConnectors(cfg.ConnectorConfigs)
-	if err != nil {
+	if _, err := r.initializeConnectors(cfg.ConnectorConfigs); err != nil {
 		return err
 	}
 
-	r.registerAssets(cfg)
-
-	return r.boot(r.ctx, runtime.BootConfig{
-		Mode:           runtime.BootModeStandalone,
-		Strategy:       strat,
-		ConnectorNames: connectorNames,
+	return r.boot(r.ctx, cfg, runtimeTypes.BootConfig{
+		Mode:     runtimeTypes.BootModeStandalone,
+		Strategy: strat,
 	})
 }
 
-// Stop gracefully shuts down
+// Stop gracefully shuts down.
 func (r *rt) Stop() error {
 	r.logger.Info("🛑 Stopping runtime...")
 
@@ -119,7 +103,7 @@ func (r *rt) Stop() error {
 	return nil
 }
 
-// initializeConnectors initializes all connectors and returns their names
+// initializeConnectors initializes all connectors and marks them ready.
 func (r *rt) initializeConnectors(connectors map[connector.ExchangeName]connector.Config) ([]connector.ExchangeName, error) {
 	names := make([]connector.ExchangeName, 0, len(connectors))
 
@@ -131,64 +115,31 @@ func (r *rt) initializeConnectors(connectors map[connector.ExchangeName]connecto
 		}
 
 		if err := conn.Initialize(cfg); err != nil {
-			r.logger.Error(fmt.Sprintf("connector %s init failed: %s", name, err.Error()))
 			return nil, fmt.Errorf("failed to initialize connector %s: %w", name, err)
 		}
 
-		names = append(names, name)
 		if err := r.connectorRegistry.MarkReady(name); err != nil {
 			return nil, err
 		}
+
+		names = append(names, name)
 	}
 
 	r.logger.Info("Initialized connectors", "count", len(names))
 	return names, nil
 }
 
-// registerAssets routes config assets to the correct domain watchlist based on
-// the registered connector type — no market_type annotation needed in config.
-// Must be called after initializeConnectors so connector types are known.
-func (r *rt) registerAssets(cfg *configTypes.StartupConfig) {
-	spotCount, perpCount, unknownCount := 0, 0, 0
+// boot loads the strategy and hands off to the lifecycle controller.
+func (r *rt) boot(ctx context.Context, startupCfg *configTypes.StartupConfig, cfg runtimeTypes.BootConfig) error {
+	r.logger.Info("Booting...", "mode", cfg.Mode)
 
-	for exchange, pairs := range cfg.Assets {
-		marketType, ok := r.connectorRegistry.ConnectorType(exchange)
-		if !ok {
-			r.logger.Warn("No connector registered for exchange %s — skipping asset registration", exchange)
-			unknownCount += len(pairs)
-			continue
-		}
-
-		for _, pair := range pairs {
-			switch marketType {
-			case connector.MarketTypePerp:
-				r.perpWatchlist.RequirePair(exchange, pair)
-				perpCount++
-			case connector.MarketTypeSpot:
-				r.marketWatchlist.RequirePair(exchange, pair)
-				spotCount++
-			default:
-				// Prediction markets don't use a pair watchlist
-				r.logger.Debug("Skipping pair %s for %s connector on %s",
-					pair.Symbol(), marketType, exchange)
-			}
-		}
-	}
-
-	r.logger.Info("Registered assets from config",
-		"spot", spotCount, "perp", perpCount, "skipped", unknownCount)
-}
-
-// boot executes the core boot sequence
-func (r *rt) boot(ctx context.Context, cfg runtime.BootConfig) error {
-	r.logger.Info("🔧 Booting...", "mode", cfg.Mode)
-
-	var strat strategy.Strategy
-	var err error
+	var (
+		strat strategy.Strategy
+		err   error
+	)
 
 	switch cfg.Mode {
-	case runtime.BootModeStandalone:
-		r.logger.Info("Using provided strategy instance")
+	case runtimeTypes.BootModeStandalone:
 		if cfg.Strategy == nil {
 			return fmt.Errorf("no strategy provided in standalone mode")
 		}
@@ -207,7 +158,7 @@ func (r *rt) boot(ctx context.Context, cfg runtime.BootConfig) error {
 
 	r.strategyRegistry.RegisterStrategy(strat)
 
-	if err := r.controller.Start(ctx, strat.GetName()); err != nil {
+	if err := r.controller.Start(ctx, strat.GetName(), startupCfg); err != nil {
 		return fmt.Errorf("failed to start lifecycle: %w", err)
 	}
 

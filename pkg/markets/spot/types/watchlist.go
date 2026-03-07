@@ -6,25 +6,9 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-type SpotWatchEventType int
-
-const (
-	SpotPairAdded SpotWatchEventType = iota
-	SpotPairRemoved
-)
-
-type SpotWatchEvent struct {
-	Exchange connector.ExchangeName
-	Pair     portfolio.Pair
-	Type     SpotWatchEventType
-}
-
-// SpotWatchlist embeds the base MarketWatchlist so it satisfies the base ingestor.
-// SubscribeSpot provides a typed channel for domain-level consumers.
+// SpotWatchlist is the watchlist for the spot domain.
 type SpotWatchlist interface {
 	baseTypes.MarketWatchlist
-	SubscribeSpot(exchange connector.ExchangeName) chan SpotWatchEvent
-	UnsubscribeSpot(exchange connector.ExchangeName)
 }
 
 // SpotUniverse holds the live set of spot exchanges and their watched pairs.

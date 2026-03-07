@@ -5,6 +5,8 @@ package lifecycle
 import (
 	context "context"
 
+	config "github.com/wisp-trading/sdk/pkg/types/config"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -66,17 +68,17 @@ func (_c *DomainLifecycle_Name_Call) RunAndReturn(run func() string) *DomainLife
 	return _c
 }
 
-// Start provides a mock function with given fields: ctx
-func (_m *DomainLifecycle) Start(ctx context.Context) error {
-	ret := _m.Called(ctx)
+// Start provides a mock function with given fields: ctx, cfg
+func (_m *DomainLifecycle) Start(ctx context.Context, cfg *config.StartupConfig) error {
+	ret := _m.Called(ctx, cfg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Start")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, *config.StartupConfig) error); ok {
+		r0 = rf(ctx, cfg)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -91,13 +93,14 @@ type DomainLifecycle_Start_Call struct {
 
 // Start is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *DomainLifecycle_Expecter) Start(ctx interface{}) *DomainLifecycle_Start_Call {
-	return &DomainLifecycle_Start_Call{Call: _e.mock.On("Start", ctx)}
+//   - cfg *config.StartupConfig
+func (_e *DomainLifecycle_Expecter) Start(ctx interface{}, cfg interface{}) *DomainLifecycle_Start_Call {
+	return &DomainLifecycle_Start_Call{Call: _e.mock.On("Start", ctx, cfg)}
 }
 
-func (_c *DomainLifecycle_Start_Call) Run(run func(ctx context.Context)) *DomainLifecycle_Start_Call {
+func (_c *DomainLifecycle_Start_Call) Run(run func(ctx context.Context, cfg *config.StartupConfig)) *DomainLifecycle_Start_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(*config.StartupConfig))
 	})
 	return _c
 }
@@ -107,7 +110,7 @@ func (_c *DomainLifecycle_Start_Call) Return(_a0 error) *DomainLifecycle_Start_C
 	return _c
 }
 
-func (_c *DomainLifecycle_Start_Call) RunAndReturn(run func(context.Context) error) *DomainLifecycle_Start_Call {
+func (_c *DomainLifecycle_Start_Call) RunAndReturn(run func(context.Context, *config.StartupConfig) error) *DomainLifecycle_Start_Call {
 	_c.Call.Return(run)
 	return _c
 }

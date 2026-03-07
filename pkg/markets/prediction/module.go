@@ -38,5 +38,5 @@ func newPredictionDomainLifecycle(
 	realtimeFactory predTypes.PredictionRealtimeIngestorFactory,
 	logger logging.ApplicationLogger,
 ) lifecycleTypes.DomainLifecycle {
-	return baseIngestor.NewDomainCoordinator("prediction", batchFactory, realtimeFactory, logger)
+	return baseIngestor.NewDomainCoordinator("prediction", nil, batchFactory, realtimeFactory, logger)
 }

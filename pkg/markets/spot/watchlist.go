@@ -15,17 +15,18 @@ type pairKey struct {
 }
 
 type spotWatchlist struct {
-	mu           sync.RWMutex
-	pairs        map[pairKey]portfolio.Pair
-	baseWatchers map[connector.ExchangeName]chan baseTypes.MarketWatchEvent
-	spotWatchers map[connector.ExchangeName]chan spotTypes.SpotWatchEvent
+	mu       sync.RWMutex
+	pairs    map[pairKey]portfolio.Pair
+	watchers map[connector.ExchangeName]chan baseTypes.MarketWatchEvent
 }
 
+// NewSpotWatchlist creates a new empty spot-domain watchlist.
+// In the fx graph the module seeds it with config assets; in tests it can be
+// used directly and seeded via RequirePair.
 func NewSpotWatchlist() spotTypes.SpotWatchlist {
 	return &spotWatchlist{
-		pairs:        make(map[pairKey]portfolio.Pair),
-		baseWatchers: make(map[connector.ExchangeName]chan baseTypes.MarketWatchEvent),
-		spotWatchers: make(map[connector.ExchangeName]chan spotTypes.SpotWatchEvent),
+		pairs:    make(map[pairKey]portfolio.Pair),
+		watchers: make(map[connector.ExchangeName]chan baseTypes.MarketWatchEvent),
 	}
 }
 
@@ -38,11 +39,10 @@ func (w *spotWatchlist) RequirePair(exchange connector.ExchangeName, pair portfo
 		return
 	}
 	w.pairs[key] = pair
-	w.emitBaseLocked(baseTypes.MarketWatchEvent{
+	w.emitLocked(baseTypes.MarketWatchEvent{
 		Requirement: baseTypes.PairRequirement{Exchange: exchange, Pair: pair},
 		Type:        baseTypes.PairAdded,
 	})
-	w.emitSpotLocked(spotTypes.SpotWatchEvent{Exchange: exchange, Pair: pair, Type: spotTypes.SpotPairAdded})
 }
 
 func (w *spotWatchlist) ReleasePair(exchange connector.ExchangeName, pair portfolio.Pair) {
@@ -54,11 +54,10 @@ func (w *spotWatchlist) ReleasePair(exchange connector.ExchangeName, pair portfo
 		return
 	}
 	delete(w.pairs, key)
-	w.emitBaseLocked(baseTypes.MarketWatchEvent{
+	w.emitLocked(baseTypes.MarketWatchEvent{
 		Requirement: baseTypes.PairRequirement{Exchange: exchange, Pair: pair},
 		Type:        baseTypes.PairRemoved,
 	})
-	w.emitSpotLocked(spotTypes.SpotWatchEvent{Exchange: exchange, Pair: pair, Type: spotTypes.SpotPairRemoved})
 }
 
 func (w *spotWatchlist) GetRequiredPairs(exchange connector.ExchangeName) []portfolio.Pair {
@@ -79,11 +78,11 @@ func (w *spotWatchlist) Subscribe(exchange connector.ExchangeName) chan baseType
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	if ch, ok := w.baseWatchers[exchange]; ok {
+	if ch, ok := w.watchers[exchange]; ok {
 		return ch
 	}
 	ch := make(chan baseTypes.MarketWatchEvent, 128)
-	w.baseWatchers[exchange] = ch
+	w.watchers[exchange] = ch
 	return ch
 }
 
@@ -91,46 +90,14 @@ func (w *spotWatchlist) Unsubscribe(exchange connector.ExchangeName) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	if ch, ok := w.baseWatchers[exchange]; ok {
-		delete(w.baseWatchers, exchange)
+	if ch, ok := w.watchers[exchange]; ok {
+		delete(w.watchers, exchange)
 		close(ch)
 	}
 }
 
-// SubscribeSpot provides a typed channel for domain-level consumers.
-func (w *spotWatchlist) SubscribeSpot(exchange connector.ExchangeName) chan spotTypes.SpotWatchEvent {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-
-	if ch, ok := w.spotWatchers[exchange]; ok {
-		return ch
-	}
-	ch := make(chan spotTypes.SpotWatchEvent, 128)
-	w.spotWatchers[exchange] = ch
-	return ch
-}
-
-func (w *spotWatchlist) UnsubscribeSpot(exchange connector.ExchangeName) {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-
-	if ch, ok := w.spotWatchers[exchange]; ok {
-		delete(w.spotWatchers, exchange)
-		close(ch)
-	}
-}
-
-func (w *spotWatchlist) emitBaseLocked(ev baseTypes.MarketWatchEvent) {
-	if ch, ok := w.baseWatchers[ev.Requirement.Exchange]; ok {
-		select {
-		case ch <- ev:
-		default:
-		}
-	}
-}
-
-func (w *spotWatchlist) emitSpotLocked(ev spotTypes.SpotWatchEvent) {
-	if ch, ok := w.spotWatchers[ev.Exchange]; ok {
+func (w *spotWatchlist) emitLocked(ev baseTypes.MarketWatchEvent) {
+	if ch, ok := w.watchers[ev.Requirement.Exchange]; ok {
 		select {
 		case ch <- ev:
 		default:
