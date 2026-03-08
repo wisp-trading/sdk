@@ -18,13 +18,14 @@ import (
 )
 
 type viewRegistry struct {
-	wisp             wisp.Wisp
-	health           health.HealthStore
-	strategyRegistry registry.StrategyRegistry
-	profilingStore   profiling.ProfilingStore
-	predictionViews  predTypes.PredictionViews
-	perpViews        perpTypes.PerpViews
-	spotViews        spotTypes.SpotViews
+	wisp              wisp.Wisp
+	health            health.HealthStore
+	strategyRegistry  registry.StrategyRegistry
+	profilingStore    profiling.ProfilingStore
+	predictionViews   predTypes.PredictionViews
+	perpViews         perpTypes.PerpViews
+	spotViews         spotTypes.SpotViews
+	connectorRegistry registry.ConnectorRegistry
 }
 
 func NewViewRegistry(
@@ -35,15 +36,17 @@ func NewViewRegistry(
 	predictionViews predTypes.PredictionViews,
 	perpViews perpTypes.PerpViews,
 	spotViews spotTypes.SpotViews,
+	connectorRegistry registry.ConnectorRegistry,
 ) monitoring.ViewRegistry {
 	return &viewRegistry{
-		health:           health,
-		wisp:             wisp,
-		strategyRegistry: strategyRegistry,
-		profilingStore:   profilingStore,
-		predictionViews:  predictionViews,
-		perpViews:        perpViews,
-		spotViews:        spotViews,
+		health:            health,
+		wisp:              wisp,
+		strategyRegistry:  strategyRegistry,
+		profilingStore:    profilingStore,
+		predictionViews:   predictionViews,
+		perpViews:         perpViews,
+		spotViews:         spotViews,
+		connectorRegistry: connectorRegistry,
 	}
 }
 
@@ -83,11 +86,38 @@ func (r *viewRegistry) GetPositionsView() *strategy.StrategyExecution {
 	return nil
 }
 
-// GetOrderbookView todo refactor here - need to be smarter - accept the exchange as an arg
-func (r *viewRegistry) GetOrderbookView(pair portfolio.Pair) *connector.OrderBook {
-	r.wisp.Log().Info("GetOrderbookView called with pair: %s", pair.Symbol())
+// GetOrderbook delegates to the correct domain views based on exchange type.
+func (r *viewRegistry) GetOrderbook(exchange connector.ExchangeName, pair portfolio.Pair) *connector.OrderBook {
+	marketType, ok := r.connectorRegistry.ConnectorType(exchange)
+	if !ok {
+		return nil
+	}
 
-	return nil
+	switch marketType {
+	case connector.MarketTypeSpot:
+		return r.spotViews.GetOrderbook(exchange, pair)
+	case connector.MarketTypePerp:
+		return r.perpViews.GetOrderbook(exchange, pair)
+	default:
+		return nil
+	}
+}
+
+// GetKlines delegates to the correct domain views based on the registered connector type for the exchange.
+func (r *viewRegistry) GetKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline {
+	marketType, ok := r.connectorRegistry.ConnectorType(exchange)
+	if !ok {
+		return nil
+	}
+
+	switch marketType {
+	case connector.MarketTypeSpot:
+		return r.spotViews.GetKlines(exchange, pair, interval, limit)
+	case connector.MarketTypePerp:
+		return r.perpViews.GetKlines(exchange, pair, interval, limit)
+	default:
+		return nil
+	}
 }
 
 // / todo need to rework cli flow
@@ -131,14 +161,6 @@ func (r *viewRegistry) GetPredictionOrderbookView(exchange, marketID, outcomeID 
 		predictionconnector.MarketID(marketID),
 		predictionconnector.OutcomeID(outcomeID),
 	)
-}
-
-func (r *viewRegistry) GetSpotKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline {
-	return r.wisp.Spot().Klines(exchange, pair, interval, limit)
-}
-
-func (r *viewRegistry) GetPerpKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline {
-	return r.wisp.Perp().Klines(exchange, pair, interval, limit)
 }
 
 func (r *viewRegistry) GetProfilingStats() *monitoring.ProfilingStats {

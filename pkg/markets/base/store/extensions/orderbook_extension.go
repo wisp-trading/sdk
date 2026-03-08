@@ -42,7 +42,7 @@ func (e *orderBookExtension) UpdateOrderBook(asset portfolio.Pair, exchangeName 
 		bestAsk := orderBook.Asks[0].Price
 		midPrice := bestBid.Add(bestAsk).Div(numerical.NewFromInt(2))
 		e.onUpdatePrice(asset, exchangeName, connector.Price{
-			Symbol:    asset.Symbol(),
+			Pair:      asset,
 			Price:     midPrice,
 			BidPrice:  bestBid,
 			AskPrice:  bestAsk,

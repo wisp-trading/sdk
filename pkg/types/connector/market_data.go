@@ -15,9 +15,9 @@ type MarketDataReader interface {
 	FetchRecentTrades(pair portfolio.Pair, limit int) ([]Trade, error)
 }
 
-// Price represents the market price data for a symbol.
+// Price represents the market price data for a pair.
 type Price struct {
-	Symbol    string            `json:"symbol"`
+	Pair      portfolio.Pair    `json:"pair"`
 	Price     numerical.Decimal `json:"price"`
 	BidPrice  numerical.Decimal `json:"bid_price,omitempty"`
 	AskPrice  numerical.Decimal `json:"ask_price,omitempty"`
@@ -27,10 +27,8 @@ type Price struct {
 	Timestamp time.Time         `json:"timestamp"`
 }
 
-// Kline represents candlestick data for a trading symbol.
+// Kline represents candlestick data for a trading pair.
 type Kline struct {
-	// Deprecated: Use Pair instead.
-	Symbol      string         `json:"symbol"`
 	Pair        portfolio.Pair `json:"pair"`
 	Interval    string         `json:"interval"`
 	OpenTime    time.Time      `json:"open_time"`

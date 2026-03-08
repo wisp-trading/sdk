@@ -100,8 +100,7 @@ func (s *server) Start() error {
 	mux.HandleFunc("/api/markets", s.handleMarkets)
 	mux.HandleFunc("/api/orderbook", s.handleOrderbook)
 	mux.HandleFunc("/api/orderbook/prediction", s.handlePredictionOrderbook)
-	mux.HandleFunc("/api/klines/spot", s.handleSpotKlines)
-	mux.HandleFunc("/api/klines/perp", s.handlePerpKlines)
+	mux.HandleFunc("/api/klines", s.handleKlines)
 	mux.HandleFunc("/profiling/stats", s.handleProfilingStats)
 	mux.HandleFunc("/profiling/executions", s.handleProfilingExecutions)
 

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
@@ -13,12 +14,18 @@ func (s *server) handleOrderbook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	exchange := r.URL.Query().Get("exchange")
+	if exchange == "" {
+		http.Error(w, "exchange parameter required", http.StatusBadRequest)
+		return
+	}
+
 	pair, ok := parsePairParam(w, r)
 	if !ok {
 		return
 	}
 
-	orderbook := s.viewRegistry.GetOrderbookView(pair)
+	orderbook := s.viewRegistry.GetOrderbook(connector.ExchangeName(exchange), pair)
 	if orderbook == nil {
 		http.Error(w, "orderbook not found", http.StatusNotFound)
 		return

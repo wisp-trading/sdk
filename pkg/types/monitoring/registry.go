@@ -1,6 +1,7 @@
 package monitoring
 
 import (
+	prediction "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
@@ -21,13 +22,12 @@ type ViewRegistry interface {
 	// Each domain's views package populates its own section.
 	GetMarketViews() *MarketViews
 
-	// Orderbook queries — one per market type
-	GetOrderbookView(pair portfolio.Pair) *connector.OrderBook
+	// GetOrderbook delegates to spot or perp based on the registered connector type for the exchange.
+	GetOrderbook(exchange connector.ExchangeName, pair portfolio.Pair) *connector.OrderBook
 	GetPredictionOrderbookView(exchange, marketID, outcomeID string) *connector.OrderBook
 
-	// GetSpotKlines Kline queries
-	GetSpotKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline
-	GetPerpKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline
+	// GetKlines delegates to spot or perp based on the registered connector type for the exchange.
+	GetKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline
 }
 
 // MarketViews is the top-level response for /api/markets.
@@ -66,7 +66,6 @@ type PredictionOutcomeView struct {
 }
 
 // ViewQuerier queries views from running strategy instances via Unix socket.
-// Implemented in the CLI.
 type ViewQuerier interface {
 	QueryPnL(instanceID string) (*PnLView, error)
 	QueryPositions(instanceID string) (*strategy.StrategyExecution, error)
@@ -78,17 +77,14 @@ type ViewQuerier interface {
 	// QueryMarkets returns the live market tree for building the CLI navigation hierarchy.
 	QueryMarkets(instanceID string) (*MarketViews, error)
 
-	// QueryOrderbook retrieves a spot/perp order book — pair is "BTC-USDT"
-	QueryOrderbook(instanceID, pair, exchange string) (*connector.OrderBook, error)
+	// QueryOrderbook retrieves a spot/perp order book — exchange determines market type automatically.
+	QueryOrderbook(instanceID, exchange, pair string) (*connector.OrderBook, error)
 
-	// QuerySpotKlines retrieves kline/candlestick data for a spot pair.
-	QuerySpotKlines(instanceID, pair, exchange, interval string, limit int) ([]connector.Kline, error)
+	// QueryKlines retrieves kline/candlestick data — exchange determines spot vs perp automatically.
+	QueryKlines(instanceID, exchange, pair, interval string, limit int) ([]connector.Kline, error)
 
-	// QueryPerpKlines retrieves kline/candlestick data for a perp pair.
-	QueryPerpKlines(instanceID, pair, exchange, interval string, limit int) ([]connector.Kline, error)
-
-	// QueryPredictionOrderbook retrieves an order book for a specific prediction outcome
-	QueryPredictionOrderbook(instanceID, exchange, marketID, outcomeID string) (*connector.OrderBook, error)
+	// QueryPredictionOrderbook retrieves an order book for a specific prediction market outcome.
+	QueryPredictionOrderbook(instanceID string, marketID prediction.MarketID, outcomeID prediction.OutcomeID) (*connector.OrderBook, error)
 
 	HealthCheck(instanceID string) error
 	Shutdown(instanceID string) error
