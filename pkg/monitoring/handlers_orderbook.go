@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	prediction "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
@@ -49,7 +50,11 @@ func (s *server) handlePredictionOrderbook(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	ob := s.viewRegistry.GetPredictionOrderbookView(exchange, marketID, outcomeID)
+	ob := s.viewRegistry.GetPredictionOrderbookView(
+		connector.ExchangeName(exchange),
+		prediction.MarketIDFromString(marketID),
+		prediction.OutcomeIDFromString(outcomeID),
+	)
 	if ob == nil {
 		http.Error(w, "orderbook not found", http.StatusNotFound)
 		return

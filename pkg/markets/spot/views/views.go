@@ -34,8 +34,8 @@ func (v *spotViews) GetMarketViews() []monitoring.SpotMarketView {
 		info := conn.GetConnectorInfo()
 		for _, pair := range v.watchlist.GetRequiredPairs(info.Name) {
 			result = append(result, monitoring.SpotMarketView{
-				Exchange: string(info.Name),
-				Pair:     pair.Symbol(),
+				Exchange: info.Name,
+				Pair:     pair,
 			})
 		}
 	}

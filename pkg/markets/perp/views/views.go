@@ -36,8 +36,8 @@ func (v *perpViews) GetMarketViews() []monitoring.PerpMarketView {
 		info := conn.GetConnectorInfo()
 		for _, pair := range v.watchlist.GetRequiredPairs(info.Name) {
 			result = append(result, monitoring.PerpMarketView{
-				Exchange: string(info.Name),
-				Pair:     pair.Symbol(),
+				Exchange: info.Name,
+				Pair:     pair,
 			})
 		}
 	}

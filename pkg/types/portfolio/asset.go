@@ -2,6 +2,7 @@ package portfolio
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 )
 
@@ -56,4 +57,19 @@ func (a Asset) IsValid() bool {
 // Equals checks if this asset is equal to another asset by comparing their symbols.
 func (a Asset) Equals(other Asset) bool {
 	return a.symbol == other.symbol
+}
+
+// MarshalJSON encodes Asset as a plain JSON string of its symbol.
+func (a Asset) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.symbol)
+}
+
+// UnmarshalJSON decodes Asset from a plain JSON string back into the unexported symbol field.
+func (a *Asset) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return fmt.Errorf("asset: cannot unmarshal %s: %w", data, err)
+	}
+	a.symbol = s
+	return nil
 }

@@ -36,13 +36,13 @@ func (v *predictionViews) GetMarketViews() []monitoring.PredictionMarketView {
 			outcomes := make([]monitoring.PredictionOutcomeView, 0, len(market.Outcomes))
 			for _, o := range market.Outcomes {
 				outcomes = append(outcomes, monitoring.PredictionOutcomeView{
-					OutcomeID: string(o.OutcomeID),
+					OutcomeID: o.OutcomeID,
 					Name:      o.Pair.Outcome(),
 				})
 			}
 			result = append(result, monitoring.PredictionMarketView{
-				Exchange: string(exchange),
-				MarketID: string(market.MarketID),
+				Exchange: exchange,
+				MarketID: market.MarketID,
 				Slug:     market.Slug,
 				Outcomes: outcomes,
 			})

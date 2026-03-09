@@ -27,6 +27,7 @@ var _ = Describe("Server", func() {
 	var (
 		tmpDir       string
 		viewRegistry *monitoringMock.ViewRegistry
+		exchange     = connector.ExchangeName("binance")
 		pair         = portfolio.NewPair(
 			portfolio.NewAsset("BTC"),
 			portfolio.NewAsset("USDT"),
@@ -250,7 +251,7 @@ var _ = Describe("Server", func() {
 
 		Describe("/api/orderbook", func() {
 			It("should return orderbook for asset", func() {
-				viewRegistry.EXPECT().GetOrderbookView(pair).Return(&connector.OrderBook{
+				viewRegistry.EXPECT().GetOrderbook(exchange, pair).Return(&connector.OrderBook{
 					Bids: []connector.PriceLevel{},
 					Asks: []connector.PriceLevel{},
 				})
@@ -275,7 +276,7 @@ var _ = Describe("Server", func() {
 					portfolio.NewAsset("DOGE"),
 					portfolio.NewAsset("USDT"),
 				)
-				viewRegistry.EXPECT().GetOrderbookView(doge).Return(nil)
+				viewRegistry.EXPECT().GetOrderbook(exchange, doge).Return(nil)
 
 				resp, err := client.Get("http://unix/api/orderbook?pair=DOGE-USDT")
 				Expect(err).NotTo(HaveOccurred())

@@ -155,11 +155,15 @@ func (r *viewRegistry) GetMarketViews() *monitoring.MarketViews {
 }
 
 // GetPredictionOrderbookView delegates to the prediction views package.
-func (r *viewRegistry) GetPredictionOrderbookView(exchange, marketID, outcomeID string) *connector.OrderBook {
+func (r *viewRegistry) GetPredictionOrderbookView(
+	exchange connector.ExchangeName,
+	marketID predictionconnector.MarketID,
+	outcomeID predictionconnector.OutcomeID,
+) *connector.OrderBook {
 	return r.predictionViews.GetOrderBook(
-		connector.ExchangeName(exchange),
-		predictionconnector.MarketID(marketID),
-		predictionconnector.OutcomeID(outcomeID),
+		exchange,
+		marketID,
+		outcomeID,
 	)
 }
 

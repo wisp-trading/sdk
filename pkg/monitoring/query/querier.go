@@ -14,6 +14,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
@@ -107,9 +108,9 @@ func (q *querier) QueryPositions(instanceID string) (*strategy.StrategyExecution
 }
 
 // QueryOrderbook retrieves orderbook for an exchange/pair from a running instance
-func (q *querier) QueryOrderbook(instanceID, exchange, pair string) (*connector.OrderBook, error) {
+func (q *querier) QueryOrderbook(instanceID string, exchange connector.ExchangeName, pair portfolio.Pair) (*connector.OrderBook, error) {
 	var result connector.OrderBook
-	path := fmt.Sprintf("/api/orderbook?exchange=%s&pair=%s", exchange, pair)
+	path := fmt.Sprintf("/api/orderbook?exchange=%s&pair=%s", exchange.String(), pair.Symbol())
 	if err := q.doRequest(instanceID, path, &result); err != nil {
 		return nil, err
 	}
@@ -136,9 +137,22 @@ func (q *querier) QueryPredictionOrderbook(instanceID string, marketID predictio
 }
 
 // QueryKlines retrieves kline/candlestick data — exchange determines spot vs perp automatically.
-func (q *querier) QueryKlines(instanceID, exchange, pair, interval string, limit int) ([]connector.Kline, error) {
+func (q *querier) QueryKlines(
+	instanceID string,
+	exchange connector.ExchangeName,
+	pair portfolio.Pair,
+	interval string,
+	limit int,
+) ([]connector.Kline, error) {
 	var result []connector.Kline
-	path := fmt.Sprintf("/api/klines?exchange=%s&pair=%s&interval=%s&limit=%d", exchange, pair, interval, limit)
+	path := fmt.Sprintf(
+		"/api/klines?exchange=%s&pair=%s&interval=%s&limit=%d",
+		exchange.String(),
+		pair.Symbol(),
+		interval,
+		limit,
+	)
+
 	if err := q.doRequest(instanceID, path, &result); err != nil {
 		return nil, err
 	}

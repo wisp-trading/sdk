@@ -7,6 +7,10 @@ type Exchange struct {
 
 type ExchangeName string
 
+func (e ExchangeName) String() string {
+	return string(e)
+}
+
 type Instrument string
 
 const (
@@ -17,6 +21,10 @@ const (
 
 // MarketType identifies the type of market for generic components (ingestors, stores, etc.)
 type MarketType string
+
+func (m MarketType) String() string {
+	return string(m)
+}
 
 const (
 	MarketTypeSpot       MarketType = "spot"
