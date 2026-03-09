@@ -1,5 +1,7 @@
 package portfolio
 
+import "encoding/json"
+
 // Pair represents a trading pair consisting of a base asset and a quote asset.
 // The base asset is the asset being bought or sold, while the quote asset is
 // the asset used to price the base asset.
@@ -47,4 +49,35 @@ func (p Pair) Symbol() string {
 // both the base and quote assets.
 func (p Pair) Equals(other Pair) bool {
 	return p.base.Equals(other.base) && p.quote.Equals(other.quote)
+}
+
+// pairJSON is the wire format for Pair — uses exported fields so encoding/json can handle it.
+type pairJSON struct {
+	Base      Asset  `json:"base"`
+	Quote     Asset  `json:"quote"`
+	Separator string `json:"separator"`
+}
+
+// MarshalJSON encodes Pair as {"base":"BTC","quote":"USDC","separator":"-"}.
+func (p Pair) MarshalJSON() ([]byte, error) {
+	return json.Marshal(pairJSON{
+		Base:      p.base,
+		Quote:     p.quote,
+		Separator: p.separator,
+	})
+}
+
+// UnmarshalJSON reconstructs a Pair from the wire format, restoring all unexported fields.
+func (p *Pair) UnmarshalJSON(data []byte) error {
+	var w pairJSON
+	if err := json.Unmarshal(data, &w); err != nil {
+		return err
+	}
+	p.base = w.Base
+	p.quote = w.Quote
+	p.separator = w.Separator
+	if p.separator == "" {
+		p.separator = "-"
+	}
+	return nil
 }

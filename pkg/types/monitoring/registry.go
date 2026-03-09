@@ -1,6 +1,9 @@
 package monitoring
 
 import (
+	"encoding/json"
+
+	prediction "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
@@ -21,13 +24,17 @@ type ViewRegistry interface {
 	// Each domain's views package populates its own section.
 	GetMarketViews() *MarketViews
 
-	// Orderbook queries — one per market type
-	GetOrderbookView(pair portfolio.Pair) *connector.OrderBook
-	GetPredictionOrderbookView(exchange, marketID, outcomeID string) *connector.OrderBook
+	// GetOrderbook delegates to spot or perp based on the registered connector type for the exchange.
+	GetOrderbook(exchange connector.ExchangeName, pair portfolio.Pair) *connector.OrderBook
 
-	// GetSpotKlines Kline queries
-	GetSpotKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline
-	GetPerpKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline
+	GetPredictionOrderbookView(
+		exchange connector.ExchangeName,
+		marketID prediction.MarketID,
+		outcomeID prediction.OutcomeID,
+	) *connector.OrderBook
+
+	// GetKlines delegates to spot or perp based on the registered connector type for the exchange.
+	GetKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline
 }
 
 // MarketViews is the top-level response for /api/markets.
@@ -41,32 +48,75 @@ type MarketViews struct {
 
 // SpotMarketView represents a spot pair watched on an exchange.
 type SpotMarketView struct {
-	Exchange string `json:"exchange"`
-	Pair     string `json:"pair"`
+	Exchange connector.ExchangeName `json:"exchange"`
+	Pair     portfolio.Pair         `json:"-"`
+}
+
+type spotMarketViewWire struct {
+	Exchange connector.ExchangeName `json:"exchange"`
+	Symbol   string                 `json:"symbol"`
+}
+
+func (v SpotMarketView) MarshalJSON() ([]byte, error) {
+	return json.Marshal(spotMarketViewWire{
+		Exchange: v.Exchange,
+		Symbol:   v.Pair.Symbol(),
+	})
+}
+
+func (v *SpotMarketView) UnmarshalJSON(data []byte) error {
+	var w spotMarketViewWire
+	if err := json.Unmarshal(data, &w); err != nil {
+		return err
+	}
+	v.Exchange = w.Exchange
+	v.Pair = pairFromSymbol(w.Symbol)
+	return nil
 }
 
 // PerpMarketView represents a perp pair watched on an exchange.
 type PerpMarketView struct {
-	Exchange string `json:"exchange"`
-	Pair     string `json:"pair"`
+	Exchange connector.ExchangeName `json:"exchange"`
+	Pair     portfolio.Pair         `json:"-"`
+}
+
+type perpMarketViewWire struct {
+	Exchange connector.ExchangeName `json:"exchange"`
+	Symbol   string                 `json:"symbol"`
+}
+
+func (v PerpMarketView) MarshalJSON() ([]byte, error) {
+	return json.Marshal(perpMarketViewWire{
+		Exchange: v.Exchange,
+		Symbol:   v.Pair.Symbol(),
+	})
+}
+
+func (v *PerpMarketView) UnmarshalJSON(data []byte) error {
+	var w perpMarketViewWire
+	if err := json.Unmarshal(data, &w); err != nil {
+		return err
+	}
+	v.Exchange = w.Exchange
+	v.Pair = pairFromSymbol(w.Symbol)
+	return nil
 }
 
 // PredictionMarketView represents a prediction market with its full outcome list.
 type PredictionMarketView struct {
-	Exchange string                  `json:"exchange"`
-	MarketID string                  `json:"market_id"`
+	Exchange connector.ExchangeName  `json:"exchange"`
+	MarketID prediction.MarketID     `json:"market_id"`
 	Slug     string                  `json:"slug"`
 	Outcomes []PredictionOutcomeView `json:"outcomes"`
 }
 
 // PredictionOutcomeView is a single tradeable outcome within a prediction market.
 type PredictionOutcomeView struct {
-	OutcomeID string `json:"outcome_id"`
-	Name      string `json:"name"`
+	OutcomeID prediction.OutcomeID `json:"outcome_id"`
+	Name      string               `json:"name"`
 }
 
 // ViewQuerier queries views from running strategy instances via Unix socket.
-// Implemented in the CLI.
 type ViewQuerier interface {
 	QueryPnL(instanceID string) (*PnLView, error)
 	QueryPositions(instanceID string) (*strategy.StrategyExecution, error)
@@ -78,19 +128,36 @@ type ViewQuerier interface {
 	// QueryMarkets returns the live market tree for building the CLI navigation hierarchy.
 	QueryMarkets(instanceID string) (*MarketViews, error)
 
-	// QueryOrderbook retrieves a spot/perp order book — pair is "BTC-USDT"
-	QueryOrderbook(instanceID, pair, exchange string) (*connector.OrderBook, error)
+	// QueryOrderbook retrieves a spot/perp order book — exchange determines market type automatically.
+	QueryOrderbook(instanceID string, exchange connector.ExchangeName, pair portfolio.Pair) (*connector.OrderBook, error)
 
-	// QuerySpotKlines retrieves kline/candlestick data for a spot pair.
-	QuerySpotKlines(instanceID, pair, exchange, interval string, limit int) ([]connector.Kline, error)
+	// QueryKlines retrieves kline/candlestick data — exchange determines spot vs perp automatically.
+	QueryKlines(
+		instanceID string,
+		exchange connector.ExchangeName,
+		pair portfolio.Pair,
+		interval string,
+		limit int,
+	) ([]connector.Kline, error)
 
-	// QueryPerpKlines retrieves kline/candlestick data for a perp pair.
-	QueryPerpKlines(instanceID, pair, exchange, interval string, limit int) ([]connector.Kline, error)
-
-	// QueryPredictionOrderbook retrieves an order book for a specific prediction outcome
-	QueryPredictionOrderbook(instanceID, exchange, marketID, outcomeID string) (*connector.OrderBook, error)
+	// QueryPredictionOrderbook retrieves an order book for a specific prediction market outcome.
+	QueryPredictionOrderbook(instanceID string, marketID prediction.MarketID, outcomeID prediction.OutcomeID) (*connector.OrderBook, error)
 
 	HealthCheck(instanceID string) error
 	Shutdown(instanceID string) error
 	ListInstances() ([]string, error)
+}
+
+// pairFromSymbol reconstructs a portfolio.Pair from a symbol string like "BTC-USD".
+// Splits on the last "-" to handle assets that may contain hyphens.
+func pairFromSymbol(symbol string) portfolio.Pair {
+	for i := len(symbol) - 1; i >= 0; i-- {
+		if symbol[i] == '-' {
+			base := portfolio.NewAsset(symbol[:i])
+			quote := portfolio.NewAsset(symbol[i+1:])
+			return portfolio.NewPair(base, quote, "-")
+		}
+	}
+	// No separator — treat the whole symbol as the base with empty quote
+	return portfolio.NewPair(portfolio.NewAsset(symbol), portfolio.NewAsset(""), "")
 }

@@ -7,17 +7,10 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
 
-func (s *server) handleSpotKlines(w http.ResponseWriter, r *http.Request) {
-	s.handleKlines(w, r, false)
-}
-
-func (s *server) handlePerpKlines(w http.ResponseWriter, r *http.Request) {
-	s.handleKlines(w, r, true)
-}
-
-// handleKlines is the shared klines handler. isPerp selects spot vs perp.
-// Query params: pair (e.g. "BTC-USDT"), exchange, interval (e.g. "1m"), limit (optional, default 100).
-func (s *server) handleKlines(w http.ResponseWriter, r *http.Request, isPerp bool) {
+// handleKlines handles kline requests for both spot and perp.
+// The exchange param is used to automatically determine the market type.
+// Query params: exchange, pair (e.g. "BTC-USDT"), interval (e.g. "1m"), limit (optional, default 100).
+func (s *server) handleKlines(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -46,14 +39,7 @@ func (s *server) handleKlines(w http.ResponseWriter, r *http.Request, isPerp boo
 		}
 	}
 
-	var klines []connector.Kline
-	exchangeName := connector.ExchangeName(exchange)
-	if isPerp {
-		klines = s.viewRegistry.GetPerpKlines(exchangeName, pair, interval, limit)
-	} else {
-		klines = s.viewRegistry.GetSpotKlines(exchangeName, pair, interval, limit)
-	}
-
+	klines := s.viewRegistry.GetKlines(connector.ExchangeName(exchange), pair, interval, limit)
 	if klines == nil {
 		klines = []connector.Kline{}
 	}

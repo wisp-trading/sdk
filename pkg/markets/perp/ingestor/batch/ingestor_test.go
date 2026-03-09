@@ -86,7 +86,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 				m.EXPECT().FetchOrderBook(ethPair, 20).Return(ethOrderbook, nil).Maybe()
 
 				btcPrice := &connector.Price{
-					Symbol:    "BTC",
+					Pair:      btcPair,
 					Price:     numerical.NewFromFloat(50050),
 					BidPrice:  numerical.NewFromFloat(50000),
 					AskPrice:  numerical.NewFromFloat(50100),
@@ -94,7 +94,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 					Timestamp: now,
 				}
 				ethPrice := &connector.Price{
-					Symbol:    "ETH",
+					Pair:      ethPair,
 					Price:     numerical.NewFromFloat(3005),
 					BidPrice:  numerical.NewFromFloat(3000),
 					AskPrice:  numerical.NewFromFloat(3010),
@@ -107,10 +107,10 @@ var _ = Describe("Perp BatchIngestor", func() {
 				intervals := []string{"1m", "5m", "15m", "1h", "4h", "1d"}
 				for _, interval := range intervals {
 					m.EXPECT().FetchKlines(btcPair, interval, mock.Anything).Return([]connector.Kline{
-						{Symbol: "BTC", Interval: interval, Open: 50000, High: 50100, Low: 49900, Close: 50050, Volume: 100, OpenTime: now.Add(-time.Hour), CloseTime: now},
+						{Pair: btcPair, Interval: interval, Open: 50000, High: 50100, Low: 49900, Close: 50050, Volume: 100, OpenTime: now.Add(-time.Hour), CloseTime: now},
 					}, nil).Maybe()
 					m.EXPECT().FetchKlines(ethPair, interval, mock.Anything).Return([]connector.Kline{
-						{Symbol: "ETH", Interval: interval, Open: 3000, High: 3010, Low: 2990, Close: 3005, Volume: 50, OpenTime: now.Add(-time.Hour), CloseTime: now},
+						{Pair: ethPair, Interval: interval, Open: 3000, High: 3010, Low: 2990, Close: 3005, Volume: 50, OpenTime: now.Add(-time.Hour), CloseTime: now},
 					}, nil).Maybe()
 				}
 
@@ -158,7 +158,7 @@ var _ = Describe("Perp BatchIngestor", func() {
 
 				btcKlines := store.GetKlines(btcPair, exchangeName, "1m", 10)
 				Expect(btcKlines).ToNot(BeEmpty(), "BTC klines should be stored")
-				Expect(btcKlines[0].Symbol).To(Equal("BTC"))
+				Expect(btcKlines[0].Pair.Symbol()).To(Equal("BTC-USD"))
 
 				ethKlines := store.GetKlines(ethPair, exchangeName, "5m", 10)
 				Expect(ethKlines).ToNot(BeEmpty(), "ETH klines should be stored")

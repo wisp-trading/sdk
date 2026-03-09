@@ -93,31 +93,27 @@ type OrderResponse struct {
 
 // Order represents an order on the exchange.
 type Order struct {
-	ID            string `json:"id"`
-	ClientOrderID string `json:"client_order_id,omitempty"`
-	// Deprecated: use Pair instead
-	Symbol       string            `json:"symbol"`
-	Pair         portfolio.Pair    `json:"pair"`
-	Exchange     ExchangeName      `json:"exchange"`
-	Side         OrderSide         `json:"side"`
-	Type         OrderType         `json:"type"`
-	Status       OrderStatus       `json:"status"`
-	Quantity     numerical.Decimal `json:"quantity"`
-	Price        numerical.Decimal `json:"price,omitempty"`
-	FilledQty    numerical.Decimal `json:"filled_quantity"`
-	RemainingQty numerical.Decimal `json:"remaining_quantity"`
-	AvgPrice     numerical.Decimal `json:"average_price,omitempty"`
-	CreatedAt    time.Time         `json:"created_at"`
-	UpdatedAt    time.Time         `json:"updated_at"`
+	ID            string            `json:"id"`
+	ClientOrderID string            `json:"client_order_id,omitempty"`
+	Pair          portfolio.Pair    `json:"pair"`
+	Exchange      ExchangeName      `json:"exchange"`
+	Side          OrderSide         `json:"side"`
+	Type          OrderType         `json:"type"`
+	Status        OrderStatus       `json:"status"`
+	Quantity      numerical.Decimal `json:"quantity"`
+	Price         numerical.Decimal `json:"price,omitempty"`
+	FilledQty     numerical.Decimal `json:"filled_quantity"`
+	RemainingQty  numerical.Decimal `json:"remaining_quantity"`
+	AvgPrice      numerical.Decimal `json:"average_price,omitempty"`
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
 }
 
 // CancelResponse represents the response after canceling an order.
 type CancelResponse struct {
-	OrderID       string `json:"order_id"`
-	ClientOrderID string `json:"client_order_id,omitempty"`
-	// Deprecated: use Pair instead
-	Symbol    string         `json:"symbol"`
-	Pair      portfolio.Pair `json:"pair"`
-	Status    OrderStatus    `json:"status"`
-	Timestamp time.Time      `json:"timestamp"`
+	OrderID       string         `json:"order_id"`
+	ClientOrderID string         `json:"client_order_id,omitempty"`
+	Pair          portfolio.Pair `json:"pair"`
+	Status        OrderStatus    `json:"status"`
+	Timestamp     time.Time      `json:"timestamp"`
 }
