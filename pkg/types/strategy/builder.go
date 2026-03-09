@@ -14,7 +14,7 @@ type SpotSignalBuilder interface {
 	SellLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) SpotSignalBuilder
 	SellShort(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) SpotSignalBuilder
 	SellShortLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) SpotSignalBuilder
-	Build() SpotSignal
+	Build() (SpotSignal, error)
 }
 
 // PerpSignalBuilder provides a fluent API for constructing perpetual futures trading signals.
@@ -27,5 +27,5 @@ type PerpSignalBuilder interface {
 	SellShort(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) PerpSignalBuilder
 	SellShortLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) PerpSignalBuilder
 	SellShortLimitWithLeverage(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price, leverage numerical.Decimal) PerpSignalBuilder
-	Build() PerpSignal
+	Build() (PerpSignal, error)
 }
