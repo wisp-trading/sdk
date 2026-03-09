@@ -3,26 +3,22 @@ package strategy
 import (
 	"context"
 	"sync"
+	"time"
 )
 
 const signalChannelBufferSize = 64
+const statusLogCap = 100
 
 // BaseStrategyConfig holds configuration for creating a base strategy
 type BaseStrategyConfig struct {
-	Name        StrategyName
-	Description string
-	RiskLevel   RiskLevel
-	Type        StrategyType
+	Name StrategyName
 }
 
-// BaseStrategy provides common lifecycle and signal channel management for all strategies.
-// Concrete strategies embed BaseStrategy and call StartWithRunner(ctx, s.run) from their
-// own Start method to launch their execution goroutine.
+// BaseStrategy provides common lifecycle, signal channel, and status log management
+// for all strategies. Concrete strategies embed BaseStrategy and call
+// StartWithRunner(ctx, s.run) from their own Start method.
 type BaseStrategy struct {
-	name         StrategyName
-	description  string
-	riskLevel    RiskLevel
-	strategyType StrategyType
+	name StrategyName
 
 	signalCh chan Signal
 	ctx      context.Context
@@ -32,6 +28,13 @@ type BaseStrategy struct {
 	// marks are pending checkpoints bundled into the next emitted signal's metadata.
 	marks   []Mark
 	marksMu sync.Mutex
+
+	// statusLog is a fixed-capacity ring buffer owned by the strategy.
+	// Written by EmitStatus; read by LatestStatus and StatusLog.
+	statusLog  []StrategyStatus
+	statusHead int // next write slot
+	statusSize int
+	statusMu   sync.RWMutex
 }
 
 // Mark is a named timestamp checkpoint recorded inside a strategy's run loop.
@@ -40,23 +43,16 @@ type Mark struct {
 	At    int64 // UnixNano
 }
 
-// NewBaseStrategy creates a new BaseStrategy. The returned value is suitable for
-// embedding — callers should embed *BaseStrategy rather than use it directly.
+// NewBaseStrategy creates a new BaseStrategy suitable for embedding.
 func NewBaseStrategy(config BaseStrategyConfig) *BaseStrategy {
 	return &BaseStrategy{
-		name:         config.Name,
-		description:  config.Description,
-		riskLevel:    config.RiskLevel,
-		strategyType: config.Type,
+		name:      config.Name,
+		statusLog: make([]StrategyStatus, statusLogCap),
 	}
 }
 
-// StartWithRunner initialises the signal channel and context, then launches the provided
-// run function in a managed goroutine. Concrete strategies call this from their own Start:
-//
-//	func (s *MyStrategy) Start(ctx context.Context) error {
-//	    return s.BaseStrategy.StartWithRunner(ctx, s.run)
-//	}
+// StartWithRunner initialises the signal channel and context, then launches the
+// provided run function in a managed goroutine.
 func (b *BaseStrategy) StartWithRunner(ctx context.Context, run func(ctx context.Context)) error {
 	b.ctx, b.cancel = context.WithCancel(ctx)
 	b.signalCh = make(chan Signal, signalChannelBufferSize)
@@ -81,18 +77,56 @@ func (b *BaseStrategy) Stop(_ context.Context) error {
 }
 
 // Signals returns the read-only signal channel for observing emitted signals.
-// This is an observability tap — production routing goes via wisp.Emit.
 func (b *BaseStrategy) Signals() <-chan Signal {
 	return b.signalCh
 }
 
-// emit publishes a signal to the channel. It is non-blocking: if the buffer is full
-// the signal is dropped (the strategy's run loop continues uninterrupted).
-// Any pending Mark checkpoints are attached to the signal before sending.
+// EmitStatus records a status snapshot into the strategy's internal ring buffer.
+// Non-blocking and safe to call from the run loop at any frequency.
+// The At field is set automatically if zero.
+func (b *BaseStrategy) EmitStatus(s StrategyStatus) {
+	if s.At.IsZero() {
+		s.At = time.Now()
+	}
+	b.statusMu.Lock()
+	b.statusLog[b.statusHead] = s
+	b.statusHead = (b.statusHead + 1) % statusLogCap
+	if b.statusSize < statusLogCap {
+		b.statusSize++
+	}
+	b.statusMu.Unlock()
+}
+
+// LatestStatus returns the most recently emitted status snapshot, or the zero
+// value if none has been emitted yet.
+func (b *BaseStrategy) LatestStatus() StrategyStatus {
+	b.statusMu.RLock()
+	defer b.statusMu.RUnlock()
+	if b.statusSize == 0 {
+		return StrategyStatus{}
+	}
+	idx := (b.statusHead - 1 + statusLogCap) % statusLogCap
+	return b.statusLog[idx]
+}
+
+// StatusLog returns up to the last 100 status snapshots, oldest-first.
+func (b *BaseStrategy) StatusLog() []StrategyStatus {
+	b.statusMu.RLock()
+	defer b.statusMu.RUnlock()
+	if b.statusSize == 0 {
+		return nil
+	}
+	out := make([]StrategyStatus, b.statusSize)
+	start := (b.statusHead - b.statusSize + statusLogCap) % statusLogCap
+	for i := 0; i < b.statusSize; i++ {
+		out[i] = b.statusLog[(start+i)%statusLogCap]
+	}
+	return out
+}
+
+// Emit publishes a signal to the channel. Non-blocking: drops if buffer is full.
 func (b *BaseStrategy) Emit(signal Signal) {
 	b.marksMu.Lock()
-	// marks are intentionally discarded here — they are available for future
-	// extension where the profilingRouter can read them from signal metadata.
 	b.marks = nil
 	b.marksMu.Unlock()
 
@@ -102,23 +136,10 @@ func (b *BaseStrategy) Emit(signal Signal) {
 	select {
 	case b.signalCh <- signal:
 	default:
-		// Buffer full — drop signal; the strategy remains live.
-		// A full buffer indicates the executor or router is too slow.
 	}
 }
 
 // Mark records a named checkpoint within the current evaluation cycle.
-// Marks are attached to the next signal emitted and cleared afterwards.
-// If no signal is emitted in this cycle the marks are discarded cleanly.
-//
-// Example:
-//
-//	s.Mark("scan_start")
-//	candidates := s.scan()
-//	s.Mark("score_start")
-//	if sig, ok := s.score(candidates); ok {
-//	    s.Emit(sig)  // marks bundled automatically
-//	}
 func (b *BaseStrategy) Mark(label string) {
 	b.marksMu.Lock()
 	defer b.marksMu.Unlock()
@@ -127,12 +148,3 @@ func (b *BaseStrategy) Mark(label string) {
 
 // GetName returns the strategy name.
 func (b *BaseStrategy) GetName() StrategyName { return b.name }
-
-// GetDescription returns the strategy description.
-func (b *BaseStrategy) GetDescription() string { return b.description }
-
-// GetRiskLevel returns the strategy risk level.
-func (b *BaseStrategy) GetRiskLevel() RiskLevel { return b.riskLevel }
-
-// GetStrategyType returns the strategy type.
-func (b *BaseStrategy) GetStrategyType() StrategyType { return b.strategyType }

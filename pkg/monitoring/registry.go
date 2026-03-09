@@ -193,3 +193,43 @@ func (r *viewRegistry) GetRecentExecutions(limit int) []monitoring.ProfilingMetr
 
 	return r.profilingStore.GetRecentMetrics(string(name), limit)
 }
+
+// GetStrategyStatus returns the latest status snapshot for each registered strategy.
+// Delegates directly to each strategy's own log — no caching in the registry.
+func (r *viewRegistry) GetStrategyStatus() []monitoring.StrategyStatusView {
+	strategies := r.strategyRegistry.GetAllStrategies()
+	out := make([]monitoring.StrategyStatusView, 0, len(strategies))
+	for _, strat := range strategies {
+		s := strat.LatestStatus()
+		if s.At.IsZero() {
+			continue // no status emitted yet
+		}
+		out = append(out, monitoring.StrategyStatusView{
+			StrategyName: string(strat.GetName()),
+			Phase:        string(s.Phase),
+			Summary:      s.Summary,
+			Fields:       s.Fields,
+			At:           s.At,
+		})
+	}
+	return out
+}
+
+// GetStrategyStatusLog returns the full status history for each registered strategy,
+// oldest-first. Delegates directly to each strategy's own ring buffer.
+func (r *viewRegistry) GetStrategyStatusLog() []monitoring.StrategyStatusView {
+	strategies := r.strategyRegistry.GetAllStrategies()
+	var out []monitoring.StrategyStatusView
+	for _, strat := range strategies {
+		for _, s := range strat.StatusLog() {
+			out = append(out, monitoring.StrategyStatusView{
+				StrategyName: string(strat.GetName()),
+				Phase:        string(s.Phase),
+				Summary:      s.Summary,
+				Fields:       s.Fields,
+				At:           s.At,
+			})
+		}
+	}
+	return out
+}

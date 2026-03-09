@@ -249,6 +249,24 @@ func (q *querier) QueryProfilingStats(instanceID string) (*monitoring.ProfilingS
 	return &result, nil
 }
 
+// QueryStatus retrieves the latest status snapshot for each strategy in the instance.
+func (q *querier) QueryStatus(instanceID string) ([]monitoring.StrategyStatusView, error) {
+	var result []monitoring.StrategyStatusView
+	if err := q.doRequest(instanceID, "/api/status", &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+// QueryStatusLog retrieves the full status history (up to last 100 entries) for each strategy.
+func (q *querier) QueryStatusLog(instanceID string) ([]monitoring.StrategyStatusView, error) {
+	var result []monitoring.StrategyStatusView
+	if err := q.doRequest(instanceID, "/api/status/log", &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 // QueryRecentExecutions retrieves recent strategy executions with timing data
 func (q *querier) QueryRecentExecutions(instanceID string, limit int) ([]monitoring.ProfilingMetrics, error) {
 	var result []monitoring.ProfilingMetrics

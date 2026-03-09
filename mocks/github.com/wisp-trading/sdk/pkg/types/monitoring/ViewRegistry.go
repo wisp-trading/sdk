@@ -560,6 +560,100 @@ func (_c *ViewRegistry_GetRecentTrades_Call) RunAndReturn(run func(int) []connec
 	return _c
 }
 
+// GetStrategyStatus provides a mock function with no fields
+func (_m *ViewRegistry) GetStrategyStatus() []monitoring.StrategyStatusView {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetStrategyStatus")
+	}
+
+	var r0 []monitoring.StrategyStatusView
+	if rf, ok := ret.Get(0).(func() []monitoring.StrategyStatusView); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]monitoring.StrategyStatusView)
+		}
+	}
+
+	return r0
+}
+
+// ViewRegistry_GetStrategyStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetStrategyStatus'
+type ViewRegistry_GetStrategyStatus_Call struct {
+	*mock.Call
+}
+
+// GetStrategyStatus is a helper method to define mock.On call
+func (_e *ViewRegistry_Expecter) GetStrategyStatus() *ViewRegistry_GetStrategyStatus_Call {
+	return &ViewRegistry_GetStrategyStatus_Call{Call: _e.mock.On("GetStrategyStatus")}
+}
+
+func (_c *ViewRegistry_GetStrategyStatus_Call) Run(run func()) *ViewRegistry_GetStrategyStatus_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *ViewRegistry_GetStrategyStatus_Call) Return(_a0 []monitoring.StrategyStatusView) *ViewRegistry_GetStrategyStatus_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ViewRegistry_GetStrategyStatus_Call) RunAndReturn(run func() []monitoring.StrategyStatusView) *ViewRegistry_GetStrategyStatus_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetStrategyStatusLog provides a mock function with no fields
+func (_m *ViewRegistry) GetStrategyStatusLog() []monitoring.StrategyStatusView {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetStrategyStatusLog")
+	}
+
+	var r0 []monitoring.StrategyStatusView
+	if rf, ok := ret.Get(0).(func() []monitoring.StrategyStatusView); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]monitoring.StrategyStatusView)
+		}
+	}
+
+	return r0
+}
+
+// ViewRegistry_GetStrategyStatusLog_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetStrategyStatusLog'
+type ViewRegistry_GetStrategyStatusLog_Call struct {
+	*mock.Call
+}
+
+// GetStrategyStatusLog is a helper method to define mock.On call
+func (_e *ViewRegistry_Expecter) GetStrategyStatusLog() *ViewRegistry_GetStrategyStatusLog_Call {
+	return &ViewRegistry_GetStrategyStatusLog_Call{Call: _e.mock.On("GetStrategyStatusLog")}
+}
+
+func (_c *ViewRegistry_GetStrategyStatusLog_Call) Run(run func()) *ViewRegistry_GetStrategyStatusLog_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *ViewRegistry_GetStrategyStatusLog_Call) Return(_a0 []monitoring.StrategyStatusView) *ViewRegistry_GetStrategyStatusLog_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *ViewRegistry_GetStrategyStatusLog_Call) RunAndReturn(run func() []monitoring.StrategyStatusView) *ViewRegistry_GetStrategyStatusLog_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewViewRegistry creates a new instance of ViewRegistry. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewViewRegistry(t interface {

@@ -35,6 +35,13 @@ type ViewRegistry interface {
 
 	// GetKlines delegates to spot or perp based on the registered connector type for the exchange.
 	GetKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline
+
+	// GetStrategyStatus returns the latest status snapshot for each running strategy.
+	GetStrategyStatus() []StrategyStatusView
+
+	// GetStrategyStatusLog returns the last N status snapshots for each strategy,
+	// ordered oldest-first. N is capped at StatusLogMaxEntries.
+	GetStrategyStatusLog() []StrategyStatusView
 }
 
 // MarketViews is the top-level response for /api/markets.
@@ -142,6 +149,12 @@ type ViewQuerier interface {
 
 	// QueryPredictionOrderbook retrieves an order book for a specific prediction market outcome.
 	QueryPredictionOrderbook(instanceID string, marketID prediction.MarketID, outcomeID prediction.OutcomeID) (*connector.OrderBook, error)
+
+	// QueryStatus returns the latest status snapshot for each strategy in the instance.
+	QueryStatus(instanceID string) ([]StrategyStatusView, error)
+
+	// QueryStatusLog returns the full status history (up to StatusLogMaxEntries) for each strategy.
+	QueryStatusLog(instanceID string) ([]StrategyStatusView, error)
 
 	HealthCheck(instanceID string) error
 	Shutdown(instanceID string) error

@@ -4,19 +4,6 @@ import (
 	"context"
 
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/portfolio"
-)
-
-// StrategyType represents the type of trading strategy
-type StrategyType string
-
-const (
-	StrategyTypeVolumeMaximizer StrategyType = "volume_maximizer"
-	StrategyTypeCashCarry       StrategyType = "cash_carry"
-	StrategyTypeArbitrage       StrategyType = "arbitrage"
-	StrategyTypeTechnical       StrategyType = "technical"
-	StrategyTypeMomentum        StrategyType = "momentum"
-	StrategyTypeMeanReversion   StrategyType = "mean_reversion"
 )
 
 type StrategyName string
@@ -33,9 +20,6 @@ const (
 type Strategy interface {
 	// Identity
 	GetName() StrategyName
-	GetDescription() string
-	GetRiskLevel() RiskLevel
-	GetStrategyType() StrategyType
 
 	// Lifecycle — the strategy manages its own execution goroutine and internal clock.
 	// Start launches the strategy's run loop. It must be non-blocking.
@@ -46,33 +30,15 @@ type Strategy interface {
 	// Signals returns a read-only channel for observing emitted signals.
 	// This is an observability tap — production routing goes via wisp.Emit.
 	Signals() <-chan Signal
+
+	// LatestStatus returns the most recently emitted status snapshot.
+	// Returns a zero value if no status has been emitted yet.
+	LatestStatus() StrategyStatus
+
+	// StatusLog returns up to the last 100 status snapshots, oldest-first.
+	// The strategy owns this log; any caller can read it at any time.
+	StatusLog() []StrategyStatus
 }
-
-// RequiredAsset specifies an asset and which instrument types are needed
-type RequiredAsset struct {
-	Symbol      portfolio.Pair
-	Instruments []connector.Instrument
-}
-
-type StrategyConfig struct {
-	Name            StrategyName
-	Enabled         bool
-	MaxPositionSize float64
-}
-
-type StrategyMetadata interface {
-	GetRequiredFields() []string
-	Validate() error
-}
-
-// RiskLevel represents the risk classification of a strategy
-type RiskLevel string
-
-const (
-	RiskLevelLow    RiskLevel = "low"
-	RiskLevelMedium RiskLevel = "medium"
-	RiskLevelHigh   RiskLevel = "high"
-)
 
 type StrategyExecution struct {
 	Orders []connector.Order

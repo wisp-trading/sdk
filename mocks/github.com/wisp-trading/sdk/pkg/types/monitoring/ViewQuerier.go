@@ -723,6 +723,122 @@ func (_c *ViewQuerier_QueryRecentTrades_Call) RunAndReturn(run func(string, int)
 	return _c
 }
 
+// QueryStatus provides a mock function with given fields: instanceID
+func (_m *ViewQuerier) QueryStatus(instanceID string) ([]monitoring.StrategyStatusView, error) {
+	ret := _m.Called(instanceID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for QueryStatus")
+	}
+
+	var r0 []monitoring.StrategyStatusView
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) ([]monitoring.StrategyStatusView, error)); ok {
+		return rf(instanceID)
+	}
+	if rf, ok := ret.Get(0).(func(string) []monitoring.StrategyStatusView); ok {
+		r0 = rf(instanceID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]monitoring.StrategyStatusView)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(instanceID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ViewQuerier_QueryStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'QueryStatus'
+type ViewQuerier_QueryStatus_Call struct {
+	*mock.Call
+}
+
+// QueryStatus is a helper method to define mock.On call
+//   - instanceID string
+func (_e *ViewQuerier_Expecter) QueryStatus(instanceID interface{}) *ViewQuerier_QueryStatus_Call {
+	return &ViewQuerier_QueryStatus_Call{Call: _e.mock.On("QueryStatus", instanceID)}
+}
+
+func (_c *ViewQuerier_QueryStatus_Call) Run(run func(instanceID string)) *ViewQuerier_QueryStatus_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *ViewQuerier_QueryStatus_Call) Return(_a0 []monitoring.StrategyStatusView, _a1 error) *ViewQuerier_QueryStatus_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ViewQuerier_QueryStatus_Call) RunAndReturn(run func(string) ([]monitoring.StrategyStatusView, error)) *ViewQuerier_QueryStatus_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// QueryStatusLog provides a mock function with given fields: instanceID
+func (_m *ViewQuerier) QueryStatusLog(instanceID string) ([]monitoring.StrategyStatusView, error) {
+	ret := _m.Called(instanceID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for QueryStatusLog")
+	}
+
+	var r0 []monitoring.StrategyStatusView
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) ([]monitoring.StrategyStatusView, error)); ok {
+		return rf(instanceID)
+	}
+	if rf, ok := ret.Get(0).(func(string) []monitoring.StrategyStatusView); ok {
+		r0 = rf(instanceID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]monitoring.StrategyStatusView)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(instanceID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ViewQuerier_QueryStatusLog_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'QueryStatusLog'
+type ViewQuerier_QueryStatusLog_Call struct {
+	*mock.Call
+}
+
+// QueryStatusLog is a helper method to define mock.On call
+//   - instanceID string
+func (_e *ViewQuerier_Expecter) QueryStatusLog(instanceID interface{}) *ViewQuerier_QueryStatusLog_Call {
+	return &ViewQuerier_QueryStatusLog_Call{Call: _e.mock.On("QueryStatusLog", instanceID)}
+}
+
+func (_c *ViewQuerier_QueryStatusLog_Call) Run(run func(instanceID string)) *ViewQuerier_QueryStatusLog_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(string))
+	})
+	return _c
+}
+
+func (_c *ViewQuerier_QueryStatusLog_Call) Return(_a0 []monitoring.StrategyStatusView, _a1 error) *ViewQuerier_QueryStatusLog_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *ViewQuerier_QueryStatusLog_Call) RunAndReturn(run func(string) ([]monitoring.StrategyStatusView, error)) *ViewQuerier_QueryStatusLog_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Shutdown provides a mock function with given fields: instanceID
 func (_m *ViewQuerier) Shutdown(instanceID string) error {
 	ret := _m.Called(instanceID)

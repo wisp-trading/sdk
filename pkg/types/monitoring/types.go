@@ -31,6 +31,16 @@ type StrategyMetrics struct {
 	MonthlyPnL       float64       `json:"monthly_pnl"`
 }
 
+// StrategyStatusView is the JSON-serialisable form of a strategy's latest status snapshot.
+// Returned by GET /api/status.
+type StrategyStatusView struct {
+	StrategyName string            `json:"strategy_name"`
+	Phase        string            `json:"phase"`
+	Summary      string            `json:"summary"`
+	Fields       map[string]string `json:"fields,omitempty"`
+	At           time.Time         `json:"at"`
+}
+
 // Type aliases for SDK profiling types
 // These allow us to use SDK profiling types directly in the CLI
 type (
