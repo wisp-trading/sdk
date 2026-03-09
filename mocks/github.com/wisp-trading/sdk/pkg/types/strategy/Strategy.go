@@ -22,51 +22,6 @@ func (_m *Strategy) EXPECT() *Strategy_Expecter {
 	return &Strategy_Expecter{mock: &_m.Mock}
 }
 
-// GetDescription provides a mock function with no fields
-func (_m *Strategy) GetDescription() string {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetDescription")
-	}
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func() string); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
-
-// Strategy_GetDescription_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetDescription'
-type Strategy_GetDescription_Call struct {
-	*mock.Call
-}
-
-// GetDescription is a helper method to define mock.On call
-func (_e *Strategy_Expecter) GetDescription() *Strategy_GetDescription_Call {
-	return &Strategy_GetDescription_Call{Call: _e.mock.On("GetDescription")}
-}
-
-func (_c *Strategy_GetDescription_Call) Run(run func()) *Strategy_GetDescription_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *Strategy_GetDescription_Call) Return(_a0 string) *Strategy_GetDescription_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Strategy_GetDescription_Call) RunAndReturn(run func() string) *Strategy_GetDescription_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // GetName provides a mock function with no fields
 func (_m *Strategy) GetName() strategy.StrategyName {
 	ret := _m.Called()
@@ -112,92 +67,47 @@ func (_c *Strategy_GetName_Call) RunAndReturn(run func() strategy.StrategyName) 
 	return _c
 }
 
-// GetRiskLevel provides a mock function with no fields
-func (_m *Strategy) GetRiskLevel() strategy.RiskLevel {
+// LatestStatus provides a mock function with no fields
+func (_m *Strategy) LatestStatus() strategy.StrategyStatus {
 	ret := _m.Called()
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetRiskLevel")
+		panic("no return value specified for LatestStatus")
 	}
 
-	var r0 strategy.RiskLevel
-	if rf, ok := ret.Get(0).(func() strategy.RiskLevel); ok {
+	var r0 strategy.StrategyStatus
+	if rf, ok := ret.Get(0).(func() strategy.StrategyStatus); ok {
 		r0 = rf()
 	} else {
-		r0 = ret.Get(0).(strategy.RiskLevel)
+		r0 = ret.Get(0).(strategy.StrategyStatus)
 	}
 
 	return r0
 }
 
-// Strategy_GetRiskLevel_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetRiskLevel'
-type Strategy_GetRiskLevel_Call struct {
+// Strategy_LatestStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LatestStatus'
+type Strategy_LatestStatus_Call struct {
 	*mock.Call
 }
 
-// GetRiskLevel is a helper method to define mock.On call
-func (_e *Strategy_Expecter) GetRiskLevel() *Strategy_GetRiskLevel_Call {
-	return &Strategy_GetRiskLevel_Call{Call: _e.mock.On("GetRiskLevel")}
+// LatestStatus is a helper method to define mock.On call
+func (_e *Strategy_Expecter) LatestStatus() *Strategy_LatestStatus_Call {
+	return &Strategy_LatestStatus_Call{Call: _e.mock.On("LatestStatus")}
 }
 
-func (_c *Strategy_GetRiskLevel_Call) Run(run func()) *Strategy_GetRiskLevel_Call {
+func (_c *Strategy_LatestStatus_Call) Run(run func()) *Strategy_LatestStatus_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run()
 	})
 	return _c
 }
 
-func (_c *Strategy_GetRiskLevel_Call) Return(_a0 strategy.RiskLevel) *Strategy_GetRiskLevel_Call {
+func (_c *Strategy_LatestStatus_Call) Return(_a0 strategy.StrategyStatus) *Strategy_LatestStatus_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *Strategy_GetRiskLevel_Call) RunAndReturn(run func() strategy.RiskLevel) *Strategy_GetRiskLevel_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetStrategyType provides a mock function with no fields
-func (_m *Strategy) GetStrategyType() strategy.StrategyType {
-	ret := _m.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetStrategyType")
-	}
-
-	var r0 strategy.StrategyType
-	if rf, ok := ret.Get(0).(func() strategy.StrategyType); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(strategy.StrategyType)
-	}
-
-	return r0
-}
-
-// Strategy_GetStrategyType_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetStrategyType'
-type Strategy_GetStrategyType_Call struct {
-	*mock.Call
-}
-
-// GetStrategyType is a helper method to define mock.On call
-func (_e *Strategy_Expecter) GetStrategyType() *Strategy_GetStrategyType_Call {
-	return &Strategy_GetStrategyType_Call{Call: _e.mock.On("GetStrategyType")}
-}
-
-func (_c *Strategy_GetStrategyType_Call) Run(run func()) *Strategy_GetStrategyType_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *Strategy_GetStrategyType_Call) Return(_a0 strategy.StrategyType) *Strategy_GetStrategyType_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *Strategy_GetStrategyType_Call) RunAndReturn(run func() strategy.StrategyType) *Strategy_GetStrategyType_Call {
+func (_c *Strategy_LatestStatus_Call) RunAndReturn(run func() strategy.StrategyStatus) *Strategy_LatestStatus_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -291,6 +201,53 @@ func (_c *Strategy_Start_Call) Return(_a0 error) *Strategy_Start_Call {
 }
 
 func (_c *Strategy_Start_Call) RunAndReturn(run func(context.Context) error) *Strategy_Start_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// StatusLog provides a mock function with no fields
+func (_m *Strategy) StatusLog() []strategy.StrategyStatus {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for StatusLog")
+	}
+
+	var r0 []strategy.StrategyStatus
+	if rf, ok := ret.Get(0).(func() []strategy.StrategyStatus); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]strategy.StrategyStatus)
+		}
+	}
+
+	return r0
+}
+
+// Strategy_StatusLog_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'StatusLog'
+type Strategy_StatusLog_Call struct {
+	*mock.Call
+}
+
+// StatusLog is a helper method to define mock.On call
+func (_e *Strategy_Expecter) StatusLog() *Strategy_StatusLog_Call {
+	return &Strategy_StatusLog_Call{Call: _e.mock.On("StatusLog")}
+}
+
+func (_c *Strategy_StatusLog_Call) Run(run func()) *Strategy_StatusLog_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Strategy_StatusLog_Call) Return(_a0 []strategy.StrategyStatus) *Strategy_StatusLog_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *Strategy_StatusLog_Call) RunAndReturn(run func() []strategy.StrategyStatus) *Strategy_StatusLog_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -97,6 +97,8 @@ func (s *server) Start() error {
 	mux.HandleFunc("/api/positions", s.handlePositions)
 	mux.HandleFunc("/api/trades", s.handleTrades)
 	mux.HandleFunc("/api/metrics", s.handleMetrics)
+	mux.HandleFunc("/api/status", s.handleStatus)
+	mux.HandleFunc("/api/status/log", s.handleStatusLog)
 	mux.HandleFunc("/api/markets", s.handleMarkets)
 	mux.HandleFunc("/api/orderbook", s.handleOrderbook)
 	mux.HandleFunc("/api/orderbook/prediction", s.handlePredictionOrderbook)

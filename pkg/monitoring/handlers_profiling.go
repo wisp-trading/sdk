@@ -7,6 +7,32 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
 )
 
+func (s *server) handleStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	statuses := s.viewRegistry.GetStrategyStatus()
+	if statuses == nil {
+		statuses = []monitoring.StrategyStatusView{}
+	}
+	s.writeJSON(w, statuses)
+}
+
+func (s *server) handleStatusLog(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	log := s.viewRegistry.GetStrategyStatusLog()
+	if log == nil {
+		log = []monitoring.StrategyStatusView{}
+	}
+	s.writeJSON(w, log)
+}
+
 func (s *server) handleProfilingStats(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
