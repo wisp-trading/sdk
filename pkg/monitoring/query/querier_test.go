@@ -149,7 +149,9 @@ var _ = Describe("Querier", func() {
 			})
 			startMockServer(mux)
 
-			result, err := querier.QueryOrderbook(instanceID, "binance", "BTC-USDT")
+			pair := portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))
+
+			result, err := querier.QueryOrderbook(instanceID, "binance", pair)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(result.Bids).To(HaveLen(1))
 			Expect(result.Asks).To(HaveLen(1))
