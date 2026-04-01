@@ -2,7 +2,20 @@
 
 The SDK is the Go library that powers the Wisp trading runtime. It defines the interfaces strategies are written against, the market domain packages (spot, perp, prediction), the signal execution pipeline, the monitoring server, and the fx dependency-injection wiring that holds everything together.
 
-This document is aimed at contributors and explains how the codebase is laid out and how the major pieces relate to each other.
+## For Strategy Developers
+
+If you're writing trading strategies with Wisp SDK, start at **[usewisp.dev/docs](https://usewisp.dev/docs)**:
+
+- **[Getting Started](https://usewisp.dev/docs/getting-started)** — Installation, configuration, your first strategy
+- **[Writing Strategies](https://usewisp.dev/docs/getting-started/writing-strategies)** — 13 strategy patterns with complete examples
+- **[Strategy Examples](https://usewisp.dev/docs/examples)** — Real strategies from basic to advanced
+- **[API Reference](https://usewisp.dev/docs/api/indicators/rsi)** — Indicators, market data, and more
+
+---
+
+## For Contributors
+
+This document explains the SDK codebase structure and is aimed at developers contributing to the Wisp SDK itself.
 
 ---
 
@@ -103,6 +116,8 @@ func (s *momentumStrategy) run(ctx context.Context) {
 }
 ```
 
+See [Strategy Examples](https://usewisp.dev/docs/examples) for complete working strategies using this pattern, from RSI momentum to multi-exchange arbitrage.
+
 ### Signal builders
 
 Signal builders live on the domain objects, not on `wisp.Wisp` directly:
@@ -121,6 +136,8 @@ signal, err := s.k.Spot().Signal(s.GetName()).
 
 `Build()` returns `(Signal, error)`. The concrete builders are in `pkg/signal/builder.go`; the interfaces are in `pkg/types/strategy/builder.go`.
 
+For a complete walkthrough of signal patterns and strategy structure, see [Writing Strategies](https://usewisp.dev/docs/getting-started/writing-strategies).
+
 ### Indicators
 
 Indicators are pure functions — they take a `[]connector.Kline` slice, not an asset or exchange name. Fetch klines from the domain object first, then pass them in:
@@ -138,6 +155,8 @@ stoch, _ := s.k.Indicators().Stochastic(klines, 14, 3)
 ```
 
 Fetching klines once and reusing them across multiple indicator calls avoids redundant store reads. Implementations live in `pkg/analytics/indicators/`.
+
+For strategy-focused indicator usage and multiple indicator combinations, see [API Reference](https://usewisp.dev/docs/api/indicators/rsi) and the pattern guide on [Writing Strategies](https://usewisp.dev/docs/getting-started/writing-strategies).
 
 ---
 
@@ -227,6 +246,14 @@ Run all tests:
 ```bash
 make test
 ```
+
+---
+
+## Resources
+
+- **[Wisp SDK Documentation](https://usewisp.dev/docs)** — User guide, examples, and API reference
+- **[GitHub Repository](https://github.com/wisp-trading/sdk)** — Source code and issue tracking
+- **[Getting Started](https://usewisp.dev/docs/getting-started)** — Installation and first steps
 
 ---
 
