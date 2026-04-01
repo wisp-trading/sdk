@@ -79,7 +79,8 @@ func (a *PerpAction) GetMarketType() connector.MarketType {
 	return connector.MarketTypePerp
 }
 
-// Validate checks if the perp action is valid
+// Validate checks if the perp action is valid.
+// A zero price is treated as a market order and is permitted.
 func (a *PerpAction) Validate() error {
 	if err := a.ValidateBase(); err != nil {
 		return err
@@ -90,11 +91,9 @@ func (a *PerpAction) Validate() error {
 	if a.Quantity.IsZero() || a.Quantity.IsNegative() {
 		return fmt.Errorf("quantity must be positive")
 	}
-	if a.Price.IsZero() || a.Price.IsNegative() {
-		return fmt.Errorf("price must be positive")
-	}
-	if !a.Leverage.IsZero() && (a.Leverage.LessThan(numerical.NewFromInt(1)) || a.Leverage.GreaterThan(numerical.NewFromInt(125))) {
-		return fmt.Errorf("leverage must be between 1x and 125x")
+	// Price of zero is a market order; only reject explicitly negative prices.
+	if a.Price.IsNegative() {
+		return fmt.Errorf("price must not be negative")
 	}
 	return nil
 }

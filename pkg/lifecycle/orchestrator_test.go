@@ -174,9 +174,7 @@ type timerStrategy struct {
 func newTimerStrategy(emitted chan struct{}) *timerStrategy {
 	return &timerStrategy{
 		BaseStrategy: *strategy.NewBaseStrategy(strategy.BaseStrategyConfig{
-			Name:      "TimerStrategy",
-			RiskLevel: strategy.RiskLevelLow,
-			Type:      strategy.StrategyTypeTechnical,
+			Name: "TimerStrategy",
 		}),
 		emitted: emitted,
 	}

@@ -37,7 +37,7 @@ func BenchmarkSignalBuilder_Buy(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		builder := benchFactory.NewSpot(benchStrategyName)
-		_ = builder.Buy(benchPair, benchExchange, benchQuantity).Build()
+		_, _ = builder.Buy(benchPair, benchExchange, benchQuantity).Build()
 	}
 }
 
@@ -45,7 +45,7 @@ func BenchmarkSignalBuilder_BuyLimit(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		builder := benchFactory.NewSpot(benchStrategyName)
-		_ = builder.BuyLimit(benchPair, benchExchange, benchQuantity, benchPrice).Build()
+		_, _ = builder.BuyLimit(benchPair, benchExchange, benchQuantity, benchPrice).Build()
 	}
 }
 
@@ -53,7 +53,7 @@ func BenchmarkSignalBuilder_Sell(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		builder := benchFactory.NewSpot(benchStrategyName)
-		_ = builder.Sell(benchPair, benchExchange, benchQuantity).Build()
+		_, _ = builder.Sell(benchPair, benchExchange, benchQuantity).Build()
 	}
 }
 
@@ -61,7 +61,7 @@ func BenchmarkSignalBuilder_SellLimit(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		builder := benchFactory.NewSpot(benchStrategyName)
-		_ = builder.SellLimit(benchPair, benchExchange, benchQuantity, benchPrice).Build()
+		_, _ = builder.SellLimit(benchPair, benchExchange, benchQuantity, benchPrice).Build()
 	}
 }
 
@@ -69,7 +69,7 @@ func BenchmarkSignalBuilder_SellShort(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		builder := benchFactory.NewSpot(benchStrategyName)
-		_ = builder.SellShort(benchPair, benchExchange, benchQuantity).Build()
+		_, _ = builder.SellShort(benchPair, benchExchange, benchQuantity).Build()
 	}
 }
 
@@ -77,7 +77,7 @@ func BenchmarkSignalBuilder_SellShortLimit(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		builder := benchFactory.NewSpot(benchStrategyName)
-		_ = builder.SellShortLimit(benchPair, benchExchange, benchQuantity, benchPrice).Build()
+		_, _ = builder.SellShortLimit(benchPair, benchExchange, benchQuantity, benchPrice).Build()
 	}
 }
 
@@ -85,7 +85,7 @@ func BenchmarkSignalBuilder_ChainedActions(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		builder := benchFactory.NewSpot(benchStrategyName)
-		_ = builder.
+		_, _ = builder.
 			Buy(benchPair, benchExchange, benchQuantity).
 			Sell(benchPair, benchExchange, benchQuantity).
 			BuyLimit(benchPair, benchExchange, benchQuantity, benchPrice).
@@ -107,7 +107,7 @@ func BenchmarkSignalBuilder_MultipleActions(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		builder := benchFactory.NewSpot(benchStrategyName)
-		_ = builder.
+		_, _ = builder.
 			Buy(benchPair, benchExchange, benchQuantity).
 			Buy(pair2, benchExchange, benchQuantity).
 			Buy(pair3, benchExchange, benchQuantity).
@@ -121,7 +121,7 @@ func BenchmarkSignalBuilder_Build(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		builder := benchFactory.NewSpot(benchStrategyName)
-		_ = builder.Build()
+		_, _ = builder.Build()
 	}
 }
 
@@ -176,7 +176,7 @@ func BenchmarkSignalBuilder_LargeSignal(b *testing.B) {
 		for _, asset := range pairs {
 			builder = builder.Buy(asset, benchExchange, benchQuantity)
 		}
-		_ = builder.Build()
+		_, _ = builder.Build()
 	}
 }
 
@@ -193,7 +193,7 @@ func BenchmarkSignalBuilder_Buy_Parallel(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
 			builder := benchFactory.NewSpot(benchStrategyName)
-			_ = builder.Buy(benchPair, benchExchange, benchQuantity).Build()
+			_, _ = builder.Buy(benchPair, benchExchange, benchQuantity).Build()
 		}
 	})
 }
@@ -203,7 +203,7 @@ func BenchmarkSignalBuilder_ChainedActions_Parallel(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
 			builder := benchFactory.NewSpot(benchStrategyName)
-			_ = builder.
+			_, _ = builder.
 				Buy(benchPair, benchExchange, benchQuantity).
 				Sell(benchPair, benchExchange, benchQuantity).
 				BuyLimit(benchPair, benchExchange, benchQuantity, benchPrice).
@@ -264,7 +264,7 @@ func BenchmarkSignalBuilder_LargeSignal_Parallel(b *testing.B) {
 			for _, asset := range pairs {
 				builder = builder.Buy(asset, benchExchange, benchQuantity)
 			}
-			_ = builder.Build()
+			_, _ = builder.Build()
 		}
 	})
 }
