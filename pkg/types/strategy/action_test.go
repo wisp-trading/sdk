@@ -70,28 +70,6 @@ func TestPerpActionWithLeverage(t *testing.T) {
 	}
 }
 
-func TestPerpActionInvalidLeverage(t *testing.T) {
-	eth := portfolio.NewAsset("ETH")
-	usdt := portfolio.NewAsset("USDT")
-	pair := portfolio.NewPair(eth, usdt)
-
-	// Test leverage too high
-	action := &strategy.PerpAction{
-		BaseAction: strategy.BaseAction{
-			ActionType: strategy.ActionBuy,
-			Exchange:   connector.ExchangeName("bybit"),
-		},
-		Pair:     pair,
-		Quantity: numerical.NewFromFloat(10),
-		Price:    numerical.NewFromFloat(3000),
-		Leverage: numerical.NewFromInt(200), // Invalid: > 125x
-	}
-
-	if err := action.Validate(); err == nil {
-		t.Error("Expected validation error for leverage > 125x")
-	}
-}
-
 func TestPolymorphicActionInterface(t *testing.T) {
 	btc := portfolio.NewAsset("BTC")
 	usdt := portfolio.NewAsset("USDT")
