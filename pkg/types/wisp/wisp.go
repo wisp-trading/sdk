@@ -1,6 +1,7 @@
 package wisp
 
 import (
+	optionsTypes "github.com/wisp-trading/sdk/pkg/markets/options/types"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
@@ -54,4 +55,10 @@ type Wisp interface {
 	// Example: wisp.Predict().WatchMarket(exchange, market)
 	// Example: wisp.Predict().Signal(strategyName).Buy(market, outcome, exchange, shares, maxPrice, expiry).Build()
 	Predict() predTypes.Predict
+
+	// Options returns the options market domain context.
+	// Owns watchlist management, Greeks, IV, positions, and signal creation.
+	// Example: wisp.Options().WatchContract(exchange, contract)
+	// Example: wisp.Options().MarkPrice(exchange, contract)
+	Options() optionsTypes.Options
 }

@@ -1,6 +1,7 @@
 package wisp
 
 import (
+	optionsTypes "github.com/wisp-trading/sdk/pkg/markets/options/types"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
@@ -25,6 +26,7 @@ type wisp struct {
 	perp          perpTypes.Perp
 	predict       predTypes.Predict
 	spotService   spotTypes.Spot
+	options       optionsTypes.Options
 }
 
 // NewWisp creates a new Wisp context with injected services.
@@ -39,6 +41,7 @@ func NewWisp(
 	perpService perpTypes.Perp,
 	predictService predTypes.Predict,
 	spotService spotTypes.Spot,
+	optionsService optionsTypes.Options,
 ) wispTypes.Wisp {
 	return &wisp{
 		tradingLogger: tradingLogger,
@@ -50,6 +53,7 @@ func NewWisp(
 		perp:          perpService,
 		predict:       predictService,
 		spotService:   spotService,
+		options:       optionsService,
 	}
 }
 
@@ -60,6 +64,7 @@ func (k *wisp) Log() logging.TradingLogger       { return k.tradingLogger }
 func (k *wisp) Perp() perpTypes.Perp             { return k.perp }
 func (k *wisp) Predict() predTypes.Predict       { return k.predict }
 func (k *wisp) Spot() spotTypes.Spot             { return k.spotService }
+func (k *wisp) Options() optionsTypes.Options    { return k.options }
 
 func (k *wisp) Pair(base, quote portfolio.Asset) portfolio.Pair {
 	return portfolio.NewPair(base, quote)

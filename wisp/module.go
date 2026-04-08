@@ -2,6 +2,7 @@ package wisp
 
 import (
 	packages "github.com/wisp-trading/sdk/pkg"
+	"github.com/wisp-trading/sdk/pkg/markets/options/options"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/perp"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/predict"
 	"github.com/wisp-trading/sdk/pkg/markets/spot/spot"
@@ -18,6 +19,7 @@ var Module = fx.Module("wisp",
 		perp.NewPerp,
 		predict.NewPredict,
 		spot.NewSpot,
+		options.NewOptions,
 	),
 
 	// Provide the main Wisp context

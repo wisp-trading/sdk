@@ -24,7 +24,7 @@ func NewFactory(
 	store optionsTypes.OptionsStore,
 	timeProvider temporal.TimeProvider,
 	logger logging.ApplicationLogger,
-) batchTypes.BatchIngestorFactory {
+) optionsTypes.OptionsBatchIngestorFactory {
 	return &factory{
 		connectorRegistry: connectorRegistry,
 		watchlist:         watchlist,

@@ -1,15 +1,20 @@
 package store
 
 import (
+	"strings"
 	"sync"
 
+	"github.com/wisp-trading/sdk/pkg/markets/base/store/extensions"
 	marketStore "github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	optionsTypes "github.com/wisp-trading/sdk/pkg/markets/options/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 type optionsStore struct {
+	marketStore.TradesStoreExtension
+
 	mu sync.RWMutex
 
 	// Market data
@@ -23,18 +28,19 @@ type optionsStore struct {
 }
 
 // NewStore creates a new options market store
-func NewStore(timeProvider interface{}) optionsTypes.OptionsStore {
+func NewStore(timeProvider temporal.TimeProvider) optionsTypes.OptionsStore {
 	return &optionsStore{
-		markPrices:      make(map[string]float64),
-		underlyingPrice: make(map[string]float64),
-		greeks:          make(map[string]optionsTypes.Greeks),
-		iv:              make(map[string]float64),
-		positions:       make(map[string]optionsTypes.Position),
+		TradesStoreExtension: extensions.NewTradesExtension(),
+		markPrices:           make(map[string]float64),
+		underlyingPrice:      make(map[string]float64),
+		greeks:               make(map[string]optionsTypes.Greeks),
+		iv:                   make(map[string]float64),
+		positions:            make(map[string]optionsTypes.Position),
 	}
 }
 
 func (s *optionsStore) contractKey(contract optionsTypes.OptionContract) string {
-	return contract.Pair.Symbol() + ":" + contract.Expiration.String() + ":" + contract.OptionType + ":" + floatToString(contract.Strike)
+	return contract.Pair.Symbol() + ":" + contract.Expiration.String() + ":" + strings.ToUpper(contract.OptionType) + ":" + floatToString(contract.Strike)
 }
 
 func floatToString(f float64) string {
@@ -61,6 +67,36 @@ func (s *optionsStore) SetPosition(contract optionsTypes.OptionContract, positio
 
 	key := s.contractKey(contract)
 	s.positions[key] = position
+}
+
+// GetAllPositions returns all positions in the store
+func (s *optionsStore) GetAllPositions() []optionsTypes.Position {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	positions := make([]optionsTypes.Position, 0, len(s.positions))
+	for _, pos := range s.positions {
+		positions = append(positions, pos)
+	}
+	return positions
+}
+
+// QueryPositions returns positions matching the given query (exchange and/or pair filter).
+func (s *optionsStore) QueryPositions(q marketStore.ActivityQuery) []optionsTypes.Position {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	var out []optionsTypes.Position
+	for _, pos := range s.positions {
+		if q.Exchange != nil && pos.Exchange != *q.Exchange {
+			continue
+		}
+		if q.Pair != nil && pos.Contract.Pair.Symbol() != q.Pair.Symbol() {
+			continue
+		}
+		out = append(out, pos)
+	}
+	return out
 }
 
 // GetMarkPrice returns the mark price for a contract
@@ -140,31 +176,19 @@ func (s *optionsStore) GetPortfolioGreeks() optionsTypes.Greeks {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	portfolio := optionsTypes.Greeks{}
+	result := optionsTypes.Greeks{}
 
 	for key, position := range s.positions {
 		if greeks, ok := s.greeks[key]; ok {
-			portfolio.Delta += greeks.Delta * position.Quantity
-			portfolio.Gamma += greeks.Gamma * position.Quantity
-			portfolio.Theta += greeks.Theta * position.Quantity
-			portfolio.Vega += greeks.Vega * position.Quantity
-			portfolio.Rho += greeks.Rho * position.Quantity
+			result.Delta += greeks.Delta * position.Quantity
+			result.Gamma += greeks.Gamma * position.Quantity
+			result.Theta += greeks.Theta * position.Quantity
+			result.Vega += greeks.Vega * position.Quantity
+			result.Rho += greeks.Rho * position.Quantity
 		}
 	}
 
-	return portfolio
-}
-
-// GetAllPositions returns all positions in the store
-func (s *optionsStore) GetAllPositions() []optionsTypes.Position {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	positions := make([]optionsTypes.Position, 0, len(s.positions))
-	for _, pos := range s.positions {
-		positions = append(positions, pos)
-	}
-	return positions
+	return result
 }
 
 // MarketType returns the market type

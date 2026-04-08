@@ -2,15 +2,19 @@ package types
 
 import (
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
 
 // OptionsStore manages options market data, positions, and Greeks
 type OptionsStore interface {
 	market.MarketStore
+	market.TradesStoreExtension
 
 	// Positions
 	GetPosition(contract OptionContract) *Position
 	SetPosition(contract OptionContract, position Position)
+	GetAllPositions() []Position
+	QueryPositions(q market.ActivityQuery) []Position
 
 	// Market data (float64 for hot path)
 	GetMarkPrice(contract OptionContract) float64
@@ -29,13 +33,13 @@ type OptionsStore interface {
 
 	// Portfolio aggregates
 	GetPortfolioGreeks() Greeks
-	GetAllPositions() []Position
 }
 
 // Position represents a holder's position in an option contract
 type Position struct {
-	Contract OptionContract
-	Quantity float64 // Number of contracts held
+	Exchange   connector.ExchangeName
+	Contract   OptionContract
+	Quantity   float64 // Number of contracts held
 	EntryPrice float64 // Average entry price
 	Unrealized float64 // Unrealized P&L
 }
