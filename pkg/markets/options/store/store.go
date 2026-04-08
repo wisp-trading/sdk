@@ -1,6 +1,7 @@
 package store
 
 import (
+	"strconv"
 	"strings"
 	"sync"
 
@@ -44,8 +45,7 @@ func (s *optionsStore) contractKey(contract optionsTypes.OptionContract) string 
 }
 
 func floatToString(f float64) string {
-	// Simple conversion for use as a map key
-	return string(rune(f))
+	return strconv.FormatFloat(f, 'f', -1, 64)
 }
 
 // GetPosition returns the position for a contract

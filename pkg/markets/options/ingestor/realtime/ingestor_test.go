@@ -68,8 +68,8 @@ var _ = Describe("Options RealtimeIngestor", func() {
 				m := setupMockWSConnector(GinkgoT(), exchangeName)
 				m.EXPECT().GetTradeChannels().Return(map[string]<-chan connector.Trade{}).Maybe()
 				m.EXPECT().GetOrderBookChannels().Return(map[string]<-chan connector.OrderBook{}).Maybe()
-				m.EXPECT().SubscribeExpirationUpdates(mock.Anything, mock.Anything).Return(nil).Maybe()
-				m.EXPECT().UnsubscribeExpirationUpdates(mock.Anything, mock.Anything).Return(nil).Maybe()
+				m.EXPECT().SubscribeExpirationUpdates(mock.Anything, mock.Anything, mock.Anything).Return(nil).Maybe()
+				m.EXPECT().UnsubscribeExpirationUpdates(mock.Anything, mock.Anything, mock.Anything).Return(nil).Maybe()
 
 				connectorRegistry.RegisterOptions(exchangeName, m)
 				connectorRegistry.MarkReady(exchangeName)
@@ -94,8 +94,8 @@ var _ = Describe("Options RealtimeIngestor", func() {
 			m = setupMockWSConnector(GinkgoT(), exchangeName)
 			m.EXPECT().GetTradeChannels().Return(map[string]<-chan connector.Trade{}).Maybe()
 			m.EXPECT().GetOrderBookChannels().Return(map[string]<-chan connector.OrderBook{}).Maybe()
-			m.EXPECT().SubscribeExpirationUpdates(mock.Anything, mock.Anything).Return(nil).Maybe()
-			m.EXPECT().UnsubscribeExpirationUpdates(mock.Anything, mock.Anything).Return(nil).Maybe()
+			m.EXPECT().SubscribeExpirationUpdates(mock.Anything, mock.Anything, mock.Anything).Return(nil).Maybe()
+			m.EXPECT().UnsubscribeExpirationUpdates(mock.Anything, mock.Anything, mock.Anything).Return(nil).Maybe()
 
 			connectorRegistry.RegisterOptions(exchangeName, m)
 			connectorRegistry.MarkReady(exchangeName)
@@ -113,10 +113,13 @@ var _ = Describe("Options RealtimeIngestor", func() {
 				m.EXPECT().GetOptionUpdateChannels().Return(map[string]<-chan optionsconnector.OptionUpdate{}).Maybe()
 				watchlist.RequireExpiration(connector.ExchangeName("test-exchange"), btcPair, expiration)
 
+				// Pre-populate watchlist strikes so the ingestor can resolve contracts
+				watchlist.SetStrikes(connector.ExchangeName("test-exchange"), btcPair, expiration, []float64{50000})
+
 				err := ingestor.Start(ctx)
 				Expect(err).NotTo(HaveOccurred())
 
-				m.AssertCalled(GinkgoT(), "SubscribeExpirationUpdates", btcPair, expiration)
+				m.AssertCalled(GinkgoT(), "SubscribeExpirationUpdates", btcPair, expiration, mock.Anything)
 
 				err = ingestor.Stop()
 				Expect(err).NotTo(HaveOccurred())
@@ -128,13 +131,16 @@ var _ = Describe("Options RealtimeIngestor", func() {
 				m.EXPECT().GetOptionUpdateChannels().Return(map[string]<-chan optionsconnector.OptionUpdate{}).Maybe()
 				watchlist.RequireExpiration(connector.ExchangeName("test-exchange"), btcPair, expiration)
 
+				// Pre-populate watchlist strikes so the ingestor can resolve contracts
+				watchlist.SetStrikes(connector.ExchangeName("test-exchange"), btcPair, expiration, []float64{50000})
+
 				err := ingestor.Start(ctx)
 				Expect(err).NotTo(HaveOccurred())
 
 				err = ingestor.Stop()
 				Expect(err).NotTo(HaveOccurred())
 
-				m.AssertCalled(GinkgoT(), "UnsubscribeExpirationUpdates", btcPair, expiration)
+				m.AssertCalled(GinkgoT(), "UnsubscribeExpirationUpdates", btcPair, expiration, mock.Anything)
 			})
 		})
 
@@ -212,8 +218,8 @@ var _ = Describe("Options RealtimeIngestor", func() {
 			m.EXPECT().GetOptionUpdateChannels().Return(map[string]<-chan optionsconnector.OptionUpdate{}).Maybe()
 			m.EXPECT().GetTradeChannels().Return(map[string]<-chan connector.Trade{}).Maybe()
 			m.EXPECT().GetOrderBookChannels().Return(map[string]<-chan connector.OrderBook{}).Maybe()
-			m.EXPECT().SubscribeExpirationUpdates(mock.Anything, mock.Anything).Return(nil).Maybe()
-			m.EXPECT().UnsubscribeExpirationUpdates(mock.Anything, mock.Anything).Return(nil).Maybe()
+			m.EXPECT().SubscribeExpirationUpdates(mock.Anything, mock.Anything, mock.Anything).Return(nil).Maybe()
+			m.EXPECT().UnsubscribeExpirationUpdates(mock.Anything, mock.Anything, mock.Anything).Return(nil).Maybe()
 
 			connectorRegistry.RegisterOptions(exchangeName, m)
 			connectorRegistry.MarkReady(exchangeName)
@@ -246,6 +252,7 @@ var _ = Describe("Options RealtimeIngestor", func() {
 		It("should cancel processing on context cancellation", func() {
 			m.EXPECT().GetOptionUpdateChannels().Return(map[string]<-chan optionsconnector.OptionUpdate{}).Maybe()
 			watchlist.RequireExpiration(connector.ExchangeName("test-exchange"), btcPair, expiration)
+			watchlist.SetStrikes(connector.ExchangeName("test-exchange"), btcPair, expiration, []float64{50000})
 
 			err := ingestor.Start(ctx)
 			Expect(err).NotTo(HaveOccurred())

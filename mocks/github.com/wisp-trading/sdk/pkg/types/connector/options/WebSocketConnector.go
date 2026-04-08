@@ -1367,16 +1367,16 @@ func (_c *MockWebSocketConnector_StopWebSocket_Call) RunAndReturn(run func() err
 }
 
 // SubscribeExpirationUpdates provides a mock function for the type MockWebSocketConnector
-func (_mock *MockWebSocketConnector) SubscribeExpirationUpdates(pair portfolio.Pair, expiration time.Time) error {
-	ret := _mock.Called(pair, expiration)
+func (_mock *MockWebSocketConnector) SubscribeExpirationUpdates(pair portfolio.Pair, expiration time.Time, contracts []options.OptionContract) error {
+	ret := _mock.Called(pair, expiration, contracts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SubscribeExpirationUpdates")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(portfolio.Pair, time.Time) error); ok {
-		r0 = returnFunc(pair, expiration)
+	if returnFunc, ok := ret.Get(0).(func(portfolio.Pair, time.Time, []options.OptionContract) error); ok {
+		r0 = returnFunc(pair, expiration, contracts)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -1391,11 +1391,12 @@ type MockWebSocketConnector_SubscribeExpirationUpdates_Call struct {
 // SubscribeExpirationUpdates is a helper method to define mock.On call
 //   - pair portfolio.Pair
 //   - expiration time.Time
-func (_e *MockWebSocketConnector_Expecter) SubscribeExpirationUpdates(pair interface{}, expiration interface{}) *MockWebSocketConnector_SubscribeExpirationUpdates_Call {
-	return &MockWebSocketConnector_SubscribeExpirationUpdates_Call{Call: _e.mock.On("SubscribeExpirationUpdates", pair, expiration)}
+//   - contracts []options.OptionContract
+func (_e *MockWebSocketConnector_Expecter) SubscribeExpirationUpdates(pair interface{}, expiration interface{}, contracts interface{}) *MockWebSocketConnector_SubscribeExpirationUpdates_Call {
+	return &MockWebSocketConnector_SubscribeExpirationUpdates_Call{Call: _e.mock.On("SubscribeExpirationUpdates", pair, expiration, contracts)}
 }
 
-func (_c *MockWebSocketConnector_SubscribeExpirationUpdates_Call) Run(run func(pair portfolio.Pair, expiration time.Time)) *MockWebSocketConnector_SubscribeExpirationUpdates_Call {
+func (_c *MockWebSocketConnector_SubscribeExpirationUpdates_Call) Run(run func(pair portfolio.Pair, expiration time.Time, contracts []options.OptionContract)) *MockWebSocketConnector_SubscribeExpirationUpdates_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 portfolio.Pair
 		if args[0] != nil {
@@ -1405,9 +1406,14 @@ func (_c *MockWebSocketConnector_SubscribeExpirationUpdates_Call) Run(run func(p
 		if args[1] != nil {
 			arg1 = args[1].(time.Time)
 		}
+		var arg2 []options.OptionContract
+		if args[2] != nil {
+			arg2 = args[2].([]options.OptionContract)
+		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
@@ -1418,7 +1424,58 @@ func (_c *MockWebSocketConnector_SubscribeExpirationUpdates_Call) Return(err err
 	return _c
 }
 
-func (_c *MockWebSocketConnector_SubscribeExpirationUpdates_Call) RunAndReturn(run func(pair portfolio.Pair, expiration time.Time) error) *MockWebSocketConnector_SubscribeExpirationUpdates_Call {
+func (_c *MockWebSocketConnector_SubscribeExpirationUpdates_Call) RunAndReturn(run func(pair portfolio.Pair, expiration time.Time, contracts []options.OptionContract) error) *MockWebSocketConnector_SubscribeExpirationUpdates_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SubscribeOrderBook provides a mock function for the type MockWebSocketConnector
+func (_mock *MockWebSocketConnector) SubscribeOrderBook(contract *options.OptionContract) error {
+	ret := _mock.Called(contract)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SubscribeOrderBook")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(*options.OptionContract) error); ok {
+		r0 = returnFunc(contract)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockWebSocketConnector_SubscribeOrderBook_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SubscribeOrderBook'
+type MockWebSocketConnector_SubscribeOrderBook_Call struct {
+	*mock.Call
+}
+
+// SubscribeOrderBook is a helper method to define mock.On call
+//   - contract *options.OptionContract
+func (_e *MockWebSocketConnector_Expecter) SubscribeOrderBook(contract interface{}) *MockWebSocketConnector_SubscribeOrderBook_Call {
+	return &MockWebSocketConnector_SubscribeOrderBook_Call{Call: _e.mock.On("SubscribeOrderBook", contract)}
+}
+
+func (_c *MockWebSocketConnector_SubscribeOrderBook_Call) Run(run func(contract *options.OptionContract)) *MockWebSocketConnector_SubscribeOrderBook_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *options.OptionContract
+		if args[0] != nil {
+			arg0 = args[0].(*options.OptionContract)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockWebSocketConnector_SubscribeOrderBook_Call) Return(err error) *MockWebSocketConnector_SubscribeOrderBook_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockWebSocketConnector_SubscribeOrderBook_Call) RunAndReturn(run func(contract *options.OptionContract) error) *MockWebSocketConnector_SubscribeOrderBook_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1512,16 +1569,16 @@ func (_c *MockWebSocketConnector_SupportsTradingOperations_Call) RunAndReturn(ru
 }
 
 // UnsubscribeExpirationUpdates provides a mock function for the type MockWebSocketConnector
-func (_mock *MockWebSocketConnector) UnsubscribeExpirationUpdates(pair portfolio.Pair, expiration time.Time) error {
-	ret := _mock.Called(pair, expiration)
+func (_mock *MockWebSocketConnector) UnsubscribeExpirationUpdates(pair portfolio.Pair, expiration time.Time, contracts []options.OptionContract) error {
+	ret := _mock.Called(pair, expiration, contracts)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UnsubscribeExpirationUpdates")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(portfolio.Pair, time.Time) error); ok {
-		r0 = returnFunc(pair, expiration)
+	if returnFunc, ok := ret.Get(0).(func(portfolio.Pair, time.Time, []options.OptionContract) error); ok {
+		r0 = returnFunc(pair, expiration, contracts)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -1536,11 +1593,12 @@ type MockWebSocketConnector_UnsubscribeExpirationUpdates_Call struct {
 // UnsubscribeExpirationUpdates is a helper method to define mock.On call
 //   - pair portfolio.Pair
 //   - expiration time.Time
-func (_e *MockWebSocketConnector_Expecter) UnsubscribeExpirationUpdates(pair interface{}, expiration interface{}) *MockWebSocketConnector_UnsubscribeExpirationUpdates_Call {
-	return &MockWebSocketConnector_UnsubscribeExpirationUpdates_Call{Call: _e.mock.On("UnsubscribeExpirationUpdates", pair, expiration)}
+//   - contracts []options.OptionContract
+func (_e *MockWebSocketConnector_Expecter) UnsubscribeExpirationUpdates(pair interface{}, expiration interface{}, contracts interface{}) *MockWebSocketConnector_UnsubscribeExpirationUpdates_Call {
+	return &MockWebSocketConnector_UnsubscribeExpirationUpdates_Call{Call: _e.mock.On("UnsubscribeExpirationUpdates", pair, expiration, contracts)}
 }
 
-func (_c *MockWebSocketConnector_UnsubscribeExpirationUpdates_Call) Run(run func(pair portfolio.Pair, expiration time.Time)) *MockWebSocketConnector_UnsubscribeExpirationUpdates_Call {
+func (_c *MockWebSocketConnector_UnsubscribeExpirationUpdates_Call) Run(run func(pair portfolio.Pair, expiration time.Time, contracts []options.OptionContract)) *MockWebSocketConnector_UnsubscribeExpirationUpdates_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 portfolio.Pair
 		if args[0] != nil {
@@ -1550,9 +1608,14 @@ func (_c *MockWebSocketConnector_UnsubscribeExpirationUpdates_Call) Run(run func
 		if args[1] != nil {
 			arg1 = args[1].(time.Time)
 		}
+		var arg2 []options.OptionContract
+		if args[2] != nil {
+			arg2 = args[2].([]options.OptionContract)
+		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
@@ -1563,7 +1626,58 @@ func (_c *MockWebSocketConnector_UnsubscribeExpirationUpdates_Call) Return(err e
 	return _c
 }
 
-func (_c *MockWebSocketConnector_UnsubscribeExpirationUpdates_Call) RunAndReturn(run func(pair portfolio.Pair, expiration time.Time) error) *MockWebSocketConnector_UnsubscribeExpirationUpdates_Call {
+func (_c *MockWebSocketConnector_UnsubscribeExpirationUpdates_Call) RunAndReturn(run func(pair portfolio.Pair, expiration time.Time, contracts []options.OptionContract) error) *MockWebSocketConnector_UnsubscribeExpirationUpdates_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UnsubscribeOrderBook provides a mock function for the type MockWebSocketConnector
+func (_mock *MockWebSocketConnector) UnsubscribeOrderBook(contract *options.OptionContract) error {
+	ret := _mock.Called(contract)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UnsubscribeOrderBook")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(*options.OptionContract) error); ok {
+		r0 = returnFunc(contract)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockWebSocketConnector_UnsubscribeOrderBook_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UnsubscribeOrderBook'
+type MockWebSocketConnector_UnsubscribeOrderBook_Call struct {
+	*mock.Call
+}
+
+// UnsubscribeOrderBook is a helper method to define mock.On call
+//   - contract *options.OptionContract
+func (_e *MockWebSocketConnector_Expecter) UnsubscribeOrderBook(contract interface{}) *MockWebSocketConnector_UnsubscribeOrderBook_Call {
+	return &MockWebSocketConnector_UnsubscribeOrderBook_Call{Call: _e.mock.On("UnsubscribeOrderBook", contract)}
+}
+
+func (_c *MockWebSocketConnector_UnsubscribeOrderBook_Call) Run(run func(contract *options.OptionContract)) *MockWebSocketConnector_UnsubscribeOrderBook_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *options.OptionContract
+		if args[0] != nil {
+			arg0 = args[0].(*options.OptionContract)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockWebSocketConnector_UnsubscribeOrderBook_Call) Return(err error) *MockWebSocketConnector_UnsubscribeOrderBook_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockWebSocketConnector_UnsubscribeOrderBook_Call) RunAndReturn(run func(contract *options.OptionContract) error) *MockWebSocketConnector_UnsubscribeOrderBook_Call {
 	_c.Call.Return(run)
 	return _c
 }
