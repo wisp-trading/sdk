@@ -4,6 +4,6 @@
 // The SDK defines the interfaces and utilities for creating custom exchange
 // connectors that integrate with the Wisp event-driven architecture.
 //
-// For documentation, visit https://docs.usewisp.dev
+// For documentation, visit https://usewisp.dev/docs
 // For the main framework, visit https://github.com/wisp-trading/wisp
 package sdk
