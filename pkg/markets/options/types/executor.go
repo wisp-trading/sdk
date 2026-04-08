@@ -7,12 +7,12 @@ import (
 // OptionsExecutor handles order execution for options contracts
 type OptionsExecutor interface {
 	PlaceOrder(order OptionOrder) (*connector.OrderResponse, error)
-	CancelOrder(orderID string) (*connector.CancelResponse, error)
-	GetOpenOrders() ([]connector.Order, error)
+	CancelOrder(orderID string, exchange connector.ExchangeName) (*connector.CancelResponse, error)
 }
 
 // OptionOrder represents an order for an options contract
 type OptionOrder struct {
+	Exchange connector.ExchangeName
 	Contract OptionContract
 	Side     connector.OrderSide
 	Quantity float64
