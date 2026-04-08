@@ -212,9 +212,9 @@ var _ = Describe("Options PnL Calculator", func() {
 			optStore.SetGreeks(contract, greeks)
 
 			portfolioGreeks := pnl.GetPortfolioGreeks()
-			Expect(portfolioGreeks.Delta).To(Equal(1.2))
-			Expect(portfolioGreeks.Gamma).To(Equal(0.02))
-			Expect(portfolioGreeks.Theta).To(Equal(-0.1))
+			Expect(portfolioGreeks.Delta).To(BeNumerically("~", 1.2, 0.0001))
+			Expect(portfolioGreeks.Gamma).To(BeNumerically("~", 0.02, 0.0001))
+			Expect(portfolioGreeks.Theta).To(BeNumerically("~", -0.1, 0.0001))
 		})
 	})
 })

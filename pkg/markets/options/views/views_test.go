@@ -7,9 +7,9 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/options/store"
 	"github.com/wisp-trading/sdk/pkg/markets/options/types"
 	"github.com/wisp-trading/sdk/pkg/markets/options/views"
+	timeProvider "github.com/wisp-trading/sdk/pkg/runtime/time"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
-	timeProvider "github.com/wisp-trading/sdk/pkg/runtime/time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -154,8 +154,8 @@ var _ = Describe("Options View", func() {
 
 			optStore.SetGreeks(contract, greeks)
 			portfolioGreeks := view.GetPortfolioGreeks()
-			Expect(portfolioGreeks.Delta).To(Equal(1.8))
-			Expect(portfolioGreeks.Gamma).To(Equal(0.03))
+			Expect(portfolioGreeks.Delta).To(BeNumerically("~", 1.8, 0.0001))
+			Expect(portfolioGreeks.Gamma).To(BeNumerically("~", 0.03, 0.0001))
 		})
 	})
 })
