@@ -68,8 +68,10 @@ func (o *optionsIngestor) CollectNow() {
 				continue
 			}
 
-			// Store mark prices, Greeks, and IV for each strike and option type
+			// Collect all strikes and store market data for each contract
+			strikes := make([]float64, 0, len(expirationData))
 			for strike, optionTypes := range expirationData {
+				strikes = append(strikes, strike)
 				for optionType, optionData := range optionTypes {
 					contract := optionsTypes.OptionContract{
 						Pair:       pair,
@@ -90,6 +92,10 @@ func (o *optionsIngestor) CollectNow() {
 					o.store.SetIV(contract, optionData.IV)
 				}
 			}
+
+			// Update the watchlist with the discovered strikes so the realtime
+			// ingestor can resolve instruments without making REST calls
+			o.watchlist.SetStrikes(exchangeName, pair, expiration, strikes)
 		}
 	}
 }

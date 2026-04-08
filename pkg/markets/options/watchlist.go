@@ -9,30 +9,35 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-// expirationKey uniquely identifies an expiration to watch
+// expirationKey uniquely identifies a slow-watched expiration
 type expirationKey struct {
 	Exchange   connector.ExchangeName
 	Pair       portfolio.Pair
 	Expiration time.Time
 }
 
+// instrumentKey uniquely identifies a fast-watched contract
+type instrumentKey struct {
+	Exchange   connector.ExchangeName
+	Pair       portfolio.Pair
+	Expiration time.Time
+	Strike     float64
+	OptionType string
+}
+
 // optionsWatchlist is the concrete implementation of OptionsWatchlist
 type optionsWatchlist struct {
 	mu sync.RWMutex
 
-	// expirations: map[expirationKey]bool - tracks what we're watching
+	// Slow watch — full expiration polling via REST
 	expirations map[expirationKey]bool
+	strikes     map[expirationKey][]float64
 
-	// strikes: map[expirationKey][]float64 - discovered strikes per expiration
-	strikes map[expirationKey][]float64
+	// Fast watch — real-time order book per specific contract
+	instruments map[instrumentKey]optionsTypes.OptionContract
 
-	// watchers: map[ExchangeName]<-chan WatchEvent
+	// Event subscribers per exchange
 	watchers map[connector.ExchangeName]chan optionsTypes.WatchEvent
-
-	// connector registry for on-demand strike discovery
-	connectorRegistry interface {
-		FilterOptions(opts interface{}) []interface{}
-	}
 }
 
 // NewOptionsWatchlist creates a new options watchlist
@@ -40,6 +45,7 @@ func NewOptionsWatchlist() optionsTypes.OptionsWatchlist {
 	return &optionsWatchlist{
 		expirations: make(map[expirationKey]bool),
 		strikes:     make(map[expirationKey][]float64),
+		instruments: make(map[instrumentKey]optionsTypes.OptionContract),
 		watchers:    make(map[connector.ExchangeName]chan optionsTypes.WatchEvent),
 	}
 }
@@ -65,7 +71,7 @@ func (w *optionsWatchlist) RequireExpiration(
 
 	// Emit event
 	w.emitLocked(optionsTypes.WatchEvent{
-		Type:       "ExpirationAdded",
+		Type:       optionsTypes.WatchEventExpirationAdded,
 		Exchange:   exchange,
 		Pair:       pair,
 		Expiration: expiration,
@@ -93,7 +99,7 @@ func (w *optionsWatchlist) ReleaseExpiration(
 	delete(w.strikes, key)
 
 	w.emitLocked(optionsTypes.WatchEvent{
-		Type:       "ExpirationRemoved",
+		Type:       optionsTypes.WatchEventExpirationRemoved,
 		Exchange:   exchange,
 		Pair:       pair,
 		Expiration: expiration,
@@ -137,6 +143,85 @@ func (w *optionsWatchlist) GetWatchedExpirations(
 	}
 
 	return result
+}
+
+// WatchInstrument adds a specific contract to the fast watch tier.
+// The realtime ingestor will open a WebSocket order book subscription for it.
+func (w *optionsWatchlist) WatchInstrument(
+	exchange connector.ExchangeName,
+	contract optionsTypes.OptionContract,
+) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	key := instrumentKey{
+		Exchange:   exchange,
+		Pair:       contract.Pair,
+		Expiration: contract.Expiration,
+		Strike:     contract.Strike,
+		OptionType: contract.OptionType,
+	}
+
+	if _, exists := w.instruments[key]; exists {
+		return
+	}
+
+	w.instruments[key] = contract
+
+	w.emitLocked(optionsTypes.WatchEvent{
+		Type:       optionsTypes.WatchEventInstrumentWatched,
+		Exchange:   exchange,
+		Pair:       contract.Pair,
+		Expiration: contract.Expiration,
+		Contract:   &contract,
+	})
+}
+
+// UnwatchInstrument removes a contract from the fast watch tier.
+func (w *optionsWatchlist) UnwatchInstrument(
+	exchange connector.ExchangeName,
+	contract optionsTypes.OptionContract,
+) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	key := instrumentKey{
+		Exchange:   exchange,
+		Pair:       contract.Pair,
+		Expiration: contract.Expiration,
+		Strike:     contract.Strike,
+		OptionType: contract.OptionType,
+	}
+
+	if _, exists := w.instruments[key]; !exists {
+		return
+	}
+
+	delete(w.instruments, key)
+
+	w.emitLocked(optionsTypes.WatchEvent{
+		Type:       optionsTypes.WatchEventInstrumentUnwatched,
+		Exchange:   exchange,
+		Pair:       contract.Pair,
+		Expiration: contract.Expiration,
+		Contract:   &contract,
+	})
+}
+
+// GetWatchedInstruments returns all fast-watched contracts for an exchange.
+func (w *optionsWatchlist) GetWatchedInstruments(
+	exchange connector.ExchangeName,
+) []optionsTypes.OptionContract {
+	w.mu.RLock()
+	defer w.mu.RUnlock()
+
+	var contracts []optionsTypes.OptionContract
+	for key, contract := range w.instruments {
+		if key.Exchange == exchange {
+			contracts = append(contracts, contract)
+		}
+	}
+	return contracts
 }
 
 // Subscribe returns a channel for watchlist updates
@@ -189,7 +274,7 @@ func (w *optionsWatchlist) SetStrikes(
 	w.strikes[key] = strikes
 
 	w.emitLocked(optionsTypes.WatchEvent{
-		Type:       "StrikesUpdated",
+		Type:       optionsTypes.WatchEventStrikesUpdated,
 		Exchange:   exchange,
 		Pair:       pair,
 		Expiration: expiration,
