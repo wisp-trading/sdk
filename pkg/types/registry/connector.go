@@ -1,6 +1,7 @@
 package registry
 
 import (
+	optionsconnector "github.com/wisp-trading/sdk/pkg/types/connector/options"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector/perp"
@@ -12,6 +13,7 @@ type ConnectorRegistry interface {
 	RegisterSpot(name connector.ExchangeName, conn spot.Connector)
 	RegisterPerp(name connector.ExchangeName, conn perp.Connector)
 	RegisterPrediction(name connector.ExchangeName, conn predictionconnector.Connector)
+	RegisterOptions(name connector.ExchangeName, conn optionsconnector.Connector)
 
 	Connector(name connector.ExchangeName) (connector.Connector, bool)
 
@@ -22,6 +24,7 @@ type ConnectorRegistry interface {
 	Spot(name connector.ExchangeName) (spot.Connector, bool)
 	Perp(name connector.ExchangeName) (perp.Connector, bool)
 	Prediction(name connector.ExchangeName) (predictionconnector.Connector, bool)
+	Options(name connector.ExchangeName) (optionsconnector.Connector, bool)
 
 	// Filter-based queries
 	Filter(opts FilterOptions) []connector.Connector
@@ -30,11 +33,13 @@ type ConnectorRegistry interface {
 	FilterSpot(opts FilterOptions) []spot.Connector
 	FilterPerp(opts FilterOptions) []perp.Connector
 	FilterPrediction(opts FilterOptions) []predictionconnector.Connector
+	FilterOptions(opts FilterOptions) []optionsconnector.Connector
 
 	// WebSocket helpers
 	SpotWebSocket(name connector.ExchangeName) (spot.WebSocketConnector, bool)
 	PerpWebSocket(name connector.ExchangeName) (perp.WebSocketConnector, bool)
 	PredictionWebSocket(name connector.ExchangeName) (predictionconnector.WebSocketConnector, bool)
+	OptionsWebSocket(name connector.ExchangeName) (optionsconnector.WebSocketConnector, bool)
 
 	// Ready state management
 	MarkReady(name connector.ExchangeName) error

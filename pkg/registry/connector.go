@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	optionsconnector "github.com/wisp-trading/sdk/pkg/types/connector/options"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector/perp"
@@ -58,6 +59,16 @@ func (cr *connectorRegistry) RegisterPrediction(name connector.ExchangeName, con
 	cr.connectors[name] = &connectorState{
 		connector:     conn,
 		connectorType: connector.MarketTypePrediction,
+		ready:         false,
+	}
+}
+
+func (cr *connectorRegistry) RegisterOptions(name connector.ExchangeName, conn optionsconnector.Connector) {
+	cr.mu.Lock()
+	defer cr.mu.Unlock()
+	cr.connectors[name] = &connectorState{
+		connector:     conn,
+		connectorType: connector.MarketTypeOptions,
 		ready:         false,
 	}
 }
@@ -131,6 +142,21 @@ func (cr *connectorRegistry) Prediction(name connector.ExchangeName) (prediction
 	return nil, false
 }
 
+func (cr *connectorRegistry) Options(name connector.ExchangeName) (optionsconnector.Connector, bool) {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	state, exists := cr.connectors[name]
+	if !exists || state.connectorType != connector.MarketTypeOptions {
+		return nil, false
+	}
+
+	if optConn, ok := state.connector.(optionsconnector.Connector); ok {
+		return optConn, true
+	}
+	return nil, false
+}
+
 // ===== WebSocket Getters =====
 
 func (cr *connectorRegistry) SpotWebSocket(name connector.ExchangeName) (spot.WebSocketConnector, bool) {
@@ -164,6 +190,18 @@ func (cr *connectorRegistry) PredictionWebSocket(name connector.ExchangeName) (p
 	}
 
 	if ws, ok := conn.(predictionconnector.WebSocketConnector); ok {
+		return ws, true
+	}
+	return nil, false
+}
+
+func (cr *connectorRegistry) OptionsWebSocket(name connector.ExchangeName) (optionsconnector.WebSocketConnector, bool) {
+	conn, ok := cr.Options(name)
+	if !ok {
+		return nil, false
+	}
+
+	if ws, ok := conn.(optionsconnector.WebSocketConnector); ok {
 		return ws, true
 	}
 	return nil, false
@@ -238,6 +276,24 @@ func (cr *connectorRegistry) FilterPrediction(opts registry.FilterOptions) []pre
 	return results
 }
 
+func (cr *connectorRegistry) FilterOptions(opts registry.FilterOptions) []optionsconnector.Connector {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	var results []optionsconnector.Connector
+	for _, state := range cr.connectors {
+		if state.connectorType != connector.MarketTypeOptions {
+			continue
+		}
+		if cr.matchesFilter(state, opts, connector.MarketTypeOptions) {
+			if optConn, ok := state.connector.(optionsconnector.Connector); ok {
+				results = append(results, optConn)
+			}
+		}
+	}
+	return results
+}
+
 // ===== Filter Helper =====
 
 func (cr *connectorRegistry) matchesFilter(state *connectorState, opts registry.FilterOptions, marketType connector.MarketType) bool {
@@ -258,11 +314,16 @@ func (cr *connectorRegistry) matchesFilter(state *connectorState, opts registry.
 		case connector.MarketTypePrediction:
 			_, ok := state.connector.(predictionconnector.WebSocketConnector)
 			return ok
+		case connector.MarketTypeOptions:
+			_, ok := state.connector.(optionsconnector.WebSocketConnector)
+			return ok
 		default:
 			// For generic queries, check any websocket interface
 			_, spotWS := state.connector.(spot.WebSocketConnector)
 			_, perpWS := state.connector.(perp.WebSocketConnector)
-			return spotWS || perpWS
+			_, predWS := state.connector.(predictionconnector.WebSocketConnector)
+			_, optWS := state.connector.(optionsconnector.WebSocketConnector)
+			return spotWS || perpWS || predWS || optWS
 		}
 	}
 
