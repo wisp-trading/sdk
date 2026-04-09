@@ -86,9 +86,20 @@ func (p predict) WatchMarket(exchange connector.ExchangeName, market predictionc
 	p.predictionWatchlist.RequireMarket(exchange, market)
 }
 
-func (p predict) Markets() []predictionconnector.Market {
-	//TODO implement me
-	panic("implement me")
+func (p predict) Markets(exchange connector.ExchangeName, filter *predictionconnector.MarketsFilter) ([]predictionconnector.Market, error) {
+	marketConnector, exists := p.connectorRegistry.Prediction(exchange)
+
+	if !exists {
+		return nil, errors.New("connector not found for exchange: " + string(exchange))
+	}
+
+	markets, err := marketConnector.Markets(filter)
+
+	if err != nil {
+		return nil, errors.New("failed to fetch markets from exchange: " + string(exchange) + " error: " + err.Error())
+	}
+
+	return markets, nil
 }
 
 func (p predict) Orderbook(exchange connector.ExchangeName, market predictionconnector.Market, outcome predictionconnector.Outcome) (*connector.OrderBook, error) {
