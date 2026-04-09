@@ -28,6 +28,14 @@ type Market struct {
 	StartTime      *time.Time `json:"start_time,omitempty"`
 
 	RecurringMarket *RecurringMarket `json:"recurring_market,omitempty"`
+
+	// Category tags for URL construction
+	Tags []Tag `json:"tags,omitempty"`
+
+	// EventSlug is the parent event slug used to build the Polymarket URL.
+	// A market belongs to an event; the event slug is shorter and is what
+	// Polymarket uses in its canonical URLs (e.g. /event/us-x-iran-ceasefire-by).
+	EventSlug string `json:"event_slug,omitempty"`
 }
 
 func (m *Market) Validate() error {
@@ -56,6 +64,25 @@ func (m *Market) FindOutcomeById(outcomeId OutcomeID) (*Outcome, error) {
 	}
 
 	return nil, fmt.Errorf("no outcome found for outcome id %s", outcomeId)
+}
+
+// PolymarketURL returns the canonical Polymarket URL for this market.
+// It uses the parent event slug (e.g. "us-x-iran-ceasefire-by") which Polymarket
+// routes correctly to the event/market page. Falls back to the market slug if no
+// event slug is available.
+func (m *Market) PolymarketURL() string {
+	slug := m.EventSlug
+	if slug == "" {
+		slug = m.Slug
+	}
+	return fmt.Sprintf("https://polymarket.com/event/%s", slug)
+}
+
+// Tag represents a market category tag
+type Tag struct {
+	ID    string `json:"id"`
+	Label string `json:"label"`
+	Slug  string `json:"slug"`
 }
 
 // Outcome represents a tradeable outcome (YES or NO for binary)

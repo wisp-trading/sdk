@@ -14,7 +14,23 @@ type Predict interface {
 	GetRecurringMarketBySlug(slug string, recurrenceInterval predictionconnector.RecurrenceInterval, exchange connector.ExchangeName) (predictionconnector.Market, error)
 	WatchMarket(exchange connector.ExchangeName, market predictionconnector.Market)
 
+	// Markets returns markets from store if available, fetches from API only if store is empty.
+	// Use RefreshMarkets() for explicit refresh from API.
 	Markets(exchange connector.ExchangeName, filter *predictionconnector.MarketsFilter) ([]predictionconnector.Market, error)
+
+	// RefreshMarkets fetches markets fresh from API and updates the store.
+	RefreshMarkets(exchange connector.ExchangeName, filter *predictionconnector.MarketsFilter) ([]predictionconnector.Market, error)
+
+	// LoadMarkets starts background pagination of all markets matching the filter.
+	// Returns immediately; actual loading happens asynchronously in background.
+	// Strategy calls Markets() later to get cached data.
+	LoadMarkets(exchange connector.ExchangeName, filter *predictionconnector.MarketsFilter) error
+
+	// IsLoadingMarkets returns true if background market loading is in progress for the exchange
+	IsLoadingMarkets(exchange connector.ExchangeName) bool
+
+	// GetLoadProgress returns count of markets loaded so far (for monitoring)
+	GetLoadProgress(exchange connector.ExchangeName) int
 
 	Orderbook(
 		exchange connector.ExchangeName,

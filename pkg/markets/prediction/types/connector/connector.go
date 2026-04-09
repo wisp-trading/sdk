@@ -1,17 +1,32 @@
 package connector
 
 import (
+	"math/big"
+
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
 
 // MarketsFilter specifies criteria for filtering markets returned by Markets().
 type MarketsFilter struct {
-	// MinVolume filters markets by minimum 24h volume (e.g., "1000.00")
+	// Pagination
+	Limit  *int
+	Offset *int
+
+	// Volume filters
 	MinVolume string
-	// MinLiquidity filters markets by minimum liquidity (e.g., "100.00")
+	MaxVolume string
+
+	// Liquidity filters
 	MinLiquidity string
-	// Active filters to only active markets (default: true)
+	MaxLiquidity string
+
+	// Date range filters (ISO 8601 strings)
+	MinEndDate string
+	MaxEndDate string
+
+	// Status filter
 	Active *bool
+	Closed *bool
 }
 
 // Connector represents a prediction market exchange connection
@@ -31,4 +46,14 @@ type Connector interface {
 	// Markets returns markets available on this exchange, optionally filtered.
 	// Pass nil filters to get all active markets.
 	Markets(filter *MarketsFilter) ([]Market, error)
+
+	// FetchOrderBooksForMarket fetches all orderbooks for a market in a single batch request.
+	FetchOrderBooksForMarket(market Market) (map[string]*OrderBook, error)
+
+	// SplitPosition deposits amountUSDC (6 decimal units) into the CTF contract
+	// and mints 1 YES + 1 NO token per unit. $1.00 = big.NewInt(1_000_000).
+	SplitPosition(market Market, amountUSDC *big.Int) (txHash string, err error)
+
+	// MergePositions burns amountUSDC worth of YES+NO tokens and returns USDC.
+	MergePositions(market Market, amountUSDC *big.Int) (txHash string, err error)
 }

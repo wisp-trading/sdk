@@ -23,6 +23,7 @@ type predict struct {
 	predictionWatchlist types.PredictionWatchlist
 	connectorRegistry   registry.ConnectorRegistry
 	pnl                 types.PredictionPNL
+	marketLoader        types.MarketLoader
 }
 
 // NewPredict constructs a new Predict instance with the provided dependencies.
@@ -34,6 +35,7 @@ func NewPredict(
 	predictionWatchlist types.PredictionWatchlist,
 	connectorRegistry registry.ConnectorRegistry,
 	pnl types.PredictionPNL,
+	marketLoader types.MarketLoader,
 ) types.Predict {
 	return &predict{
 		applicationLogger:   applicationLogger,
@@ -43,6 +45,7 @@ func NewPredict(
 		connectorRegistry:   connectorRegistry,
 		store:               store,
 		pnl:                 pnl,
+		marketLoader:        marketLoader,
 	}
 }
 
@@ -87,6 +90,16 @@ func (p predict) WatchMarket(exchange connector.ExchangeName, market predictionc
 }
 
 func (p predict) Markets(exchange connector.ExchangeName, filter *predictionconnector.MarketsFilter) ([]predictionconnector.Market, error) {
+	storedMarkets := p.store.GetMarkets(exchange)
+	if len(storedMarkets) > 0 {
+		return storedMarkets, nil
+	}
+
+	// Store is empty - fetch synchronously so the caller gets actual results
+	return p.RefreshMarkets(exchange, filter)
+}
+
+func (p predict) RefreshMarkets(exchange connector.ExchangeName, filter *predictionconnector.MarketsFilter) ([]predictionconnector.Market, error) {
 	marketConnector, exists := p.connectorRegistry.Prediction(exchange)
 
 	if !exists {
@@ -99,14 +112,50 @@ func (p predict) Markets(exchange connector.ExchangeName, filter *predictionconn
 		return nil, errors.New("failed to fetch markets from exchange: " + string(exchange) + " error: " + err.Error())
 	}
 
+	// Update store with fetched markets
+	p.store.UpdateMarkets(exchange, markets)
+
 	return markets, nil
+}
+
+func (p predict) LoadMarkets(exchange connector.ExchangeName, filter *predictionconnector.MarketsFilter) error {
+	return p.marketLoader.LoadMarkets(exchange, filter)
+}
+
+func (p predict) IsLoadingMarkets(exchange connector.ExchangeName) bool {
+	return p.marketLoader.IsLoading(exchange)
+}
+
+func (p predict) GetLoadProgress(exchange connector.ExchangeName) int {
+	return p.marketLoader.GetLoadProgress(exchange)
 }
 
 func (p predict) Orderbook(exchange connector.ExchangeName, market predictionconnector.Market, outcome predictionconnector.Outcome) (*connector.OrderBook, error) {
 	book := p.store.GetOrderBook(exchange, market.MarketID, outcome.OutcomeID)
+	if book != nil {
+		return book, nil
+	}
 
+	// Orderbook not in store - fetch all outcomes for this market using batch API
+	marketConnector, exists := p.connectorRegistry.Prediction(exchange)
+	if !exists {
+		return nil, errors.New("connector not found for exchange: " + string(exchange))
+	}
+
+	books, err := marketConnector.FetchOrderBooksForMarket(market)
+	if err != nil {
+		return nil, errors.New("failed to fetch orderbooks for market: " + string(market.MarketID) + " error: " + err.Error())
+	}
+
+	// Store all fetched orderbooks
+	for outcomeID, orderBook := range books {
+		p.store.UpdateOrderBook(exchange, market.MarketID, predictionconnector.OutcomeID(outcomeID), orderBook.OrderBook)
+	}
+
+	// Return the requested outcome
+	book = p.store.GetOrderBook(exchange, market.MarketID, outcome.OutcomeID)
 	if book == nil {
-		return nil, errors.New("order book not found for outcome: " + string(outcome.OutcomeID) + " on exchange: " + string(exchange))
+		return nil, errors.New("order book not found for outcome: " + string(outcome.OutcomeID))
 	}
 
 	return book, nil

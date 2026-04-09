@@ -24,6 +24,7 @@ var Module = fx.Module("prediction",
 		NewPredictionWatchlist,
 		NewPredictionUniverseProvider,
 		predActivity.NewPredictionPNL,
+		NewMarketLoader,
 		batch.NewFactory,
 		realtime.NewFactory,
 		fx.Annotate(
