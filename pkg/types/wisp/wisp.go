@@ -5,6 +5,7 @@ import (
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
+	"github.com/wisp-trading/sdk/pkg/types"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -61,4 +62,9 @@ type Wisp interface {
 	// Example: wisp.Options().WatchContract(exchange, contract)
 	// Example: wisp.Options().MarkPrice(exchange, contract)
 	Options() optionsTypes.Options
+
+	// PriceFeeds returns the price feeds service for accessing external price data.
+	// Strategies use this to query price feeds from sources like Pyth, Chainlink, etc.
+	// Example: wisp.PriceFeeds().GetLatestPrice(feedID)
+	PriceFeeds() types.PriceFeeds
 }

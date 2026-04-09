@@ -10,6 +10,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/options"
 	"github.com/wisp-trading/sdk/pkg/markets/perp"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction"
+	"github.com/wisp-trading/sdk/pkg/markets/price_feeds"
 	"github.com/wisp-trading/sdk/pkg/markets/spot"
 	"github.com/wisp-trading/sdk/pkg/monitoring"
 	"github.com/wisp-trading/sdk/pkg/plugin"
@@ -35,4 +36,5 @@ var Module = fx.Options(
 	perp.Module,
 	spot.Module,
 	options.Module,
+	price_feeds.Module,
 )

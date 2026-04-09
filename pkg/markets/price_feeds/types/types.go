@@ -4,6 +4,7 @@ import (
 	"time"
 
 	batchTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/batch"
+	realtimeTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
 
@@ -44,4 +45,9 @@ type PriceFeedUpdate struct {
 // PriceFeedsBatchIngestorFactory creates batch ingestors for price feeds.
 type PriceFeedsBatchIngestorFactory interface {
 	CreateIngestors() []batchTypes.BatchIngestor
+}
+
+// PriceFeedsRealtimeIngestorFactory creates realtime ingestors for price feeds (WebSocket).
+type PriceFeedsRealtimeIngestorFactory interface {
+	CreateIngestors() []realtimeTypes.RealtimeIngestor
 }

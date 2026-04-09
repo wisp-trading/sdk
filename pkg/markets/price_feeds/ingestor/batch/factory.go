@@ -1,7 +1,7 @@
-package realtime
+package batch
 
 import (
-	realtimeTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/realtime"
+	batchTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/batch"
 	priceFeedTypes "github.com/wisp-trading/sdk/pkg/markets/price_feeds/types"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
@@ -13,12 +13,12 @@ type factory struct {
 	logger            logging.ApplicationLogger
 }
 
-// NewFactory creates a new realtime ingestor factory for price feeds (WebSocket connectors).
+// NewFactory creates a new batch ingestor factory for price feeds.
 func NewFactory(
 	connectorRegistry registry.ConnectorRegistry,
 	store priceFeedTypes.PriceFeedsStore,
 	logger logging.ApplicationLogger,
-) priceFeedTypes.PriceFeedsRealtimeIngestorFactory {
+) priceFeedTypes.PriceFeedsBatchIngestorFactory {
 	return &factory{
 		connectorRegistry: connectorRegistry,
 		store:             store,
@@ -26,20 +26,22 @@ func NewFactory(
 	}
 }
 
-func (f *factory) CreateIngestors() []realtimeTypes.RealtimeIngestor {
+func (f *factory) CreateIngestors() []batchTypes.BatchIngestor {
 	readyConnectors := f.connectorRegistry.Filter(registry.NewFilter().ReadyOnly().Build())
 	if len(readyConnectors) == 0 {
 		return nil
 	}
 
-	ingestors := make([]realtimeTypes.RealtimeIngestor, 0)
+	ingestors := make([]batchTypes.BatchIngestor, 0)
 	for _, conn := range readyConnectors {
-		// Only process connectors that implement the realtime Connector interface (WebSocket)
-		if realtimeConn, ok := conn.(Connector); ok {
+		// Only process connectors that implement the batch Connector interface
+		if batchConn, ok := conn.(Connector); ok {
 			ingestor := &ingestor{
-				connector: realtimeConn,
+				connector: batchConn,
 				store:     f.store,
 				logger:    f.logger,
+				isActive:  false,
+				stopChan:  make(chan struct{}),
 			}
 			ingestors = append(ingestors, ingestor)
 		}
