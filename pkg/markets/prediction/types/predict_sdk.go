@@ -14,7 +14,7 @@ type Predict interface {
 	GetRecurringMarketBySlug(slug string, recurrenceInterval predictionconnector.RecurrenceInterval, exchange connector.ExchangeName) (predictionconnector.Market, error)
 	WatchMarket(exchange connector.ExchangeName, market predictionconnector.Market)
 
-	Markets() []predictionconnector.Market
+	Markets(exchange connector.ExchangeName, filter *predictionconnector.MarketsFilter) ([]predictionconnector.Market, error)
 
 	Orderbook(
 		exchange connector.ExchangeName,
