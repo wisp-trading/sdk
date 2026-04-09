@@ -10,10 +10,6 @@ type MarketsFilter struct {
 	MinVolume string
 	// MinLiquidity filters markets by minimum liquidity (e.g., "100.00")
 	MinLiquidity string
-	// MinEndDate filters to markets resolving on or after this date (RFC3339 format)
-	MinEndDate string
-	// MaxEndDate filters to markets resolving on or before this date (RFC3339 format)
-	MaxEndDate string
 	// Active filters to only active markets (default: true)
 	Active *bool
 }
