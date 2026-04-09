@@ -8,6 +8,7 @@ import (
 // Embeds base.MarketStore and all prediction-specific extensions.
 type MarketStore interface {
 	market.MarketStore
+	MarketStoreExtension
 	OrderBookStoreExtension
 	PositionsStoreExtension
 	BalanceStoreExtension

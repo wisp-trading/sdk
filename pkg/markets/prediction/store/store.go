@@ -11,6 +11,7 @@ import (
 
 type predictionStore struct {
 	marketTypes.MarketStore
+	domainTypes.MarketStoreExtension
 	domainTypes.OrderBookStoreExtension
 	domainTypes.PositionsStoreExtension
 	domainTypes.BalanceStoreExtension
@@ -21,6 +22,7 @@ func NewStore(timeProvider temporal.TimeProvider) domainTypes.MarketStore {
 
 	return &predictionStore{
 		MarketStore:             baseStore,
+		MarketStoreExtension:    extensions.NewPredictionMarketExtension(),
 		OrderBookStoreExtension: extensions.NewPredictionOrderBookExtension(),
 		PositionsStoreExtension: extensions.NewPredictionPositionsExtension(),
 		BalanceStoreExtension:   extensions.NewPredictionBalanceExtension(),
