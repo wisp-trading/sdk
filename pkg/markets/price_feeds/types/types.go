@@ -3,6 +3,7 @@ package types
 import (
 	"time"
 
+	batchTypes "github.com/wisp-trading/sdk/pkg/markets/base/types/ingestors/batch"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
 
@@ -38,4 +39,9 @@ type PriceFeedUpdate struct {
 	Price     float64
 	Timestamp time.Time
 	Source    connector.ExchangeName // e.g., "pyth", "chainlink"
+}
+
+// PriceFeedsBatchIngestorFactory creates batch ingestors for price feeds.
+type PriceFeedsBatchIngestorFactory interface {
+	CreateIngestors() []batchTypes.BatchIngestor
 }
