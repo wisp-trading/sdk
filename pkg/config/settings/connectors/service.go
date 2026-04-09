@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/wisp-trading/sdk/pkg/types/config"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
@@ -116,9 +117,13 @@ func (c *connectorService) MapToSDKConfig(userConnector config.Connector) (conne
 	// Create a map to hold all the user's configuration data
 	configData := make(map[string]interface{})
 
-	// Copy credentials
+	// Copy credentials, coercing numeric strings to numbers so they unmarshal correctly.
 	for key, value := range userConnector.Credentials {
-		configData[key] = value
+		if n, err := strconv.ParseInt(value, 10, 64); err == nil {
+			configData[key] = n
+		} else {
+			configData[key] = value
+		}
 	}
 
 	// Add network-related fields if present
