@@ -95,15 +95,8 @@ func (p predict) Markets(exchange connector.ExchangeName, filter *predictionconn
 		return storedMarkets, nil
 	}
 
-	// Store is empty - fetch from API and populate
-	go func() {
-		_, err := p.RefreshMarkets(exchange, filter)
-		if err != nil {
-
-		}
-	}()
-
-	return nil, nil
+	// Store is empty - fetch synchronously so the caller gets actual results
+	return p.RefreshMarkets(exchange, filter)
 }
 
 func (p predict) RefreshMarkets(exchange connector.ExchangeName, filter *predictionconnector.MarketsFilter) ([]predictionconnector.Market, error) {
