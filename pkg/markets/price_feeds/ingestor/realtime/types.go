@@ -1,17 +1,19 @@
 package realtime
 
 import (
-	"context"
+	"time"
 
 	priceFeedTypes "github.com/wisp-trading/sdk/pkg/markets/price_feeds/types"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
 
-// Ingestor consumes price updates from the Pyth connector and persists them to the store.
+// Ingestor is the standard batch ingestor interface.
 type Ingestor interface {
-	// Start begins listening to the connector and persisting updates
-	Start(ctx context.Context) error
-	// Stop ceases consuming and closes all subscriber channels
+	Start(interval time.Duration) error
 	Stop() error
+	IsActive() bool
+	CollectNow()
+	GetMarketType() connector.MarketType
 }
 
 // Connector provides price feed updates via subscription channels.
