@@ -1,6 +1,8 @@
 package connector
 
 import (
+	"math/big"
+
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
 
@@ -47,4 +49,11 @@ type Connector interface {
 
 	// FetchOrderBooksForMarket fetches all orderbooks for a market in a single batch request.
 	FetchOrderBooksForMarket(market Market) (map[string]*OrderBook, error)
+
+	// SplitPosition deposits amountUSDC (6 decimal units) into the CTF contract
+	// and mints 1 YES + 1 NO token per unit. $1.00 = big.NewInt(1_000_000).
+	SplitPosition(market Market, amountUSDC *big.Int) (txHash string, err error)
+
+	// MergePositions burns amountUSDC worth of YES+NO tokens and returns USDC.
+	MergePositions(market Market, amountUSDC *big.Int) (txHash string, err error)
 }
