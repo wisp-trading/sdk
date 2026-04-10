@@ -7,11 +7,12 @@ import (
 
 // LimitOrder represents a limit order in a blockchain based prediction market.
 type LimitOrder struct {
-	Outcome    Outcome `json:"outcome,required"`
-	Price      numerical.Decimal
-	Amount     numerical.Decimal
-	Side       connector.OrderSide `json:"side,required"`
-	Expiration int64               `json:"expiration"`
+	Outcome     Outcome               `json:"outcome,required"`
+	Price       numerical.Decimal
+	Amount      numerical.Decimal
+	Side        connector.OrderSide   `json:"side,required"`
+	Expiration  int64                 `json:"expiration"`
+	TimeInForce connector.TimeInForce `json:"time_in_force"` // GTC (default) | FOK | FAK
 }
 
 type OrderExecutor interface {

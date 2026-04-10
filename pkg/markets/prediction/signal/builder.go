@@ -15,6 +15,7 @@ type predictionBuilder struct {
 	strategyName strategy.StrategyName
 	actions      []types.PredictionAction
 	timeProvider temporal.TimeProvider
+	tif          connector.TimeInForce // applied to all subsequent Buy/Sell calls; empty = GTC
 }
 
 // Buy adds a buy action for a prediction market outcome.
@@ -22,12 +23,13 @@ type predictionBuilder struct {
 // expiration is a Unix timestamp after which the order is cancelled.
 func (b *predictionBuilder) Buy(market predictionconnector.Market, outcome predictionconnector.Outcome, exchange connector.ExchangeName, shares, maxPrice numerical.Decimal, expiration int64) types.PredictionSignalBuilder {
 	b.actions = append(b.actions, types.PredictionAction{
-		BaseAction: strategy.BaseAction{ActionType: strategy.ActionBuy, Exchange: exchange},
-		Market:     market,
-		Outcome:    outcome,
-		Shares:     shares,
-		MaxPrice:   maxPrice,
-		Expiration: expiration,
+		BaseAction:  strategy.BaseAction{ActionType: strategy.ActionBuy, Exchange: exchange},
+		Market:      market,
+		Outcome:     outcome,
+		Shares:      shares,
+		MaxPrice:    maxPrice,
+		Expiration:  expiration,
+		TimeInForce: b.tif,
 	})
 	return b
 }
@@ -37,13 +39,20 @@ func (b *predictionBuilder) Buy(market predictionconnector.Market, outcome predi
 // expiration is a Unix timestamp after which the order is cancelled.
 func (b *predictionBuilder) Sell(market predictionconnector.Market, outcome predictionconnector.Outcome, exchange connector.ExchangeName, shares, minPrice numerical.Decimal, expiration int64) types.PredictionSignalBuilder {
 	b.actions = append(b.actions, types.PredictionAction{
-		BaseAction: strategy.BaseAction{ActionType: strategy.ActionSell, Exchange: exchange},
-		Market:     market,
-		Outcome:    outcome,
-		Shares:     shares,
-		MaxPrice:   minPrice,
-		Expiration: expiration,
+		BaseAction:  strategy.BaseAction{ActionType: strategy.ActionSell, Exchange: exchange},
+		Market:      market,
+		Outcome:     outcome,
+		Shares:      shares,
+		MaxPrice:    minPrice,
+		Expiration:  expiration,
+		TimeInForce: b.tif,
 	})
+	return b
+}
+
+// FOK marks all subsequent Buy/Sell calls on this builder as Fill-Or-Kill.
+func (b *predictionBuilder) FOK() types.PredictionSignalBuilder {
+	b.tif = connector.TimeInForceFOK
 	return b
 }
 

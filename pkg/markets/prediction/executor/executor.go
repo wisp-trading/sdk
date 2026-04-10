@@ -78,11 +78,12 @@ func (e *executor) executeAction(strategyName strategy.StrategyName, action *pre
 	side := getSide(action.ActionType)
 
 	resp, err := predExec.PlaceLimitOrder(predconnector.LimitOrder{
-		Outcome:    action.Outcome,
-		Price:      action.MaxPrice,
-		Amount:     action.Shares,
-		Side:       side,
-		Expiration: action.Expiration,
+		Outcome:     action.Outcome,
+		Price:       action.MaxPrice,
+		Amount:      action.Shares,
+		Side:        side,
+		Expiration:  action.Expiration,
+		TimeInForce: action.TimeInForce,
 	})
 	if err != nil {
 		return "", fmt.Errorf("failed to place prediction order on %s: %w", action.Exchange, err)

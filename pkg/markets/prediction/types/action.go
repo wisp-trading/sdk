@@ -12,11 +12,12 @@ import (
 // PredictionAction represents an action for prediction markets
 type PredictionAction struct {
 	strategy.BaseAction
-	Market     predictionConnector.Market  `json:"market"`
-	Outcome    predictionConnector.Outcome `json:"outcome"`
-	Shares     numerical.Decimal           `json:"shares"`
-	MaxPrice   numerical.Decimal           `json:"max_price"`  // Probability (0.0-1.0)
-	Expiration int64                       `json:"expiration"` // Unix timestamp
+	Market      predictionConnector.Market  `json:"market"`
+	Outcome     predictionConnector.Outcome `json:"outcome"`
+	Shares      numerical.Decimal           `json:"shares"`
+	MaxPrice    numerical.Decimal           `json:"max_price"`      // Probability (0.0-1.0)
+	Expiration  int64                       `json:"expiration"`     // Unix timestamp
+	TimeInForce connector.TimeInForce       `json:"time_in_force"`  // GTC (default) | FOK | FAK
 }
 
 // GetMarketType returns prediction

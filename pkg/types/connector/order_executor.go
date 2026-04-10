@@ -44,6 +44,21 @@ func (s OrderSide) ToString() string {
 	return string(s)
 }
 
+// TimeInForce controls how long an order remains active and how it fills.
+type TimeInForce string
+
+const (
+	// TimeInForceGTC — Good Till Cancelled: order rests on the book until filled or manually cancelled.
+	TimeInForceGTC TimeInForce = "GTC"
+	// TimeInForceFOK — Fill Or Kill: the entire order must fill immediately at the stated price,
+	// or it is cancelled in full. No partial fills. Preferred for arb where partial execution
+	// would leave a directional position.
+	TimeInForceFOK TimeInForce = "FOK"
+	// TimeInForceFAK — Fill And Kill (IOC): fills whatever quantity is available immediately,
+	// cancels any unfilled remainder.
+	TimeInForceFAK TimeInForce = "FAK"
+)
+
 // OrderType represents the type of an order.
 type OrderType string
 

@@ -14,6 +14,11 @@ import (
 type PredictionSignalBuilder interface {
 	Buy(market predictionconnector.Market, outcome predictionconnector.Outcome, exchange connector.ExchangeName, shares, maxPrice numerical.Decimal, expiration int64) PredictionSignalBuilder
 	Sell(market predictionconnector.Market, outcome predictionconnector.Outcome, exchange connector.ExchangeName, shares, minPrice numerical.Decimal, expiration int64) PredictionSignalBuilder
+	// FOK marks all subsequent Buy/Sell calls on this builder as Fill-Or-Kill.
+	// A FOK order must fill completely and immediately at the stated price or be cancelled in full.
+	// No partial fills, no resting on the book. Use for arb legs where a delayed or partial fill
+	// would create an unwanted directional position.
+	FOK() PredictionSignalBuilder
 	Build() PredictionSignal
 }
 
