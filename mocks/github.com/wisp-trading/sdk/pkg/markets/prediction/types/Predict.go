@@ -5,6 +5,8 @@
 package types
 
 import (
+	"math/big"
+
 	mock "github.com/stretchr/testify/mock"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	connector0 "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
@@ -581,6 +583,72 @@ func (_c *Predict_Markets_Call) RunAndReturn(run func(exchange connector.Exchang
 	return _c
 }
 
+// MergePositions provides a mock function for the type Predict
+func (_mock *Predict) MergePositions(market connector0.Market, amountUSDC *big.Int) (string, error) {
+	ret := _mock.Called(market, amountUSDC)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MergePositions")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(connector0.Market, *big.Int) (string, error)); ok {
+		return returnFunc(market, amountUSDC)
+	}
+	if returnFunc, ok := ret.Get(0).(func(connector0.Market, *big.Int) string); ok {
+		r0 = returnFunc(market, amountUSDC)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(connector0.Market, *big.Int) error); ok {
+		r1 = returnFunc(market, amountUSDC)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// Predict_MergePositions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MergePositions'
+type Predict_MergePositions_Call struct {
+	*mock.Call
+}
+
+// MergePositions is a helper method to define mock.On call
+//   - market connector0.Market
+//   - amountUSDC *big.Int
+func (_e *Predict_Expecter) MergePositions(market interface{}, amountUSDC interface{}) *Predict_MergePositions_Call {
+	return &Predict_MergePositions_Call{Call: _e.mock.On("MergePositions", market, amountUSDC)}
+}
+
+func (_c *Predict_MergePositions_Call) Run(run func(market connector0.Market, amountUSDC *big.Int)) *Predict_MergePositions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 connector0.Market
+		if args[0] != nil {
+			arg0 = args[0].(connector0.Market)
+		}
+		var arg1 *big.Int
+		if args[1] != nil {
+			arg1 = args[1].(*big.Int)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *Predict_MergePositions_Call) Return(s string, err error) *Predict_MergePositions_Call {
+	_c.Call.Return(s, err)
+	return _c
+}
+
+func (_c *Predict_MergePositions_Call) RunAndReturn(run func(market connector0.Market, amountUSDC *big.Int) (string, error)) *Predict_MergePositions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Orderbook provides a mock function for the type Predict
 func (_mock *Predict) Orderbook(exchange connector.ExchangeName, market connector0.Market, outcome connector0.Outcome) (*connector.OrderBook, error) {
 	ret := _mock.Called(exchange, market, outcome)
@@ -931,6 +999,72 @@ func (_c *Predict_RefreshMarkets_Call) Return(markets []connector0.Market, err e
 }
 
 func (_c *Predict_RefreshMarkets_Call) RunAndReturn(run func(exchange connector.ExchangeName, filter *connector0.MarketsFilter) ([]connector0.Market, error)) *Predict_RefreshMarkets_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SplitPosition provides a mock function for the type Predict
+func (_mock *Predict) SplitPosition(market connector0.Market, amountUSDC *big.Int) (string, error) {
+	ret := _mock.Called(market, amountUSDC)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SplitPosition")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(connector0.Market, *big.Int) (string, error)); ok {
+		return returnFunc(market, amountUSDC)
+	}
+	if returnFunc, ok := ret.Get(0).(func(connector0.Market, *big.Int) string); ok {
+		r0 = returnFunc(market, amountUSDC)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(connector0.Market, *big.Int) error); ok {
+		r1 = returnFunc(market, amountUSDC)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// Predict_SplitPosition_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SplitPosition'
+type Predict_SplitPosition_Call struct {
+	*mock.Call
+}
+
+// SplitPosition is a helper method to define mock.On call
+//   - market connector0.Market
+//   - amountUSDC *big.Int
+func (_e *Predict_Expecter) SplitPosition(market interface{}, amountUSDC interface{}) *Predict_SplitPosition_Call {
+	return &Predict_SplitPosition_Call{Call: _e.mock.On("SplitPosition", market, amountUSDC)}
+}
+
+func (_c *Predict_SplitPosition_Call) Run(run func(market connector0.Market, amountUSDC *big.Int)) *Predict_SplitPosition_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 connector0.Market
+		if args[0] != nil {
+			arg0 = args[0].(connector0.Market)
+		}
+		var arg1 *big.Int
+		if args[1] != nil {
+			arg1 = args[1].(*big.Int)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *Predict_SplitPosition_Call) Return(s string, err error) *Predict_SplitPosition_Call {
+	_c.Call.Return(s, err)
+	return _c
+}
+
+func (_c *Predict_SplitPosition_Call) RunAndReturn(run func(market connector0.Market, amountUSDC *big.Int) (string, error)) *Predict_SplitPosition_Call {
 	_c.Call.Return(run)
 	return _c
 }

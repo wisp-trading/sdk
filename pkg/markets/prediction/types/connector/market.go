@@ -36,6 +36,16 @@ type Market struct {
 	// A market belongs to an event; the event slug is shorter and is what
 	// Polymarket uses in its canonical URLs (e.g. /event/us-x-iran-ceasefire-by).
 	EventSlug string `json:"event_slug,omitempty"`
+
+	// NegRisk indicates this market is part of a Polymarket NegRisk group.
+	// In a NegRisk group all outcomes are mutually exclusive and collectively
+	// exhaustive — holding one of each YES token is equivalent to holding $1 USDC.
+	// Tokens can be merged back to $1 USDC at any time without waiting for resolution.
+	NegRisk bool `json:"neg_risk,omitempty"`
+
+	// NegRiskFeeBips is the fee charged on NegRisk merge/split operations,
+	// expressed in basis points (e.g. 200 = 2%). Populated from the parent event.
+	NegRiskFeeBips int `json:"neg_risk_fee_bips,omitempty"`
 }
 
 func (m *Market) Validate() error {

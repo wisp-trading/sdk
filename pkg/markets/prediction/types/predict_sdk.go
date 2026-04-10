@@ -1,6 +1,8 @@
 package types
 
 import (
+	"math/big"
+
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
@@ -58,6 +60,16 @@ type Predict interface {
 
 	// Redeem attempts to redeem winnings for a market. Returns an error if redemption fails.
 	Redeem(market predictionconnector.Market) error
+
+	// MergePositions burns one bundle of YES tokens across all outcomes in a NegRisk group
+	// and returns USDC. amountUSDC is in 6-decimal units ($1.00 = 1_000_000).
+	// Use this to close a BuyMerge arbitrage position instantly without waiting for resolution.
+	MergePositions(market predictionconnector.Market, amountUSDC *big.Int) (string, error)
+
+	// SplitPosition deposits amountUSDC and mints one YES token per outcome in the market.
+	// amountUSDC is in 6-decimal units ($1.00 = 1_000_000).
+	// Use this to open a MintSell arbitrage position.
+	SplitPosition(market predictionconnector.Market, amountUSDC *big.Int) (string, error)
 
 	// PNL returns profit and loss calculations for this prediction market instance.
 	PNL() PredictionPNL

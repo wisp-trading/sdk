@@ -2,6 +2,7 @@ package predict
 
 import (
 	"errors"
+	"math/big"
 
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
@@ -218,4 +219,28 @@ func (p predict) GetTokensToRedeem(market predictionconnector.Market) ([]predict
 	}
 
 	return tokens, nil
+}
+
+func (p predict) MergePositions(market predictionconnector.Market, amountUSDC *big.Int) (string, error) {
+	marketConnector, exists := p.connectorRegistry.Prediction(market.Exchange)
+	if !exists {
+		return "", errors.New("connector not found for exchange: " + string(market.Exchange))
+	}
+	txHash, err := marketConnector.MergePositions(market, amountUSDC)
+	if err != nil {
+		return "", errors.New("failed to merge positions for market: " + market.MarketID.String() + " error: " + err.Error())
+	}
+	return txHash, nil
+}
+
+func (p predict) SplitPosition(market predictionconnector.Market, amountUSDC *big.Int) (string, error) {
+	marketConnector, exists := p.connectorRegistry.Prediction(market.Exchange)
+	if !exists {
+		return "", errors.New("connector not found for exchange: " + string(market.Exchange))
+	}
+	txHash, err := marketConnector.SplitPosition(market, amountUSDC)
+	if err != nil {
+		return "", errors.New("failed to split position for market: " + market.MarketID.String() + " error: " + err.Error())
+	}
+	return txHash, nil
 }
