@@ -4,10 +4,13 @@ import (
 	"time"
 
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
+	optionsSignal "github.com/wisp-trading/sdk/pkg/markets/options/signal"
 	optionsTypes "github.com/wisp-trading/sdk/pkg/markets/options/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
@@ -15,6 +18,7 @@ type options struct {
 	tradingLogger logging.TradingLogger
 	watchlist     optionsTypes.OptionsWatchlist
 	store         optionsTypes.OptionsStore
+	timeProvider  temporal.TimeProvider
 	pnl           optionsTypes.OptionsPNL
 }
 
@@ -23,12 +27,14 @@ func NewOptions(
 	tradingLogger logging.TradingLogger,
 	watchlist optionsTypes.OptionsWatchlist,
 	store optionsTypes.OptionsStore,
+	timeProvider temporal.TimeProvider,
 	pnl optionsTypes.OptionsPNL,
 ) optionsTypes.Options {
 	return &options{
 		tradingLogger: tradingLogger,
 		watchlist:     watchlist,
 		store:         store,
+		timeProvider:  timeProvider,
 		pnl:           pnl,
 	}
 }
@@ -102,6 +108,11 @@ func (o *options) Strikes(exchange connector.ExchangeName, pair portfolio.Pair, 
 }
 
 // Log returns the trading logger for strategy-specific logging.
+// Signal creates a new options signal builder for the given strategy.
+func (o *options) Signal(strategyName strategy.StrategyName) optionsTypes.OptionsSignalBuilder {
+	return optionsSignal.NewOptionsBuilder(strategyName, o.timeProvider)
+}
+
 func (o *options) Log() logging.TradingLogger {
 	return o.tradingLogger
 }

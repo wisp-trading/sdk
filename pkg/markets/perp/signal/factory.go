@@ -1,16 +1,16 @@
 package signal
 
 import (
+	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
-// NewPerpBuilder creates a new perp signal builder. Consumed by pkg/signal/factory.go
-// so that strategy.SignalFactory.NewPerp is wired through the perp domain.
-func NewPerpBuilder(strategyName strategy.StrategyName, timeProvider temporal.TimeProvider) strategy.PerpSignalBuilder {
+// NewPerpBuilder creates a new perp signal builder.
+func NewPerpBuilder(strategyName strategy.StrategyName, timeProvider temporal.TimeProvider) perpTypes.PerpSignalBuilder {
 	return &perpBuilder{
 		strategyName: strategyName,
-		actions:      make([]*strategy.PerpAction, 0),
+		actions:      make([]perpTypes.PerpAction, 0),
 		timeProvider: timeProvider,
 	}
 }

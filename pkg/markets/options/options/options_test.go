@@ -35,7 +35,7 @@ var _ = Describe("Options Service", func() {
 		watchlist = optionsWatchlistPkg.NewOptionsWatchlist()
 		logger := &mockLogging.TradingLogger{}
 		pnl := activity.NewPNLCalculator(store, nil)
-		svc = optionsService.NewOptions(logger, watchlist, store, pnl)
+		svc = optionsService.NewOptions(logger, watchlist, store, tp, pnl)
 
 		deribit = "deribit_options"
 		btcPair = portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))

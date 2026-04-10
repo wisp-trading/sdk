@@ -7,3 +7,15 @@ packages:
     config:
       all: true
       dir: "mocks/github.com/wisp-trading/sdk/pkg/types/connector/options"
+  github.com/wisp-trading/sdk/pkg/markets/spot/types:
+    config:
+      all: true
+      dir: "mocks/github.com/wisp-trading/sdk/pkg/markets/spot/types"
+  github.com/wisp-trading/sdk/pkg/markets/perp/types:
+    config:
+      all: true
+      dir: "mocks/github.com/wisp-trading/sdk/pkg/markets/perp/types"
+  github.com/wisp-trading/sdk/pkg/markets/prediction/types:
+    config:
+      all: true
+      dir: "mocks/github.com/wisp-trading/sdk/pkg/markets/prediction/types"

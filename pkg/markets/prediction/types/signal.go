@@ -18,9 +18,10 @@ type PredictionSignalBuilder interface {
 }
 
 // PredictionSignal is the interface for prediction market signals.
+// GetActions returns a copy of the action slice — mutating the result does not affect the signal.
 type PredictionSignal interface {
 	strategy.Signal
-	GetActions() []*PredictionAction
+	GetActions() []PredictionAction
 }
 
 type SignalFactory interface {
@@ -32,15 +33,22 @@ type predictionSignal struct {
 	id        uuid.UUID
 	strategy  strategy.StrategyName
 	timestamp time.Time
-	actions   []*PredictionAction
+	actions   []PredictionAction
 }
 
 func (s *predictionSignal) GetID() uuid.UUID                   { return s.id }
 func (s *predictionSignal) GetStrategy() strategy.StrategyName { return s.strategy }
 func (s *predictionSignal) GetTimestamp() time.Time            { return s.timestamp }
-func (s *predictionSignal) GetActions() []*PredictionAction    { return s.actions }
+func (s *predictionSignal) GetActions() []PredictionAction {
+	result := make([]PredictionAction, len(s.actions))
+	copy(result, s.actions)
+	return result
+}
 
-// NewPredictionSignal constructs a PredictionSignal. Used by the builder.
-func NewPredictionSignal(id uuid.UUID, name strategy.StrategyName, ts time.Time, actions []*PredictionAction) PredictionSignal {
-	return &predictionSignal{id: id, strategy: name, timestamp: ts, actions: actions}
+// NewPredictionSignal constructs a frozen PredictionSignal. Used by the builder.
+// The actions slice is copied so callers cannot mutate the signal after construction.
+func NewPredictionSignal(id uuid.UUID, name strategy.StrategyName, ts time.Time, actions []PredictionAction) PredictionSignal {
+	copied := make([]PredictionAction, len(actions))
+	copy(copied, actions)
+	return &predictionSignal{id: id, strategy: name, timestamp: ts, actions: copied}
 }

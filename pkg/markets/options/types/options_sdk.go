@@ -7,6 +7,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
@@ -38,6 +39,9 @@ type Options interface {
 
 	// Strikes returns all available strike prices for a pair and expiration on an exchange.
 	Strikes(exchange connector.ExchangeName, pair portfolio.Pair, expiration time.Time) ([]float64, bool)
+
+	// Signal creates a new options signal builder for the given strategy.
+	Signal(strategyName strategy.StrategyName) OptionsSignalBuilder
 
 	// Log returns the trading logger for strategy-specific logging.
 	Log() logging.TradingLogger

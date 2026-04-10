@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestSignal(t *testing.T) {
+func TestSpotSignal(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Signal Suite")
+	RunSpecs(t, "Spot Signal Suite")
 }

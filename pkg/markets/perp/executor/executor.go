@@ -39,7 +39,7 @@ func NewExecutor(
 // ExecutePerpSignal executes all actions in a perp signal.
 // Satisfies perpTypes.SignalExecutor.
 func (e *executor) ExecutePerpSignal(
-	signal strategy.PerpSignal,
+	signal perpTypes.PerpSignal,
 	ctx *execution.ExecutionContext,
 	result *execution.ExecutionResult,
 ) error {
@@ -48,7 +48,7 @@ func (e *executor) ExecutePerpSignal(
 			return fmt.Errorf("perp action %d invalid: %w", i, err)
 		}
 
-		orderID, err := e.executeAction(action)
+		orderID, err := e.executeAction(&action)
 		if err != nil {
 			return fmt.Errorf("perp action %d failed: %w", i, err)
 		}
@@ -68,7 +68,7 @@ func (e *executor) HandleTrade(trade connector.Trade) error {
 	return nil
 }
 
-func (e *executor) executeAction(action *strategy.PerpAction) (string, error) {
+func (e *executor) executeAction(action *perpTypes.PerpAction) (string, error) {
 	switch action.ActionType {
 	case strategy.ActionHold:
 		e.logger.Info("Holding perp position for %s", action.Pair.Symbol())
@@ -113,7 +113,7 @@ func (e *executor) executeAction(action *strategy.PerpAction) (string, error) {
 	return resp.OrderID, nil
 }
 
-func (e *executor) setLeverage(conn perpConn.Connector, action *strategy.PerpAction) error {
+func (e *executor) setLeverage(conn perpConn.Connector, action *perpTypes.PerpAction) error {
 	symbol := conn.GetPerpSymbol(action.Pair)
 	if symbol == "" {
 		return fmt.Errorf("could not resolve perp symbol for %s", action.Pair.Symbol())

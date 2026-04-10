@@ -34,7 +34,7 @@ func NewExecutor(
 }
 
 func (e *executor) ExecuteSpotSignal(
-	signal strategy.SpotSignal,
+	signal spotTypes.SpotSignal,
 	ctx *execution.ExecutionContext,
 	result *execution.ExecutionResult,
 ) error {
@@ -43,7 +43,7 @@ func (e *executor) ExecuteSpotSignal(
 			return fmt.Errorf("spot action %d invalid: %w", i, err)
 		}
 
-		orderID, err := e.executeAction(action)
+		orderID, err := e.executeAction(&action)
 		if err != nil {
 			return fmt.Errorf("spot action %d failed: %w", i, err)
 		}
@@ -72,7 +72,7 @@ func (e *executor) HandleTrade(trade connector.Trade) error {
 	return nil
 }
 
-func (e *executor) executeAction(action *strategy.SpotAction) (string, error) {
+func (e *executor) executeAction(action *spotTypes.SpotAction) (string, error) {
 	switch action.ActionType {
 	case strategy.ActionHold:
 		e.logger.Info("Holding spot position for %s", action.Pair.Symbol())

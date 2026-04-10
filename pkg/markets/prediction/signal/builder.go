@@ -13,7 +13,7 @@ import (
 // predictionBuilder is the concrete implementation of strategy.PredictionSignalBuilder.
 type predictionBuilder struct {
 	strategyName strategy.StrategyName
-	actions      []*types.PredictionAction
+	actions      []types.PredictionAction
 	timeProvider temporal.TimeProvider
 }
 
@@ -21,7 +21,7 @@ type predictionBuilder struct {
 // maxPrice is the maximum probability to pay (0.0–1.0).
 // expiration is a Unix timestamp after which the order is cancelled.
 func (b *predictionBuilder) Buy(market predictionconnector.Market, outcome predictionconnector.Outcome, exchange connector.ExchangeName, shares, maxPrice numerical.Decimal, expiration int64) types.PredictionSignalBuilder {
-	b.actions = append(b.actions, &types.PredictionAction{
+	b.actions = append(b.actions, types.PredictionAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionBuy, Exchange: exchange},
 		Market:     market,
 		Outcome:    outcome,
@@ -36,7 +36,7 @@ func (b *predictionBuilder) Buy(market predictionconnector.Market, outcome predi
 // minPrice is the minimum probability to accept (0.0–1.0).
 // expiration is a Unix timestamp after which the order is cancelled.
 func (b *predictionBuilder) Sell(market predictionconnector.Market, outcome predictionconnector.Outcome, exchange connector.ExchangeName, shares, minPrice numerical.Decimal, expiration int64) types.PredictionSignalBuilder {
-	b.actions = append(b.actions, &types.PredictionAction{
+	b.actions = append(b.actions, types.PredictionAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionSell, Exchange: exchange},
 		Market:     market,
 		Outcome:    outcome,
