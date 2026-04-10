@@ -6,6 +6,7 @@ import (
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -36,8 +37,10 @@ type Wisp interface {
 	// Pair creates a new portfolio.Pair from two assets.
 	Pair(base, quote portfolio.Asset) portfolio.Pair
 
-	// Emit routes a signal directly to the executor. Non-blocking.
-	Emit(signal strategy.Signal)
+	// Emit routes a signal and returns an ExecutionCallback. The signal is dispatched
+	// asynchronously — Emit never blocks. Callers that don't need the outcome can
+	// discard the callback; callers that do can call cb.Await() or cb.AwaitWithTimeout().
+	Emit(signal strategy.Signal) execution.ExecutionCallback
 
 	// Spot returns the spot market domain context.
 	// Owns watchlist management, orderbooks, balances, positions, and signal creation.

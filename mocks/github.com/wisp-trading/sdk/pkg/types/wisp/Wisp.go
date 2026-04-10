@@ -11,6 +11,7 @@ import (
 	types1 "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	types3 "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	types2 "github.com/wisp-trading/sdk/pkg/types"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -189,9 +190,20 @@ func (_c *Wisp_Asset_Call) RunAndReturn(run func(symbol string) portfolio.Asset)
 }
 
 // Emit provides a mock function for the type Wisp
-func (_mock *Wisp) Emit(signal strategy.Signal) {
-	_mock.Called(signal)
-	return
+func (_mock *Wisp) Emit(signal strategy.Signal) execution.ExecutionCallback {
+	ret := _mock.Called(signal)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Emit")
+	}
+
+	var r0 execution.ExecutionCallback
+	if returnFunc, ok := ret.Get(0).(func(strategy.Signal) execution.ExecutionCallback); ok {
+		r0 = returnFunc(signal)
+	} else {
+		r0 = ret.Get(0).(execution.ExecutionCallback)
+	}
+	return r0
 }
 
 // Wisp_Emit_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Emit'
@@ -218,13 +230,13 @@ func (_c *Wisp_Emit_Call) Run(run func(signal strategy.Signal)) *Wisp_Emit_Call 
 	return _c
 }
 
-func (_c *Wisp_Emit_Call) Return() *Wisp_Emit_Call {
-	_c.Call.Return()
+func (_c *Wisp_Emit_Call) Return(executionCallback execution.ExecutionCallback) *Wisp_Emit_Call {
+	_c.Call.Return(executionCallback)
 	return _c
 }
 
-func (_c *Wisp_Emit_Call) RunAndReturn(run func(signal strategy.Signal)) *Wisp_Emit_Call {
-	_c.Run(run)
+func (_c *Wisp_Emit_Call) RunAndReturn(run func(signal strategy.Signal) execution.ExecutionCallback) *Wisp_Emit_Call {
+	_c.Call.Return(run)
 	return _c
 }
 

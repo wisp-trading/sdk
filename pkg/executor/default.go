@@ -3,6 +3,7 @@ package executor
 import (
 	"fmt"
 
+	optionsTypes "github.com/wisp-trading/sdk/pkg/markets/options/types"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
@@ -15,13 +16,14 @@ import (
 
 // executor routes signals to domain-specific executors.
 type executor struct {
-	logger       logging.ApplicationLogger
-	timeProvider temporal.TimeProvider
-	hookRegistry registry.Hooks
-
-	spotExecutor       spotTypes.SignalExecutor
-	perpExecutor       perpTypes.SignalExecutor
-	predictionExecutor predTypes.SignalExecutor
+	logger          logging.ApplicationLogger
+	timeProvider    temporal.TimeProvider
+	hookRegistry    registry.Hooks
+	execRecords     execution.ExecutionRecords
+	spotExecutor    spotTypes.SignalExecutor
+	perpExecutor    perpTypes.SignalExecutor
+	predExecutor    predTypes.SignalExecutor
+	optionsExecutor optionsTypes.SignalExecutor
 }
 
 // NewExecutor creates a new default executor
@@ -29,23 +31,37 @@ func NewExecutor(
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 	hookRegistry registry.Hooks,
+	execRecords execution.ExecutionRecords,
 	spotExecutor spotTypes.SignalExecutor,
 	perpExecutor perpTypes.SignalExecutor,
-	predictionExecutor predTypes.SignalExecutor,
+	predExecutor predTypes.SignalExecutor,
+	optionsExecutor optionsTypes.SignalExecutor,
 ) execution.Executor {
 	logger.Info("Initializing executor")
 	return &executor{
-		logger:             logger,
-		timeProvider:       timeProvider,
-		hookRegistry:       hookRegistry,
-		spotExecutor:       spotExecutor,
-		perpExecutor:       perpExecutor,
-		predictionExecutor: predictionExecutor,
+		logger:          logger,
+		timeProvider:    timeProvider,
+		hookRegistry:    hookRegistry,
+		execRecords:     execRecords,
+		spotExecutor:    spotExecutor,
+		perpExecutor:    perpExecutor,
+		predExecutor:    predExecutor,
+		optionsExecutor: optionsExecutor,
 	}
 }
 
-// ExecuteSignal processes a signal and executes the associated actions
+// ExecuteSignal processes a signal fire-and-forget style; errors are returned but the
+// full ExecutionResult is discarded. Use ExecuteSignalWithResult when you need result detail.
 func (e *executor) ExecuteSignal(signal strategy.Signal) error {
+	result, err := e.ExecuteSignalWithResult(signal)
+	if result.HookError != nil {
+		e.logger.Error("AfterExecute hook failed for signal %s: %v", signal.GetID(), result.HookError)
+	}
+	return err
+}
+
+// ExecuteSignalWithResult processes a signal and returns the full ExecutionResult.
+func (e *executor) ExecuteSignalWithResult(signal strategy.Signal) (execution.ExecutionResult, error) {
 	ctx := &execution.ExecutionContext{
 		Signal:    signal,
 		Timestamp: e.timeProvider.Now(),
@@ -54,20 +70,19 @@ func (e *executor) ExecuteSignal(signal strategy.Signal) error {
 
 	e.logger.Info("Executing signal %s (strategy: %s)", signal.GetID(), signal.GetStrategy())
 
-	// Get hooks from registry at execution time
 	hooks := e.hookRegistry.GetHooks()
 
-	// Run BeforeExecute hooks
 	for _, hook := range hooks {
 		if err := hook.BeforeExecute(ctx); err != nil {
 			e.logger.Warn("Hook blocked execution: %v", err)
 			e.handleError(ctx, err, hooks)
-			return err
+			result := execution.ExecutionResult{Success: false, Error: err}
+			e.record(signal, result)
+			return result, err
 		}
 	}
 
-	// Execute core logic, dispatching on concrete signal type
-	result := &execution.ExecutionResult{
+	result := execution.ExecutionResult{
 		OrderIDs: make([]string, 0),
 		Success:  true,
 	}
@@ -75,11 +90,13 @@ func (e *executor) ExecuteSignal(signal strategy.Signal) error {
 	var execErr error
 	switch s := signal.(type) {
 	case spotTypes.SpotSignal:
-		execErr = e.spotExecutor.ExecuteSpotSignal(s, ctx, result)
+		execErr = e.spotExecutor.ExecuteSpotSignal(s, ctx, &result)
 	case perpTypes.PerpSignal:
-		execErr = e.perpExecutor.ExecutePerpSignal(s, ctx, result)
+		execErr = e.perpExecutor.ExecutePerpSignal(s, ctx, &result)
 	case predTypes.PredictionSignal:
-		execErr = e.predictionExecutor.ExecutePredictionSignal(s, ctx, result)
+		execErr = e.predExecutor.ExecutePredictionSignal(s, ctx, &result)
+	case optionsTypes.OptionsSignal:
+		execErr = e.optionsExecutor.ExecuteOptionsSignal(s, ctx, &result)
 	default:
 		execErr = fmt.Errorf("unsupported signal type: %T", signal)
 	}
@@ -88,18 +105,38 @@ func (e *executor) ExecuteSignal(signal strategy.Signal) error {
 		result.Error = execErr
 		result.Success = false
 		e.handleError(ctx, execErr, hooks)
-		return execErr
+		e.record(signal, result)
+		return result, execErr
 	}
 
-	// Run AfterExecute hooks
+	// Run AfterExecute hooks — failures are recorded in HookError and mark Success=false.
 	for _, hook := range hooks {
-		if err := hook.AfterExecute(ctx, result); err != nil {
-			e.logger.Error("Hook AfterExecute failed: %v", err)
+		if err := hook.AfterExecute(ctx, &result); err != nil {
+			e.logger.Error("AfterExecute hook failed: %v", err)
+			result.HookError = err
+			result.Success = false
 		}
 	}
 
-	e.logger.Info("Signal %s executed successfully", signal.GetID())
-	return nil
+	e.record(signal, result)
+
+	if result.Success {
+		e.logger.Info("Signal %s executed successfully", signal.GetID())
+	}
+	return result, nil
+}
+
+// record writes the execution outcome to the records store for bookkeeping.
+func (e *executor) record(signal strategy.Signal, result execution.ExecutionResult) {
+	e.execRecords.Add(execution.ExecutionRecord{
+		SignalID:  signal.GetID(),
+		Strategy:  signal.GetStrategy(),
+		Timestamp: e.timeProvider.Now(),
+		OrderIDs:  result.OrderIDs,
+		Success:   result.Success,
+		Error:     result.Error,
+		HookError: result.HookError,
+	})
 }
 
 // handleError calls OnError hooks
@@ -110,3 +147,5 @@ func (e *executor) handleError(ctx *execution.ExecutionContext, err error, hooks
 		}
 	}
 }
+
+var _ execution.Executor = (*executor)(nil)

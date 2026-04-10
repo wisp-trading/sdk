@@ -6,6 +6,7 @@ package activity
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/activity"
 )
 
@@ -34,6 +35,52 @@ type Activity_Expecter struct {
 
 func (_m *Activity) EXPECT() *Activity_Expecter {
 	return &Activity_Expecter{mock: &_m.Mock}
+}
+
+// Executions provides a mock function for the type Activity
+func (_mock *Activity) Executions() execution.ExecutionRecords {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Executions")
+	}
+
+	var r0 execution.ExecutionRecords
+	if returnFunc, ok := ret.Get(0).(func() execution.ExecutionRecords); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(execution.ExecutionRecords)
+		}
+	}
+	return r0
+}
+
+// Activity_Executions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Executions'
+type Activity_Executions_Call struct {
+	*mock.Call
+}
+
+// Executions is a helper method to define mock.On call
+func (_e *Activity_Expecter) Executions() *Activity_Executions_Call {
+	return &Activity_Executions_Call{Call: _e.mock.On("Executions")}
+}
+
+func (_c *Activity_Executions_Call) Run(run func()) *Activity_Executions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Activity_Executions_Call) Return(executionRecords execution.ExecutionRecords) *Activity_Executions_Call {
+	_c.Call.Return(executionRecords)
+	return _c
+}
+
+func (_c *Activity_Executions_Call) RunAndReturn(run func() execution.ExecutionRecords) *Activity_Executions_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // PNL provides a mock function for the type Activity

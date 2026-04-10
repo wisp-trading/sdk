@@ -6,6 +6,7 @@ package execution
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
@@ -72,6 +73,52 @@ func (_c *SignalRouter_Route_Call) Return() *SignalRouter_Route_Call {
 }
 
 func (_c *SignalRouter_Route_Call) RunAndReturn(run func(signal strategy.Signal)) *SignalRouter_Route_Call {
+	_c.Run(run)
+	return _c
+}
+
+// RouteWithResult provides a mock function for the type SignalRouter
+func (_mock *SignalRouter) RouteWithResult(signal strategy.Signal, ch chan<- execution.ExecutionResult) {
+	_mock.Called(signal, ch)
+	return
+}
+
+// SignalRouter_RouteWithResult_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RouteWithResult'
+type SignalRouter_RouteWithResult_Call struct {
+	*mock.Call
+}
+
+// RouteWithResult is a helper method to define mock.On call
+//   - signal strategy.Signal
+//   - ch chan<- execution.ExecutionResult
+func (_e *SignalRouter_Expecter) RouteWithResult(signal interface{}, ch interface{}) *SignalRouter_RouteWithResult_Call {
+	return &SignalRouter_RouteWithResult_Call{Call: _e.mock.On("RouteWithResult", signal, ch)}
+}
+
+func (_c *SignalRouter_RouteWithResult_Call) Run(run func(signal strategy.Signal, ch chan<- execution.ExecutionResult)) *SignalRouter_RouteWithResult_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 strategy.Signal
+		if args[0] != nil {
+			arg0 = args[0].(strategy.Signal)
+		}
+		var arg1 chan<- execution.ExecutionResult
+		if args[1] != nil {
+			arg1 = args[1].(chan<- execution.ExecutionResult)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *SignalRouter_RouteWithResult_Call) Return() *SignalRouter_RouteWithResult_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *SignalRouter_RouteWithResult_Call) RunAndReturn(run func(signal strategy.Signal, ch chan<- execution.ExecutionResult)) *SignalRouter_RouteWithResult_Call {
 	_c.Run(run)
 	return _c
 }

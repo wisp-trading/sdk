@@ -9,6 +9,7 @@ import (
 type OptionsStore interface {
 	market.MarketStore
 	market.TradesStoreExtension
+	market.PositionsStoreExtension
 
 	// Positions
 	GetPosition(contract OptionContract) *Position

@@ -15,6 +15,7 @@ import (
 
 type optionsStore struct {
 	marketStore.TradesStoreExtension
+	marketStore.PositionsStoreExtension
 
 	mu sync.RWMutex
 
@@ -31,8 +32,9 @@ type optionsStore struct {
 // NewStore creates a new options market store
 func NewStore(timeProvider temporal.TimeProvider) optionsTypes.OptionsStore {
 	return &optionsStore{
-		TradesStoreExtension: extensions.NewTradesExtension(),
-		markPrices:           make(map[string]float64),
+		TradesStoreExtension:    extensions.NewTradesExtension(),
+		PositionsStoreExtension: extensions.NewPositionsExtension(),
+		markPrices:              make(map[string]float64),
 		underlyingPrice:      make(map[string]float64),
 		greeks:               make(map[string]optionsTypes.Greeks),
 		iv:                   make(map[string]float64),

@@ -3,6 +3,7 @@ package executor
 import (
 	"fmt"
 
+	baseExecutor "github.com/wisp-trading/sdk/pkg/markets/base/executor"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
@@ -14,10 +15,8 @@ import (
 )
 
 type executor struct {
-	connectors   registry.ConnectorRegistry
-	store        perpTypes.MarketStore
-	logger       logging.ApplicationLogger
-	timeProvider temporal.TimeProvider
+	baseExecutor.Base
+	store perpTypes.MarketStore
 }
 
 // NewExecutor creates a new perp market executor.
@@ -29,10 +28,12 @@ func NewExecutor(
 ) perpTypes.SignalExecutor {
 	logger.Info("Initializing perp executor")
 	return &executor{
-		connectors:   connectors,
-		store:        store,
-		logger:       logger,
-		timeProvider: timeProvider,
+		Base: baseExecutor.Base{
+			Connectors:   connectors,
+			Logger:       logger,
+			TimeProvider: timeProvider,
+		},
+		store: store,
 	}
 }
 
@@ -61,24 +62,34 @@ func (e *executor) ExecutePerpSignal(
 	return nil
 }
 
-// HandleTrade records an inbound perp trade fill into the trades store.
+// HandleTrade records an inbound perp trade fill and marks the order filled.
 func (e *executor) HandleTrade(trade connector.Trade) error {
 	e.store.AddTrade(trade)
-	e.logger.Info("Perp trade recorded: %s (order: %s, pair: %s)", trade.ID, trade.OrderID, trade.Pair.Symbol())
+
+	orderID := trade.OrderID
+	if orderID == "" {
+		orderID = trade.ID
+	}
+
+	if err := e.store.UpdateOrderStatus(orderID, connector.OrderStatusFilled); err != nil {
+		e.Logger.Debug("Could not mark perp order %s filled: %v", orderID, err)
+	}
+
+	e.Logger.Info("Perp trade recorded: %s (order: %s, pair: %s)", trade.ID, orderID, trade.Pair.Symbol())
 	return nil
 }
 
 func (e *executor) executeAction(action *perpTypes.PerpAction) (string, error) {
 	switch action.ActionType {
 	case strategy.ActionHold:
-		e.logger.Info("Holding perp position for %s", action.Pair.Symbol())
+		e.Logger.Info("Holding perp position for %s", action.Pair.Symbol())
 		return "", nil
 	case strategy.ActionClose:
-		e.logger.Info("Close perp action noted for %s", action.Pair.Symbol())
+		e.Logger.Info("Close perp action noted for %s", action.Pair.Symbol())
 		return "", nil
 	}
 
-	conn, exists := e.connectors.Connector(action.Exchange)
+	conn, exists := e.Connectors.Connector(action.Exchange)
 	if !exists {
 		return "", fmt.Errorf("exchange %s not available", action.Exchange)
 	}
@@ -87,20 +98,20 @@ func (e *executor) executeAction(action *perpTypes.PerpAction) (string, error) {
 
 	side := getSide(action.ActionType)
 
-	e.logger.Info("Executing perp %s order: %s %s @ %s (leverage: %s) on %s",
+	e.Logger.Info("Executing perp %s order: %s %s @ %s (leverage: %s) on %s",
 		action.ActionType, action.Quantity.StringFixed(4), action.Pair.Symbol(),
 		action.Price.StringFixed(2), action.Leverage.StringFixed(1), action.Exchange,
 	)
 
 	if isPerpConn && !action.Leverage.IsZero() {
 		if err := e.setLeverage(perpConnector, action); err != nil {
-			e.logger.Warn("Could not set leverage for %s on %s: %v", action.Pair.Symbol(), action.Exchange, err)
+			e.Logger.Warn("Could not set leverage for %s on %s: %v", action.Pair.Symbol(), action.Exchange, err)
 		}
 	}
 
-	exec, ok := conn.(connector.OrderExecutor)
-	if !ok {
-		return "", fmt.Errorf("exchange %s does not support order execution", action.Exchange)
+	exec, err := e.GetOrderExecutor(action.Exchange)
+	if err != nil {
+		return "", err
 	}
 
 	resp, err := exec.PlaceLimitOrder(action.Pair, side, action.Quantity, action.Price)
@@ -108,8 +119,19 @@ func (e *executor) executeAction(action *perpTypes.PerpAction) (string, error) {
 		return "", fmt.Errorf("failed to place perp order on %s: %w", action.Exchange, err)
 	}
 
-	e.logger.Info("Perp order placed: %s (pair: %s, side: %s)", resp.OrderID, action.Pair.Symbol(), side)
+	e.store.AddOrder(connector.Order{
+		Pair:      action.Pair,
+		ID:        resp.OrderID,
+		Side:      side,
+		Quantity:  action.Quantity,
+		Price:     action.Price,
+		Status:    connector.OrderStatusPending,
+		Type:      connector.OrderTypeLimit,
+		CreatedAt: e.TimeProvider.Now(),
+		UpdatedAt: e.TimeProvider.Now(),
+	})
 
+	e.Logger.Info("Perp order placed: %s (pair: %s, side: %s)", resp.OrderID, action.Pair.Symbol(), side)
 	return resp.OrderID, nil
 }
 
@@ -118,7 +140,7 @@ func (e *executor) setLeverage(conn perpConn.Connector, action *perpTypes.PerpAc
 	if symbol == "" {
 		return fmt.Errorf("could not resolve perp symbol for %s", action.Pair.Symbol())
 	}
-	e.logger.Debug("Leverage %s requested for %s (%s) on %s",
+	e.Logger.Debug("Leverage %s requested for %s (%s) on %s",
 		action.Leverage.StringFixed(1), action.Pair.Symbol(), symbol, action.Exchange)
 	return nil
 }

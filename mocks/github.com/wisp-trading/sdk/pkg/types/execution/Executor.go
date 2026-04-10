@@ -6,6 +6,7 @@ package execution
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
 
@@ -83,6 +84,66 @@ func (_c *Executor_ExecuteSignal_Call) Return(err error) *Executor_ExecuteSignal
 }
 
 func (_c *Executor_ExecuteSignal_Call) RunAndReturn(run func(signal strategy.Signal) error) *Executor_ExecuteSignal_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ExecuteSignalWithResult provides a mock function for the type Executor
+func (_mock *Executor) ExecuteSignalWithResult(signal strategy.Signal) (execution.ExecutionResult, error) {
+	ret := _mock.Called(signal)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ExecuteSignalWithResult")
+	}
+
+	var r0 execution.ExecutionResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(strategy.Signal) (execution.ExecutionResult, error)); ok {
+		return returnFunc(signal)
+	}
+	if returnFunc, ok := ret.Get(0).(func(strategy.Signal) execution.ExecutionResult); ok {
+		r0 = returnFunc(signal)
+	} else {
+		r0 = ret.Get(0).(execution.ExecutionResult)
+	}
+	if returnFunc, ok := ret.Get(1).(func(strategy.Signal) error); ok {
+		r1 = returnFunc(signal)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// Executor_ExecuteSignalWithResult_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ExecuteSignalWithResult'
+type Executor_ExecuteSignalWithResult_Call struct {
+	*mock.Call
+}
+
+// ExecuteSignalWithResult is a helper method to define mock.On call
+//   - signal strategy.Signal
+func (_e *Executor_Expecter) ExecuteSignalWithResult(signal interface{}) *Executor_ExecuteSignalWithResult_Call {
+	return &Executor_ExecuteSignalWithResult_Call{Call: _e.mock.On("ExecuteSignalWithResult", signal)}
+}
+
+func (_c *Executor_ExecuteSignalWithResult_Call) Run(run func(signal strategy.Signal)) *Executor_ExecuteSignalWithResult_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 strategy.Signal
+		if args[0] != nil {
+			arg0 = args[0].(strategy.Signal)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *Executor_ExecuteSignalWithResult_Call) Return(executionResult execution.ExecutionResult, err error) *Executor_ExecuteSignalWithResult_Call {
+	_c.Call.Return(executionResult, err)
+	return _c
+}
+
+func (_c *Executor_ExecuteSignalWithResult_Call) RunAndReturn(run func(signal strategy.Signal) (execution.ExecutionResult, error)) *Executor_ExecuteSignalWithResult_Call {
 	_c.Call.Return(run)
 	return _c
 }

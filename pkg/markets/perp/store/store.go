@@ -15,6 +15,7 @@ type perpStore struct {
 	market.OrderBookStoreExtension
 	market.KlineStoreExtension
 	market.TradesStoreExtension
+	market.PositionsStoreExtension
 	domainTypes.FundingRateStoreExtension
 	domainTypes.PerpPositionsStoreExtension
 }
@@ -27,6 +28,7 @@ func NewStore(timeProvider temporal.TimeProvider) domainTypes.MarketStore {
 		OrderBookStoreExtension:     extensions.NewOrderBookExtension(baseStore.UpdatePairPrice, baseStore.UpdateLastUpdated),
 		KlineStoreExtension:         extensions.NewKlineExtension(),
 		TradesStoreExtension:        extensions.NewTradesExtension(),
+		PositionsStoreExtension:     extensions.NewPositionsExtension(),
 		FundingRateStoreExtension:   perpExtensions.NewFundingRateExtension(),
 		PerpPositionsStoreExtension: perpExtensions.NewPerpPositionsExtension(),
 	}
