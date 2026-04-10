@@ -21,7 +21,6 @@ type wisp struct {
 	tradingLogger logging.TradingLogger
 	indicators    analytics.Indicators
 	analytics     analytics.Analytics
-	signal        strategy.SignalFactory
 	activity      activity.Activity
 	router        execution.SignalRouter
 	perp          perpTypes.Perp
@@ -37,7 +36,6 @@ func NewWisp(
 	tradingLogger logging.TradingLogger,
 	indicators analytics.Indicators,
 	analyticsService analytics.Analytics,
-	signal strategy.SignalFactory,
 	activityService activity.Activity,
 	router execution.SignalRouter,
 	perpService perpTypes.Perp,
@@ -50,7 +48,6 @@ func NewWisp(
 		tradingLogger: tradingLogger,
 		indicators:    indicators,
 		analytics:     analyticsService,
-		signal:        signal,
 		activity:      activityService,
 		router:        router,
 		perp:          perpService,

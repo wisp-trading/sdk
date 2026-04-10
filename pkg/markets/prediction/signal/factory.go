@@ -22,7 +22,7 @@ func NewFactory(timeProvider temporal.TimeProvider) types.SignalFactory {
 func (f factory) NewPrediction(strategyName strategy.StrategyName) types.PredictionSignalBuilder {
 	return &predictionBuilder{
 		strategyName: strategyName,
-		actions:      make([]*types.PredictionAction, 0),
+		actions:      make([]types.PredictionAction, 0),
 		timeProvider: f.timeProvider,
 	}
 }

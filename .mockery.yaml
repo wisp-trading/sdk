@@ -1,9 +1,12 @@
 all: false
 template: testify
 filename: "{{.InterfaceName}}.go"
+structname: "{{.InterfaceName}}"
+pkgname: "{{.SrcPackageName}}"
+dir: "mocks/{{.SrcPackagePath}}"
 formatter: goimports
 packages:
-  github.com/wisp-trading/sdk/pkg/types/connector/options:
+  github.com/wisp-trading/sdk/pkg:
     config:
+      recursive: true
       all: true
-      dir: "mocks/github.com/wisp-trading/sdk/pkg/types/connector/options"

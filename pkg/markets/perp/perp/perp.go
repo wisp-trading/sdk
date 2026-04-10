@@ -112,7 +112,7 @@ func (p *perp) Klines(exchange connector.ExchangeName, pair portfolio.Pair, inte
 }
 
 // Signal creates a new perp signal builder for the given strategy.
-func (p *perp) Signal(strategyName strategy.StrategyName) strategy.PerpSignalBuilder {
+func (p *perp) Signal(strategyName strategy.StrategyName) perpTypes.PerpSignalBuilder {
 	return signal.NewPerpBuilder(strategyName, p.timeProvider)
 }
 

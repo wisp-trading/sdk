@@ -33,7 +33,7 @@ type Spot interface {
 	Klines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline
 
 	// Signal creates a new spot signal builder for the given strategy.
-	Signal(strategyName strategy.StrategyName) strategy.SpotSignalBuilder
+	Signal(strategyName strategy.StrategyName) SpotSignalBuilder
 
 	// Log returns the trading logger for strategy-specific logging.
 	Log() logging.TradingLogger

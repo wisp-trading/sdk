@@ -23,8 +23,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func setupMockOptionsConnector(t GinkgoTInterface, name connector.ExchangeName) *mockConnector.MockConnector {
-	m := mockConnector.NewMockConnector(t)
+func setupMockOptionsConnector(t GinkgoTInterface, name connector.ExchangeName) *mockConnector.Connector {
+	m := mockConnector.NewConnector(t)
 	m.EXPECT().GetConnectorInfo().Return(&connector.Info{
 		Name: name,
 	}).Maybe()
@@ -87,7 +87,7 @@ var _ = Describe("Options BatchIngestor", func() {
 	Describe("Batch Ingestor Collection", func() {
 		var (
 			ingestor batchTypes.BatchIngestor
-			m        *mockConnector.MockConnector
+			m        *mockConnector.Connector
 		)
 
 		BeforeEach(func() {
@@ -144,7 +144,7 @@ var _ = Describe("Options BatchIngestor", func() {
 	Describe("Batch Ingestor Lifecycle", func() {
 		var (
 			ingestor batchTypes.BatchIngestor
-			m        *mockConnector.MockConnector
+			m        *mockConnector.Connector
 		)
 
 		BeforeEach(func() {

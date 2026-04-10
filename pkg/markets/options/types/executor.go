@@ -2,15 +2,27 @@ package types
 
 import (
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 )
 
-// OptionsExecutor handles order execution for options contracts
+// SignalExecutor is the domain-specific executor interface for options signals.
+// It owns options order and position storage.
+type SignalExecutor interface {
+	ExecuteOptionsSignal(
+		signal OptionsSignal,
+		ctx *execution.ExecutionContext,
+		result *execution.ExecutionResult,
+	) error
+}
+
+// OptionsExecutor handles low-level order placement for options contracts.
+// Used internally by the SignalExecutor implementation.
 type OptionsExecutor interface {
 	PlaceOrder(order OptionOrder) (*connector.OrderResponse, error)
 	CancelOrder(orderID string, exchange connector.ExchangeName) (*connector.CancelResponse, error)
 }
 
-// OptionOrder represents an order for an options contract
+// OptionOrder represents a raw options order for direct placement.
 type OptionOrder struct {
 	Exchange connector.ExchangeName
 	Contract OptionContract

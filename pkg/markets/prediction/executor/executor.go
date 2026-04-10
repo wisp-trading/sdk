@@ -52,7 +52,7 @@ func (e *executor) ExecutePredictionSignal(
 			return fmt.Errorf("prediction action %d invalid: %w", i, err)
 		}
 
-		orderID, err := e.executeAction(signal.GetStrategy(), action)
+		orderID, err := e.executeAction(signal.GetStrategy(), &action)
 		if err != nil {
 			return fmt.Errorf("prediction action %d failed: %w", i, err)
 		}

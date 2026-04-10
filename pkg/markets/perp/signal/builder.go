@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -11,15 +12,15 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-// perpBuilder is the concrete implementation of strategy.PerpSignalBuilder.
+// perpBuilder is the concrete implementation of perpTypes.PerpSignalBuilder.
 type perpBuilder struct {
 	strategyName strategy.StrategyName
-	actions      []*strategy.PerpAction
+	actions      []perpTypes.PerpAction
 	timeProvider temporal.TimeProvider
 }
 
-func (b *perpBuilder) Buy(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.PerpSignalBuilder {
-	b.actions = append(b.actions, &strategy.PerpAction{
+func (b *perpBuilder) Buy(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) perpTypes.PerpSignalBuilder {
+	b.actions = append(b.actions, perpTypes.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionBuy, Exchange: exchange},
 		Pair:       pair,
 		Quantity:   quantity,
@@ -28,8 +29,8 @@ func (b *perpBuilder) Buy(pair portfolio.Pair, exchange connector.ExchangeName, 
 	return b
 }
 
-func (b *perpBuilder) BuyLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.PerpSignalBuilder {
-	b.actions = append(b.actions, &strategy.PerpAction{
+func (b *perpBuilder) BuyLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) perpTypes.PerpSignalBuilder {
+	b.actions = append(b.actions, perpTypes.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionBuy, Exchange: exchange},
 		Pair:       pair,
 		Quantity:   quantity,
@@ -38,8 +39,8 @@ func (b *perpBuilder) BuyLimit(pair portfolio.Pair, exchange connector.ExchangeN
 	return b
 }
 
-func (b *perpBuilder) BuyLimitWithLeverage(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price, leverage numerical.Decimal) strategy.PerpSignalBuilder {
-	b.actions = append(b.actions, &strategy.PerpAction{
+func (b *perpBuilder) BuyLimitWithLeverage(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price, leverage numerical.Decimal) perpTypes.PerpSignalBuilder {
+	b.actions = append(b.actions, perpTypes.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionBuy, Exchange: exchange},
 		Pair:       pair,
 		Quantity:   quantity,
@@ -49,8 +50,8 @@ func (b *perpBuilder) BuyLimitWithLeverage(pair portfolio.Pair, exchange connect
 	return b
 }
 
-func (b *perpBuilder) Sell(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.PerpSignalBuilder {
-	b.actions = append(b.actions, &strategy.PerpAction{
+func (b *perpBuilder) Sell(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) perpTypes.PerpSignalBuilder {
+	b.actions = append(b.actions, perpTypes.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionSell, Exchange: exchange},
 		Pair:       pair,
 		Quantity:   quantity,
@@ -59,8 +60,8 @@ func (b *perpBuilder) Sell(pair portfolio.Pair, exchange connector.ExchangeName,
 	return b
 }
 
-func (b *perpBuilder) SellLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.PerpSignalBuilder {
-	b.actions = append(b.actions, &strategy.PerpAction{
+func (b *perpBuilder) SellLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) perpTypes.PerpSignalBuilder {
+	b.actions = append(b.actions, perpTypes.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionSell, Exchange: exchange},
 		Pair:       pair,
 		Quantity:   quantity,
@@ -69,8 +70,8 @@ func (b *perpBuilder) SellLimit(pair portfolio.Pair, exchange connector.Exchange
 	return b
 }
 
-func (b *perpBuilder) SellShort(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) strategy.PerpSignalBuilder {
-	b.actions = append(b.actions, &strategy.PerpAction{
+func (b *perpBuilder) SellShort(pair portfolio.Pair, exchange connector.ExchangeName, quantity numerical.Decimal) perpTypes.PerpSignalBuilder {
+	b.actions = append(b.actions, perpTypes.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionSellShort, Exchange: exchange},
 		Pair:       pair,
 		Quantity:   quantity,
@@ -79,8 +80,8 @@ func (b *perpBuilder) SellShort(pair portfolio.Pair, exchange connector.Exchange
 	return b
 }
 
-func (b *perpBuilder) SellShortLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) strategy.PerpSignalBuilder {
-	b.actions = append(b.actions, &strategy.PerpAction{
+func (b *perpBuilder) SellShortLimit(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price numerical.Decimal) perpTypes.PerpSignalBuilder {
+	b.actions = append(b.actions, perpTypes.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionSellShort, Exchange: exchange},
 		Pair:       pair,
 		Quantity:   quantity,
@@ -89,8 +90,8 @@ func (b *perpBuilder) SellShortLimit(pair portfolio.Pair, exchange connector.Exc
 	return b
 }
 
-func (b *perpBuilder) SellShortLimitWithLeverage(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price, leverage numerical.Decimal) strategy.PerpSignalBuilder {
-	b.actions = append(b.actions, &strategy.PerpAction{
+func (b *perpBuilder) SellShortLimitWithLeverage(pair portfolio.Pair, exchange connector.ExchangeName, quantity, price, leverage numerical.Decimal) perpTypes.PerpSignalBuilder {
+	b.actions = append(b.actions, perpTypes.PerpAction{
 		BaseAction: strategy.BaseAction{ActionType: strategy.ActionSellShort, Exchange: exchange},
 		Pair:       pair,
 		Quantity:   quantity,
@@ -101,19 +102,17 @@ func (b *perpBuilder) SellShortLimitWithLeverage(pair portfolio.Pair, exchange c
 }
 
 // Build validates the accumulated actions and constructs the PerpSignal.
-// Returns an error if the strategy name is empty, no actions have been added,
-// or any action fails validation.
-func (b *perpBuilder) Build() (strategy.PerpSignal, error) {
+func (b *perpBuilder) Build() (perpTypes.PerpSignal, error) {
 	if b.strategyName == "" {
 		return nil, fmt.Errorf("strategy name is required")
 	}
 	if len(b.actions) == 0 {
 		return nil, fmt.Errorf("signal must contain at least one action")
 	}
-	for i, action := range b.actions {
-		if err := action.Validate(); err != nil {
+	for i := range b.actions {
+		if err := b.actions[i].Validate(); err != nil {
 			return nil, fmt.Errorf("action %d is invalid: %w", i, err)
 		}
 	}
-	return strategy.NewPerpSignal(uuid.New(), b.strategyName, b.timeProvider.Now(), b.actions), nil
+	return perpTypes.NewPerpSignal(uuid.New(), b.strategyName, b.timeProvider.Now(), b.actions), nil
 }

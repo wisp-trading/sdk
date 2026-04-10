@@ -2,11 +2,13 @@ package spot
 
 import (
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
+	spotSignal "github.com/wisp-trading/sdk/pkg/markets/spot/signal"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
@@ -14,7 +16,7 @@ type spot struct {
 	tradingLogger logging.TradingLogger
 	watchlist     spotTypes.SpotWatchlist
 	store         spotTypes.MarketStore
-	signal        strategy.SignalFactory
+	timeProvider  temporal.TimeProvider
 	pnl           spotTypes.SpotPNL
 }
 
@@ -22,14 +24,14 @@ func NewSpot(
 	tradingLogger logging.TradingLogger,
 	watchlist spotTypes.SpotWatchlist,
 	store spotTypes.MarketStore,
-	signal strategy.SignalFactory,
+	timeProvider temporal.TimeProvider,
 	pnl spotTypes.SpotPNL,
 ) spotTypes.Spot {
 	return &spot{
 		tradingLogger: tradingLogger,
 		watchlist:     watchlist,
 		store:         store,
-		signal:        signal,
+		timeProvider:  timeProvider,
 		pnl:           pnl,
 	}
 }
@@ -76,8 +78,8 @@ func (s *spot) Klines(exchange connector.ExchangeName, pair portfolio.Pair, inte
 }
 
 // Signal creates a new spot signal builder for the given strategy.
-func (s *spot) Signal(strategyName strategy.StrategyName) strategy.SpotSignalBuilder {
-	return s.signal.NewSpot(strategyName)
+func (s *spot) Signal(strategyName strategy.StrategyName) spotTypes.SpotSignalBuilder {
+	return spotSignal.NewSpotBuilder(strategyName, s.timeProvider)
 }
 
 // Log returns the trading logger for strategy-specific logging.

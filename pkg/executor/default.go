@@ -74,9 +74,9 @@ func (e *executor) ExecuteSignal(signal strategy.Signal) error {
 
 	var execErr error
 	switch s := signal.(type) {
-	case strategy.SpotSignal:
+	case spotTypes.SpotSignal:
 		execErr = e.spotExecutor.ExecuteSpotSignal(s, ctx, result)
-	case strategy.PerpSignal:
+	case perpTypes.PerpSignal:
 		execErr = e.perpExecutor.ExecutePerpSignal(s, ctx, result)
 	case predTypes.PredictionSignal:
 		execErr = e.predictionExecutor.ExecutePredictionSignal(s, ctx, result)
