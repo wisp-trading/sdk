@@ -6,7 +6,6 @@ package batch
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	"github.com/wisp-trading/sdk/pkg/markets/price_feeds/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/price_feeds/types"
 )
 
@@ -35,50 +34,6 @@ type Connector_Expecter struct {
 
 func (_m *Connector) EXPECT() *Connector_Expecter {
 	return &Connector_Expecter{mock: &_m.Mock}
-}
-
-// GetConnectorInfo provides a mock function for the type Connector
-func (_mock *Connector) GetConnectorInfo() batch.ConnectorInfo {
-	ret := _mock.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetConnectorInfo")
-	}
-
-	var r0 batch.ConnectorInfo
-	if returnFunc, ok := ret.Get(0).(func() batch.ConnectorInfo); ok {
-		r0 = returnFunc()
-	} else {
-		r0 = ret.Get(0).(batch.ConnectorInfo)
-	}
-	return r0
-}
-
-// Connector_GetConnectorInfo_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetConnectorInfo'
-type Connector_GetConnectorInfo_Call struct {
-	*mock.Call
-}
-
-// GetConnectorInfo is a helper method to define mock.On call
-func (_e *Connector_Expecter) GetConnectorInfo() *Connector_GetConnectorInfo_Call {
-	return &Connector_GetConnectorInfo_Call{Call: _e.mock.On("GetConnectorInfo")}
-}
-
-func (_c *Connector_GetConnectorInfo_Call) Run(run func()) *Connector_GetConnectorInfo_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *Connector_GetConnectorInfo_Call) Return(connectorInfo batch.ConnectorInfo) *Connector_GetConnectorInfo_Call {
-	_c.Call.Return(connectorInfo)
-	return _c
-}
-
-func (_c *Connector_GetConnectorInfo_Call) RunAndReturn(run func() batch.ConnectorInfo) *Connector_GetConnectorInfo_Call {
-	_c.Call.Return(run)
-	return _c
 }
 
 // GetLatestPrices provides a mock function for the type Connector

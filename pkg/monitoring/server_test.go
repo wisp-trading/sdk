@@ -256,7 +256,7 @@ var _ = Describe("Server", func() {
 					Asks: []connector.PriceLevel{},
 				})
 
-				resp, err := client.Get("http://unix/api/orderbook?pair=BTC-USDT")
+				resp, err := client.Get("http://unix/api/orderbook?exchange=binance&pair=BTC-USDT")
 				Expect(err).NotTo(HaveOccurred())
 				defer resp.Body.Close()
 
@@ -278,7 +278,7 @@ var _ = Describe("Server", func() {
 				)
 				viewRegistry.EXPECT().GetOrderbook(exchange, doge).Return(nil)
 
-				resp, err := client.Get("http://unix/api/orderbook?pair=DOGE-USDT")
+				resp, err := client.Get("http://unix/api/orderbook?exchange=binance&pair=DOGE-USDT")
 				Expect(err).NotTo(HaveOccurred())
 				defer resp.Body.Close()
 

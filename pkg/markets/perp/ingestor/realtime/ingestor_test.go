@@ -92,6 +92,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				m.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 				m.EXPECT().SubscribeFundingRates(mock.Anything).Return(nil).Maybe()
 				m.EXPECT().SubscribePositions(mock.Anything).Return(nil).Maybe()
+					m.EXPECT().PositionUpdates().Return((<-chan perpConn.Position)(make(chan perpConn.Position))).Maybe()
 
 				connectorRegistry.RegisterPerp(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
@@ -141,6 +142,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				m.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 				m.EXPECT().SubscribeFundingRates(mock.Anything).Return(nil).Maybe()
 				m.EXPECT().SubscribePositions(mock.Anything).Return(nil).Maybe()
+					m.EXPECT().PositionUpdates().Return((<-chan perpConn.Position)(make(chan perpConn.Position))).Maybe()
 
 				connectorRegistry.RegisterPerp(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
@@ -193,6 +195,7 @@ var _ = Describe("Perp RealtimeIngestor", func() {
 				m.EXPECT().SubscribeKlines(mock.Anything, mock.Anything).Return(nil).Maybe()
 				m.EXPECT().SubscribeFundingRates(mock.Anything).Return(nil).Maybe()
 				m.EXPECT().SubscribePositions(mock.Anything).Return(nil).Maybe()
+					m.EXPECT().PositionUpdates().Return((<-chan perpConn.Position)(make(chan perpConn.Position))).Maybe()
 
 				connectorRegistry.RegisterPerp(exchangeName, m)
 				Expect(connectorRegistry.MarkReady(exchangeName)).To(Succeed())
