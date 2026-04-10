@@ -76,8 +76,10 @@ func (k *wisp) Asset(symbol string) portfolio.Asset {
 	return portfolio.NewAsset(symbol)
 }
 
-// Emit routes a signal directly to the executor via the SDK's SignalRouter.
-// This is the primary way strategies dispatch signals — non-blocking, fire and forget.
-func (k *wisp) Emit(signal strategy.Signal) {
-	k.router.Route(signal)
+// Emit routes a signal asynchronously and returns an ExecutionCallback. Strategies that
+// don't need the outcome can discard it; those that do can call cb.Await().
+func (k *wisp) Emit(signal strategy.Signal) execution.ExecutionCallback {
+	ch := make(chan execution.ExecutionResult, 1)
+	k.router.RouteWithResult(signal, ch)
+	return execution.NewExecutionCallback(ch)
 }

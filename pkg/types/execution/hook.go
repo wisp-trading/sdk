@@ -18,8 +18,12 @@ type HookPlugin interface {
 
 // Executor is the core interface for executing trading signals.
 type Executor interface {
-	// ExecuteSignal processes a trading signal and routes it to the correct domain executor.
+	// ExecuteSignal processes a trading signal fire-and-forget style; returns an error on failure.
 	ExecuteSignal(signal strategy.Signal) error
+
+	// ExecuteSignalWithResult processes a trading signal and returns the full ExecutionResult.
+	// Use this when the caller needs to inspect order IDs, hook errors, or success status.
+	ExecuteSignalWithResult(signal strategy.Signal) (ExecutionResult, error)
 }
 
 // ExecutionHook defines the interface for execution hooks

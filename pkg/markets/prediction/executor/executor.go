@@ -3,6 +3,7 @@ package executor
 import (
 	"fmt"
 
+	baseExecutor "github.com/wisp-trading/sdk/pkg/markets/base/executor"
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	predconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
@@ -16,10 +17,8 @@ import (
 // executor handles execution of prediction market signals.
 // It owns position tracking via the prediction store — no shared activity.Positions.
 type executor struct {
-	connectors   registry.ConnectorRegistry
-	store        predTypes.MarketStore
-	logger       logging.ApplicationLogger
-	timeProvider temporal.TimeProvider
+	baseExecutor.Base
+	store predTypes.MarketStore
 }
 
 // NewExecutor creates a new prediction market executor.
@@ -31,10 +30,12 @@ func NewExecutor(
 ) predTypes.SignalExecutor {
 	logger.Info("Initializing prediction executor")
 	return &executor{
-		connectors:   connectors,
-		store:        store,
-		logger:       logger,
-		timeProvider: timeProvider,
+		Base: baseExecutor.Base{
+			Connectors:   connectors,
+			Logger:       logger,
+			TimeProvider: timeProvider,
+		},
+		store: store,
 	}
 }
 
@@ -45,9 +46,7 @@ func (e *executor) ExecutePredictionSignal(
 	ctx *execution.ExecutionContext,
 	result *execution.ExecutionResult,
 ) error {
-	actions := signal.GetActions()
-
-	for i, action := range actions {
+	for i, action := range signal.GetActions() {
 		if err := action.Validate(); err != nil {
 			return fmt.Errorf("prediction action %d invalid: %w", i, err)
 		}
@@ -57,14 +56,16 @@ func (e *executor) ExecutePredictionSignal(
 			return fmt.Errorf("prediction action %d failed: %w", i, err)
 		}
 
-		result.OrderIDs = append(result.OrderIDs, orderID)
+		if orderID != "" {
+			result.OrderIDs = append(result.OrderIDs, orderID)
+		}
 	}
 
 	return nil
 }
 
 func (e *executor) executeAction(strategyName strategy.StrategyName, action *predTypes.PredictionAction) (string, error) {
-	exchange, exists := e.connectors.Connector(action.Exchange)
+	exchange, exists := e.Connectors.Connector(action.Exchange)
 	if !exists {
 		return "", fmt.Errorf("exchange %s not available", action.Exchange)
 	}
@@ -96,11 +97,11 @@ func (e *executor) executeAction(strategyName strategy.StrategyName, action *pre
 		Shares:    action.Shares,
 		Price:     action.MaxPrice,
 		Status:    connector.OrderStatusPending,
-		CreatedAt: e.timeProvider.Now(),
-		UpdatedAt: e.timeProvider.Now(),
+		CreatedAt: e.TimeProvider.Now(),
+		UpdatedAt: e.TimeProvider.Now(),
 	})
 
-	e.logger.Info(
+	e.Logger.Info(
 		"Prediction order %s placed (strategy: %s, market: %s, outcome: %s, side: %s, shares: %s @ %s)",
 		resp.OrderID,
 		strategyName,
@@ -122,3 +123,5 @@ func getSide(actionType strategy.ActionType) connector.OrderSide {
 		return connector.OrderSideBuy
 	}
 }
+
+var _ predTypes.SignalExecutor = (*executor)(nil)

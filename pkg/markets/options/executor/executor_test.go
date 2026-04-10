@@ -1,18 +1,24 @@
 package executor_test
 
 import (
+	"errors"
 	"testing"
-	"time"
+	stdtime "time"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	mockConnector "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/connector/options"
-	execution "github.com/wisp-trading/sdk/pkg/markets/options/executor"
+	mockOptionsStore "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/markets/options/types"
+	optionsExecutor "github.com/wisp-trading/sdk/pkg/markets/options/executor"
 	optionsTypes "github.com/wisp-trading/sdk/pkg/markets/options/types"
 	"github.com/wisp-trading/sdk/pkg/registry"
+	rtime "github.com/wisp-trading/sdk/pkg/runtime/time"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	registryTypes "github.com/wisp-trading/sdk/pkg/types/registry"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -24,272 +30,145 @@ func TestExecutor(t *testing.T) {
 	RunSpecs(t, "Options Executor Suite")
 }
 
-func setupMockConnector(t GinkgoTInterface, name connector.ExchangeName) *mockConnector.Connector {
-	m := mockConnector.NewConnector(t)
-	m.EXPECT().GetConnectorInfo().Return(&connector.Info{
-		Name: name,
-	}).Maybe()
-	return m
-}
-
-var _ = Describe("Options Executor", func() {
+var _ = Describe("Options SignalExecutor", func() {
 	var (
-		executor          optionsTypes.OptionsExecutor
+		exec              optionsTypes.SignalExecutor
 		connectorRegistry registryTypes.ConnectorRegistry
-		logger            logging.ApplicationLogger
+		store             *mockOptionsStore.OptionsStore
 		btcPair           portfolio.Pair
-		expiration        time.Time
+		expiration        stdtime.Time
+		strategyName      strategy.StrategyName
 	)
 
 	BeforeEach(func() {
-		logger = logging.NewNoOpLogger()
 		connectorRegistry = registry.NewConnectorRegistry()
-		executor = execution.NewExecutor(connectorRegistry, logger)
+		store = mockOptionsStore.NewOptionsStore(GinkgoT())
+		exec = optionsExecutor.NewExecutor(
+			connectorRegistry,
+			store,
+			logging.NewNoOpLogger(),
+			rtime.NewTimeProvider(),
+		)
 		btcPair = portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))
-		expiration = time.Now().AddDate(0, 0, 30)
+		expiration = stdtime.Now().AddDate(0, 0, 30)
+		strategyName = strategy.StrategyName("test-strategy")
 	})
 
-	Describe("PlaceOrder", func() {
-		var mockConn *mockConnector.Connector
+	buildSignal := func(actions ...optionsTypes.OptionsAction) optionsTypes.OptionsSignal {
+		return optionsTypes.NewOptionsSignal(uuid.New(), strategyName, stdtime.Now(), actions)
+	}
+
+	buildAction := func(actionType strategy.ActionType, price float64) optionsTypes.OptionsAction {
+		return optionsTypes.OptionsAction{
+			BaseAction: strategy.BaseAction{ActionType: actionType, Exchange: "test-exchange"},
+			Contract: optionsTypes.OptionContract{
+				Pair:       btcPair,
+				Strike:     50000,
+				Expiration: expiration,
+				OptionType: "CALL",
+			},
+			Quantity: numerical.NewFromFloat(1.0),
+			Price:    numerical.NewFromFloat(price),
+		}
+	}
+
+	Describe("ExecuteOptionsSignal", func() {
+		var (
+			mockConn *mockConnector.Connector
+			ctx      *execution.ExecutionContext
+			result   *execution.ExecutionResult
+		)
 
 		BeforeEach(func() {
 			exchangeName := connector.ExchangeName("test-exchange")
-			mockConn = setupMockConnector(GinkgoT(), exchangeName)
+			mockConn = mockConnector.NewConnector(GinkgoT())
+			mockConn.EXPECT().GetConnectorInfo().Return(&connector.Info{Name: exchangeName}).Maybe()
 			connectorRegistry.RegisterOptions(exchangeName, mockConn)
 			connectorRegistry.MarkReady(exchangeName)
+
+			ctx = &execution.ExecutionContext{Timestamp: stdtime.Now(), Metadata: make(map[string]interface{})}
+			result = &execution.ExecutionResult{OrderIDs: make([]string, 0), Success: true}
 		})
 
-		It("should place a limit order successfully", func() {
+		It("places a limit order and records the order ID", func() {
 			mockConn.EXPECT().PlaceLimitOrder(
-				btcPair,
-				connector.OrderSideBuy,
-				mock.MatchedBy(func(q numerical.Decimal) bool {
-					f, _ := q.Float64()
-					return f == 1.0
-				}),
-				mock.MatchedBy(func(p numerical.Decimal) bool {
-					f, _ := p.Float64()
-					return f == 50000.0
-				}),
-			).Return(&connector.OrderResponse{
-				OrderID: "test-order-1",
-			}, nil)
+				btcPair, connector.OrderSideBuy,
+				mock.MatchedBy(func(q numerical.Decimal) bool { f, _ := q.Float64(); return f == 1.0 }),
+				mock.MatchedBy(func(p numerical.Decimal) bool { f, _ := p.Float64(); return f == 50000.0 }),
+			).Return(&connector.OrderResponse{OrderID: "order-1"}, nil)
+			store.EXPECT().AddOrder(mock.Anything)
 
-			contract := optionsTypes.OptionContract{
-				Pair:       btcPair,
-				Strike:     50000,
-				Expiration: expiration,
-				OptionType: "CALL",
-			}
+			sig := buildSignal(buildAction(strategy.ActionBuy, 50000.0))
+			err := exec.ExecuteOptionsSignal(sig, ctx, result)
 
-			order := optionsTypes.OptionOrder{
-				Exchange: connector.ExchangeName("test-exchange"),
-				Contract: contract,
-				Side:     connector.OrderSideBuy,
-				Quantity: 1.0,
-				Price:    50000.0,
-			}
-
-			resp, err := executor.PlaceOrder(order)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(resp).NotTo(BeNil())
-			Expect(resp.OrderID).To(Equal("test-order-1"))
+			Expect(result.OrderIDs).To(ConsistOf("order-1"))
 		})
 
-		It("should place a market order successfully", func() {
+		It("places a market order when price is zero", func() {
 			mockConn.EXPECT().PlaceMarketOrder(
-				btcPair,
-				connector.OrderSideSell,
-				mock.MatchedBy(func(q numerical.Decimal) bool {
-					f, _ := q.Float64()
-					return f == 2.0
-				}),
-			).Return(&connector.OrderResponse{
-				OrderID: "test-order-2",
-			}, nil)
+				btcPair, connector.OrderSideSell,
+				mock.MatchedBy(func(q numerical.Decimal) bool { f, _ := q.Float64(); return f == 1.0 }),
+			).Return(&connector.OrderResponse{OrderID: "order-2"}, nil)
+			store.EXPECT().AddOrder(mock.Anything)
 
-			contract := optionsTypes.OptionContract{
-				Pair:       btcPair,
-				Strike:     50000,
-				Expiration: expiration,
-				OptionType: "PUT",
-			}
+			action := buildAction(strategy.ActionSell, 0)
+			sig := buildSignal(action)
+			err := exec.ExecuteOptionsSignal(sig, ctx, result)
 
-			order := optionsTypes.OptionOrder{
-				Exchange: connector.ExchangeName("test-exchange"),
-				Contract: contract,
-				Side:     connector.OrderSideSell,
-				Quantity: 2.0,
-				Price:    0, // Market order
-			}
-
-			resp, err := executor.PlaceOrder(order)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(resp.OrderID).To(Equal("test-order-2"))
+			Expect(result.OrderIDs).To(ConsistOf("order-2"))
 		})
 
-		It("should reject order with missing exchange", func() {
-			contract := optionsTypes.OptionContract{
-				Pair:       btcPair,
-				Strike:     50000,
-				Expiration: expiration,
-				OptionType: "CALL",
+		It("returns error when action validation fails", func() {
+			action := optionsTypes.OptionsAction{
+				BaseAction: strategy.BaseAction{ActionType: strategy.ActionBuy, Exchange: "test-exchange"},
+				Contract: optionsTypes.OptionContract{
+					Pair: btcPair, Strike: 0, Expiration: expiration, OptionType: "CALL", // invalid strike
+				},
+				Quantity: numerical.NewFromFloat(1.0),
+				Price:    numerical.NewFromFloat(50000),
 			}
 
-			order := optionsTypes.OptionOrder{
-				Exchange: "", // Missing exchange
-				Contract: contract,
-				Side:     connector.OrderSideBuy,
-				Quantity: 1.0,
-				Price:    50000.0,
-			}
+			sig := buildSignal(action)
+			err := exec.ExecuteOptionsSignal(sig, ctx, result)
 
-			resp, err := executor.PlaceOrder(order)
 			Expect(err).To(HaveOccurred())
-			Expect(resp).To(BeNil())
-			Expect(err.Error()).To(ContainSubstring("exchange"))
+			Expect(err.Error()).To(ContainSubstring("invalid"))
 		})
 
-		It("should reject order with invalid strike", func() {
-			contract := optionsTypes.OptionContract{
-				Pair:       btcPair,
-				Strike:     0, // Invalid strike
-				Expiration: expiration,
-				OptionType: "CALL",
-			}
+		It("returns error when exchange is unavailable", func() {
+			action := buildAction(strategy.ActionBuy, 50000)
+			action.Exchange = "unknown-exchange"
+			sig := buildSignal(action)
 
-			order := optionsTypes.OptionOrder{
-				Exchange: connector.ExchangeName("test-exchange"),
-				Contract: contract,
-				Side:     connector.OrderSideBuy,
-				Quantity: 1.0,
-				Price:    50000.0,
-			}
+			err := exec.ExecuteOptionsSignal(sig, ctx, result)
 
-			resp, err := executor.PlaceOrder(order)
 			Expect(err).To(HaveOccurred())
-			Expect(resp).To(BeNil())
-			Expect(err.Error()).To(ContainSubstring("strike"))
+			Expect(err.Error()).To(ContainSubstring("not available"))
 		})
 
-		It("should reject order with invalid option type", func() {
-			contract := optionsTypes.OptionContract{
-				Pair:       btcPair,
-				Strike:     50000,
-				Expiration: expiration,
-				OptionType: "INVALID", // Invalid type
-			}
+		It("returns error when the exchange rejects the order", func() {
+			mockConn.EXPECT().PlaceLimitOrder(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+				Return(nil, errors.New("insufficient margin"))
 
-			order := optionsTypes.OptionOrder{
-				Exchange: connector.ExchangeName("test-exchange"),
-				Contract: contract,
-				Side:     connector.OrderSideBuy,
-				Quantity: 1.0,
-				Price:    50000.0,
-			}
+			sig := buildSignal(buildAction(strategy.ActionBuy, 50000))
+			err := exec.ExecuteOptionsSignal(sig, ctx, result)
 
-			_, err := executor.PlaceOrder(order)
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("option type"))
+			Expect(err.Error()).To(ContainSubstring("failed to place"))
 		})
 
-		It("should reject order with zero quantity", func() {
-			contract := optionsTypes.OptionContract{
-				Pair:       btcPair,
-				Strike:     50000,
-				Expiration: expiration,
-				OptionType: "CALL",
-			}
-
-			order := optionsTypes.OptionOrder{
-				Exchange: connector.ExchangeName("test-exchange"),
-				Contract: contract,
-				Side:     connector.OrderSideBuy,
-				Quantity: 0, // Invalid quantity
-				Price:    50000.0,
-			}
-
-			_, err := executor.PlaceOrder(order)
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("quantity"))
-		})
-
-		It("should reject order with negative price", func() {
-			contract := optionsTypes.OptionContract{
-				Pair:       btcPair,
-				Strike:     50000,
-				Expiration: expiration,
-				OptionType: "CALL",
-			}
-
-			order := optionsTypes.OptionOrder{
-				Exchange: connector.ExchangeName("test-exchange"),
-				Contract: contract,
-				Side:     connector.OrderSideBuy,
-				Quantity: 1.0,
-				Price:    -100.0, // Invalid price
-			}
-
-			_, err := executor.PlaceOrder(order)
-			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("price"))
-		})
-
-		It("should reject order for non-existent connector", func() {
-			contract := optionsTypes.OptionContract{
-				Pair:       btcPair,
-				Strike:     50000,
-				Expiration: expiration,
-				OptionType: "CALL",
-			}
-
-			order := optionsTypes.OptionOrder{
-				Exchange: connector.ExchangeName("non-existent"),
-				Contract: contract,
-				Side:     connector.OrderSideBuy,
-				Quantity: 1.0,
-				Price:    50000.0,
-			}
-
-			resp, err := executor.PlaceOrder(order)
-			Expect(err).To(HaveOccurred())
-			Expect(resp).To(BeNil())
-		})
-	})
-
-	Describe("CancelOrder", func() {
-		var mockConn *mockConnector.Connector
-
-		BeforeEach(func() {
-			exchangeName := connector.ExchangeName("test-exchange")
-			mockConn = setupMockConnector(GinkgoT(), exchangeName)
-			connectorRegistry.RegisterOptions(exchangeName, mockConn)
-			connectorRegistry.MarkReady(exchangeName)
-		})
-
-		It("should cancel an order successfully", func() {
-			mockConn.EXPECT().CancelOrder("test-order-1").Return(&connector.CancelResponse{
-				OrderID: "test-order-1",
-				Status:  "cancelled",
-			}, nil)
-
-			resp, err := executor.CancelOrder("test-order-1", connector.ExchangeName("test-exchange"))
+		It("skips hold and close actions without placing orders", func() {
+			holdSig := buildSignal(buildAction(strategy.ActionHold, 0))
+			err := exec.ExecuteOptionsSignal(holdSig, ctx, result)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(resp).NotTo(BeNil())
-			Expect(resp.OrderID).To(Equal("test-order-1"))
-		})
+			Expect(result.OrderIDs).To(BeEmpty())
 
-		It("should reject cancel with empty order ID", func() {
-			resp, err := executor.CancelOrder("", connector.ExchangeName("test-exchange"))
-			Expect(err).To(HaveOccurred())
-			Expect(resp).To(BeNil())
-			Expect(err.Error()).To(ContainSubstring("order ID"))
-		})
-
-		It("should reject cancel for non-existent connector", func() {
-			resp, err := executor.CancelOrder("test-order-1", connector.ExchangeName("non-existent"))
-			Expect(err).To(HaveOccurred())
-			Expect(resp).To(BeNil())
+			closeSig := buildSignal(buildAction(strategy.ActionClose, 0))
+			err = exec.ExecuteOptionsSignal(closeSig, ctx, result)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.OrderIDs).To(BeEmpty())
 		})
 	})
 })

@@ -42,6 +42,46 @@ func (_m *OptionsStore) EXPECT() *OptionsStore_Expecter {
 	return &OptionsStore_Expecter{mock: &_m.Mock}
 }
 
+// AddOrder provides a mock function for the type OptionsStore
+func (_mock *OptionsStore) AddOrder(order connector.Order) {
+	_mock.Called(order)
+	return
+}
+
+// OptionsStore_AddOrder_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddOrder'
+type OptionsStore_AddOrder_Call struct {
+	*mock.Call
+}
+
+// AddOrder is a helper method to define mock.On call
+//   - order connector.Order
+func (_e *OptionsStore_Expecter) AddOrder(order interface{}) *OptionsStore_AddOrder_Call {
+	return &OptionsStore_AddOrder_Call{Call: _e.mock.On("AddOrder", order)}
+}
+
+func (_c *OptionsStore_AddOrder_Call) Run(run func(order connector.Order)) *OptionsStore_AddOrder_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 connector.Order
+		if args[0] != nil {
+			arg0 = args[0].(connector.Order)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *OptionsStore_AddOrder_Call) Return() *OptionsStore_AddOrder_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *OptionsStore_AddOrder_Call) RunAndReturn(run func(order connector.Order)) *OptionsStore_AddOrder_Call {
+	_c.Run(run)
+	return _c
+}
+
 // AddTrade provides a mock function for the type OptionsStore
 func (_mock *OptionsStore) AddTrade(trade connector.Trade) {
 	_mock.Called(trade)
@@ -413,6 +453,52 @@ func (_c *OptionsStore_GetMarkPrice_Call) RunAndReturn(run func(contract types.O
 	return _c
 }
 
+// GetOrders provides a mock function for the type OptionsStore
+func (_mock *OptionsStore) GetOrders() []connector.Order {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetOrders")
+	}
+
+	var r0 []connector.Order
+	if returnFunc, ok := ret.Get(0).(func() []connector.Order); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector.Order)
+		}
+	}
+	return r0
+}
+
+// OptionsStore_GetOrders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetOrders'
+type OptionsStore_GetOrders_Call struct {
+	*mock.Call
+}
+
+// GetOrders is a helper method to define mock.On call
+func (_e *OptionsStore_Expecter) GetOrders() *OptionsStore_GetOrders_Call {
+	return &OptionsStore_GetOrders_Call{Call: _e.mock.On("GetOrders")}
+}
+
+func (_c *OptionsStore_GetOrders_Call) Run(run func()) *OptionsStore_GetOrders_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *OptionsStore_GetOrders_Call) Return(orders []connector.Order) *OptionsStore_GetOrders_Call {
+	_c.Call.Return(orders)
+	return _c
+}
+
+func (_c *OptionsStore_GetOrders_Call) RunAndReturn(run func() []connector.Order) *OptionsStore_GetOrders_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetPairPrice provides a mock function for the type OptionsStore
 func (_mock *OptionsStore) GetPairPrice(pair portfolio.Pair, exchange connector.ExchangeName) *connector.Price {
 	ret := _mock.Called(pair, exchange)
@@ -618,6 +704,50 @@ func (_c *OptionsStore_GetPosition_Call) Return(position *types.Position) *Optio
 }
 
 func (_c *OptionsStore_GetPosition_Call) RunAndReturn(run func(contract types.OptionContract) *types.Position) *OptionsStore_GetPosition_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTotalOrderCount provides a mock function for the type OptionsStore
+func (_mock *OptionsStore) GetTotalOrderCount() int64 {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTotalOrderCount")
+	}
+
+	var r0 int64
+	if returnFunc, ok := ret.Get(0).(func() int64); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+	return r0
+}
+
+// OptionsStore_GetTotalOrderCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTotalOrderCount'
+type OptionsStore_GetTotalOrderCount_Call struct {
+	*mock.Call
+}
+
+// GetTotalOrderCount is a helper method to define mock.On call
+func (_e *OptionsStore_Expecter) GetTotalOrderCount() *OptionsStore_GetTotalOrderCount_Call {
+	return &OptionsStore_GetTotalOrderCount_Call{Call: _e.mock.On("GetTotalOrderCount")}
+}
+
+func (_c *OptionsStore_GetTotalOrderCount_Call) Run(run func()) *OptionsStore_GetTotalOrderCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *OptionsStore_GetTotalOrderCount_Call) Return(n int64) *OptionsStore_GetTotalOrderCount_Call {
+	_c.Call.Return(n)
+	return _c
+}
+
+func (_c *OptionsStore_GetTotalOrderCount_Call) RunAndReturn(run func() int64) *OptionsStore_GetTotalOrderCount_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1020,6 +1150,59 @@ func (_c *OptionsStore_MarketType_Call) Return(marketType connector.MarketType) 
 }
 
 func (_c *OptionsStore_MarketType_Call) RunAndReturn(run func() connector.MarketType) *OptionsStore_MarketType_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// QueryOrders provides a mock function for the type OptionsStore
+func (_mock *OptionsStore) QueryOrders(q market.ActivityQuery) []connector.Order {
+	ret := _mock.Called(q)
+
+	if len(ret) == 0 {
+		panic("no return value specified for QueryOrders")
+	}
+
+	var r0 []connector.Order
+	if returnFunc, ok := ret.Get(0).(func(market.ActivityQuery) []connector.Order); ok {
+		r0 = returnFunc(q)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector.Order)
+		}
+	}
+	return r0
+}
+
+// OptionsStore_QueryOrders_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'QueryOrders'
+type OptionsStore_QueryOrders_Call struct {
+	*mock.Call
+}
+
+// QueryOrders is a helper method to define mock.On call
+//   - q market.ActivityQuery
+func (_e *OptionsStore_Expecter) QueryOrders(q interface{}) *OptionsStore_QueryOrders_Call {
+	return &OptionsStore_QueryOrders_Call{Call: _e.mock.On("QueryOrders", q)}
+}
+
+func (_c *OptionsStore_QueryOrders_Call) Run(run func(q market.ActivityQuery)) *OptionsStore_QueryOrders_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 market.ActivityQuery
+		if args[0] != nil {
+			arg0 = args[0].(market.ActivityQuery)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *OptionsStore_QueryOrders_Call) Return(orders []connector.Order) *OptionsStore_QueryOrders_Call {
+	_c.Call.Return(orders)
+	return _c
+}
+
+func (_c *OptionsStore_QueryOrders_Call) RunAndReturn(run func(q market.ActivityQuery) []connector.Order) *OptionsStore_QueryOrders_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1448,6 +1631,63 @@ func (_c *OptionsStore_UpdateLastUpdated_Call) Return() *OptionsStore_UpdateLast
 
 func (_c *OptionsStore_UpdateLastUpdated_Call) RunAndReturn(run func(key market.UpdateKey)) *OptionsStore_UpdateLastUpdated_Call {
 	_c.Run(run)
+	return _c
+}
+
+// UpdateOrderStatus provides a mock function for the type OptionsStore
+func (_mock *OptionsStore) UpdateOrderStatus(orderID string, status connector.OrderStatus) error {
+	ret := _mock.Called(orderID, status)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateOrderStatus")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(string, connector.OrderStatus) error); ok {
+		r0 = returnFunc(orderID, status)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// OptionsStore_UpdateOrderStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateOrderStatus'
+type OptionsStore_UpdateOrderStatus_Call struct {
+	*mock.Call
+}
+
+// UpdateOrderStatus is a helper method to define mock.On call
+//   - orderID string
+//   - status connector.OrderStatus
+func (_e *OptionsStore_Expecter) UpdateOrderStatus(orderID interface{}, status interface{}) *OptionsStore_UpdateOrderStatus_Call {
+	return &OptionsStore_UpdateOrderStatus_Call{Call: _e.mock.On("UpdateOrderStatus", orderID, status)}
+}
+
+func (_c *OptionsStore_UpdateOrderStatus_Call) Run(run func(orderID string, status connector.OrderStatus)) *OptionsStore_UpdateOrderStatus_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 connector.OrderStatus
+		if args[1] != nil {
+			arg1 = args[1].(connector.OrderStatus)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *OptionsStore_UpdateOrderStatus_Call) Return(err error) *OptionsStore_UpdateOrderStatus_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *OptionsStore_UpdateOrderStatus_Call) RunAndReturn(run func(orderID string, status connector.OrderStatus) error) *OptionsStore_UpdateOrderStatus_Call {
+	_c.Call.Return(run)
 	return _c
 }
 

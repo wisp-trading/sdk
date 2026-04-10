@@ -3,126 +3,128 @@ package executor
 import (
 	"fmt"
 
+	baseExecutor "github.com/wisp-trading/sdk/pkg/markets/base/executor"
 	optionsTypes "github.com/wisp-trading/sdk/pkg/markets/options/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	optionsconnector "github.com/wisp-trading/sdk/pkg/types/connector/options"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	registryTypes "github.com/wisp-trading/sdk/pkg/types/registry"
-	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
+	"github.com/wisp-trading/sdk/pkg/types/strategy"
+	"github.com/wisp-trading/sdk/pkg/types/temporal"
 )
 
 type executor struct {
-	connectorRegistry registryTypes.ConnectorRegistry
-	logger            logging.ApplicationLogger
+	baseExecutor.Base
+	store optionsTypes.OptionsStore
 }
 
-// NewExecutor creates a new options executor
+// NewExecutor creates a new options executor.
 func NewExecutor(
 	connectorRegistry registryTypes.ConnectorRegistry,
+	store optionsTypes.OptionsStore,
 	logger logging.ApplicationLogger,
-) optionsTypes.OptionsExecutor {
+	timeProvider temporal.TimeProvider,
+) optionsTypes.SignalExecutor {
 	return &executor{
-		connectorRegistry: connectorRegistry,
-		logger:            logger,
+		Base: baseExecutor.Base{
+			Connectors:   connectorRegistry,
+			Logger:       logger,
+			TimeProvider: timeProvider,
+		},
+		store: store,
 	}
 }
 
-// PlaceOrder places an order for an options contract
-func (e *executor) PlaceOrder(order optionsTypes.OptionOrder) (*connector.OrderResponse, error) {
-	if err := e.validateOrder(order); err != nil {
-		return nil, fmt.Errorf("invalid option order: %w", err)
-	}
+// ExecuteOptionsSignal executes all actions in an options signal.
+// Satisfies optionsTypes.SignalExecutor.
+func (e *executor) ExecuteOptionsSignal(
+	signal optionsTypes.OptionsSignal,
+	ctx *execution.ExecutionContext,
+	result *execution.ExecutionResult,
+) error {
+	for i, action := range signal.GetActions() {
+		if err := action.Validate(); err != nil {
+			return fmt.Errorf("options action %d invalid: %w", i, err)
+		}
 
-	if order.Exchange == "" {
-		return nil, fmt.Errorf("order must specify an exchange")
-	}
+		orderID, err := e.executeAction(&action)
+		if err != nil {
+			return fmt.Errorf("options action %d failed: %w", i, err)
+		}
 
-	conn, err := e.getConnectorByExchange(order.Exchange)
-	if err != nil {
-		return nil, err
-	}
-
-	orderExecutor, ok := conn.(connector.OrderExecutor)
-	if !ok {
-		return nil, fmt.Errorf("connector does not support order execution")
-	}
-
-	quantity := numerical.NewFromFloat(order.Quantity)
-	var resp *connector.OrderResponse
-	var execErr error
-
-	if order.Price > 0 {
-		price := numerical.NewFromFloat(order.Price)
-		resp, execErr = orderExecutor.PlaceLimitOrder(order.Contract.Pair, order.Side, quantity, price)
-	} else {
-		resp, execErr = orderExecutor.PlaceMarketOrder(order.Contract.Pair, order.Side, quantity)
-	}
-
-	if execErr != nil {
-		e.logger.Errorf("failed to place option order: %v", execErr)
-		return nil, execErr
-	}
-
-	e.logger.Infof("Option order placed: %s (contract: %s/%s, side: %s, quantity: %f)",
-		resp.OrderID, order.Contract.Pair.Symbol(), order.Contract.OptionType, order.Side, order.Quantity)
-
-	return resp, nil
-}
-
-// CancelOrder cancels an order by ID
-func (e *executor) CancelOrder(orderID string, exchange connector.ExchangeName) (*connector.CancelResponse, error) {
-	if orderID == "" {
-		return nil, fmt.Errorf("order ID cannot be empty")
-	}
-
-	conn, err := e.getConnectorByExchange(exchange)
-	if err != nil {
-		return nil, err
-	}
-
-	orderExecutor, ok := conn.(connector.OrderExecutor)
-	if !ok {
-		return nil, fmt.Errorf("connector does not support order cancellation")
-	}
-
-	resp, err := orderExecutor.CancelOrder(orderID)
-	if err != nil {
-		e.logger.Errorf("failed to cancel order %s: %v", orderID, err)
-		return nil, err
-	}
-
-	e.logger.Infof("Option order cancelled: %s", orderID)
-	return resp, nil
-}
-
-func (e *executor) getConnectorByExchange(exchange connector.ExchangeName) (optionsconnector.Connector, error) {
-	conn, exists := e.connectorRegistry.Connector(exchange)
-	if !exists {
-		return nil, fmt.Errorf("no connector found for exchange: %s", exchange)
-	}
-
-	optionsConn, ok := conn.(optionsconnector.Connector)
-	if !ok {
-		return nil, fmt.Errorf("connector %s does not support options", exchange)
-	}
-
-	return optionsConn, nil
-}
-
-func (e *executor) validateOrder(order optionsTypes.OptionOrder) error {
-	if order.Contract.Strike <= 0 {
-		return fmt.Errorf("contract strike must be positive")
-	}
-	if order.Contract.OptionType != "CALL" && order.Contract.OptionType != "PUT" {
-		return fmt.Errorf("contract option type must be CALL or PUT")
-	}
-	if order.Quantity <= 0 {
-		return fmt.Errorf("order quantity must be positive")
-	}
-	if order.Price < 0 {
-		return fmt.Errorf("order price cannot be negative")
+		if orderID != "" {
+			result.OrderIDs = append(result.OrderIDs, orderID)
+		}
 	}
 	return nil
 }
 
-var _ optionsTypes.OptionsExecutor = (*executor)(nil)
+func (e *executor) executeAction(action *optionsTypes.OptionsAction) (string, error) {
+	switch action.ActionType {
+	case strategy.ActionHold:
+		e.Logger.Info("Holding options position for %s", action.Contract.Pair.Symbol())
+		return "", nil
+	case strategy.ActionClose:
+		e.Logger.Info("Close options action noted for %s", action.Contract.Pair.Symbol())
+		return "", nil
+	}
+
+	conn, exists := e.Connectors.Connector(action.Exchange)
+	if !exists {
+		return "", fmt.Errorf("exchange %s not available", action.Exchange)
+	}
+
+	optionsConn, ok := conn.(optionsconnector.Connector)
+	if !ok {
+		return "", fmt.Errorf("exchange %s does not support options", action.Exchange)
+	}
+
+	exec, ok := optionsConn.(connector.OrderExecutor)
+	if !ok {
+		return "", fmt.Errorf("exchange %s does not support order execution", action.Exchange)
+	}
+
+	side := connector.OrderSideBuy
+	if action.ActionType == strategy.ActionSell || action.ActionType == strategy.ActionSellShort {
+		side = connector.OrderSideSell
+	}
+
+	e.Logger.Info("Executing options %s order: %s %s @ %s on %s",
+		action.ActionType, action.Quantity.StringFixed(4),
+		action.Contract.Pair.Symbol(), action.Price.StringFixed(2), action.Exchange,
+	)
+
+	var (
+		resp    *connector.OrderResponse
+		execErr error
+	)
+
+	if action.Price.IsZero() {
+		resp, execErr = exec.PlaceMarketOrder(action.Contract.Pair, side, action.Quantity)
+	} else {
+		resp, execErr = exec.PlaceLimitOrder(action.Contract.Pair, side, action.Quantity, action.Price)
+	}
+
+	if execErr != nil {
+		return "", fmt.Errorf("failed to place options order on %s: %w", action.Exchange, execErr)
+	}
+
+	e.store.AddOrder(connector.Order{
+		Pair:      action.Contract.Pair,
+		ID:        resp.OrderID,
+		Side:      side,
+		Quantity:  action.Quantity,
+		Price:     action.Price,
+		Status:    connector.OrderStatusPending,
+		Type:      connector.OrderTypeLimit,
+		CreatedAt: e.TimeProvider.Now(),
+		UpdatedAt: e.TimeProvider.Now(),
+	})
+
+	e.Logger.Info("Options order placed: %s (contract: %s, side: %s)",
+		resp.OrderID, action.Contract.Pair.Symbol(), side)
+	return resp.OrderID, nil
+}
+
+var _ optionsTypes.SignalExecutor = (*executor)(nil)

@@ -14,6 +14,7 @@ type MarketStore interface {
 	market.OrderBookStoreExtension
 	market.KlineStoreExtension
 	market.TradesStoreExtension
+	market.PositionsStoreExtension
 	FundingRateStoreExtension
 	PerpPositionsStoreExtension
 }

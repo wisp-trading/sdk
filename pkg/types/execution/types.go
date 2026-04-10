@@ -15,7 +15,8 @@ type ExecutionContext struct {
 
 // ExecutionResult contains the result of an execution
 type ExecutionResult struct {
-	OrderIDs []string
-	Success  bool
-	Error    error
+	OrderIDs  []string
+	Success   bool
+	Error     error
+	HookError error // set if an AfterExecute hook failed; Success is false when set
 }

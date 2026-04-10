@@ -1,11 +1,9 @@
-// Package executor provides execution functionality for trading signals.
-// It includes a default executor implementation with support for custom hooks,
-// allowing users to extend execution behavior through plugins.
 package executor
 
 import (
 	"go.uber.org/fx"
 
+	"github.com/wisp-trading/sdk/pkg/execution/records"
 	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	profileTypes "github.com/wisp-trading/sdk/pkg/types/monitoring/profiling"
@@ -38,5 +36,6 @@ var Module = fx.Module("executor",
 	fx.Provide(
 		NewExecutor,
 		newSignalRouter,
+		records.NewStore,
 	),
 )

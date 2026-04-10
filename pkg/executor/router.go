@@ -30,9 +30,18 @@ func (r *executorRouter) Route(signal strategy.Signal) {
 	}()
 }
 
+func (r *executorRouter) RouteWithResult(signal strategy.Signal, ch chan<- execution.ExecutionResult) {
+	go func() {
+		result, err := r.executor.ExecuteSignalWithResult(signal)
+		if err != nil {
+			r.logger.Error("Signal execution failed: strategy=%s id=%s err=%v",
+				signal.GetStrategy(), signal.GetID(), err)
+		}
+		ch <- result
+	}()
+}
+
 // profilingRouter wraps an inner SignalRouter and records per-signal metrics.
-// It measures signal age (time from signal build to routing) and execution time,
-// and feeds the anomaly detector. Invisible to strategy authors.
 type profilingRouter struct {
 	inner    execution.SignalRouter
 	store    profileTypes.ProfilingStore
@@ -53,6 +62,28 @@ func (r *profilingRouter) Route(signal strategy.Signal) {
 
 	start := time.Now()
 	r.inner.Route(signal)
+	executionTime := time.Since(start)
+
+	r.store.RecordExecution(profileTypes.StrategyMetrics{
+		StrategyName:  string(signal.GetStrategy()),
+		ExecutionTime: executionTime,
+		SignalGenTime: signalAge,
+		Timestamp:     time.Now(),
+		Success:       true,
+	})
+
+	if r.detector != nil {
+		r.detector.CheckExecution(string(signal.GetStrategy()), executionTime)
+		r.detector.UpdateBaseline(string(signal.GetStrategy()), executionTime)
+	}
+}
+
+func (r *profilingRouter) RouteWithResult(signal strategy.Signal, ch chan<- execution.ExecutionResult) {
+	signalAge := time.Since(signal.GetTimestamp())
+	start := time.Now()
+
+	r.inner.RouteWithResult(signal, ch)
+
 	executionTime := time.Since(start)
 
 	r.store.RecordExecution(profileTypes.StrategyMetrics{
