@@ -24,8 +24,8 @@ func TestExecutor(t *testing.T) {
 	RunSpecs(t, "Options Executor Suite")
 }
 
-func setupMockConnector(t GinkgoTInterface, name connector.ExchangeName) *mockConnector.MockConnector {
-	m := mockConnector.NewMockConnector(t)
+func setupMockConnector(t GinkgoTInterface, name connector.ExchangeName) *mockConnector.Connector {
+	m := mockConnector.NewConnector(t)
 	m.EXPECT().GetConnectorInfo().Return(&connector.Info{
 		Name: name,
 	}).Maybe()
@@ -50,7 +50,7 @@ var _ = Describe("Options Executor", func() {
 	})
 
 	Describe("PlaceOrder", func() {
-		var mockConn *mockConnector.MockConnector
+		var mockConn *mockConnector.Connector
 
 		BeforeEach(func() {
 			exchangeName := connector.ExchangeName("test-exchange")
@@ -258,7 +258,7 @@ var _ = Describe("Options Executor", func() {
 	})
 
 	Describe("CancelOrder", func() {
-		var mockConn *mockConnector.MockConnector
+		var mockConn *mockConnector.Connector
 
 		BeforeEach(func() {
 			exchangeName := connector.ExchangeName("test-exchange")

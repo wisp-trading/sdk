@@ -24,8 +24,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func setupMockWSConnector(t GinkgoTInterface, name connector.ExchangeName) *mockWSConnector.MockWebSocketConnector {
-	m := mockWSConnector.NewMockWebSocketConnector(t)
+func setupMockWSConnector(t GinkgoTInterface, name connector.ExchangeName) *mockWSConnector.WebSocketConnector {
+	m := mockWSConnector.NewWebSocketConnector(t)
 	m.EXPECT().GetConnectorInfo().Return(&connector.Info{
 		Name: name,
 	}).Maybe()
@@ -84,7 +84,7 @@ var _ = Describe("Options RealtimeIngestor", func() {
 	Describe("Realtime Ingestor Subscriptions", func() {
 		var (
 			ingestor realtimeTypes.RealtimeIngestor
-			m        *mockWSConnector.MockWebSocketConnector
+			m        *mockWSConnector.WebSocketConnector
 			ctx      context.Context
 			cancel   context.CancelFunc
 		)
@@ -207,7 +207,7 @@ var _ = Describe("Options RealtimeIngestor", func() {
 	Describe("Realtime Ingestor Lifecycle", func() {
 		var (
 			ingestor realtimeTypes.RealtimeIngestor
-			m        *mockWSConnector.MockWebSocketConnector
+			m        *mockWSConnector.WebSocketConnector
 			ctx      context.Context
 			cancel   context.CancelFunc
 		)
