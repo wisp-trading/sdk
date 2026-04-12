@@ -52,7 +52,10 @@ type Connector interface {
 
 	// SplitPosition deposits amountUSDC (6 decimal units) into the CTF contract
 	// and mints 1 YES + 1 NO token per unit. $1.00 = big.NewInt(1_000_000).
-	SplitPosition(market Market, amountUSDC *big.Int) (txHash string, err error)
+	// Returns the tx hash immediately and a ready channel that closes once the tx
+	// is mined and the CLOB balance cache is refreshed. Callers MUST drain ready
+	// before placing SELL orders — the CLOB checks on-chain balance at submission.
+	SplitPosition(market Market, amountUSDC *big.Int) (txHash string, ready <-chan error, err error)
 
 	// MergePositions burns amountUSDC worth of YES+NO tokens and returns USDC.
 	MergePositions(market Market, amountUSDC *big.Int) (txHash string, err error)

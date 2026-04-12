@@ -1382,7 +1382,7 @@ func (_c *WebSocketConnector_Redeem_Call) RunAndReturn(run func(market connector
 }
 
 // SplitPosition provides a mock function for the type WebSocketConnector
-func (_mock *WebSocketConnector) SplitPosition(market connector.Market, amountUSDC *big.Int) (string, error) {
+func (_mock *WebSocketConnector) SplitPosition(market connector.Market, amountUSDC *big.Int) (string, <-chan error, error) {
 	ret := _mock.Called(market, amountUSDC)
 
 	if len(ret) == 0 {
@@ -1390,8 +1390,9 @@ func (_mock *WebSocketConnector) SplitPosition(market connector.Market, amountUS
 	}
 
 	var r0 string
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(connector.Market, *big.Int) (string, error)); ok {
+	var r1 <-chan error
+	var r2 error
+	if returnFunc, ok := ret.Get(0).(func(connector.Market, *big.Int) (string, <-chan error, error)); ok {
 		return returnFunc(market, amountUSDC)
 	}
 	if returnFunc, ok := ret.Get(0).(func(connector.Market, *big.Int) string); ok {
@@ -1399,12 +1400,19 @@ func (_mock *WebSocketConnector) SplitPosition(market connector.Market, amountUS
 	} else {
 		r0 = ret.Get(0).(string)
 	}
-	if returnFunc, ok := ret.Get(1).(func(connector.Market, *big.Int) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(connector.Market, *big.Int) <-chan error); ok {
 		r1 = returnFunc(market, amountUSDC)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(<-chan error)
+		}
 	}
-	return r0, r1
+	if returnFunc, ok := ret.Get(2).(func(connector.Market, *big.Int) error); ok {
+		r2 = returnFunc(market, amountUSDC)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
 }
 
 // WebSocketConnector_SplitPosition_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SplitPosition'
@@ -1437,12 +1445,12 @@ func (_c *WebSocketConnector_SplitPosition_Call) Run(run func(market connector.M
 	return _c
 }
 
-func (_c *WebSocketConnector_SplitPosition_Call) Return(txHash string, err error) *WebSocketConnector_SplitPosition_Call {
-	_c.Call.Return(txHash, err)
+func (_c *WebSocketConnector_SplitPosition_Call) Return(txHash string, ready <-chan error, err error) *WebSocketConnector_SplitPosition_Call {
+	_c.Call.Return(txHash, ready, err)
 	return _c
 }
 
-func (_c *WebSocketConnector_SplitPosition_Call) RunAndReturn(run func(market connector.Market, amountUSDC *big.Int) (string, error)) *WebSocketConnector_SplitPosition_Call {
+func (_c *WebSocketConnector_SplitPosition_Call) RunAndReturn(run func(market connector.Market, amountUSDC *big.Int) (string, <-chan error, error)) *WebSocketConnector_SplitPosition_Call {
 	_c.Call.Return(run)
 	return _c
 }

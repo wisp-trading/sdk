@@ -241,14 +241,14 @@ func (p predict) MergePositions(market predictionconnector.Market, amountUSDC *b
 	return txHash, nil
 }
 
-func (p predict) SplitPosition(market predictionconnector.Market, amountUSDC *big.Int) (string, error) {
+func (p predict) SplitPosition(market predictionconnector.Market, amountUSDC *big.Int) (string, <-chan error, error) {
 	marketConnector, exists := p.connectorRegistry.Prediction(market.Exchange)
 	if !exists {
-		return "", errors.New("connector not found for exchange: " + string(market.Exchange))
+		return "", nil, errors.New("connector not found for exchange: " + string(market.Exchange))
 	}
-	txHash, err := marketConnector.SplitPosition(market, amountUSDC)
+	txHash, ready, err := marketConnector.SplitPosition(market, amountUSDC)
 	if err != nil {
-		return "", errors.New("failed to split position for market: " + market.MarketID.String() + " error: " + err.Error())
+		return "", nil, errors.New("failed to split position for market: " + market.MarketID.String() + " error: " + err.Error())
 	}
-	return txHash, nil
+	return txHash, ready, nil
 }

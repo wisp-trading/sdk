@@ -73,8 +73,10 @@ type Predict interface {
 
 	// SplitPosition deposits amountUSDC and mints one YES token per outcome in the market.
 	// amountUSDC is in 6-decimal units ($1.00 = 1_000_000).
-	// Use this to open a MintSell arbitrage position.
-	SplitPosition(market predictionconnector.Market, amountUSDC *big.Int) (string, error)
+	// Returns the tx hash immediately and a ready channel that closes once the tx
+	// is mined and the CLOB balance cache is refreshed. Callers MUST drain ready
+	// before placing SELL orders — the CLOB checks on-chain balance at submission.
+	SplitPosition(market predictionconnector.Market, amountUSDC *big.Int) (txHash string, ready <-chan error, err error)
 
 	// PNL returns profit and loss calculations for this prediction market instance.
 	PNL() PredictionPNL

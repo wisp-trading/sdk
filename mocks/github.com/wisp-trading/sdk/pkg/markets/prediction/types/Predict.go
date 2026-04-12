@@ -1004,7 +1004,7 @@ func (_c *Predict_RefreshMarkets_Call) RunAndReturn(run func(exchange connector.
 }
 
 // SplitPosition provides a mock function for the type Predict
-func (_mock *Predict) SplitPosition(market connector0.Market, amountUSDC *big.Int) (string, error) {
+func (_mock *Predict) SplitPosition(market connector0.Market, amountUSDC *big.Int) (string, <-chan error, error) {
 	ret := _mock.Called(market, amountUSDC)
 
 	if len(ret) == 0 {
@@ -1012,8 +1012,9 @@ func (_mock *Predict) SplitPosition(market connector0.Market, amountUSDC *big.In
 	}
 
 	var r0 string
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(connector0.Market, *big.Int) (string, error)); ok {
+	var r1 <-chan error
+	var r2 error
+	if returnFunc, ok := ret.Get(0).(func(connector0.Market, *big.Int) (string, <-chan error, error)); ok {
 		return returnFunc(market, amountUSDC)
 	}
 	if returnFunc, ok := ret.Get(0).(func(connector0.Market, *big.Int) string); ok {
@@ -1021,12 +1022,19 @@ func (_mock *Predict) SplitPosition(market connector0.Market, amountUSDC *big.In
 	} else {
 		r0 = ret.Get(0).(string)
 	}
-	if returnFunc, ok := ret.Get(1).(func(connector0.Market, *big.Int) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(connector0.Market, *big.Int) <-chan error); ok {
 		r1 = returnFunc(market, amountUSDC)
 	} else {
-		r1 = ret.Error(1)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(<-chan error)
+		}
 	}
-	return r0, r1
+	if returnFunc, ok := ret.Get(2).(func(connector0.Market, *big.Int) error); ok {
+		r2 = returnFunc(market, amountUSDC)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
 }
 
 // Predict_SplitPosition_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SplitPosition'
@@ -1059,12 +1067,12 @@ func (_c *Predict_SplitPosition_Call) Run(run func(market connector0.Market, amo
 	return _c
 }
 
-func (_c *Predict_SplitPosition_Call) Return(s string, err error) *Predict_SplitPosition_Call {
-	_c.Call.Return(s, err)
+func (_c *Predict_SplitPosition_Call) Return(txHash string, ready <-chan error, err error) *Predict_SplitPosition_Call {
+	_c.Call.Return(txHash, ready, err)
 	return _c
 }
 
-func (_c *Predict_SplitPosition_Call) RunAndReturn(run func(market connector0.Market, amountUSDC *big.Int) (string, error)) *Predict_SplitPosition_Call {
+func (_c *Predict_SplitPosition_Call) RunAndReturn(run func(market connector0.Market, amountUSDC *big.Int) (string, <-chan error, error)) *Predict_SplitPosition_Call {
 	_c.Call.Return(run)
 	return _c
 }
