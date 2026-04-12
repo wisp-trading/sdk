@@ -56,4 +56,11 @@ type Connector interface {
 
 	// MergePositions burns amountUSDC worth of YES+NO tokens and returns USDC.
 	MergePositions(market Market, amountUSDC *big.Int) (txHash string, err error)
+
+	// GetLockedPositions returns all CTF ERC-1155 conditional token positions
+	// currently held on-chain by the signing EOA, grouped by condition ID.
+	// Each LockedPosition.Market can be passed directly to MergePositions.
+	// Requires a Polygon RPC URL (Alchemy endpoint) to be configured; returns
+	// an empty slice (not an error) when no on-chain backend is available.
+	GetLockedPositions() ([]LockedPosition, error)
 }
