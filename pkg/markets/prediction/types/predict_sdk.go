@@ -78,6 +78,12 @@ type Predict interface {
 	// before placing SELL orders — the CLOB checks on-chain balance at submission.
 	SplitPosition(market predictionconnector.Market, amountUSDC *big.Int) (txHash string, ready <-chan error, err error)
 
+	// ConfirmConditionalBalance triggers a CLOB balance refresh for every outcome
+	// in the market, then polls until the CLOB reports a conditional token balance
+	// of at least minAmount for each outcome. Use after CLOB buy fills to wait for
+	// on-chain settlement before calling MergePositions.
+	ConfirmConditionalBalance(market predictionconnector.Market, minAmount *big.Int) error
+
 	// PNL returns profit and loss calculations for this prediction market instance.
 	PNL() PredictionPNL
 }

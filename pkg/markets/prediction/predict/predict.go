@@ -252,3 +252,11 @@ func (p predict) SplitPosition(market predictionconnector.Market, amountUSDC *bi
 	}
 	return txHash, ready, nil
 }
+
+func (p predict) ConfirmConditionalBalance(market predictionconnector.Market, minAmount *big.Int) error {
+	marketConnector, exists := p.connectorRegistry.Prediction(market.Exchange)
+	if !exists {
+		return errors.New("connector not found for exchange: " + string(market.Exchange))
+	}
+	return marketConnector.ConfirmConditionalBalance(market, minAmount)
+}

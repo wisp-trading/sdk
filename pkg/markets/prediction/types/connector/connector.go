@@ -34,6 +34,7 @@ type MarketsFilter struct {
 // Uses standard connector.OrderExecutor and connector.AccountReader for trading
 type Connector interface {
 	connector.Connector
+	connector.AccountReader
 
 	OrderExecutor
 	AccountReader
@@ -66,4 +67,11 @@ type Connector interface {
 	// Requires a Polygon RPC URL (Alchemy endpoint) to be configured; returns
 	// an empty slice (not an error) when no on-chain backend is available.
 	GetLockedPositions() ([]LockedPosition, error)
+
+	// ConfirmConditionalBalance triggers a CLOB balance refresh for every outcome
+	// in the market, then polls until the CLOB reports a conditional token balance
+	// of at least minAmount for each outcome. Use after CLOB buy fills to wait for
+	// on-chain settlement before calling MergePositions.
+	// minAmount is in conditional token units (same scale as the CLOB balance).
+	ConfirmConditionalBalance(market Market, minAmount *big.Int) error
 }

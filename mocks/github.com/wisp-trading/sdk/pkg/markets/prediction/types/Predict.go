@@ -110,6 +110,63 @@ func (_c *Predict_Balance_Call) RunAndReturn(run func(exchange connector.Exchang
 	return _c
 }
 
+// ConfirmConditionalBalance provides a mock function for the type Predict
+func (_mock *Predict) ConfirmConditionalBalance(market connector0.Market, minAmount *big.Int) error {
+	ret := _mock.Called(market, minAmount)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ConfirmConditionalBalance")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(connector0.Market, *big.Int) error); ok {
+		r0 = returnFunc(market, minAmount)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// Predict_ConfirmConditionalBalance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ConfirmConditionalBalance'
+type Predict_ConfirmConditionalBalance_Call struct {
+	*mock.Call
+}
+
+// ConfirmConditionalBalance is a helper method to define mock.On call
+//   - market connector0.Market
+//   - minAmount *big.Int
+func (_e *Predict_Expecter) ConfirmConditionalBalance(market interface{}, minAmount interface{}) *Predict_ConfirmConditionalBalance_Call {
+	return &Predict_ConfirmConditionalBalance_Call{Call: _e.mock.On("ConfirmConditionalBalance", market, minAmount)}
+}
+
+func (_c *Predict_ConfirmConditionalBalance_Call) Run(run func(market connector0.Market, minAmount *big.Int)) *Predict_ConfirmConditionalBalance_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 connector0.Market
+		if args[0] != nil {
+			arg0 = args[0].(connector0.Market)
+		}
+		var arg1 *big.Int
+		if args[1] != nil {
+			arg1 = args[1].(*big.Int)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *Predict_ConfirmConditionalBalance_Call) Return(err error) *Predict_ConfirmConditionalBalance_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *Predict_ConfirmConditionalBalance_Call) RunAndReturn(run func(market connector0.Market, minAmount *big.Int) error) *Predict_ConfirmConditionalBalance_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetLoadProgress provides a mock function for the type Predict
 func (_mock *Predict) GetLoadProgress(exchange connector.ExchangeName) int {
 	ret := _mock.Called(exchange)
@@ -157,6 +214,68 @@ func (_c *Predict_GetLoadProgress_Call) Return(n int) *Predict_GetLoadProgress_C
 }
 
 func (_c *Predict_GetLoadProgress_Call) RunAndReturn(run func(exchange connector.ExchangeName) int) *Predict_GetLoadProgress_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetLockedPositions provides a mock function for the type Predict
+func (_mock *Predict) GetLockedPositions(exchange connector.ExchangeName) ([]connector0.LockedPosition, error) {
+	ret := _mock.Called(exchange)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetLockedPositions")
+	}
+
+	var r0 []connector0.LockedPosition
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(connector.ExchangeName) ([]connector0.LockedPosition, error)); ok {
+		return returnFunc(exchange)
+	}
+	if returnFunc, ok := ret.Get(0).(func(connector.ExchangeName) []connector0.LockedPosition); ok {
+		r0 = returnFunc(exchange)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector0.LockedPosition)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(connector.ExchangeName) error); ok {
+		r1 = returnFunc(exchange)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// Predict_GetLockedPositions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetLockedPositions'
+type Predict_GetLockedPositions_Call struct {
+	*mock.Call
+}
+
+// GetLockedPositions is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
+func (_e *Predict_Expecter) GetLockedPositions(exchange interface{}) *Predict_GetLockedPositions_Call {
+	return &Predict_GetLockedPositions_Call{Call: _e.mock.On("GetLockedPositions", exchange)}
+}
+
+func (_c *Predict_GetLockedPositions_Call) Run(run func(exchange connector.ExchangeName)) *Predict_GetLockedPositions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 connector.ExchangeName
+		if args[0] != nil {
+			arg0 = args[0].(connector.ExchangeName)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *Predict_GetLockedPositions_Call) Return(lockedPositions []connector0.LockedPosition, err error) *Predict_GetLockedPositions_Call {
+	_c.Call.Return(lockedPositions, err)
+	return _c
+}
+
+func (_c *Predict_GetLockedPositions_Call) RunAndReturn(run func(exchange connector.ExchangeName) ([]connector0.LockedPosition, error)) *Predict_GetLockedPositions_Call {
 	_c.Call.Return(run)
 	return _c
 }

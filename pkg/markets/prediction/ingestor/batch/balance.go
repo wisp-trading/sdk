@@ -4,7 +4,6 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
-	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
 // balanceCollectionExtension polls the connector for account balances and writes them to the store.
@@ -30,14 +29,14 @@ func (e *balanceCollectionExtension) Collect(conn interface{}, exchangeName conn
 		return
 	}
 
-	asset := portfolio.NewAsset("USD")
-
-	balance, err := accountReader.GetBalance(asset)
+	balances, err := accountReader.GetBalances()
 	if err != nil {
 		e.logger.Error("Failed to fetch balances from %s: %v", exchangeName, err)
 		return
 	}
 
-	e.store.UpdateBalance(exchangeName, balance.Asset, balance.Free)
-	e.logger.Info("Updated balance for %s on %s: %s", balance.Asset.Symbol(), exchangeName, balance.Free.StringFixed(4))
+	for _, balance := range balances {
+		e.store.UpdateBalance(exchangeName, balance.Asset, balance.Free)
+		e.logger.Info("Updated balance for %s on %s: %s", balance.Asset.Symbol(), exchangeName, balance.Free.StringFixed(4))
+	}
 }

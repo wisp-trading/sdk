@@ -10,6 +10,7 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	connector0 "github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
 // NewConnector creates a new instance of Connector. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -37,6 +38,63 @@ type Connector_Expecter struct {
 
 func (_m *Connector) EXPECT() *Connector_Expecter {
 	return &Connector_Expecter{mock: &_m.Mock}
+}
+
+// ConfirmConditionalBalance provides a mock function for the type Connector
+func (_mock *Connector) ConfirmConditionalBalance(market connector.Market, minAmount *big.Int) error {
+	ret := _mock.Called(market, minAmount)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ConfirmConditionalBalance")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(connector.Market, *big.Int) error); ok {
+		r0 = returnFunc(market, minAmount)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// Connector_ConfirmConditionalBalance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ConfirmConditionalBalance'
+type Connector_ConfirmConditionalBalance_Call struct {
+	*mock.Call
+}
+
+// ConfirmConditionalBalance is a helper method to define mock.On call
+//   - market connector.Market
+//   - minAmount *big.Int
+func (_e *Connector_Expecter) ConfirmConditionalBalance(market interface{}, minAmount interface{}) *Connector_ConfirmConditionalBalance_Call {
+	return &Connector_ConfirmConditionalBalance_Call{Call: _e.mock.On("ConfirmConditionalBalance", market, minAmount)}
+}
+
+func (_c *Connector_ConfirmConditionalBalance_Call) Run(run func(market connector.Market, minAmount *big.Int)) *Connector_ConfirmConditionalBalance_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 connector.Market
+		if args[0] != nil {
+			arg0 = args[0].(connector.Market)
+		}
+		var arg1 *big.Int
+		if args[1] != nil {
+			arg1 = args[1].(*big.Int)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *Connector_ConfirmConditionalBalance_Call) Return(err error) *Connector_ConfirmConditionalBalance_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *Connector_ConfirmConditionalBalance_Call) RunAndReturn(run func(market connector.Market, minAmount *big.Int) error) *Connector_ConfirmConditionalBalance_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // FetchOrderBooksForMarket provides a mock function for the type Connector
@@ -101,6 +159,123 @@ func (_c *Connector_FetchOrderBooksForMarket_Call) RunAndReturn(run func(market 
 	return _c
 }
 
+// GetBalance provides a mock function for the type Connector
+func (_mock *Connector) GetBalance(asset portfolio.Asset) (*connector0.AssetBalance, error) {
+	ret := _mock.Called(asset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBalance")
+	}
+
+	var r0 *connector0.AssetBalance
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(portfolio.Asset) (*connector0.AssetBalance, error)); ok {
+		return returnFunc(asset)
+	}
+	if returnFunc, ok := ret.Get(0).(func(portfolio.Asset) *connector0.AssetBalance); ok {
+		r0 = returnFunc(asset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*connector0.AssetBalance)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(portfolio.Asset) error); ok {
+		r1 = returnFunc(asset)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// Connector_GetBalance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBalance'
+type Connector_GetBalance_Call struct {
+	*mock.Call
+}
+
+// GetBalance is a helper method to define mock.On call
+//   - asset portfolio.Asset
+func (_e *Connector_Expecter) GetBalance(asset interface{}) *Connector_GetBalance_Call {
+	return &Connector_GetBalance_Call{Call: _e.mock.On("GetBalance", asset)}
+}
+
+func (_c *Connector_GetBalance_Call) Run(run func(asset portfolio.Asset)) *Connector_GetBalance_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 portfolio.Asset
+		if args[0] != nil {
+			arg0 = args[0].(portfolio.Asset)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *Connector_GetBalance_Call) Return(assetBalance *connector0.AssetBalance, err error) *Connector_GetBalance_Call {
+	_c.Call.Return(assetBalance, err)
+	return _c
+}
+
+func (_c *Connector_GetBalance_Call) RunAndReturn(run func(asset portfolio.Asset) (*connector0.AssetBalance, error)) *Connector_GetBalance_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetBalances provides a mock function for the type Connector
+func (_mock *Connector) GetBalances() ([]connector0.AssetBalance, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBalances")
+	}
+
+	var r0 []connector0.AssetBalance
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() ([]connector0.AssetBalance, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() []connector0.AssetBalance); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector0.AssetBalance)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// Connector_GetBalances_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBalances'
+type Connector_GetBalances_Call struct {
+	*mock.Call
+}
+
+// GetBalances is a helper method to define mock.On call
+func (_e *Connector_Expecter) GetBalances() *Connector_GetBalances_Call {
+	return &Connector_GetBalances_Call{Call: _e.mock.On("GetBalances")}
+}
+
+func (_c *Connector_GetBalances_Call) Run(run func()) *Connector_GetBalances_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Connector_GetBalances_Call) Return(assetBalances []connector0.AssetBalance, err error) *Connector_GetBalances_Call {
+	_c.Call.Return(assetBalances, err)
+	return _c
+}
+
+func (_c *Connector_GetBalances_Call) RunAndReturn(run func() ([]connector0.AssetBalance, error)) *Connector_GetBalances_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetConnectorInfo provides a mock function for the type Connector
 func (_mock *Connector) GetConnectorInfo() *connector0.Info {
 	ret := _mock.Called()
@@ -143,6 +318,61 @@ func (_c *Connector_GetConnectorInfo_Call) Return(info *connector0.Info) *Connec
 }
 
 func (_c *Connector_GetConnectorInfo_Call) RunAndReturn(run func() *connector0.Info) *Connector_GetConnectorInfo_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetLockedPositions provides a mock function for the type Connector
+func (_mock *Connector) GetLockedPositions() ([]connector.LockedPosition, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetLockedPositions")
+	}
+
+	var r0 []connector.LockedPosition
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() ([]connector.LockedPosition, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() []connector.LockedPosition); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector.LockedPosition)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// Connector_GetLockedPositions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetLockedPositions'
+type Connector_GetLockedPositions_Call struct {
+	*mock.Call
+}
+
+// GetLockedPositions is a helper method to define mock.On call
+func (_e *Connector_Expecter) GetLockedPositions() *Connector_GetLockedPositions_Call {
+	return &Connector_GetLockedPositions_Call{Call: _e.mock.On("GetLockedPositions")}
+}
+
+func (_c *Connector_GetLockedPositions_Call) Run(run func()) *Connector_GetLockedPositions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Connector_GetLockedPositions_Call) Return(lockedPositions []connector.LockedPosition, err error) *Connector_GetLockedPositions_Call {
+	_c.Call.Return(lockedPositions, err)
+	return _c
+}
+
+func (_c *Connector_GetLockedPositions_Call) RunAndReturn(run func() ([]connector.LockedPosition, error)) *Connector_GetLockedPositions_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -505,6 +735,74 @@ func (_c *Connector_GetTokensToRedeem_Call) Return(balances []connector.Balance,
 }
 
 func (_c *Connector_GetTokensToRedeem_Call) RunAndReturn(run func(market connector.Market) ([]connector.Balance, error)) *Connector_GetTokensToRedeem_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetTradingHistory provides a mock function for the type Connector
+func (_mock *Connector) GetTradingHistory(pair portfolio.Pair, limit int) ([]connector0.Trade, error) {
+	ret := _mock.Called(pair, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTradingHistory")
+	}
+
+	var r0 []connector0.Trade
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(portfolio.Pair, int) ([]connector0.Trade, error)); ok {
+		return returnFunc(pair, limit)
+	}
+	if returnFunc, ok := ret.Get(0).(func(portfolio.Pair, int) []connector0.Trade); ok {
+		r0 = returnFunc(pair, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]connector0.Trade)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(portfolio.Pair, int) error); ok {
+		r1 = returnFunc(pair, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// Connector_GetTradingHistory_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTradingHistory'
+type Connector_GetTradingHistory_Call struct {
+	*mock.Call
+}
+
+// GetTradingHistory is a helper method to define mock.On call
+//   - pair portfolio.Pair
+//   - limit int
+func (_e *Connector_Expecter) GetTradingHistory(pair interface{}, limit interface{}) *Connector_GetTradingHistory_Call {
+	return &Connector_GetTradingHistory_Call{Call: _e.mock.On("GetTradingHistory", pair, limit)}
+}
+
+func (_c *Connector_GetTradingHistory_Call) Run(run func(pair portfolio.Pair, limit int)) *Connector_GetTradingHistory_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 portfolio.Pair
+		if args[0] != nil {
+			arg0 = args[0].(portfolio.Pair)
+		}
+		var arg1 int
+		if args[1] != nil {
+			arg1 = args[1].(int)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *Connector_GetTradingHistory_Call) Return(trades []connector0.Trade, err error) *Connector_GetTradingHistory_Call {
+	_c.Call.Return(trades, err)
+	return _c
+}
+
+func (_c *Connector_GetTradingHistory_Call) RunAndReturn(run func(pair portfolio.Pair, limit int) ([]connector0.Trade, error)) *Connector_GetTradingHistory_Call {
 	_c.Call.Return(run)
 	return _c
 }
