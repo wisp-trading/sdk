@@ -205,6 +205,14 @@ func (p predict) Redeem(market predictionconnector.Market) error {
 	return nil
 }
 
+func (p predict) GetLockedPositions(exchange connector.ExchangeName) ([]predictionconnector.LockedPosition, error) {
+	marketConnector, exists := p.connectorRegistry.Prediction(exchange)
+	if !exists {
+		return nil, errors.New("connector not found for exchange: " + string(exchange))
+	}
+	return marketConnector.GetLockedPositions()
+}
+
 func (p predict) GetTokensToRedeem(market predictionconnector.Market) ([]predictionconnector.Balance, error) {
 	marketConnector, exists := p.connectorRegistry.Prediction(market.Exchange)
 

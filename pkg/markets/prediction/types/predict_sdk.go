@@ -58,6 +58,11 @@ type Predict interface {
 
 	GetTokensToRedeem(market predictionconnector.Market) ([]predictionconnector.Balance, error)
 
+	// GetLockedPositions returns all CTF ERC-1155 conditional token positions currently
+	// held on-chain by the signing EOA for the given exchange, grouped by condition ID.
+	// Returns an empty slice when no positions are held.
+	GetLockedPositions(exchange connector.ExchangeName) ([]predictionconnector.LockedPosition, error)
+
 	// Redeem attempts to redeem winnings for a market. Returns an error if redemption fails.
 	Redeem(market predictionconnector.Market) error
 
