@@ -121,7 +121,7 @@ func (e *tradesExtension) GetTotalVolume(pair portfolio.Pair) numerical.Decimal 
 func (e *tradesExtension) QueryTrades(q market.ActivityQuery) []connector.Trade {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	var out []connector.Trade
+	out := make([]connector.Trade, 0)
 	for _, t := range e.trades {
 		if q.Exchange != nil && t.Exchange != *q.Exchange {
 			continue

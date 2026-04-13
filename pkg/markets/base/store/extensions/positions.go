@@ -59,7 +59,7 @@ func (e *positionsExtension) GetTotalOrderCount() int64 {
 func (e *positionsExtension) QueryOrders(q market.ActivityQuery) []connector.Order {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
-	var out []connector.Order
+	out := make([]connector.Order, 0)
 	for _, o := range e.orders {
 		if q.Exchange != nil && o.Exchange != *q.Exchange {
 			continue

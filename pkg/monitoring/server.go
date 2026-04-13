@@ -129,12 +129,16 @@ func (s *server) Stop(ctx context.Context) error {
 	var errs []error
 
 	if s.httpServer != nil {
+		// Shutdown gracefully drains in-flight requests and closes the
+		// underlying listener, so we do NOT call s.listener.Close()
+		// separately — doing so would produce a spurious
+		// "use of closed network connection" error.
 		if err := s.httpServer.Shutdown(ctx); err != nil {
 			errs = append(errs, fmt.Errorf("failed to shutdown http server: %w", err))
 		}
-	}
-
-	if s.listener != nil {
+	} else if s.listener != nil {
+		// Fallback: if the HTTP server was never created, close the
+		// listener directly.
 		if err := s.listener.Close(); err != nil {
 			errs = append(errs, fmt.Errorf("failed to close listener: %w", err))
 		}
