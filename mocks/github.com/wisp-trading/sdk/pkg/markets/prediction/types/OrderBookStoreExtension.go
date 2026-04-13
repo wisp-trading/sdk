@@ -162,6 +162,52 @@ func (_c *OrderBookStoreExtension_GetOrderBook_Call) RunAndReturn(run func(excha
 	return _c
 }
 
+// RemoveOrderBook provides a mock function for the type OrderBookStoreExtension
+func (_mock *OrderBookStoreExtension) RemoveOrderBook(exchange connector.ExchangeName, marketID connector0.MarketID) {
+	_mock.Called(exchange, marketID)
+	return
+}
+
+// OrderBookStoreExtension_RemoveOrderBook_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveOrderBook'
+type OrderBookStoreExtension_RemoveOrderBook_Call struct {
+	*mock.Call
+}
+
+// RemoveOrderBook is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
+//   - marketID connector0.MarketID
+func (_e *OrderBookStoreExtension_Expecter) RemoveOrderBook(exchange interface{}, marketID interface{}) *OrderBookStoreExtension_RemoveOrderBook_Call {
+	return &OrderBookStoreExtension_RemoveOrderBook_Call{Call: _e.mock.On("RemoveOrderBook", exchange, marketID)}
+}
+
+func (_c *OrderBookStoreExtension_RemoveOrderBook_Call) Run(run func(exchange connector.ExchangeName, marketID connector0.MarketID)) *OrderBookStoreExtension_RemoveOrderBook_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 connector.ExchangeName
+		if args[0] != nil {
+			arg0 = args[0].(connector.ExchangeName)
+		}
+		var arg1 connector0.MarketID
+		if args[1] != nil {
+			arg1 = args[1].(connector0.MarketID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *OrderBookStoreExtension_RemoveOrderBook_Call) Return() *OrderBookStoreExtension_RemoveOrderBook_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *OrderBookStoreExtension_RemoveOrderBook_Call) RunAndReturn(run func(exchange connector.ExchangeName, marketID connector0.MarketID)) *OrderBookStoreExtension_RemoveOrderBook_Call {
+	_c.Run(run)
+	return _c
+}
+
 // UpdateOrderBook provides a mock function for the type OrderBookStoreExtension
 func (_mock *OrderBookStoreExtension) UpdateOrderBook(exchange connector.ExchangeName, marketID connector0.MarketID, outcomeID connector0.OutcomeID, orderBook connector.OrderBook) {
 	_mock.Called(exchange, marketID, outcomeID, orderBook)

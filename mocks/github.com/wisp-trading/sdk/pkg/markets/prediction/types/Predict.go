@@ -1196,6 +1196,52 @@ func (_c *Predict_SplitPosition_Call) RunAndReturn(run func(market connector0.Ma
 	return _c
 }
 
+// UnwatchMarket provides a mock function for the type Predict
+func (_mock *Predict) UnwatchMarket(exchange connector.ExchangeName, market connector0.Market) {
+	_mock.Called(exchange, market)
+	return
+}
+
+// Predict_UnwatchMarket_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UnwatchMarket'
+type Predict_UnwatchMarket_Call struct {
+	*mock.Call
+}
+
+// UnwatchMarket is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
+//   - market connector0.Market
+func (_e *Predict_Expecter) UnwatchMarket(exchange interface{}, market interface{}) *Predict_UnwatchMarket_Call {
+	return &Predict_UnwatchMarket_Call{Call: _e.mock.On("UnwatchMarket", exchange, market)}
+}
+
+func (_c *Predict_UnwatchMarket_Call) Run(run func(exchange connector.ExchangeName, market connector0.Market)) *Predict_UnwatchMarket_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 connector.ExchangeName
+		if args[0] != nil {
+			arg0 = args[0].(connector.ExchangeName)
+		}
+		var arg1 connector0.Market
+		if args[1] != nil {
+			arg1 = args[1].(connector0.Market)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *Predict_UnwatchMarket_Call) Return() *Predict_UnwatchMarket_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *Predict_UnwatchMarket_Call) RunAndReturn(run func(exchange connector.ExchangeName, market connector0.Market)) *Predict_UnwatchMarket_Call {
+	_c.Run(run)
+	return _c
+}
+
 // WatchMarket provides a mock function for the type Predict
 func (_mock *Predict) WatchMarket(exchange connector.ExchangeName, market connector0.Market) {
 	_mock.Called(exchange, market)

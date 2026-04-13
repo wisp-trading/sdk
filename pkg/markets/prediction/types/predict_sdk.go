@@ -16,6 +16,10 @@ type Predict interface {
 	GetRecurringMarketBySlug(slug string, recurrenceInterval predictionconnector.RecurrenceInterval, exchange connector.ExchangeName) (predictionconnector.Market, error)
 	WatchMarket(exchange connector.ExchangeName, market predictionconnector.Market)
 
+	// UnwatchMarket removes the market from the watchlist, unsubscribes its
+	// WebSocket feeds, and clears cached orderbook data from the store.
+	UnwatchMarket(exchange connector.ExchangeName, market predictionconnector.Market)
+
 	// Markets returns markets from store if available, fetches from API only if store is empty.
 	// Use RefreshMarkets() for explicit refresh from API.
 	Markets(exchange connector.ExchangeName, filter *predictionconnector.MarketsFilter) ([]predictionconnector.Market, error)

@@ -55,6 +55,18 @@ func (e *predictionOrderBookExtension) GetOrderBook(
 	return nil
 }
 
+func (e *predictionOrderBookExtension) RemoveOrderBook(
+	exchange connector.ExchangeName,
+	marketID predictionconnector.MarketID,
+) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+
+	if exMap, ok := e.orderBooks[exchange]; ok {
+		delete(exMap, marketID)
+	}
+}
+
 func (e *predictionOrderBookExtension) GetMarketOrderBooks(
 	exchange connector.ExchangeName,
 	marketID predictionconnector.MarketID,

@@ -90,6 +90,11 @@ func (p predict) WatchMarket(exchange connector.ExchangeName, market predictionc
 	p.predictionWatchlist.RequireMarket(exchange, market)
 }
 
+func (p predict) UnwatchMarket(exchange connector.ExchangeName, market predictionconnector.Market) {
+	p.predictionWatchlist.ReleaseMarket(exchange, market.MarketID)
+	p.store.RemoveOrderBook(exchange, market.MarketID)
+}
+
 func (p predict) Markets(exchange connector.ExchangeName, filter *predictionconnector.MarketsFilter) ([]predictionconnector.Market, error) {
 	storedMarkets := p.store.GetMarkets(exchange)
 	if len(storedMarkets) > 0 {

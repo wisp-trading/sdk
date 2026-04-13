@@ -823,6 +823,52 @@ func (_c *MarketStore_QueryOrders_Call) RunAndReturn(run func(q types.Prediction
 	return _c
 }
 
+// RemoveOrderBook provides a mock function for the type MarketStore
+func (_mock *MarketStore) RemoveOrderBook(exchange connector.ExchangeName, marketID connector0.MarketID) {
+	_mock.Called(exchange, marketID)
+	return
+}
+
+// MarketStore_RemoveOrderBook_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemoveOrderBook'
+type MarketStore_RemoveOrderBook_Call struct {
+	*mock.Call
+}
+
+// RemoveOrderBook is a helper method to define mock.On call
+//   - exchange connector.ExchangeName
+//   - marketID connector0.MarketID
+func (_e *MarketStore_Expecter) RemoveOrderBook(exchange interface{}, marketID interface{}) *MarketStore_RemoveOrderBook_Call {
+	return &MarketStore_RemoveOrderBook_Call{Call: _e.mock.On("RemoveOrderBook", exchange, marketID)}
+}
+
+func (_c *MarketStore_RemoveOrderBook_Call) Run(run func(exchange connector.ExchangeName, marketID connector0.MarketID)) *MarketStore_RemoveOrderBook_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 connector.ExchangeName
+		if args[0] != nil {
+			arg0 = args[0].(connector.ExchangeName)
+		}
+		var arg1 connector0.MarketID
+		if args[1] != nil {
+			arg1 = args[1].(connector0.MarketID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MarketStore_RemoveOrderBook_Call) Return() *MarketStore_RemoveOrderBook_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MarketStore_RemoveOrderBook_Call) RunAndReturn(run func(exchange connector.ExchangeName, marketID connector0.MarketID)) *MarketStore_RemoveOrderBook_Call {
+	_c.Run(run)
+	return _c
+}
+
 // UpdateBalance provides a mock function for the type MarketStore
 func (_mock *MarketStore) UpdateBalance(exchange connector.ExchangeName, asset portfolio.Asset, balance numerical.Decimal) {
 	_mock.Called(exchange, asset, balance)

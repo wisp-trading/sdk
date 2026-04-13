@@ -46,4 +46,11 @@ type OrderBookStoreExtension interface {
 		exchange connector.ExchangeName,
 		marketID predictionconnector.MarketID,
 	) OutcomeOrderBookMap
+
+	// RemoveOrderBook removes all cached orderbook data for a market.
+	// Use when unsubscribing from a market's WebSocket feed to avoid stale data.
+	RemoveOrderBook(
+		exchange connector.ExchangeName,
+		marketID predictionconnector.MarketID,
+	)
 }
