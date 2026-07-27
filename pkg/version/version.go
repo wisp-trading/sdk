@@ -4,4 +4,4 @@ package version
 // release workflow. Keep in sync with published module tags when editing by hand.
 
 // SDKVersion is the current Wisp SDK module version.
-var SDKVersion = "v0.1.7"
+var SDKVersion = "v0.1.8"
