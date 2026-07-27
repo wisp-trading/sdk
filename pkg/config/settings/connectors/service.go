@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 
 	"github.com/wisp-trading/sdk/pkg/types/config"
@@ -228,7 +229,24 @@ func (c *connectorService) GetConnectorConfigsForStrategy(exchangeNames []string
 	return connectorConfigs, nil
 }
 
-// GetRequiredCredentialFields returns the credential field names required by an exchange
+// nonCredentialJSONKeys are present on some exchange configs but are not user
+// secrets for the Settings form (URLs, flags, defaults). Discovery still uses
+// NewConfig() JSON; we only filter noise from the form field list.
+var nonCredentialJSONKeys = map[string]struct{}{
+	"network":          {},
+	"use_testnet":      {},
+	"is_testnet":       {},
+	"base_url":         {},
+	"websocket_url":    {},
+	"default_slippage": {},
+	"signature_type":   {},
+	"starknet_rpc":     {},
+}
+
+// GetRequiredCredentialFields returns credential field names for an exchange.
+// Source of truth: connector.NewConfig() zero-value JSON keys (same path as MapToSDKConfig).
+// Fields with json omitempty that are zero are omitted — those are optional.
+// Stable sort for deterministic TUI forms.
 func (c *connectorService) GetRequiredCredentialFields(exchangeName string) []string {
 	conn, exists := c.connectorRegistry.Connector(connector.ExchangeName(exchangeName))
 	if !exists {
@@ -240,6 +258,12 @@ func (c *connectorService) GetRequiredCredentialFields(exchangeName string) []st
 		return []string{}
 	}
 
+	return credentialFieldsFromConfig(cfg)
+}
+
+// credentialFieldsFromConfig extracts form field names from a connector config.
+// Used by GetRequiredCredentialFields; kept package-level for unit tests without a full registry.
+func credentialFieldsFromConfig(cfg connector.Config) []string {
 	configBytes, err := json.Marshal(cfg)
 	if err != nil {
 		return []string{}
@@ -252,10 +276,11 @@ func (c *connectorService) GetRequiredCredentialFields(exchangeName string) []st
 
 	fields := make([]string, 0, len(fieldMap))
 	for key := range fieldMap {
-		if key != "network" && key != "use_testnet" {
-			fields = append(fields, key)
+		if _, skip := nonCredentialJSONKeys[key]; skip {
+			continue
 		}
+		fields = append(fields, key)
 	}
-
+	sort.Strings(fields)
 	return fields
 }
