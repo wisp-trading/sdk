@@ -11,10 +11,12 @@ type ZapApplicationLogger struct {
 	logger *zap.Logger
 }
 
-// NewDefaultZapLogger creates a production-ready zap logger with proper encoding
+// NewDefaultZapLogger creates a production-ready zap logger with proper encoding.
+// Errors-and-above only by default so the TUI is not flooded with init noise.
 func NewDefaultZapLogger() (*zap.Logger, error) {
 	config := zap.NewProductionConfig()
 	config.Encoding = "json"
+	config.Level = zap.NewAtomicLevelAt(zapcore.ErrorLevel)
 	config.EncoderConfig.TimeKey = "timestamp"
 	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	config.EncoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
