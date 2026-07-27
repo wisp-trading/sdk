@@ -1,7 +1,6 @@
 package health
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -85,9 +84,7 @@ func (c *connectorHealthStore) RecordConnectorError(name connector.ExchangeName,
 		}
 	}
 
-	fmt.Printf("Warning: Recording error for untracked connector %s\n", name)
-	fmt.Printf("Error: %v\n", err)
-
+	// Quiet: do not fmt.Print into strategy stdout (TUI / live process logs).
 	c.connectors[name].LastError = err
 	c.connectors[name].ErrorTime = c.timeProvider.Now()
 	c.connectors[name].State = health.StateDegraded
