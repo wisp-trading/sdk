@@ -71,34 +71,38 @@ func (c *settings) LoadSettings(path string) (*config.Settings, error) {
 	return c.settings, nil
 }
 
-// GetConnectors returns the cached exchange credentials from settings
+// GetConnectors returns the cached exchange credentials from settings.
+// Missing ~/.wisp/connectors.yml is not an error — returns an empty list
+// so the Settings UI can show "Add connector" on first run.
 func (c *settings) GetConnectors() ([]config.Connector, error) {
 	if c.settings != nil {
+		if c.settings.Connectors == nil {
+			return []config.Connector{}, nil
+		}
 		return c.settings.Connectors, nil
 	}
 
-	if _, err := c.LoadSettings(""); err != nil {
+	if err := c.ensureLoadedOrEmpty(); err != nil {
 		return nil, err
 	}
-
+	if c.settings.Connectors == nil {
+		return []config.Connector{}, nil
+	}
 	return c.settings.Connectors, nil
 }
 
-// GetEnabledConnectors returns all enabled connectors
+// GetEnabledConnectors returns all enabled connectors (empty if none / no file yet).
 func (c *settings) GetEnabledConnectors() ([]config.Connector, error) {
-	if c.settings == nil {
-		if _, err := c.LoadSettings(""); err != nil {
-			return nil, err
-		}
+	all, err := c.GetConnectors()
+	if err != nil {
+		return nil, err
 	}
-
 	enabled := make([]config.Connector, 0)
-	for _, ex := range c.settings.Connectors {
+	for _, ex := range all {
 		if ex.Enabled {
 			enabled = append(enabled, ex)
 		}
 	}
-
 	return enabled, nil
 }
 
