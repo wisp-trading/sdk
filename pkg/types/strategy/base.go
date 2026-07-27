@@ -124,13 +124,23 @@ func (b *BaseStrategy) StatusLog() []StrategyStatus {
 	return out
 }
 
-// Emit publishes a signal to the channel. Non-blocking: drops if buffer is full.
+// Emit publishes a signal on the strategy channel.
+// Prefer wisp.Emit for live execution (async execution path).
+// When the strategy context is live, blocks until accepted or ctx canceled —
+// never silently drops. No-op before StartWithRunner (nil channel).
 func (b *BaseStrategy) Emit(signal Signal) {
 	b.marksMu.Lock()
 	b.marks = nil
 	b.marksMu.Unlock()
 
 	if b.signalCh == nil {
+		return
+	}
+	if b.ctx != nil {
+		select {
+		case b.signalCh <- signal:
+		case <-b.ctx.Done():
+		}
 		return
 	}
 	select {
