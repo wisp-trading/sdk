@@ -5,6 +5,7 @@ import (
 	spotSignal "github.com/wisp-trading/sdk/pkg/markets/spot/signal"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -18,6 +19,7 @@ type spot struct {
 	store         spotTypes.MarketStore
 	timeProvider  temporal.TimeProvider
 	pnl           spotTypes.SpotPNL
+	router        execution.SignalRouter
 }
 
 func NewSpot(
@@ -26,6 +28,7 @@ func NewSpot(
 	store spotTypes.MarketStore,
 	timeProvider temporal.TimeProvider,
 	pnl spotTypes.SpotPNL,
+	router execution.SignalRouter,
 ) spotTypes.Spot {
 	return &spot{
 		tradingLogger: tradingLogger,
@@ -33,6 +36,7 @@ func NewSpot(
 		store:         store,
 		timeProvider:  timeProvider,
 		pnl:           pnl,
+		router:        router,
 	}
 }
 
@@ -80,6 +84,11 @@ func (s *spot) Klines(exchange connector.ExchangeName, pair portfolio.Pair, inte
 // Signal creates a new spot signal builder for the given strategy.
 func (s *spot) Signal(strategyName strategy.StrategyName) spotTypes.SpotSignalBuilder {
 	return spotSignal.NewSpotBuilder(strategyName, s.timeProvider)
+}
+
+// Emit routes a spot signal to the executor (places orders).
+func (s *spot) Emit(signal spotTypes.SpotSignal) execution.ExecutionCallback {
+	return execution.Dispatch(s.router, signal)
 }
 
 // Log returns the trading logger for strategy-specific logging.

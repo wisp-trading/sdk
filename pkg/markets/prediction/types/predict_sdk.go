@@ -5,6 +5,7 @@ import (
 
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -59,6 +60,10 @@ type Predict interface {
 
 	// PredictionSignal creates a new signal builder for prediction market trading signals.
 	PredictionSignal(strategyName strategy.StrategyName) PredictionSignalBuilder
+
+	// Emit routes a prediction signal to the executor (places orders).
+	// Prefer this over wisp.Emit for type-safe market scoping.
+	Emit(signal PredictionSignal) execution.ExecutionCallback
 
 	GetTokensToRedeem(market predictionconnector.Market) ([]predictionconnector.Balance, error)
 

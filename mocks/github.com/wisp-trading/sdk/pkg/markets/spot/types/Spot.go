@@ -9,6 +9,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -40,6 +41,57 @@ type Spot_Expecter struct {
 
 func (_m *Spot) EXPECT() *Spot_Expecter {
 	return &Spot_Expecter{mock: &_m.Mock}
+}
+
+// Emit provides a mock function for the type Spot
+func (_mock *Spot) Emit(signal types.SpotSignal) execution.ExecutionCallback {
+	ret := _mock.Called(signal)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Emit")
+	}
+
+	var r0 execution.ExecutionCallback
+	if returnFunc, ok := ret.Get(0).(func(types.SpotSignal) execution.ExecutionCallback); ok {
+		r0 = returnFunc(signal)
+	} else {
+		r0 = ret.Get(0).(execution.ExecutionCallback)
+	}
+	return r0
+}
+
+// Spot_Emit_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Emit'
+type Spot_Emit_Call struct {
+	*mock.Call
+}
+
+// Emit is a helper method to define mock.On call
+//   - signal types.SpotSignal
+func (_e *Spot_Expecter) Emit(signal interface{}) *Spot_Emit_Call {
+	return &Spot_Emit_Call{Call: _e.mock.On("Emit", signal)}
+}
+
+func (_c *Spot_Emit_Call) Run(run func(signal types.SpotSignal)) *Spot_Emit_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 types.SpotSignal
+		if args[0] != nil {
+			arg0 = args[0].(types.SpotSignal)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *Spot_Emit_Call) Return(executionCallback execution.ExecutionCallback) *Spot_Emit_Call {
+	_c.Call.Return(executionCallback)
+	return _c
+}
+
+func (_c *Spot_Emit_Call) RunAndReturn(run func(signal types.SpotSignal) execution.ExecutionCallback) *Spot_Emit_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // Klines provides a mock function for the type Spot

@@ -6,6 +6,7 @@ import (
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -19,6 +20,7 @@ type perp struct {
 	store         perpTypes.MarketStore
 	timeProvider  temporal.TimeProvider
 	pnl           perpTypes.PerpPNL
+	router        execution.SignalRouter
 }
 
 func NewPerp(
@@ -27,6 +29,7 @@ func NewPerp(
 	store perpTypes.MarketStore,
 	timeProvider temporal.TimeProvider,
 	pnl perpTypes.PerpPNL,
+	router execution.SignalRouter,
 ) perpTypes.Perp {
 	return &perp{
 		tradingLogger: tradingLogger,
@@ -34,6 +37,7 @@ func NewPerp(
 		store:         store,
 		timeProvider:  timeProvider,
 		pnl:           pnl,
+		router:        router,
 	}
 }
 
@@ -114,6 +118,11 @@ func (p *perp) Klines(exchange connector.ExchangeName, pair portfolio.Pair, inte
 // Signal creates a new perp signal builder for the given strategy.
 func (p *perp) Signal(strategyName strategy.StrategyName) perpTypes.PerpSignalBuilder {
 	return signal.NewPerpBuilder(strategyName, p.timeProvider)
+}
+
+// Emit routes a perp signal to the executor (places orders).
+func (p *perp) Emit(signal perpTypes.PerpSignal) execution.ExecutionCallback {
+	return execution.Dispatch(p.router, signal)
 }
 
 // Log returns the trading logger for strategy-specific logging.

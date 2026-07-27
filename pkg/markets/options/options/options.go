@@ -7,6 +7,7 @@ import (
 	optionsSignal "github.com/wisp-trading/sdk/pkg/markets/options/signal"
 	optionsTypes "github.com/wisp-trading/sdk/pkg/markets/options/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -20,6 +21,7 @@ type options struct {
 	store         optionsTypes.OptionsStore
 	timeProvider  temporal.TimeProvider
 	pnl           optionsTypes.OptionsPNL
+	router        execution.SignalRouter
 }
 
 // NewOptions creates a new options service
@@ -29,6 +31,7 @@ func NewOptions(
 	store optionsTypes.OptionsStore,
 	timeProvider temporal.TimeProvider,
 	pnl optionsTypes.OptionsPNL,
+	router execution.SignalRouter,
 ) optionsTypes.Options {
 	return &options{
 		tradingLogger: tradingLogger,
@@ -36,6 +39,7 @@ func NewOptions(
 		store:         store,
 		timeProvider:  timeProvider,
 		pnl:           pnl,
+		router:        router,
 	}
 }
 
@@ -111,6 +115,11 @@ func (o *options) Strikes(exchange connector.ExchangeName, pair portfolio.Pair, 
 // Signal creates a new options signal builder for the given strategy.
 func (o *options) Signal(strategyName strategy.StrategyName) optionsTypes.OptionsSignalBuilder {
 	return optionsSignal.NewOptionsBuilder(strategyName, o.timeProvider)
+}
+
+// Emit routes an options signal to the executor (places orders).
+func (o *options) Emit(signal optionsTypes.OptionsSignal) execution.ExecutionCallback {
+	return execution.Dispatch(o.router, signal)
 }
 
 func (o *options) Log() logging.TradingLogger {

@@ -15,8 +15,9 @@ const (
 )
 
 // Strategy is the interface that all trading strategies must implement.
-// Strategies are self-directed: they own their execution loop and push signals
-// asynchronously via wisp.Emit(signal). The orchestrator only manages lifecycle.
+// Strategies are self-directed: they own their execution loop and place orders
+// via market-scoped Emit (wisp.Spot().Emit / Perp().Emit / …).
+// The orchestrator only manages lifecycle (Start/Stop).
 type Strategy interface {
 	// Identity
 	GetName() StrategyName
@@ -27,8 +28,8 @@ type Strategy interface {
 	// Stop signals the strategy to shut down and waits for it to exit cleanly.
 	Stop(ctx context.Context) error
 
-	// Signals returns a read-only channel for observing emitted signals.
-	// This is an observability tap — production routing goes via wisp.Emit.
+	// Signals is an observability tap for Publish'd signals (not the trading path).
+	// Production order routing: domain Emit (Spot/Perp/Predict/Options).
 	Signals() <-chan Signal
 
 	// LatestStatus returns the most recently emitted status snapshot.

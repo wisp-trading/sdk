@@ -88,11 +88,20 @@ type Strategy interface {
 }
 ```
 
-Strategies are **self-directed** — they own their run loop. The orchestrator only calls `Start`/`Stop`. Signals are pushed asynchronously: `wisp.Emit(signal)` routes to the executor; `base.Emit(signal)` publishes to the observable `Signals()` channel.
+Strategies are **self-directed** — they own their run loop. The orchestrator only calls `Start`/`Stop`.
+
+**Trading signals (orders)** — market-scoped:
+
+```go
+sig, err := wisp.Perp().Signal(name).BuyLimit(pair, exchange, qty, price).Build()
+cb := wisp.Perp().Emit(sig) // Spot / Predict / Options likewise
+```
+
+**Observability only** — `BaseStrategy.Publish(sig)` → `Signals()` channel (does **not** place orders).
 
 ### `strategy.BaseStrategy` — embed this
 
-`pkg/types/strategy/base.go` provides `BaseStrategy`, which should be embedded in every concrete strategy. It implements `Stop`, `Signals`, `LatestStatus`, `StatusLog`, and the `Emit`/`Mark`/`EmitStatus` helpers. Concrete strategies call `StartWithRunner(ctx, s.run)` from their own `Start` method to launch the run goroutine under the base lifecycle.
+`pkg/types/strategy/base.go` provides `BaseStrategy`, which should be embedded in every concrete strategy. It implements `Stop`, `Signals`, `LatestStatus`, `StatusLog`, and `Publish` / `Mark` / `EmitStatus`. Concrete strategies call `StartWithRunner(ctx, s.run)` from their own `Start` method to launch the run goroutine under the base lifecycle.
 
 ```go
 type momentumStrategy struct {
@@ -185,7 +194,7 @@ The domain's public interface (`types/spot_sdk.go`, `types/perp_sdk.go`) is what
 ## Signal Flow
 
 ```
-strategy.run() → wisp.Emit(signal)
+strategy.run() → wisp.Perp().Emit(sig)  // or Spot/Predict/Options
     → executor.Execute(signal)         pkg/executor/default.go
         → spotExecutor / perpExecutor  pkg/markets/{domain}/executor/
             → connector.PlaceOrder     (external connectors package)

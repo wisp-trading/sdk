@@ -4,6 +4,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -50,6 +51,13 @@ type Perp interface {
 
 	// Signal creates a new perp signal builder for the given strategy.
 	Signal(strategyName strategy.StrategyName) PerpSignalBuilder
+
+	// Emit routes a perp signal to the executor (places orders). Prefer this over
+	// wisp.Emit for type-safe market scoping.
+	//
+	//	sig, err := wisp.Perp().Signal(name).BuyLimit(...).Build()
+	//	cb := wisp.Perp().Emit(sig)
+	Emit(signal PerpSignal) execution.ExecutionCallback
 
 	// Log returns the trading logger for strategy-specific logging.
 	Log() logging.TradingLogger

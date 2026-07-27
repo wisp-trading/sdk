@@ -76,10 +76,12 @@ func (k *wisp) Asset(symbol string) portfolio.Asset {
 	return portfolio.NewAsset(symbol)
 }
 
-// Emit routes a signal asynchronously and returns an ExecutionCallback. Strategies that
-// don't need the outcome can discard it; those that do can call cb.Await().
+// Emit routes any strategy.Signal to the executor. Prefer market-scoped Emit for
+// type safety:
+//
+//	wisp.Spot().Emit(sig) / Perp().Emit / Predict().Emit / Options().Emit
+//
+// Use this untyped path only when the signal type is already erased.
 func (k *wisp) Emit(signal strategy.Signal) execution.ExecutionCallback {
-	ch := make(chan execution.ExecutionResult, 1)
-	k.router.RouteWithResult(signal, ch)
-	return execution.NewExecutionCallback(ch)
+	return execution.Dispatch(k.router, signal)
 }

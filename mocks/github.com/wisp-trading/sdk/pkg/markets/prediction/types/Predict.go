@@ -11,6 +11,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	connector0 "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -163,6 +164,57 @@ func (_c *Predict_ConfirmConditionalBalance_Call) Return(err error) *Predict_Con
 }
 
 func (_c *Predict_ConfirmConditionalBalance_Call) RunAndReturn(run func(market connector0.Market, minAmount *big.Int) error) *Predict_ConfirmConditionalBalance_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Emit provides a mock function for the type Predict
+func (_mock *Predict) Emit(signal types.PredictionSignal) execution.ExecutionCallback {
+	ret := _mock.Called(signal)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Emit")
+	}
+
+	var r0 execution.ExecutionCallback
+	if returnFunc, ok := ret.Get(0).(func(types.PredictionSignal) execution.ExecutionCallback); ok {
+		r0 = returnFunc(signal)
+	} else {
+		r0 = ret.Get(0).(execution.ExecutionCallback)
+	}
+	return r0
+}
+
+// Predict_Emit_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Emit'
+type Predict_Emit_Call struct {
+	*mock.Call
+}
+
+// Emit is a helper method to define mock.On call
+//   - signal types.PredictionSignal
+func (_e *Predict_Expecter) Emit(signal interface{}) *Predict_Emit_Call {
+	return &Predict_Emit_Call{Call: _e.mock.On("Emit", signal)}
+}
+
+func (_c *Predict_Emit_Call) Run(run func(signal types.PredictionSignal)) *Predict_Emit_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 types.PredictionSignal
+		if args[0] != nil {
+			arg0 = args[0].(types.PredictionSignal)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *Predict_Emit_Call) Return(executionCallback execution.ExecutionCallback) *Predict_Emit_Call {
+	_c.Call.Return(executionCallback)
+	return _c
+}
+
+func (_c *Predict_Emit_Call) RunAndReturn(run func(signal types.PredictionSignal) execution.ExecutionCallback) *Predict_Emit_Call {
 	_c.Call.Return(run)
 	return _c
 }

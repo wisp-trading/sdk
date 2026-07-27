@@ -27,7 +27,7 @@ func TestBaseStrategyEmitDoesNotDropWhenConsumerSlow(t *testing.T) {
 	done := make(chan struct{})
 	go func() {
 		for i := 0; i < signalChannelBufferSize+1; i++ {
-			b.Emit(stubSignal{id: uuid.New()})
+			b.Publish(stubSignal{id: uuid.New()})
 		}
 		close(done)
 	}()
@@ -59,12 +59,12 @@ func TestBaseStrategyEmitRespectsCancel(t *testing.T) {
 	}
 
 	for i := 0; i < signalChannelBufferSize; i++ {
-		b.Emit(stubSignal{id: uuid.New()})
+		b.Publish(stubSignal{id: uuid.New()})
 	}
 
 	blocked := make(chan struct{})
 	go func() {
-		b.Emit(stubSignal{id: uuid.New()})
+		b.Publish(stubSignal{id: uuid.New()})
 		close(blocked)
 	}()
 

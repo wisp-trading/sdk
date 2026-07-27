@@ -10,6 +10,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector/perp"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -41,6 +42,57 @@ type Perp_Expecter struct {
 
 func (_m *Perp) EXPECT() *Perp_Expecter {
 	return &Perp_Expecter{mock: &_m.Mock}
+}
+
+// Emit provides a mock function for the type Perp
+func (_mock *Perp) Emit(signal types.PerpSignal) execution.ExecutionCallback {
+	ret := _mock.Called(signal)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Emit")
+	}
+
+	var r0 execution.ExecutionCallback
+	if returnFunc, ok := ret.Get(0).(func(types.PerpSignal) execution.ExecutionCallback); ok {
+		r0 = returnFunc(signal)
+	} else {
+		r0 = ret.Get(0).(execution.ExecutionCallback)
+	}
+	return r0
+}
+
+// Perp_Emit_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Emit'
+type Perp_Emit_Call struct {
+	*mock.Call
+}
+
+// Emit is a helper method to define mock.On call
+//   - signal types.PerpSignal
+func (_e *Perp_Expecter) Emit(signal interface{}) *Perp_Emit_Call {
+	return &Perp_Emit_Call{Call: _e.mock.On("Emit", signal)}
+}
+
+func (_c *Perp_Emit_Call) Run(run func(signal types.PerpSignal)) *Perp_Emit_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 types.PerpSignal
+		if args[0] != nil {
+			arg0 = args[0].(types.PerpSignal)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *Perp_Emit_Call) Return(executionCallback execution.ExecutionCallback) *Perp_Emit_Call {
+	_c.Call.Return(executionCallback)
+	return _c
+}
+
+func (_c *Perp_Emit_Call) RunAndReturn(run func(signal types.PerpSignal) execution.ExecutionCallback) *Perp_Emit_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // FundingRate provides a mock function for the type Perp

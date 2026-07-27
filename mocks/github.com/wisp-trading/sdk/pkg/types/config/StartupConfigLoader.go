@@ -37,8 +37,8 @@ func (_m *StartupConfigLoader) EXPECT() *StartupConfigLoader_Expecter {
 }
 
 // LoadForStrategy provides a mock function for the type StartupConfigLoader
-func (_mock *StartupConfigLoader) LoadForStrategy(strategyDir string, wispPath string) (*config.StartupConfig, error) {
-	ret := _mock.Called(strategyDir, wispPath)
+func (_mock *StartupConfigLoader) LoadForStrategy(strategyDir string, settingsPath string) (*config.StartupConfig, error) {
+	ret := _mock.Called(strategyDir, settingsPath)
 
 	if len(ret) == 0 {
 		panic("no return value specified for LoadForStrategy")
@@ -47,17 +47,17 @@ func (_mock *StartupConfigLoader) LoadForStrategy(strategyDir string, wispPath s
 	var r0 *config.StartupConfig
 	var r1 error
 	if returnFunc, ok := ret.Get(0).(func(string, string) (*config.StartupConfig, error)); ok {
-		return returnFunc(strategyDir, wispPath)
+		return returnFunc(strategyDir, settingsPath)
 	}
 	if returnFunc, ok := ret.Get(0).(func(string, string) *config.StartupConfig); ok {
-		r0 = returnFunc(strategyDir, wispPath)
+		r0 = returnFunc(strategyDir, settingsPath)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*config.StartupConfig)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = returnFunc(strategyDir, wispPath)
+		r1 = returnFunc(strategyDir, settingsPath)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -71,12 +71,12 @@ type StartupConfigLoader_LoadForStrategy_Call struct {
 
 // LoadForStrategy is a helper method to define mock.On call
 //   - strategyDir string
-//   - wispPath string
-func (_e *StartupConfigLoader_Expecter) LoadForStrategy(strategyDir interface{}, wispPath interface{}) *StartupConfigLoader_LoadForStrategy_Call {
-	return &StartupConfigLoader_LoadForStrategy_Call{Call: _e.mock.On("LoadForStrategy", strategyDir, wispPath)}
+//   - settingsPath string
+func (_e *StartupConfigLoader_Expecter) LoadForStrategy(strategyDir interface{}, settingsPath interface{}) *StartupConfigLoader_LoadForStrategy_Call {
+	return &StartupConfigLoader_LoadForStrategy_Call{Call: _e.mock.On("LoadForStrategy", strategyDir, settingsPath)}
 }
 
-func (_c *StartupConfigLoader_LoadForStrategy_Call) Run(run func(strategyDir string, wispPath string)) *StartupConfigLoader_LoadForStrategy_Call {
+func (_c *StartupConfigLoader_LoadForStrategy_Call) Run(run func(strategyDir string, settingsPath string)) *StartupConfigLoader_LoadForStrategy_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
@@ -99,7 +99,7 @@ func (_c *StartupConfigLoader_LoadForStrategy_Call) Return(startupConfig *config
 	return _c
 }
 
-func (_c *StartupConfigLoader_LoadForStrategy_Call) RunAndReturn(run func(strategyDir string, wispPath string) (*config.StartupConfig, error)) *StartupConfigLoader_LoadForStrategy_Call {
+func (_c *StartupConfigLoader_LoadForStrategy_Call) RunAndReturn(run func(strategyDir string, settingsPath string) (*config.StartupConfig, error)) *StartupConfigLoader_LoadForStrategy_Call {
 	_c.Call.Return(run)
 	return _c
 }

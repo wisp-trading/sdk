@@ -1,3 +1,9 @@
+// Package settings implements config.Configuration: read/write of the global
+// connector credentials file (~/.wisp/connectors.yml).
+//
+// Distinct from:
+//   - strategy config.yml (pkg/config/strategy) — exchanges/assets only
+//   - StartupConfigLoader — merges both for StartStandalone
 package settings
 
 import (
@@ -10,19 +16,21 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// ConfigOptions holds configuration for the settings service
+// ConfigOptions configures NewConfiguration.
 type ConfigOptions struct {
 	// SettingsPath is an explicit path to connectors credentials YAML.
-	// Empty means resolve via config.ResolveSettingsPath (default ~/.wisp/connectors.yml).
+	// Empty → ResolveSettingsPath (default ~/.wisp/connectors.yml).
+	// Note: StartStandalone(settingsPath) also passes a path into LoadForStrategy;
+	// both should agree (CLI leaves this empty and uses StartStandalone's arg).
 	SettingsPath string
 }
 
 type settings struct {
-	settingsPath string
-	settings     *config.Settings
+	settingsPath string // active credentials file path
+	cache        *config.Settings
 }
 
-// NewConfiguration creates a new configuration service with the given options
+// NewConfiguration creates the global connector-credentials store.
 func NewConfiguration(opts ConfigOptions) config.Configuration {
 	path := config.ResolveSettingsPath(opts.SettingsPath)
 	return &settings{
@@ -30,12 +38,9 @@ func NewConfiguration(opts ConfigOptions) config.Configuration {
 	}
 }
 
-// LoadSettings loads the settings from the given path, or resolved default if empty
+// LoadSettings loads connector credentials from path (or the configured default).
+// Reloads when path differs from the cached file.
 func (c *settings) LoadSettings(path string) (*config.Settings, error) {
-	if c.settings != nil && path == "" {
-		return c.settings, nil
-	}
-
 	loadPath := path
 	if loadPath == "" {
 		loadPath = c.settingsPath
@@ -44,9 +49,13 @@ func (c *settings) LoadSettings(path string) (*config.Settings, error) {
 		loadPath = config.ResolveSettingsPath("")
 	}
 
+	if c.cache != nil && loadPath == c.settingsPath {
+		return c.cache, nil
+	}
+
 	if !c.fileExists(loadPath) {
 		return nil, fmt.Errorf(
-			"settings file not found at %s — add connectors via the wisp CLI Settings UI (saved to ~/.wisp/connectors.yml), or pass an explicit path",
+			"connector settings not found at %s — add keys via wisp → Settings (~/.wisp/connectors.yml), or pass an explicit path",
 			loadPath,
 		)
 	}
@@ -57,41 +66,32 @@ func (c *settings) LoadSettings(path string) (*config.Settings, error) {
 	v.AutomaticEnv()
 
 	if err := v.ReadInConfig(); err != nil {
-		return nil, fmt.Errorf("failed to read config file: %w", err)
+		return nil, fmt.Errorf("failed to read connector settings: %w", err)
 	}
 
-	var settings config.Settings
-	if err := v.Unmarshal(&settings); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
+	var loaded config.Settings
+	if err := v.Unmarshal(&loaded); err != nil {
+		return nil, fmt.Errorf("failed to parse connector settings: %w", err)
 	}
 
-	c.settings = &settings
+	c.cache = &loaded
 	c.settingsPath = loadPath
-
-	return c.settings, nil
+	return c.cache, nil
 }
 
-// GetConnectors returns the cached exchange credentials from settings.
-// Missing ~/.wisp/connectors.yml is not an error — returns an empty list
-// so the Settings UI can show "Add connector" on first run.
+// GetConnectors returns exchange credential rows.
+// Missing file is not an error — empty list so CLI Settings can add the first key.
 func (c *settings) GetConnectors() ([]config.Connector, error) {
-	if c.settings != nil {
-		if c.settings.Connectors == nil {
-			return []config.Connector{}, nil
-		}
-		return c.settings.Connectors, nil
-	}
-
 	if err := c.ensureLoadedOrEmpty(); err != nil {
 		return nil, err
 	}
-	if c.settings.Connectors == nil {
+	if c.cache.Connectors == nil {
 		return []config.Connector{}, nil
 	}
-	return c.settings.Connectors, nil
+	return c.cache.Connectors, nil
 }
 
-// GetEnabledConnectors returns all enabled connectors (empty if none / no file yet).
+// GetEnabledConnectors returns enabled connectors only.
 func (c *settings) GetEnabledConnectors() ([]config.Connector, error) {
 	all, err := c.GetConnectors()
 	if err != nil {
@@ -106,52 +106,52 @@ func (c *settings) GetEnabledConnectors() ([]config.Connector, error) {
 	return enabled, nil
 }
 
-// SaveSettings writes the settings file (0600). Ensures parent dir exists.
-func (c *settings) SaveSettings(settings *config.Settings) error {
+// SaveSettings writes the credentials file (0600).
+func (c *settings) SaveSettings(s *config.Settings) error {
 	dir := filepath.Dir(c.settingsPath)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return fmt.Errorf("failed to create settings directory: %w", err)
 	}
 
-	data, err := yaml.Marshal(settings)
+	data, err := yaml.Marshal(s)
 	if err != nil {
-		return fmt.Errorf("failed to marshal settings: %w", err)
+		return fmt.Errorf("failed to marshal connector settings: %w", err)
 	}
 
 	if err := os.WriteFile(c.settingsPath, data, 0o600); err != nil {
-		return fmt.Errorf("failed to write settings file: %w", err)
+		return fmt.Errorf("failed to write connector settings: %w", err)
 	}
 
-	c.settings = settings
+	c.cache = s
 	return nil
 }
 
-// AddConnector adds a new connector to the settings
+// AddConnector appends a connector row and saves.
 func (c *settings) AddConnector(connector config.Connector) error {
 	if err := c.ensureLoadedOrEmpty(); err != nil {
 		return err
 	}
 
-	for _, existing := range c.settings.Connectors {
+	for _, existing := range c.cache.Connectors {
 		if existing.Name == connector.Name {
 			return fmt.Errorf("connector with name '%s' already exists", connector.Name)
 		}
 	}
 
-	c.settings.Connectors = append(c.settings.Connectors, connector)
-	return c.SaveSettings(c.settings)
+	c.cache.Connectors = append(c.cache.Connectors, connector)
+	return c.SaveSettings(c.cache)
 }
 
-// UpdateConnector updates an existing connector
+// UpdateConnector replaces an existing connector row and saves.
 func (c *settings) UpdateConnector(connector config.Connector) error {
 	if err := c.ensureLoadedOrEmpty(); err != nil {
 		return err
 	}
 
 	found := false
-	for i, existing := range c.settings.Connectors {
+	for i, existing := range c.cache.Connectors {
 		if existing.Name == connector.Name {
-			c.settings.Connectors[i] = connector
+			c.cache.Connectors[i] = connector
 			found = true
 			break
 		}
@@ -161,18 +161,18 @@ func (c *settings) UpdateConnector(connector config.Connector) error {
 		return fmt.Errorf("connector with name '%s' not found", connector.Name)
 	}
 
-	return c.SaveSettings(c.settings)
+	return c.SaveSettings(c.cache)
 }
 
-// RemoveConnector removes a connector by name
+// RemoveConnector deletes a connector row by name and saves.
 func (c *settings) RemoveConnector(name string) error {
 	if err := c.ensureLoadedOrEmpty(); err != nil {
 		return err
 	}
 
-	filtered := make([]config.Connector, 0, len(c.settings.Connectors))
+	filtered := make([]config.Connector, 0, len(c.cache.Connectors))
 	found := false
-	for _, connector := range c.settings.Connectors {
+	for _, connector := range c.cache.Connectors {
 		if connector.Name != name {
 			filtered = append(filtered, connector)
 		} else {
@@ -184,20 +184,20 @@ func (c *settings) RemoveConnector(name string) error {
 		return fmt.Errorf("connector with name '%s' not found", name)
 	}
 
-	c.settings.Connectors = filtered
-	return c.SaveSettings(c.settings)
+	c.cache.Connectors = filtered
+	return c.SaveSettings(c.cache)
 }
 
-// EnableConnector toggles the enabled state of a connector
+// EnableConnector toggles enabled and saves.
 func (c *settings) EnableConnector(name string, enabled bool) error {
 	if err := c.ensureLoadedOrEmpty(); err != nil {
 		return err
 	}
 
 	found := false
-	for i, connector := range c.settings.Connectors {
+	for i, connector := range c.cache.Connectors {
 		if connector.Name == name {
-			c.settings.Connectors[i].Enabled = enabled
+			c.cache.Connectors[i].Enabled = enabled
 			found = true
 			break
 		}
@@ -207,18 +207,18 @@ func (c *settings) EnableConnector(name string, enabled bool) error {
 		return fmt.Errorf("connector with name '%s' not found", name)
 	}
 
-	return c.SaveSettings(c.settings)
+	return c.SaveSettings(c.cache)
 }
 
-// ensureLoadedOrEmpty loads settings, or starts empty if the file does not exist yet
-// (first-time CLI Settings use under ~/.wisp).
+// ensureLoadedOrEmpty loads credentials, or starts empty if the file is missing
+// (first-time CLI Settings under ~/.wisp).
 func (c *settings) ensureLoadedOrEmpty() error {
-	if c.settings != nil {
+	if c.cache != nil {
 		return nil
 	}
 	if _, err := c.LoadSettings(""); err != nil {
 		if !c.fileExists(c.settingsPath) {
-			c.settings = &config.Settings{Connectors: nil}
+			c.cache = &config.Settings{Connectors: nil}
 			return nil
 		}
 		return err

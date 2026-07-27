@@ -37,33 +37,25 @@ type Wisp interface {
 	// Pair creates a new portfolio.Pair from two assets.
 	Pair(base, quote portfolio.Asset) portfolio.Pair
 
-	// Emit routes a signal and returns an ExecutionCallback. The signal is dispatched
-	// asynchronously — Emit never blocks. Callers that don't need the outcome can
-	// discard the callback; callers that do can call cb.Await() or cb.AwaitWithTimeout().
+	// Emit routes any strategy.Signal (untyped). Prefer market-scoped Emit:
+	// Spot().Emit / Perp().Emit / Predict().Emit / Options().Emit.
+	// Dispatched asynchronously — never blocks. Use cb.Await() if you need the result.
 	Emit(signal strategy.Signal) execution.ExecutionCallback
 
 	// Spot returns the spot market domain context.
-	// Owns watchlist management, orderbooks, balances, positions, and signal creation.
-	// Example: wisp.Spot().WatchPair(exchange, btc)
-	// Example: wisp.Spot().Signal(strategyName).BuyLimit(pair, exchange, qty, price).Build()
+	// Example: sig, _ := wisp.Spot().Signal(name).BuyLimit(...).Build(); wisp.Spot().Emit(sig)
 	Spot() spotTypes.Spot
 
 	// Perp returns the perpetual futures domain context.
-	// Owns watchlist management, funding rates, positions, orderbooks, and signal creation.
-	// Example: wisp.Perp().WatchPair(exchange, btc)
-	// Example: wisp.Perp().Signal(strategyName).BuyLimit(pair, exchange, qty, price).Build()
+	// Example: sig, _ := wisp.Perp().Signal(name).BuyLimit(...).Build(); wisp.Perp().Emit(sig)
 	Perp() perpTypes.Perp
 
 	// Predict returns the prediction market domain context.
-	// Owns market discovery, orderbooks, balances, positions, and signal creation.
-	// Example: wisp.Predict().WatchMarket(exchange, market)
-	// Example: wisp.Predict().Signal(strategyName).Buy(market, outcome, exchange, shares, maxPrice, expiry).Build()
+	// Example: sig, _ := wisp.Predict().PredictionSignal(name).Buy(...).Build(); wisp.Predict().Emit(sig)
 	Predict() predTypes.Predict
 
 	// Options returns the options market domain context.
-	// Owns watchlist management, Greeks, IV, positions, and signal creation.
-	// Example: wisp.Options().WatchContract(exchange, contract)
-	// Example: wisp.Options().MarkPrice(exchange, contract)
+	// Example: sig, _ := wisp.Options().Signal(name)...Build(); wisp.Options().Emit(sig)
 	Options() optionsTypes.Options
 
 	// PriceFeeds returns the price feeds service for accessing external price data.

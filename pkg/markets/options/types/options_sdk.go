@@ -5,6 +5,7 @@ import (
 
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -42,6 +43,10 @@ type Options interface {
 
 	// Signal creates a new options signal builder for the given strategy.
 	Signal(strategyName strategy.StrategyName) OptionsSignalBuilder
+
+	// Emit routes an options signal to the executor (places orders).
+	// Prefer this over wisp.Emit for type-safe market scoping.
+	Emit(signal OptionsSignal) execution.ExecutionCallback
 
 	// Log returns the trading logger for strategy-specific logging.
 	Log() logging.TradingLogger

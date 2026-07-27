@@ -11,6 +11,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/markets/options/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -42,6 +43,57 @@ type Options_Expecter struct {
 
 func (_m *Options) EXPECT() *Options_Expecter {
 	return &Options_Expecter{mock: &_m.Mock}
+}
+
+// Emit provides a mock function for the type Options
+func (_mock *Options) Emit(signal types.OptionsSignal) execution.ExecutionCallback {
+	ret := _mock.Called(signal)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Emit")
+	}
+
+	var r0 execution.ExecutionCallback
+	if returnFunc, ok := ret.Get(0).(func(types.OptionsSignal) execution.ExecutionCallback); ok {
+		r0 = returnFunc(signal)
+	} else {
+		r0 = ret.Get(0).(execution.ExecutionCallback)
+	}
+	return r0
+}
+
+// Options_Emit_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Emit'
+type Options_Emit_Call struct {
+	*mock.Call
+}
+
+// Emit is a helper method to define mock.On call
+//   - signal types.OptionsSignal
+func (_e *Options_Expecter) Emit(signal interface{}) *Options_Emit_Call {
+	return &Options_Emit_Call{Call: _e.mock.On("Emit", signal)}
+}
+
+func (_c *Options_Emit_Call) Run(run func(signal types.OptionsSignal)) *Options_Emit_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 types.OptionsSignal
+		if args[0] != nil {
+			arg0 = args[0].(types.OptionsSignal)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *Options_Emit_Call) Return(executionCallback execution.ExecutionCallback) *Options_Emit_Call {
+	_c.Call.Return(executionCallback)
+	return _c
+}
+
+func (_c *Options_Emit_Call) RunAndReturn(run func(signal types.OptionsSignal) execution.ExecutionCallback) *Options_Emit_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // Expirations provides a mock function for the type Options

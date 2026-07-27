@@ -32,38 +32,41 @@ func NewStartupConfigLoader(
 	}
 }
 
-// LoadForStrategy loads ALL configuration needed to run a strategy.
-// settingsPath may be empty — resolved to ~/.wisp/connectors.yml (or migration paths).
+// LoadForStrategy merges:
+//  1. Global keys: settingsPath → ResolveSettingsPath → ~/.wisp/connectors.yml
+//  2. Strategy: strategyDir/config.yml (exchanges/assets only)
+//  3. Validated connector.Config map for those exchanges
+//  4. Asset pairs for domain watchlists
 func (l *startupConfigLoader) LoadForStrategy(
 	strategyDir string,
 	settingsPath string,
 ) (*config.StartupConfig, error) {
+	// 1) credentials
 	resolved := config.ResolveSettingsPath(settingsPath)
 	_, err := l.configuration.LoadSettings(resolved)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load connector settings: %w", err)
+		return nil, fmt.Errorf("connector settings (%s): %w", resolved, err)
 	}
-
 	l.logger.Info("Loaded connector settings", "path", resolved)
 
-	// Load strategy config (per-strategy; no secrets)
+	// 2) strategy (no secrets)
 	configPath := filepath.Join(strategyDir, "config.yml")
 	stratConfig, err := l.strategySvc.Load(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load strategy config: %w", err)
+		return nil, fmt.Errorf("strategy config (%s): %w", configPath, err)
 	}
-
 	l.logger.Info("Loaded strategy config", "name", stratConfig.Name, "exchanges", stratConfig.Exchanges)
 
+	// 3) map + validate keys for strategy exchanges
 	connectorConfigs, err := l.connectorSvc.GetConnectorConfigsForStrategy(stratConfig.Exchanges)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get connector configs: %w", err)
+		return nil, fmt.Errorf("connector configs for strategy: %w", err)
 	}
+	l.logger.Info("Resolved connector configs", "count", len(connectorConfigs))
 
-	l.logger.Info("Loaded connector configs", "count", len(connectorConfigs))
-
+	// 4) pairs (routing to spot/perp/… is by connector market type, not YAML instruments)
 	assetConfigs := l.convertAssets(stratConfig)
-	l.logger.Info("Loaded asset configs", "count", len(assetConfigs))
+	l.logger.Info("Resolved asset pairs", "count", len(assetConfigs))
 
 	return &config.StartupConfig{
 		Strategy:         stratConfig,
@@ -73,8 +76,8 @@ func (l *startupConfigLoader) LoadForStrategy(
 	}, nil
 }
 
-// convertAssets converts strategy config assets to a flat exchange→pairs map.
-// Market type routing happens later in the runtime, after connector types are known.
+// convertAssets flattens strategy assets to exchange→pairs.
+// Domain loaders keep only exchanges whose connector MarketType matches that domain.
 func (l *startupConfigLoader) convertAssets(
 	stratConfig *config.Strategy,
 ) map[connector.ExchangeName][]portfolio.Pair {

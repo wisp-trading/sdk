@@ -6,15 +6,16 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	mockExecution "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/execution"
+	mockLogging "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
-	optionsService "github.com/wisp-trading/sdk/pkg/markets/options/options"
-	"github.com/wisp-trading/sdk/pkg/markets/options/activity"
-	optionsStore "github.com/wisp-trading/sdk/pkg/markets/options/store"
 	optionsWatchlistPkg "github.com/wisp-trading/sdk/pkg/markets/options"
+	"github.com/wisp-trading/sdk/pkg/markets/options/activity"
+	optionsService "github.com/wisp-trading/sdk/pkg/markets/options/options"
+	optionsStore "github.com/wisp-trading/sdk/pkg/markets/options/store"
 	optionsTypes "github.com/wisp-trading/sdk/pkg/markets/options/types"
 	timeProvider "github.com/wisp-trading/sdk/pkg/runtime/time"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	mockLogging "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
@@ -35,7 +36,8 @@ var _ = Describe("Options Service", func() {
 		watchlist = optionsWatchlistPkg.NewOptionsWatchlist()
 		logger := &mockLogging.TradingLogger{}
 		pnl := activity.NewPNLCalculator(store, nil)
-		svc = optionsService.NewOptions(logger, watchlist, store, tp, pnl)
+		router := &mockExecution.SignalRouter{}
+		svc = optionsService.NewOptions(logger, watchlist, store, tp, pnl, router)
 
 		deribit = "deribit_options"
 		btcPair = portfolio.NewPair(portfolio.NewAsset("BTC"), portfolio.NewAsset("USDT"))

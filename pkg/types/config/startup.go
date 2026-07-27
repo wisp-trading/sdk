@@ -5,28 +5,31 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 )
 
-// StartupConfig contains everything needed to start a strategy
+// StartupConfig is the fully resolved boot blob for StartStandalone.
+// Built by StartupConfigLoader.LoadForStrategy:
+//
+//  1. settingsPath → ResolveSettingsPath → Configuration.LoadSettings (keys)
+//  2. strategyDir/config.yml → StrategyConfig.Load (exchanges/assets, no secrets)
+//  3. ConnectorService.GetConnectorConfigsForStrategy → validated connector.Config map
+//  4. assets flattened for domain watchlists
 type StartupConfig struct {
-	// Strategy is the loaded strategy configuration
 	Strategy *Strategy
 
-	// ConnectorConfigs are the initialized connector configurations
+	// ConnectorConfigs: SDK-typed configs ready for connector.Initialize.
 	ConnectorConfigs map[connector.ExchangeName]connector.Config
 
-	// Assets maps each exchange to the pairs declared in config.
-	// The runtime routes these to the correct domain watchlist after
-	// connector types are known.
+	// Assets: exchange → pairs from strategy config.yml.
+	// Domain asset loaders filter by connector market type (spot/perp/…).
+	// Note: Asset.Instruments in YAML is currently not used for routing.
 	Assets map[connector.ExchangeName][]portfolio.Pair
 
-	// StrategyDir is the directory containing the strategy
 	StrategyDir string
 }
 
-// StartupConfigLoader loads all configuration needed to run a strategy
+// StartupConfigLoader assembles StartupConfig for the runtime.
 type StartupConfigLoader interface {
-	// LoadForStrategy loads strategy config.yml + global connector credentials.
-	// strategyDir: directory containing config.yml
-	// settingsPath: optional explicit path; empty uses ResolveSettingsPath
-	// (~/.wisp/connectors.yml, else project-local migration).
+	// LoadForStrategy:
+	//   strategyDir  — directory with config.yml
+	//   settingsPath — optional; empty → ResolveSettingsPath (~/.wisp/connectors.yml)
 	LoadForStrategy(strategyDir string, settingsPath string) (*StartupConfig, error)
 }

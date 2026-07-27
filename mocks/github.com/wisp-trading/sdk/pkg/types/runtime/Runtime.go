@@ -36,66 +36,9 @@ func (_m *Runtime) EXPECT() *Runtime_Expecter {
 	return &Runtime_Expecter{mock: &_m.Mock}
 }
 
-// Start provides a mock function for the type Runtime
-func (_mock *Runtime) Start(configPath string, wispPath string) error {
-	ret := _mock.Called(configPath, wispPath)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Start")
-	}
-
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(string, string) error); ok {
-		r0 = returnFunc(configPath, wispPath)
-	} else {
-		r0 = ret.Error(0)
-	}
-	return r0
-}
-
-// Runtime_Start_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Start'
-type Runtime_Start_Call struct {
-	*mock.Call
-}
-
-// Start is a helper method to define mock.On call
-//   - configPath string
-//   - wispPath string
-func (_e *Runtime_Expecter) Start(configPath interface{}, wispPath interface{}) *Runtime_Start_Call {
-	return &Runtime_Start_Call{Call: _e.mock.On("Start", configPath, wispPath)}
-}
-
-func (_c *Runtime_Start_Call) Run(run func(configPath string, wispPath string)) *Runtime_Start_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
-		if args[0] != nil {
-			arg0 = args[0].(string)
-		}
-		var arg1 string
-		if args[1] != nil {
-			arg1 = args[1].(string)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *Runtime_Start_Call) Return(err error) *Runtime_Start_Call {
-	_c.Call.Return(err)
-	return _c
-}
-
-func (_c *Runtime_Start_Call) RunAndReturn(run func(configPath string, wispPath string) error) *Runtime_Start_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // StartStandalone provides a mock function for the type Runtime
-func (_mock *Runtime) StartStandalone(strategy1 strategy.Strategy, configPath string, wispPath string) error {
-	ret := _mock.Called(strategy1, configPath, wispPath)
+func (_mock *Runtime) StartStandalone(strategy1 strategy.Strategy, strategyDir string, settingsPath string) error {
+	ret := _mock.Called(strategy1, strategyDir, settingsPath)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartStandalone")
@@ -103,7 +46,7 @@ func (_mock *Runtime) StartStandalone(strategy1 strategy.Strategy, configPath st
 
 	var r0 error
 	if returnFunc, ok := ret.Get(0).(func(strategy.Strategy, string, string) error); ok {
-		r0 = returnFunc(strategy1, configPath, wispPath)
+		r0 = returnFunc(strategy1, strategyDir, settingsPath)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -117,13 +60,13 @@ type Runtime_StartStandalone_Call struct {
 
 // StartStandalone is a helper method to define mock.On call
 //   - strategy1 strategy.Strategy
-//   - configPath string
-//   - wispPath string
-func (_e *Runtime_Expecter) StartStandalone(strategy1 interface{}, configPath interface{}, wispPath interface{}) *Runtime_StartStandalone_Call {
-	return &Runtime_StartStandalone_Call{Call: _e.mock.On("StartStandalone", strategy1, configPath, wispPath)}
+//   - strategyDir string
+//   - settingsPath string
+func (_e *Runtime_Expecter) StartStandalone(strategy1 interface{}, strategyDir interface{}, settingsPath interface{}) *Runtime_StartStandalone_Call {
+	return &Runtime_StartStandalone_Call{Call: _e.mock.On("StartStandalone", strategy1, strategyDir, settingsPath)}
 }
 
-func (_c *Runtime_StartStandalone_Call) Run(run func(strategy1 strategy.Strategy, configPath string, wispPath string)) *Runtime_StartStandalone_Call {
+func (_c *Runtime_StartStandalone_Call) Run(run func(strategy1 strategy.Strategy, strategyDir string, settingsPath string)) *Runtime_StartStandalone_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 strategy.Strategy
 		if args[0] != nil {
@@ -151,7 +94,7 @@ func (_c *Runtime_StartStandalone_Call) Return(err error) *Runtime_StartStandalo
 	return _c
 }
 
-func (_c *Runtime_StartStandalone_Call) RunAndReturn(run func(strategy1 strategy.Strategy, configPath string, wispPath string) error) *Runtime_StartStandalone_Call {
+func (_c *Runtime_StartStandalone_Call) RunAndReturn(run func(strategy1 strategy.Strategy, strategyDir string, settingsPath string) error) *Runtime_StartStandalone_Call {
 	_c.Call.Return(run)
 	return _c
 }

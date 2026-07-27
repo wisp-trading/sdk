@@ -3,6 +3,7 @@ package types
 import (
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
@@ -34,6 +35,13 @@ type Spot interface {
 
 	// Signal creates a new spot signal builder for the given strategy.
 	Signal(strategyName strategy.StrategyName) SpotSignalBuilder
+
+	// Emit routes a spot signal to the executor (places orders). Prefer this over
+	// wisp.Emit for type-safe market scoping.
+	//
+	//	sig, err := wisp.Spot().Signal(name).BuyLimit(...).Build()
+	//	cb := wisp.Spot().Emit(sig)
+	Emit(signal SpotSignal) execution.ExecutionCallback
 
 	// Log returns the trading logger for strategy-specific logging.
 	Log() logging.TradingLogger

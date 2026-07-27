@@ -76,14 +76,16 @@ func (b *BaseStrategy) Stop(_ context.Context) error {
 	return nil
 }
 
-// Signals returns the read-only signal channel for observing emitted signals.
+// Signals returns the read-only observability channel for signals Publish'd
+// by this strategy. It is not the live trading path — use wisp.Spot().Emit /
+// Perp().Emit / Predict().Emit / Options().Emit to place orders.
 func (b *BaseStrategy) Signals() <-chan Signal {
 	return b.signalCh
 }
 
 // EmitStatus records a status snapshot into the strategy's internal ring buffer.
 // Non-blocking and safe to call from the run loop at any frequency.
-// The At field is set automatically if zero.
+// The At field is set automatically if zero. This is status only — not order routing.
 func (b *BaseStrategy) EmitStatus(s StrategyStatus) {
 	if s.At.IsZero() {
 		s.At = time.Now()
@@ -124,11 +126,17 @@ func (b *BaseStrategy) StatusLog() []StrategyStatus {
 	return out
 }
 
-// Emit publishes a signal on the strategy channel.
-// Prefer wisp.Emit for live execution (async execution path).
+// Publish puts a signal on the strategy observability channel (Signals()).
+// This does NOT place orders.
+//
+// Trading path (market-scoped):
+//
+//	sig, err := s.k.Perp().Signal(s.GetName()).BuyLimit(...).Build()
+//	cb := s.k.Perp().Emit(sig) // or Spot / Predict / Options
+//
 // When the strategy context is live, blocks until accepted or ctx canceled —
 // never silently drops. No-op before StartWithRunner (nil channel).
-func (b *BaseStrategy) Emit(signal Signal) {
+func (b *BaseStrategy) Publish(signal Signal) {
 	b.marksMu.Lock()
 	b.marks = nil
 	b.marksMu.Unlock()

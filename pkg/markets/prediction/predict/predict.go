@@ -7,6 +7,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
@@ -14,8 +15,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-// Wisp is the base context object for strategy GetSignals methods.
-// It provides read-only access to market data, indicators, and analytics.
+// predict is the prediction-domain facade exposed via wisp.Predict().
 type predict struct {
 	applicationLogger   logging.ApplicationLogger
 	tradingLogger       logging.TradingLogger
@@ -25,6 +25,7 @@ type predict struct {
 	connectorRegistry   registry.ConnectorRegistry
 	pnl                 types.PredictionPNL
 	marketLoader        types.MarketLoader
+	router              execution.SignalRouter
 }
 
 // NewPredict constructs a new Predict instance with the provided dependencies.
@@ -37,6 +38,7 @@ func NewPredict(
 	connectorRegistry registry.ConnectorRegistry,
 	pnl types.PredictionPNL,
 	marketLoader types.MarketLoader,
+	router execution.SignalRouter,
 ) types.Predict {
 	return &predict{
 		applicationLogger:   applicationLogger,
@@ -47,6 +49,7 @@ func NewPredict(
 		store:               store,
 		pnl:                 pnl,
 		marketLoader:        marketLoader,
+		router:              router,
 	}
 }
 
@@ -169,6 +172,11 @@ func (p predict) Orderbook(exchange connector.ExchangeName, market predictioncon
 
 func (p predict) Log() logging.TradingLogger {
 	return p.tradingLogger
+}
+
+// Emit routes a prediction signal to the executor (places orders).
+func (p predict) Emit(signal types.PredictionSignal) execution.ExecutionCallback {
+	return execution.Dispatch(p.router, signal)
 }
 
 // PredictionSignal creates a new signal builder for prediction market trading signals.
