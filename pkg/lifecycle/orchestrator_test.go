@@ -128,13 +128,15 @@ var _ = Describe("Orchestrator", func() {
 		})
 
 		It("should propagate Start errors and roll back already-started strategies", func() {
+			// Names control Start order (registry sorts alphabetically).
+			// A_ starts first and succeeds; Z_ fails → A_ must be stopped on rollback.
 			started := mockStrategy.NewStrategy(GinkgoT())
-			started.EXPECT().GetName().Return(strategy.StrategyName("GoodStrategy")).Maybe()
+			started.EXPECT().GetName().Return(strategy.StrategyName("A_Started")).Maybe()
 			started.EXPECT().Start(mock.Anything).Return(nil).Once()
-			started.EXPECT().Stop(mock.Anything).Return(nil).Maybe()
+			started.EXPECT().Stop(mock.Anything).Return(nil).Once()
 
 			failing := mockStrategy.NewStrategy(GinkgoT())
-			failing.EXPECT().GetName().Return(strategy.StrategyName("BadStrategy")).Maybe()
+			failing.EXPECT().GetName().Return(strategy.StrategyName("Z_Failing")).Maybe()
 			failing.EXPECT().Start(mock.Anything).Return(errors.New("startup error")).Once()
 			failing.EXPECT().Stop(mock.Anything).Return(nil).Maybe()
 
@@ -143,7 +145,7 @@ var _ = Describe("Orchestrator", func() {
 
 			err := orchestrator.Start(ctx)
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring("BadStrategy"))
+			Expect(err.Error()).To(ContainSubstring("Z_Failing"))
 		})
 	})
 
