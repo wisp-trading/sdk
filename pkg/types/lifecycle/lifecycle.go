@@ -37,7 +37,7 @@ func (s State) String() string {
 
 // Controller controls the lifecycle of SDK internal components.
 // This is used by the application layer (orchestrator), never exposed to strategy authors.
-// It operates at the infrastructure level, below the Wisp/WispExecutor APIs.
+// Infrastructure only — not the strategy author surface (use wisp.Wisp).
 type Controller interface {
 	// Start starts the SDK and all its components.
 	// StartupConfig is loaded once by the runtime and passed through so each

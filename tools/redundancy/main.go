@@ -241,45 +241,38 @@ func structuralFindings(root string) []string {
 			hits = append(hits, fmt.Sprintf("%s — %s", rel, why))
 		}
 	}
-	checkFile("pkg/signal/module.go", "empty fx Module still wired (domain packages own signal builders)")
-	checkFile("pkg/testing/module.go", "re-exports wisp.Module only; not a product surface")
-
+	// Regression: must not reappear
+	checkFile("pkg/signal/module.go", "empty signal Module returned (domain packages own builders)")
+	checkFile("pkg/markets/base/store/activity/position/store.go", "legacy activity/position store returned")
+	checkFile("pkg/markets/base/store/activity/trade/store.go", "legacy activity/trade store returned")
 	if b, err := os.ReadFile(filepath.Join(root, "pkg/types/execution/hook.go")); err == nil {
 		if bytes.Contains(b, []byte("HookPlugin")) {
-			hits = append(hits, "pkg/types/execution.HookPlugin — .so plugin interface after plugin removal")
+			hits = append(hits, "pkg/types/execution.HookPlugin returned — use in-process ExecutionHook only")
 		}
 	}
 	if b, err := os.ReadFile(filepath.Join(root, "pkg/modules.go")); err == nil {
 		if bytes.Contains(b, []byte("signal.Module")) {
-			hits = append(hits, "pkg/modules.go wires signal.Module (empty)")
+			hits = append(hits, "pkg/modules.go wires signal.Module again")
 		}
 		if bytes.Contains(b, []byte("package packages")) {
-			hits = append(hits, `pkg/modules.go package name "packages" (non-idiomatic; prefer sdk/pkg Module re-export)`)
+			hits = append(hits, `pkg/modules.go package name "packages" (non-idiomatic root Module)`)
 		}
 	}
 	if b, err := os.ReadFile(filepath.Join(root, "pkg/types/strategy/strategy.go")); err == nil {
 		if bytes.Contains(b, []byte("CashCarry")) || bytes.Contains(b, []byte("VolumeMaximizer")) {
-			hits = append(hits, "pkg/types/strategy — hardcoded product strategy names (CashCarry, …)")
+			hits = append(hits, "pkg/types/strategy — product strategy name constants returned")
 		}
 	}
-	if b, err := os.ReadFile(filepath.Join(root, "pkg/types/lifecycle/lifecycle.go")); err == nil {
-		if bytes.Contains(b, []byte("WispExecutor")) {
-			hits = append(hits, "pkg/types/lifecycle — fossil comment WispExecutor")
-		}
-	}
-	// Nested facades slow “add a market” onboarding
+	checkFile("pkg/testing/module.go", "pkg/testing only re-exports wisp.Module (ok for tests; optional later)")
+	// Nested facades — known market-shell tax (next pattern pass)
 	for _, m := range []string{"spot", "perp", "options"} {
 		if st, err := os.Stat(filepath.Join(root, "pkg/markets", m, m)); err == nil && st.IsDir() {
-			hits = append(hits, fmt.Sprintf("pkg/markets/%s/%s — nested same-name facade (tax when cloning market shell)", m, m))
+			hits = append(hits, fmt.Sprintf("pkg/markets/%s/%s — nested same-name facade (clone tax)", m, m))
 		}
 	}
-	// prediction uses predict/ not prediction/prediction — asymmetry
 	if st, err := os.Stat(filepath.Join(root, "pkg/markets/prediction/predict")); err == nil && st.IsDir() {
-		hits = append(hits, "pkg/markets/prediction/predict — facade name differs from spot/perp/options pattern")
+		hits = append(hits, "pkg/markets/prediction/predict — facade name differs from spot/perp/options")
 	}
-	// base activity stores that deadcode often flags entirely
-	checkFile("pkg/markets/base/store/activity/position/store.go", "legacy position store package (often fully unreachable)")
-	checkFile("pkg/markets/base/store/activity/trade/store.go", "legacy trade store package (often fully unreachable)")
 
 	sort.Strings(hits)
 	return hits

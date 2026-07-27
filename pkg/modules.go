@@ -15,7 +15,6 @@ import (
 	"github.com/wisp-trading/sdk/pkg/monitoring"
 	"github.com/wisp-trading/sdk/pkg/registry"
 	"github.com/wisp-trading/sdk/pkg/runtime"
-	"github.com/wisp-trading/sdk/pkg/signal"
 	"go.uber.org/fx"
 )
 
@@ -30,7 +29,6 @@ var Module = fx.Options(
 	lifecycle.Module,
 	registry.Module,
 	runtime.Module,
-	signal.Module,
 	executor.Module,
 	prediction.Module,
 	perp.Module,

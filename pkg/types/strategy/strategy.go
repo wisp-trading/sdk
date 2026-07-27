@@ -6,13 +6,8 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 )
 
+// StrategyName is a free-form strategy identity (set by the strategy author).
 type StrategyName string
-
-const (
-	CashCarry       StrategyName = "Cash Carry"
-	VolumeMaximizer StrategyName = "Volume Maximizer"
-	Momentum        StrategyName = "Momentum"
-)
 
 // Strategy is the interface that all trading strategies must implement.
 // Strategies are self-directed: they own their execution loop and place orders
