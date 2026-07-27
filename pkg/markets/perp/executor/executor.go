@@ -26,7 +26,6 @@ func NewExecutor(
 	logger logging.ApplicationLogger,
 	timeProvider temporal.TimeProvider,
 ) perpTypes.SignalExecutor {
-	logger.Info("Initializing perp executor")
 	return &executor{
 		Base: baseExecutor.Base{
 			Connectors:   connectors,
@@ -38,7 +37,6 @@ func NewExecutor(
 }
 
 // ExecutePerpSignal executes all actions in a perp signal.
-// Satisfies perpTypes.SignalExecutor.
 func (e *executor) ExecutePerpSignal(
 	signal perpTypes.PerpSignal,
 	ctx *execution.ExecutionContext,
@@ -64,19 +62,7 @@ func (e *executor) ExecutePerpSignal(
 
 // HandleTrade records an inbound perp trade fill and marks the order filled.
 func (e *executor) HandleTrade(trade connector.Trade) error {
-	e.store.AddTrade(trade)
-
-	orderID := trade.OrderID
-	if orderID == "" {
-		orderID = trade.ID
-	}
-
-	if err := e.store.UpdateOrderStatus(orderID, connector.OrderStatusFilled); err != nil {
-		e.Logger.Debug("Could not mark perp order %s filled: %v", orderID, err)
-	}
-
-	e.Logger.Info("Perp trade recorded: %s (order: %s, pair: %s)", trade.ID, orderID, trade.Pair.Symbol())
-	return nil
+	return e.RecordTradeFill(e.store, trade, "perp")
 }
 
 func (e *executor) executeAction(action *perpTypes.PerpAction) (string, error) {
@@ -89,50 +75,33 @@ func (e *executor) executeAction(action *perpTypes.PerpAction) (string, error) {
 		return "", nil
 	}
 
-	conn, exists := e.Connectors.Connector(action.Exchange)
-	if !exists {
-		return "", fmt.Errorf("exchange %s not available", action.Exchange)
-	}
-
-	perpConnector, isPerpConn := conn.(perpConn.Connector)
-
-	side := getSide(action.ActionType)
+	side := baseExecutor.SideFromAction(action.ActionType)
 
 	e.Logger.Info("Executing perp %s order: %s %s @ %s (leverage: %s) on %s",
 		action.ActionType, action.Quantity.StringFixed(4), action.Pair.Symbol(),
 		action.Price.StringFixed(2), action.Leverage.StringFixed(1), action.Exchange,
 	)
 
-	if isPerpConn && !action.Leverage.IsZero() {
-		if err := e.setLeverage(perpConnector, action); err != nil {
-			e.Logger.Warn("Could not set leverage for %s on %s: %v", action.Pair.Symbol(), action.Exchange, err)
+	if !action.Leverage.IsZero() {
+		if conn, ok := e.Connectors.Connector(action.Exchange); ok {
+			if perpConnector, isPerp := conn.(perpConn.Connector); isPerp {
+				if err := e.setLeverage(perpConnector, action); err != nil {
+					e.Logger.Warn("Could not set leverage for %s on %s: %v",
+						action.Pair.Symbol(), action.Exchange, err)
+				}
+			}
 		}
 	}
 
-	exec, err := e.GetOrderExecutor(action.Exchange)
-	if err != nil {
-		return "", err
-	}
-
-	resp, err := exec.PlaceLimitOrder(action.Pair, side, action.Quantity, action.Price)
-	if err != nil {
-		return "", fmt.Errorf("failed to place perp order on %s: %w", action.Exchange, err)
-	}
-
-	e.store.AddOrder(connector.Order{
-		Pair:      action.Pair,
-		ID:        resp.OrderID,
-		Side:      side,
-		Quantity:  action.Quantity,
-		Price:     action.Price,
-		Status:    connector.OrderStatusPending,
-		Type:      connector.OrderTypeLimit,
-		CreatedAt: e.TimeProvider.Now(),
-		UpdatedAt: e.TimeProvider.Now(),
-	})
-
-	e.Logger.Info("Perp order placed: %s (pair: %s, side: %s)", resp.OrderID, action.Pair.Symbol(), side)
-	return resp.OrderID, nil
+	return e.PlaceLimitAndRecord(
+		e.store,
+		action.Exchange,
+		action.Pair,
+		side,
+		action.Quantity,
+		action.Price,
+		"perp",
+	)
 }
 
 func (e *executor) setLeverage(conn perpConn.Connector, action *perpTypes.PerpAction) error {
@@ -143,15 +112,6 @@ func (e *executor) setLeverage(conn perpConn.Connector, action *perpTypes.PerpAc
 	e.Logger.Debug("Leverage %s requested for %s (%s) on %s",
 		action.Leverage.StringFixed(1), action.Pair.Symbol(), symbol, action.Exchange)
 	return nil
-}
-
-func getSide(actionType strategy.ActionType) connector.OrderSide {
-	switch actionType {
-	case strategy.ActionSell, strategy.ActionSellShort:
-		return connector.OrderSideSell
-	default:
-		return connector.OrderSideBuy
-	}
 }
 
 var _ perpTypes.SignalExecutor = (*executor)(nil)

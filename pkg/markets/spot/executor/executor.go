@@ -58,19 +58,7 @@ func (e *executor) ExecuteSpotSignal(
 
 // HandleTrade records an inbound spot trade fill and marks the order filled.
 func (e *executor) HandleTrade(trade connector.Trade) error {
-	e.store.AddTrade(trade)
-
-	orderID := trade.OrderID
-	if orderID == "" {
-		orderID = trade.ID
-	}
-
-	if err := e.store.UpdateOrderStatus(orderID, connector.OrderStatusFilled); err != nil {
-		e.Logger.Debug("Could not mark spot order %s filled: %v", orderID, err)
-	}
-
-	e.Logger.Info("Spot trade recorded: %s (order: %s, pair: %s)", trade.ID, orderID, trade.Pair.Symbol())
-	return nil
+	return e.RecordTradeFill(e.store, trade, "spot")
 }
 
 func (e *executor) executeAction(action *spotTypes.SpotAction) (string, error) {
@@ -83,40 +71,22 @@ func (e *executor) executeAction(action *spotTypes.SpotAction) (string, error) {
 		return "", nil
 	}
 
-	exec, err := e.GetOrderExecutor(action.Exchange)
-	if err != nil {
-		return "", err
-	}
-
-	side := connector.OrderSideBuy
-	if action.ActionType == strategy.ActionSell || action.ActionType == strategy.ActionSellShort {
-		side = connector.OrderSideSell
-	}
+	side := baseExecutor.SideFromAction(action.ActionType)
 
 	e.Logger.Info("Executing spot %s order: %s %s @ %s on %s",
 		action.ActionType, action.Quantity.StringFixed(4), action.Pair.Symbol(),
 		action.Price.StringFixed(2), action.Exchange,
 	)
 
-	resp, err := exec.PlaceLimitOrder(action.Pair, side, action.Quantity, action.Price)
-	if err != nil {
-		return "", fmt.Errorf("failed to place spot order on %s: %w", action.Exchange, err)
-	}
-
-	e.store.AddOrder(connector.Order{
-		Pair:      action.Pair,
-		ID:        resp.OrderID,
-		Side:      side,
-		Quantity:  action.Quantity,
-		Price:     action.Price,
-		Status:    connector.OrderStatusPending,
-		Type:      connector.OrderTypeLimit,
-		CreatedAt: e.TimeProvider.Now(),
-		UpdatedAt: e.TimeProvider.Now(),
-	})
-
-	e.Logger.Info("Spot order placed: %s (pair: %s, side: %s)", resp.OrderID, action.Pair.Symbol(), side)
-	return resp.OrderID, nil
+	return e.PlaceLimitAndRecord(
+		e.store,
+		action.Exchange,
+		action.Pair,
+		side,
+		action.Quantity,
+		action.Price,
+		"spot",
+	)
 }
 
 var _ spotTypes.SignalExecutor = (*executor)(nil)

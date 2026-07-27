@@ -2,7 +2,6 @@ package store
 
 import (
 	baseStore "github.com/wisp-trading/sdk/pkg/markets/base/store"
-	"github.com/wisp-trading/sdk/pkg/markets/base/store/extensions"
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
@@ -18,14 +17,13 @@ type spotStore struct {
 }
 
 func NewStore(timeProvider temporal.TimeProvider) spotTypes.MarketStore {
-	base := baseStore.NewStore(timeProvider)
-
+	ext := baseStore.NewPairExtensions(timeProvider)
 	return &spotStore{
-		MarketStore:             base,
-		OrderBookStoreExtension: extensions.NewOrderBookExtension(base.UpdatePairPrice, base.UpdateLastUpdated),
-		KlineStoreExtension:     extensions.NewKlineExtension(),
-		TradesStoreExtension:    extensions.NewTradesExtension(),
-		PositionsStoreExtension: extensions.NewPositionsExtension(),
+		MarketStore:             ext.MarketStore,
+		OrderBookStoreExtension: ext.OrderBookStoreExtension,
+		KlineStoreExtension:     ext.KlineStoreExtension,
+		TradesStoreExtension:    ext.TradesStoreExtension,
+		PositionsStoreExtension: ext.PositionsStoreExtension,
 	}
 }
 
