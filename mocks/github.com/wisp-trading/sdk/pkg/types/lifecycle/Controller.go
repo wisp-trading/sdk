@@ -84,6 +84,52 @@ func (_c *Controller_IsReady_Call) RunAndReturn(run func() bool) *Controller_IsR
 	return _c
 }
 
+// ShutdownRequested provides a mock function for the type Controller
+func (_mock *Controller) ShutdownRequested() <-chan struct{} {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for ShutdownRequested")
+	}
+
+	var r0 <-chan struct{}
+	if returnFunc, ok := ret.Get(0).(func() <-chan struct{}); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan struct{})
+		}
+	}
+	return r0
+}
+
+// Controller_ShutdownRequested_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ShutdownRequested'
+type Controller_ShutdownRequested_Call struct {
+	*mock.Call
+}
+
+// ShutdownRequested is a helper method to define mock.On call
+func (_e *Controller_Expecter) ShutdownRequested() *Controller_ShutdownRequested_Call {
+	return &Controller_ShutdownRequested_Call{Call: _e.mock.On("ShutdownRequested")}
+}
+
+func (_c *Controller_ShutdownRequested_Call) Run(run func()) *Controller_ShutdownRequested_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Controller_ShutdownRequested_Call) Return(valCh <-chan struct{}) *Controller_ShutdownRequested_Call {
+	_c.Call.Return(valCh)
+	return _c
+}
+
+func (_c *Controller_ShutdownRequested_Call) RunAndReturn(run func() <-chan struct{}) *Controller_ShutdownRequested_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Start provides a mock function for the type Controller
 func (_mock *Controller) Start(ctx context.Context, name strategy.StrategyName, cfg *config.StartupConfig) error {
 	ret := _mock.Called(ctx, name, cfg)

@@ -50,6 +50,11 @@ type Controller interface {
 	// WaitUntilReady blocks until the SDK is ready or context is cancelled
 	WaitUntilReady(ctx context.Context) error
 
+	// ShutdownRequested returns a channel that is closed when a remote
+	// shutdown is requested (e.g. HTTP POST /shutdown on the monitoring socket).
+	// Hosts should select on this alongside OS signals so the process always exits.
+	ShutdownRequested() <-chan struct{}
+
 	// State returns the current lifecycle state
 	State() State
 

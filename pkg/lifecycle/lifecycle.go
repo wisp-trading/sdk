@@ -28,6 +28,11 @@ type controller struct {
 	stateMu   sync.RWMutex
 	readyChan chan struct{}
 	readyOnce sync.Once
+
+	// shutdownCh is closed when remote /shutdown (or RequestShutdown) is received.
+	// Hosts select on ShutdownRequested() so the process always exits.
+	shutdownCh   chan struct{}
+	shutdownOnce sync.Once
 }
 
 type controllerParams struct {
@@ -51,6 +56,7 @@ func NewController(p controllerParams) lifecycleTypes.Controller {
 		viewRegistry:      p.ViewRegistry,
 		state:             lifecycleTypes.StateCreated,
 		readyChan:         make(chan struct{}),
+		shutdownCh:        make(chan struct{}),
 	}
 }
 
@@ -72,17 +78,22 @@ func (c *controller) Start(ctx context.Context, strategyName strategy.StrategyNa
 	}
 
 	// Start each domain in order — spot, perp, prediction each own their ingestors.
+	// On failure, stop already-started domains in reverse order (no ghost WS).
+	started := make([]lifecycleTypes.DomainLifecycle, 0, len(c.domains))
 	for _, domain := range c.domains {
 		c.logger.Info("  ⚡ Starting %s...", domain.Name())
 		if err := domain.Start(ctx, cfg); err != nil {
+			c.rollbackStartedDomains(started)
 			c.setState(lifecycleTypes.StateCreated)
 			return fmt.Errorf("failed to start %s: %w", domain.Name(), err)
 		}
+		started = append(started, domain)
 		c.logger.Info("  ✓ %s ready", domain.Name())
 	}
 
 	c.logger.Info("  🎯 Starting strategy orchestrator...")
 	if err := c.orchestrator.Start(ctx); err != nil {
+		c.rollbackStartedDomains(started)
 		c.setState(lifecycleTypes.StateCreated)
 		return fmt.Errorf("failed to start orchestrator: %w", err)
 	}
@@ -108,6 +119,17 @@ func (c *controller) Start(ctx context.Context, strategyName strategy.StrategyNa
 
 	c.logger.Info("✅ Wisp ready")
 	return nil
+}
+
+// rollbackStartedDomains stops domains that already started, reverse order.
+func (c *controller) rollbackStartedDomains(started []lifecycleTypes.DomainLifecycle) {
+	for i := len(started) - 1; i >= 0; i-- {
+		if err := started[i].Stop(); err != nil {
+			c.logger.Error("Error rolling back %s: %v", started[i].Name(), err)
+		} else {
+			c.logger.Info("  ↩ Rolled back %s", started[i].Name())
+		}
+	}
 }
 
 func (c *controller) Stop(ctx context.Context) error {
@@ -150,6 +172,18 @@ func (c *controller) WaitUntilReady(ctx context.Context) error {
 	case <-ctx.Done():
 		return ctx.Err()
 	}
+}
+
+// ShutdownRequested returns a channel closed when remote /shutdown is received.
+func (c *controller) ShutdownRequested() <-chan struct{} {
+	return c.shutdownCh
+}
+
+// requestShutdown closes the shutdown channel exactly once.
+func (c *controller) requestShutdown() {
+	c.shutdownOnce.Do(func() {
+		close(c.shutdownCh)
+	})
 }
 
 func (c *controller) State() lifecycleTypes.State {

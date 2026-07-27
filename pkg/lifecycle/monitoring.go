@@ -21,21 +21,15 @@ func (c *controller) initializeMonitoringServer(strategyName strategy.StrategyNa
 	)
 }
 
-// triggerShutdown handles remote shutdown requests from the monitoring server
-// This is called when POST /shutdown is received on the Unix socket
+// triggerShutdown handles remote shutdown requests from the monitoring server.
+// Called when POST /shutdown is received on the Unix socket.
 //
-// Critical for daemon operation: When strategies run as daemons without TTY,
-// this provides the only way to gracefully stop them via the CLI/API
+// Only signals the shared shutdown channel — does not call Stop here.
+// Runtime.Wait (or an equivalent host select) performs a single clean Stop
+// so /shutdown and OS signals share one exit path and the process always exits.
 func (c *controller) triggerShutdown() {
 	c.logger.Info("Remote shutdown triggered")
-
-	// Create a background context with timeout for graceful shutdown
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	if err := c.Stop(ctx); err != nil {
-		c.logger.Error("Error during shutdown: %v", err)
-	}
+	c.requestShutdown()
 }
 
 // monitorHealth continuously monitors system health and reports aggregated errors

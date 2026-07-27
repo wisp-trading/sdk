@@ -3,6 +3,10 @@ package runtime
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	configTypes "github.com/wisp-trading/sdk/pkg/types/config"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
@@ -13,6 +17,9 @@ import (
 	runtimeTypes "github.com/wisp-trading/sdk/pkg/types/runtime"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 )
+
+// DefaultStopTimeout is how long Stop allows for domain/strategy teardown.
+const DefaultStopTimeout = 30 * time.Second
 
 type rt struct {
 	pluginManager     plugin.Manager
@@ -44,8 +51,11 @@ func NewRuntime(
 	}
 }
 
-// Start runs a strategy in plugin mode.
+// Start runs a strategy in plugin mode (legacy).
+// Prefer StartStandalone for new strategies.
 func (r *rt) Start(configPath string, wispPath string) error {
+	r.logger.Warn("runtime.Start (plugin mode) is legacy; prefer StartStandalone for new strategies")
+
 	r.ctx, r.cancel = context.WithCancel(context.Background())
 
 	cfg, err := r.configLoader.LoadForStrategy(configPath, wispPath)
@@ -63,7 +73,8 @@ func (r *rt) Start(configPath string, wispPath string) error {
 	})
 }
 
-// StartStandalone runs a strategy in standalone mode (debuggable).
+// StartStandalone runs a strategy in standalone mode (blessed packaging path).
+// After a successful return, call Wait so /shutdown and OS signals share one stop path.
 func (r *rt) StartStandalone(
 	strat strategy.Strategy,
 	configPath string,
@@ -86,17 +97,48 @@ func (r *rt) StartStandalone(
 	})
 }
 
-// Stop gracefully shuts down.
+// Wait blocks until OS signal or remote /shutdown, then stops the runtime.
+// Process hosts should call this after Start/StartStandalone so the process always exits.
+func (r *rt) Wait() error {
+	if r.ctx == nil {
+		return fmt.Errorf("runtime not started")
+	}
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+	defer signal.Stop(sigChan)
+
+	select {
+	case sig := <-sigChan:
+		r.logger.Info("Received shutdown signal", "signal", sig.String())
+	case <-r.controller.ShutdownRequested():
+		r.logger.Info("Remote shutdown requested")
+	case <-r.ctx.Done():
+		r.logger.Info("Runtime context canceled")
+	}
+
+	return r.Stop()
+}
+
+// Stop gracefully shuts down using a fresh timeout context for cleanup,
+// then cancels the long-lived root context.
 func (r *rt) Stop() error {
 	r.logger.Info("🛑 Stopping runtime...")
 
-	if r.cancel != nil {
-		r.cancel()
+	stopCtx, stopCancel := context.WithTimeout(context.Background(), DefaultStopTimeout)
+	defer stopCancel()
+
+	if err := r.controller.Stop(stopCtx); err != nil {
+		r.logger.Error(fmt.Sprintf("Failed to stop controller: %v", err))
+		// Still cancel root context so waiters and health loops exit.
+		if r.cancel != nil {
+			r.cancel()
+		}
+		return err
 	}
 
-	if err := r.controller.Stop(r.ctx); err != nil {
-		r.logger.Error(fmt.Sprintf("Failed to stop controller: %v", err))
-		return err
+	if r.cancel != nil {
+		r.cancel()
 	}
 
 	r.logger.Info("✅ Runtime stopped")

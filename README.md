@@ -229,9 +229,25 @@ The monitoring server (`pkg/monitoring/`) runs a Unix-socket HTTP server inside 
 
 ---
 
-## Plugin Loading
+## Strategy packaging (blessed path)
 
-Strategies are compiled as Go plugins (`.so` files) and loaded at runtime by `pkg/plugin/manager.go`. The plugin must export a `NewStrategy(wisp.Wisp) strategy.Strategy` symbol. The manager loads the `.so`, resolves the symbol, calls it with the injected `wisp.Wisp`, and registers the returned strategy with the `StrategyRegistry`.
+**Supported for new work: standalone binaries.**
+
+Wire connectors + `wisp.Module` with fx, call `runtime.StartStandalone(strategy, configPath, wispPath)`, then **`runtime.Wait()`** so OS signals and remote HTTP `POST /shutdown` share one clean stop path and the process always exits.
+
+```go
+// after fx.Start and strategy construction
+if err := startupService.StartStandalone(strat, "./", "../../wisp.yml"); err != nil {
+    log.Fatal(err)
+}
+if err := startupService.Wait(); err != nil {
+    log.Fatal(err)
+}
+```
+
+### Plugin loading (legacy)
+
+`runtime.Start` still loads Go plugins (`.so`) via `pkg/plugin/manager.go` for older CLI paths. **Do not use plugins for new strategies** — they are unsupported for new work and may be removed. Prefer a normal `main` + `StartStandalone` + `Wait`.
 
 ---
 
