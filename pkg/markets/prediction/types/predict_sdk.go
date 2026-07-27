@@ -61,8 +61,7 @@ type Predict interface {
 	// PredictionSignal creates a new signal builder for prediction market trading signals.
 	PredictionSignal(strategyName strategy.StrategyName) PredictionSignalBuilder
 
-	// Emit routes a prediction signal to the executor (places orders).
-	// Prefer this over wisp.Emit for type-safe market scoping.
+	// Emit places orders for a prediction signal (only trading path for this market).
 	Emit(signal PredictionSignal) execution.ExecutionCallback
 
 	GetTokensToRedeem(market predictionconnector.Market) ([]predictionconnector.Balance, error)

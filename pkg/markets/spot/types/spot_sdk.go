@@ -36,8 +36,7 @@ type Spot interface {
 	// Signal creates a new spot signal builder for the given strategy.
 	Signal(strategyName strategy.StrategyName) SpotSignalBuilder
 
-	// Emit routes a spot signal to the executor (places orders). Prefer this over
-	// wisp.Emit for type-safe market scoping.
+	// Emit places orders for a spot signal (only trading path for this market).
 	//
 	//	sig, err := wisp.Spot().Signal(name).BuyLimit(...).Build()
 	//	cb := wisp.Spot().Emit(sig)

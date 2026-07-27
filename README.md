@@ -82,7 +82,6 @@ type Strategy interface {
     GetName() StrategyName
     Start(ctx context.Context) error
     Stop(ctx context.Context) error
-    Signals() <-chan Signal
     LatestStatus() StrategyStatus
     StatusLog() []StrategyStatus
 }
@@ -90,18 +89,18 @@ type Strategy interface {
 
 Strategies are **self-directed** — they own their run loop. The orchestrator only calls `Start`/`Stop`.
 
-**Trading signals (orders)** — market-scoped:
+**Trading (orders) — market-scoped only** (no `wisp.Emit`):
 
 ```go
 sig, err := wisp.Perp().Signal(name).BuyLimit(pair, exchange, qty, price).Build()
-cb := wisp.Perp().Emit(sig) // Spot / Predict / Options likewise
+cb := wisp.Perp().Emit(sig) // same pattern: Spot / Predict / Options
 ```
 
-**Observability only** — `BaseStrategy.Publish(sig)` → `Signals()` channel (does **not** place orders).
+**Status for the monitor** — `BaseStrategy.EmitStatus` → `LatestStatus` / `StatusLog` (not orders).
 
 ### `strategy.BaseStrategy` — embed this
 
-`pkg/types/strategy/base.go` provides `BaseStrategy`, which should be embedded in every concrete strategy. It implements `Stop`, `Signals`, `LatestStatus`, `StatusLog`, and `Publish` / `Mark` / `EmitStatus`. Concrete strategies call `StartWithRunner(ctx, s.run)` from their own `Start` method to launch the run goroutine under the base lifecycle.
+`pkg/types/strategy/base.go` provides `BaseStrategy`, which should be embedded in every concrete strategy. It implements `Stop`, `LatestStatus`, `StatusLog`, and `EmitStatus`. Concrete strategies call `StartWithRunner(ctx, s.run)` from their own `Start` method to launch the run goroutine under the base lifecycle.
 
 ```go
 type momentumStrategy struct {

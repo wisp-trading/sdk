@@ -6,23 +6,20 @@ import (
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types"
-	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
-	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	wispTypes "github.com/wisp-trading/sdk/pkg/types/wisp"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/activity"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 )
 
 // wisp is the SDK context object injected into strategies.
-// It provides access to market data, indicators, analytics, and signal dispatch.
+// Order placement is only via market domains: Spot/Perp/Predict/Options.Emit.
 type wisp struct {
 	tradingLogger logging.TradingLogger
 	indicators    analytics.Indicators
 	analytics     analytics.Analytics
 	activity      activity.Activity
-	router        execution.SignalRouter
 	perp          perpTypes.Perp
 	predict       predTypes.Predict
 	spotService   spotTypes.Spot
@@ -31,13 +28,11 @@ type wisp struct {
 }
 
 // NewWisp creates a new Wisp context with injected services.
-// This is injected via fx DI into strategies.
 func NewWisp(
 	tradingLogger logging.TradingLogger,
 	indicators analytics.Indicators,
 	analyticsService analytics.Analytics,
 	activityService activity.Activity,
-	router execution.SignalRouter,
 	perpService perpTypes.Perp,
 	predictService predTypes.Predict,
 	spotService spotTypes.Spot,
@@ -49,7 +44,6 @@ func NewWisp(
 		indicators:    indicators,
 		analytics:     analyticsService,
 		activity:      activityService,
-		router:        router,
 		perp:          perpService,
 		predict:       predictService,
 		spotService:   spotService,
@@ -74,14 +68,4 @@ func (k *wisp) Pair(base, quote portfolio.Asset) portfolio.Pair {
 
 func (k *wisp) Asset(symbol string) portfolio.Asset {
 	return portfolio.NewAsset(symbol)
-}
-
-// Emit routes any strategy.Signal to the executor. Prefer market-scoped Emit for
-// type safety:
-//
-//	wisp.Spot().Emit(sig) / Perp().Emit / Predict().Emit / Options().Emit
-//
-// Use this untyped path only when the signal type is already erased.
-func (k *wisp) Emit(signal strategy.Signal) execution.ExecutionCallback {
-	return execution.Dispatch(k.router, signal)
 }

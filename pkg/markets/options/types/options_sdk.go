@@ -44,8 +44,7 @@ type Options interface {
 	// Signal creates a new options signal builder for the given strategy.
 	Signal(strategyName strategy.StrategyName) OptionsSignalBuilder
 
-	// Emit routes an options signal to the executor (places orders).
-	// Prefer this over wisp.Emit for type-safe market scoping.
+	// Emit places orders for an options signal (only trading path for this market).
 	Emit(signal OptionsSignal) execution.ExecutionCallback
 
 	// Log returns the trading logger for strategy-specific logging.

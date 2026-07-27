@@ -6,8 +6,8 @@ import "github.com/wisp-trading/sdk/pkg/types/strategy"
 // The default implementation dispatches each Route call in its own goroutine
 // so the calling strategy is never blocked by executor latency.
 //
-// Prefer domain-scoped Emit (wisp.Spot().Emit / Perp().Emit / …) over calling
-// the router directly — those APIs type-check market signals.
+// Strategies must not call this directly — use domain Emit only:
+// wisp.Spot().Emit / Perp().Emit / Predict().Emit / Options().Emit.
 type SignalRouter interface {
 	// Route dispatches the signal fire-and-forget; errors are logged and discarded.
 	Route(signal strategy.Signal)

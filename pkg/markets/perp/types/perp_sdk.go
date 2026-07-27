@@ -52,8 +52,7 @@ type Perp interface {
 	// Signal creates a new perp signal builder for the given strategy.
 	Signal(strategyName strategy.StrategyName) PerpSignalBuilder
 
-	// Emit routes a perp signal to the executor (places orders). Prefer this over
-	// wisp.Emit for type-safe market scoping.
+	// Emit places orders for a perp signal (only trading path for this market).
 	//
 	//	sig, err := wisp.Perp().Signal(name).BuyLimit(...).Build()
 	//	cb := wisp.Perp().Emit(sig)

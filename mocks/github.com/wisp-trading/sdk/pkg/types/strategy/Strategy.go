@@ -126,52 +126,6 @@ func (_c *Strategy_LatestStatus_Call) RunAndReturn(run func() strategy.StrategyS
 	return _c
 }
 
-// Signals provides a mock function for the type Strategy
-func (_mock *Strategy) Signals() <-chan strategy.Signal {
-	ret := _mock.Called()
-
-	if len(ret) == 0 {
-		panic("no return value specified for Signals")
-	}
-
-	var r0 <-chan strategy.Signal
-	if returnFunc, ok := ret.Get(0).(func() <-chan strategy.Signal); ok {
-		r0 = returnFunc()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(<-chan strategy.Signal)
-		}
-	}
-	return r0
-}
-
-// Strategy_Signals_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Signals'
-type Strategy_Signals_Call struct {
-	*mock.Call
-}
-
-// Signals is a helper method to define mock.On call
-func (_e *Strategy_Expecter) Signals() *Strategy_Signals_Call {
-	return &Strategy_Signals_Call{Call: _e.mock.On("Signals")}
-}
-
-func (_c *Strategy_Signals_Call) Run(run func()) *Strategy_Signals_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run()
-	})
-	return _c
-}
-
-func (_c *Strategy_Signals_Call) Return(signalCh <-chan strategy.Signal) *Strategy_Signals_Call {
-	_c.Call.Return(signalCh)
-	return _c
-}
-
-func (_c *Strategy_Signals_Call) RunAndReturn(run func() <-chan strategy.Signal) *Strategy_Signals_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Start provides a mock function for the type Strategy
 func (_mock *Strategy) Start(ctx context.Context) error {
 	ret := _mock.Called(ctx)

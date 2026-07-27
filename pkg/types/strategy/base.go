@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-const signalChannelBufferSize = 64
 const statusLogCap = 100
 
 // BaseStrategyConfig holds configuration for creating a base strategy
@@ -14,33 +13,27 @@ type BaseStrategyConfig struct {
 	Name StrategyName
 }
 
-// BaseStrategy provides common lifecycle, signal channel, and status log management
-// for all strategies. Concrete strategies embed BaseStrategy and call
-// StartWithRunner(ctx, s.run) from their own Start method.
+// BaseStrategy provides common lifecycle and status log management for strategies.
+// Concrete strategies embed BaseStrategy and call StartWithRunner(ctx, s.run)
+// from their own Start method.
+//
+// Order placement is NOT here — use market-scoped Emit only:
+//
+//	sig, err := k.Perp().Signal(name).BuyLimit(...).Build()
+//	k.Perp().Emit(sig) // Spot / Predict / Options likewise
 type BaseStrategy struct {
 	name StrategyName
 
-	signalCh chan Signal
-	ctx      context.Context
-	cancel   context.CancelFunc
-	wg       sync.WaitGroup
+	ctx    context.Context
+	cancel context.CancelFunc
+	wg     sync.WaitGroup
 
-	// marks are pending checkpoints bundled into the next emitted signal's metadata.
-	marks   []Mark
-	marksMu sync.Mutex
-
-	// statusLog is a fixed-capacity ring buffer owned by the strategy.
+	// statusLog is a fixed-capacity ring buffer for operator/monitor views.
 	// Written by EmitStatus; read by LatestStatus and StatusLog.
 	statusLog  []StrategyStatus
 	statusHead int // next write slot
 	statusSize int
 	statusMu   sync.RWMutex
-}
-
-// Mark is a named timestamp checkpoint recorded inside a strategy's run loop.
-type Mark struct {
-	Label string
-	At    int64 // UnixNano
 }
 
 // NewBaseStrategy creates a new BaseStrategy suitable for embedding.
@@ -51,16 +44,14 @@ func NewBaseStrategy(config BaseStrategyConfig) *BaseStrategy {
 	}
 }
 
-// StartWithRunner initialises the signal channel and context, then launches the
-// provided run function in a managed goroutine.
+// StartWithRunner initialises the context, then launches the provided run
+// function in a managed goroutine.
 func (b *BaseStrategy) StartWithRunner(ctx context.Context, run func(ctx context.Context)) error {
 	b.ctx, b.cancel = context.WithCancel(ctx)
-	b.signalCh = make(chan Signal, signalChannelBufferSize)
 
 	b.wg.Add(1)
 	go func() {
 		defer b.wg.Done()
-		defer close(b.signalCh)
 		run(b.ctx)
 	}()
 
@@ -76,16 +67,8 @@ func (b *BaseStrategy) Stop(_ context.Context) error {
 	return nil
 }
 
-// Signals returns the read-only observability channel for signals Publish'd
-// by this strategy. It is not the live trading path — use wisp.Spot().Emit /
-// Perp().Emit / Predict().Emit / Options().Emit to place orders.
-func (b *BaseStrategy) Signals() <-chan Signal {
-	return b.signalCh
-}
-
 // EmitStatus records a status snapshot into the strategy's internal ring buffer.
-// Non-blocking and safe to call from the run loop at any frequency.
-// The At field is set automatically if zero. This is status only — not order routing.
+// Non-blocking. Used by monitoring (LatestStatus / StatusLog) — not order routing.
 func (b *BaseStrategy) EmitStatus(s StrategyStatus) {
 	if s.At.IsZero() {
 		s.At = time.Now()
@@ -124,44 +107,6 @@ func (b *BaseStrategy) StatusLog() []StrategyStatus {
 		out[i] = b.statusLog[(start+i)%statusLogCap]
 	}
 	return out
-}
-
-// Publish puts a signal on the strategy observability channel (Signals()).
-// This does NOT place orders.
-//
-// Trading path (market-scoped):
-//
-//	sig, err := s.k.Perp().Signal(s.GetName()).BuyLimit(...).Build()
-//	cb := s.k.Perp().Emit(sig) // or Spot / Predict / Options
-//
-// When the strategy context is live, blocks until accepted or ctx canceled —
-// never silently drops. No-op before StartWithRunner (nil channel).
-func (b *BaseStrategy) Publish(signal Signal) {
-	b.marksMu.Lock()
-	b.marks = nil
-	b.marksMu.Unlock()
-
-	if b.signalCh == nil {
-		return
-	}
-	if b.ctx != nil {
-		select {
-		case b.signalCh <- signal:
-		case <-b.ctx.Done():
-		}
-		return
-	}
-	select {
-	case b.signalCh <- signal:
-	default:
-	}
-}
-
-// Mark records a named checkpoint within the current evaluation cycle.
-func (b *BaseStrategy) Mark(label string) {
-	b.marksMu.Lock()
-	defer b.marksMu.Unlock()
-	b.marks = append(b.marks, Mark{Label: label})
 }
 
 // GetName returns the strategy name.

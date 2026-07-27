@@ -6,10 +6,8 @@ import (
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types"
-	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
-	"github.com/wisp-trading/sdk/pkg/types/strategy"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/activity"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/analytics"
 )
@@ -36,11 +34,6 @@ type Wisp interface {
 
 	// Pair creates a new portfolio.Pair from two assets.
 	Pair(base, quote portfolio.Asset) portfolio.Pair
-
-	// Emit routes any strategy.Signal (untyped). Prefer market-scoped Emit:
-	// Spot().Emit / Perp().Emit / Predict().Emit / Options().Emit.
-	// Dispatched asynchronously — never blocks. Use cb.Await() if you need the result.
-	Emit(signal strategy.Signal) execution.ExecutionCallback
 
 	// Spot returns the spot market domain context.
 	// Example: sig, _ := wisp.Spot().Signal(name).BuyLimit(...).Build(); wisp.Spot().Emit(sig)
