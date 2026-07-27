@@ -13,8 +13,15 @@ generate-mocks:
 	mockery
 	@echo "Generated mocks successfully"
 
+# Redundancy / dead-code sweep (structural + deadcode from product surface).
+# Keeps the graph lean for AAA market DX: clone a domain shell, ship a bot fast.
+.PHONY: redundancy
+redundancy:
+	@go run ./tools/redundancy
+
 .PHONY: help
 help:
 	@echo "Available targets:"
 	@echo "  generate-proto  - Generate Go code from proto files"
-	@echo "  generate-mocks  - Generate mocks from interfaces"
+	@echo "  generate-mocks  - Generate mocks from interfaces (mockery)"
+	@echo "  redundancy      - Structural zombies + deadcode report"
