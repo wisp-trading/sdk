@@ -3,19 +3,12 @@ package adapters
 import (
 	"github.com/wisp-trading/sdk/pkg/adapters/logging"
 	"go.uber.org/fx"
-	"go.uber.org/zap"
 )
 
 var Module = fx.Module("adapters",
 	fx.Provide(
-		// Provide default zap logger if none exists
-		fx.Annotate(
-			logging.NewDefaultZapLogger,
-			fx.OnStart(func(logger *zap.Logger) error {
-				logger.Info("Zap logger initialized")
-				return nil
-			}),
-		),
+		// Quiet default logger — no startup banner (CLI is a TUI).
+		logging.NewDefaultZapLogger,
 		logging.NewZapApplicationLogger,
 		logging.NewZapTradingLogger,
 	),
