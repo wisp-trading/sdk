@@ -1,6 +1,7 @@
 package perp
 
 import (
+	baseWatchlist "github.com/wisp-trading/sdk/pkg/markets/base/watchlist"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	configTypes "github.com/wisp-trading/sdk/pkg/types/config"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
@@ -22,18 +23,9 @@ func newPerpAssetLoader(
 	}
 }
 
-// Load reads the flat assets map from StartupConfig and registers only the pairs
-// that belong to perp exchanges, as determined by the connector registry.
+// Load registers pairs for perp-typed exchanges only.
 func (l *perpAssetLoader) Load(cfg *configTypes.StartupConfig) error {
-	for exchange, pairs := range cfg.Assets {
-		mt, ok := l.connectorRegistry.ConnectorType(exchange)
-		if !ok || mt != connector.MarketTypePerp {
-			continue
-		}
-		for _, pair := range pairs {
-			l.watchlist.RequirePair(exchange, pair)
-		}
-	}
+	baseWatchlist.LoadPairsForMarketType(cfg, l.watchlist, l.connectorRegistry, connector.MarketTypePerp)
 	return nil
 }
 

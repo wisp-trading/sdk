@@ -81,16 +81,25 @@ func (c *strategyConfig) FindStrategies() ([]config.Strategy, error) {
 		configPath := filepath.Join(strategyPath, "config.yml")
 
 		if _, err := os.Stat(configPath); os.IsNotExist(err) {
+			// Dir without config.yml is not a strategy (e.g. scratch folders).
 			continue
 		}
 
 		cfg, err := c.Load(configPath)
 		if err != nil {
-			// Invalid config.yml — skip quietly; user can fix the file and refresh.
+			// Surface broken configs in the list instead of hiding them.
+			strategies = append(strategies, config.Strategy{
+				Name:  strategyName,
+				Path:  strategyPath,
+				Error: err.Error(),
+			})
 			continue
 		}
 
 		cfg.Path = strategyPath
+		if cfg.Name == "" {
+			cfg.Name = strategyName
+		}
 		strategies = append(strategies, *cfg)
 	}
 

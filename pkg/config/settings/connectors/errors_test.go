@@ -24,13 +24,21 @@ func TestStrategyValidationError_NotConfigured(t *testing.T) {
 		},
 	}
 	msg := sve.Error()
-	if !strings.Contains(msg, "No keys") {
+	if !strings.Contains(msg, "no keys") && !strings.Contains(msg, "Settings") {
+		t.Fatalf("want keys/Settings hint, got %q", msg)
+	}
+	if strings.Contains(msg, "not registered") {
+		t.Fatalf("misclassified as registry miss: %q", msg)
+	}
+}
+
+func TestValidationError_ExchangeNotFoundMessage(t *testing.T) {
+	ve := &ValidationError{Exchange: "nope", ExchangeNotFound: true}
+	msg := ve.Error()
+	if !strings.Contains(msg, "not registered") {
 		t.Fatalf("got %q", msg)
 	}
-	if strings.Contains(strings.Split(msg, "hyperliquid")[1], "SDK registry") {
-		// only fail if registry appears for this exchange line — coarse check
-	}
-	if strings.Contains(msg, "Not found in SDK registry") {
-		t.Fatalf("misclassified as registry miss: %q", msg)
+	if !strings.Contains(msg, "connectors.Module") {
+		t.Fatalf("want connectors.Module hint: %q", msg)
 	}
 }

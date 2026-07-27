@@ -106,7 +106,7 @@ func run() error {
 	fmt.Printf("Summary: %d structural · %d unexported dead · %d exported-looking\n",
 		len(structural), len(unexported), len(exported))
 	fmt.Println()
-	fmt.Println("Next (manual): market shell DRY, instruments routing, hard connector errors.")
+	fmt.Println("Next (manual): re-run after structural fixes; prefer delete over new APIs.")
 	fmt.Println("Re-run: go run ./tools/redundancy   or   make redundancy")
 	return nil
 }
@@ -255,7 +255,7 @@ func structuralFindings(root string) []string {
 			hits = append(hits, "pkg/modules.go wires signal.Module again")
 		}
 		if bytes.Contains(b, []byte("package packages")) {
-			hits = append(hits, `pkg/modules.go package name "packages" (non-idiomatic root Module)`)
+			hits = append(hits, `pkg/modules.go still uses package packages — rename to package pkg`)
 		}
 	}
 	if b, err := os.ReadFile(filepath.Join(root, "pkg/types/strategy/strategy.go")); err == nil {

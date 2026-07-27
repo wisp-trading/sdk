@@ -36,16 +36,16 @@ pkg/
 │   ├── monitoring/     # Monitoring server and view interfaces
 │   └── runtime/        # Runtime StartStandalone / Wait contracts
 │
-├── markets/            # Domain implementations (spot, perp, prediction)
-│   ├── base/           # Shared ingestor and store primitives
-│   ├── spot/           # Spot market: watchlist, store, ingestor, executor, views
-│   ├── perp/           # Perp market: watchlist, store, ingestor, executor, views
-│   └── prediction/     # Prediction market: watchlist, store, ingestor, executor
+├── markets/            # Domain shells (spot, perp, prediction, options)
+│   ├── base/           # Shared ingestor, store, pair watchlist
+│   ├── spot/           # facade, types, signal, executor, store, ingestor
+│   ├── perp/           # same shell layout
+│   ├── prediction/     # same shell layout
+│   └── options/        # same shell layout
 │
 ├── analytics/          # Indicator and analytics implementations
 │   └── indicators/     # RSI, MACD, EMA, SMA, ATR, Bollinger, Stochastic
 │
-├── signal/             # Concrete SpotSignalBuilder / PerpSignalBuilder
 ├── executor/           # Top-level signal router (dispatches to domain executors)
 ├── registry/           # StrategyRegistry and Hooks implementations
 ├── lifecycle/          # Orchestrator and monitoring lifecycle
@@ -65,13 +65,13 @@ pkg/
 
 `pkg/types/wisp/wisp.go` defines the `Wisp` interface. This is the only dependency injected into a strategy. It exposes:
 
-- `Spot() / Perp() / Predict()` — domain-scoped objects for market data and signal creation
+- `Spot() / Perp() / Predict() / Options()` — domain-scoped market data + **Emit** (orders)
 - `Indicators()` — pure-function technical indicator calculations
 - `Analytics()` — higher-level analytics (trend, volatility, volume)
 - `Activity()` — read access to positions, trades, and PNL
-- `Emit(signal)` — routes a built signal directly to the executor
 - `Asset(symbol) / Pair(base, quote)` — portfolio type constructors
 - `Log()` — strategy-scoped logger
+- No top-level `Emit` — always `wisp.Perp().Emit(sig)` (or Spot / Predict / Options)
 
 ### `strategy.Strategy` — the strategy interface
 
@@ -141,7 +141,7 @@ signal, err := s.k.Spot().Signal(s.GetName()).
     Build()
 ```
 
-`Build()` returns `(Signal, error)`. The concrete builders are in `pkg/signal/builder.go`; the interfaces are in `pkg/types/strategy/builder.go`.
+`Build()` returns `(Signal, error)`. Builders live under each domain (`markets/<domain>/signal`); interfaces are in `pkg/types/strategy`.
 
 For a complete walkthrough of signal patterns and strategy structure, see [Writing Strategies](https://usewisp.dev/docs/getting-started/writing-strategies).
 

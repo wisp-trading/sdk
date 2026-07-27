@@ -19,8 +19,7 @@ type StartupConfig struct {
 	ConnectorConfigs map[connector.ExchangeName]connector.Config
 
 	// Assets: exchange → pairs from strategy config.yml.
-	// Domain asset loaders filter by connector market type (spot/perp/…).
-	// Note: Asset.Instruments in YAML is currently not used for routing.
+	// Domain asset loaders keep only exchanges whose connector MarketType matches.
 	Assets map[connector.ExchangeName][]portfolio.Pair
 
 	StrategyDir string

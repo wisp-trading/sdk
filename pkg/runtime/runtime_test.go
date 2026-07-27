@@ -2,11 +2,14 @@ package runtime
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/mock"
 	mockLifecycle "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/types/lifecycle"
+	sdkregistry "github.com/wisp-trading/sdk/pkg/registry"
+	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/logging"
 )
 
@@ -75,5 +78,31 @@ func TestWaitRequiresStart(t *testing.T) {
 	r := &rt{controller: ctrl, logger: logging.NewNoOpLogger()}
 	if err := r.Wait(); err == nil {
 		t.Fatal("expected error when Wait called before Start")
+	}
+}
+
+func TestInitializeConnectorsHardFailsWhenEmpty(t *testing.T) {
+	r := &rt{logger: logging.NewNoOpLogger()}
+	_, err := r.initializeConnectors(nil)
+	if err == nil {
+		t.Fatal("expected error for empty connector map")
+	}
+}
+
+func TestInitializeConnectorsHardFailsWhenUnregistered(t *testing.T) {
+	// Empty real registry — no connectors registered.
+	reg := sdkregistry.NewConnectorRegistry()
+	r := &rt{
+		connectorRegistry: reg,
+		logger:            logging.NewNoOpLogger(),
+	}
+	_, err := r.initializeConnectors(map[connector.ExchangeName]connector.Config{
+		"hyperliquid": nil,
+	})
+	if err == nil {
+		t.Fatal("expected hard fail for unregistered connector")
+	}
+	if !strings.Contains(err.Error(), "not registered") {
+		t.Fatalf("want not registered, got %v", err)
 	}
 }

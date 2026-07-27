@@ -1,4 +1,4 @@
-package packages
+package pkg
 
 import (
 	"github.com/wisp-trading/sdk/pkg/activity"

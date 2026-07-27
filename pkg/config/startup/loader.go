@@ -57,16 +57,51 @@ func (l *startupConfigLoader) LoadForStrategy(
 	}
 	l.logger.Info("Loaded strategy config", "name", stratConfig.Name, "exchanges", stratConfig.Exchanges)
 
-	// 3) map + validate keys for strategy exchanges
+	if len(stratConfig.Exchanges) == 0 {
+		return nil, fmt.Errorf(
+			"strategy config (%s): exchanges is empty — list at least one exchange (e.g. hyperliquid)",
+			configPath,
+		)
+	}
+
+	// 3) map + validate keys for strategy exchanges (hard fail on any problem)
 	connectorConfigs, err := l.connectorSvc.GetConnectorConfigsForStrategy(stratConfig.Exchanges)
 	if err != nil {
 		return nil, fmt.Errorf("connector configs for strategy: %w", err)
 	}
+	if len(connectorConfigs) == 0 {
+		return nil, fmt.Errorf(
+			"no connector configs resolved for exchanges %v — Settings → add keys (~/.wisp/connectors.yml)",
+			stratConfig.Exchanges,
+		)
+	}
 	l.logger.Info("Resolved connector configs", "count", len(connectorConfigs))
 
-	// 4) pairs (routing to spot/perp/… is by connector market type, not YAML instruments)
+	// 4) pairs (domain routing = connector MarketType)
 	assetConfigs := l.convertAssets(stratConfig)
 	l.logger.Info("Resolved asset pairs", "count", len(assetConfigs))
+
+	// Helpful mismatch warnings (not hard errors — empty assets can be intentional).
+	exchangeSet := make(map[string]struct{}, len(stratConfig.Exchanges))
+	for _, ex := range stratConfig.Exchanges {
+		exchangeSet[ex] = struct{}{}
+	}
+	for exName := range stratConfig.Assets {
+		if _, ok := exchangeSet[exName]; !ok {
+			l.logger.Warn(
+				"assets listed for exchange not in exchanges[] — pairs will still load if keys exist",
+				"exchange", exName,
+			)
+		}
+	}
+	for _, ex := range stratConfig.Exchanges {
+		if _, ok := stratConfig.Assets[ex]; !ok {
+			l.logger.Warn(
+				"exchange listed but has no assets[] entries — domain watchlist starts empty",
+				"exchange", ex,
+			)
+		}
+	}
 
 	return &config.StartupConfig{
 		Strategy:         stratConfig,
@@ -78,6 +113,7 @@ func (l *startupConfigLoader) LoadForStrategy(
 
 // convertAssets flattens strategy assets to exchange→pairs.
 // Domain loaders keep only exchanges whose connector MarketType matches that domain.
+// Skips empty base/quote entries (misconfigured rows).
 func (l *startupConfigLoader) convertAssets(
 	stratConfig *config.Strategy,
 ) map[connector.ExchangeName][]portfolio.Pair {
@@ -86,6 +122,15 @@ func (l *startupConfigLoader) convertAssets(
 	for exName, assetList := range stratConfig.Assets {
 		exchange := connector.ExchangeName(exName)
 		for _, asset := range assetList {
+			if asset.Base == "" || asset.Quote == "" {
+				l.logger.Warn(
+					"skipping asset with empty base/quote",
+					"exchange", exName,
+					"base", asset.Base,
+					"quote", asset.Quote,
+				)
+				continue
+			}
 			pair := portfolio.NewPair(
 				portfolio.NewAsset(asset.Base),
 				portfolio.NewAsset(asset.Quote),

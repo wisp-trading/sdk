@@ -21,7 +21,10 @@ type ValidationError struct {
 // Error implements the error interface
 func (ve *ValidationError) Error() string {
 	if ve.ExchangeNotFound {
-		return fmt.Sprintf("exchange '%s' is not available in the SDK registry", ve.Exchange)
+		return fmt.Sprintf(
+			"exchange '%s' is not registered — include connectors.Module and check spelling",
+			ve.Exchange,
+		)
 	}
 
 	if ve.NotConfigured {
@@ -100,27 +103,10 @@ func (sve *StrategyValidationError) Error() string {
 	msg += fmt.Sprintf("Failed exchanges: %d/%d\n\n", len(sve.ValidationErrors), len(sve.ExchangeNames))
 
 	for exName, valErr := range sve.ValidationErrors {
-		msg += fmt.Sprintf("❌ %s:\n", exName)
-		if valErr.ExchangeNotFound {
-			msg += "   Not found in SDK registry\n"
-		} else if valErr.NotConfigured {
-			msg += "   No keys — Settings → add this exchange (~/.wisp/connectors.yml)\n"
-		} else if valErr.NotEnabled {
-			msg += "   Disabled — Settings → enable this exchange\n"
-		} else if len(valErr.Missing) > 0 {
-			msg += fmt.Sprintf("   Missing credentials: %v\n", valErr.Missing)
-		} else if len(valErr.InvalidFields) > 0 {
-			for field, reason := range valErr.InvalidFields {
-				msg += fmt.Sprintf("   Invalid %s: %s\n", field, reason)
-			}
-		} else if valErr.MappingError != "" {
-			msg += fmt.Sprintf("   Mapping error: %s\n", valErr.MappingError)
-		} else if valErr.SDKValidationErr != "" {
-			msg += fmt.Sprintf("   SDK validation: %s\n", valErr.SDKValidationErr)
-		}
+		msg += fmt.Sprintf("• %s: %s\n", exName, valErr.Error())
 	}
 
-	msg += "\nFix: wisp → Settings → add/enable keys, then retry Start Live."
+	msg += "\nFix: wisp → Settings → add/enable keys (~/.wisp/connectors.yml), then retry."
 	return msg
 }
 

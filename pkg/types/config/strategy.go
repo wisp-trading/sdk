@@ -6,11 +6,11 @@ type StrategyConfig interface {
 	Save(path string, config *Strategy) error
 }
 
-// Asset represents a trading asset with its required instruments
+// Asset is a base/quote pair under an exchange in strategy config.yml.
+// Domain routing (spot vs perp vs …) is by the connector's MarketType, not YAML.
 type Asset struct {
-	Base        string   `yaml:"base"`
-	Quote       string   `yaml:"quote"`
-	Instruments []string `yaml:"instruments"`
+	Base  string `yaml:"base"`
+	Quote string `yaml:"quote"`
 }
 
 // StrategyExecutionConfig defines strategy execution timing

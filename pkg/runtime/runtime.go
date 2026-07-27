@@ -94,7 +94,7 @@ func (r *rt) Wait() error {
 // Stop gracefully shuts down using a fresh timeout context for cleanup,
 // then cancels the long-lived root context.
 func (r *rt) Stop() error {
-	r.logger.Info("🛑 Stopping runtime...")
+	r.logger.Info("Stopping runtime...")
 
 	stopCtx, stopCancel := context.WithTimeout(context.Background(), DefaultStopTimeout)
 	defer stopCancel()
@@ -111,18 +111,25 @@ func (r *rt) Stop() error {
 		r.cancel()
 	}
 
-	r.logger.Info("✅ Runtime stopped")
+	r.logger.Info("Runtime stopped")
 	return nil
 }
 
 func (r *rt) initializeConnectors(connectors map[connector.ExchangeName]connector.Config) ([]connector.ExchangeName, error) {
+	if len(connectors) == 0 {
+		return nil, fmt.Errorf("no connectors to initialize — check strategy exchanges and ~/.wisp/connectors.yml")
+	}
+
 	names := make([]connector.ExchangeName, 0, len(connectors))
 
 	for name, cfg := range connectors {
 		conn, exists := r.connectorRegistry.Connector(name)
 		if !exists {
-			r.logger.Warn(fmt.Sprintf("connector %s not registered", name))
-			continue
+			// Hard fail — never soft-skip a strategy-listed exchange.
+			return nil, fmt.Errorf(
+				"connector %s not registered — include connectors.Module in fx.New and check exchange spelling",
+				name,
+			)
 		}
 
 		if err := conn.Initialize(cfg); err != nil {
@@ -130,7 +137,7 @@ func (r *rt) initializeConnectors(connectors map[connector.ExchangeName]connecto
 		}
 
 		if err := r.connectorRegistry.MarkReady(name); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("mark ready %s: %w", name, err)
 		}
 
 		names = append(names, name)
@@ -155,6 +162,6 @@ func (r *rt) boot(ctx context.Context, startupCfg *configTypes.StartupConfig, st
 		return fmt.Errorf("failed to start lifecycle: %w", err)
 	}
 
-	r.logger.Info("✅ Runtime started")
+	r.logger.Info("Runtime started")
 	return nil
 }

@@ -28,7 +28,7 @@ type Runtime interface {
 	// StartStandalone runs a strategy in standalone mode.
 	// Use from a strategy binary's main after fx wiring. After success, call Wait
 	// so /shutdown and OS signals share one stop path.
-	// settingsPath may be empty to use ~/.wisp/connectors.yml (or migration paths).
+	// settingsPath may be empty → ResolveSettingsPath (~/.wisp/connectors.yml).
 	StartStandalone(strategy strategy.Strategy, strategyDir string, settingsPath string) error
 
 	// Wait blocks until an OS signal (SIGINT/SIGTERM) or remote /shutdown is
