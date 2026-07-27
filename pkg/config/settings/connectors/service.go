@@ -174,12 +174,12 @@ func (c *connectorService) GetConnectorConfigsForStrategy(exchangeNames []string
 			continue
 		}
 
-		// Check if this exchange is configured by user
+		// Check if this exchange is configured by user (keys in ~/.wisp/connectors.yml)
 		userConn, exists := allConnectors[exchangeName]
 		if !exists {
 			ve := &ValidationError{
-				Exchange:         stratExchangeName,
-				ExchangeNotFound: true,
+				Exchange:      stratExchangeName,
+				NotConfigured: true,
 			}
 			validationResults[stratExchangeName] = ve
 			continue

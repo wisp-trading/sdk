@@ -12,6 +12,7 @@ type ValidationError struct {
 	Missing          []string          // Missing required fields
 	InvalidFields    map[string]string // Field name -> reason why invalid
 	ExchangeNotFound bool              // Is the exchange not in the registry?
+	NotConfigured    bool              // Registered, but no entry in user settings
 	NotEnabled       bool              // Is the exchange disabled in config?
 	MappingError     string            // Error during config mapping
 	SDKValidationErr string            // Error from SDK's validation
@@ -23,8 +24,18 @@ func (ve *ValidationError) Error() string {
 		return fmt.Sprintf("exchange '%s' is not available in the SDK registry", ve.Exchange)
 	}
 
+	if ve.NotConfigured {
+		return fmt.Sprintf(
+			"exchange '%s' has no keys — Settings → add %s (~/.wisp/connectors.yml)",
+			ve.Exchange, ve.Exchange,
+		)
+	}
+
 	if ve.NotEnabled {
-		return fmt.Sprintf("exchange '%s' is configured but not enabled in connector settings (~/.wisp/connectors.yml)", ve.Exchange)
+		return fmt.Sprintf(
+			"exchange '%s' is configured but disabled — Settings → enable it (~/.wisp/connectors.yml)",
+			ve.Exchange,
+		)
 	}
 
 	if len(ve.Missing) > 0 {
@@ -92,8 +103,10 @@ func (sve *StrategyValidationError) Error() string {
 		msg += fmt.Sprintf("❌ %s:\n", exName)
 		if valErr.ExchangeNotFound {
 			msg += "   Not found in SDK registry\n"
+		} else if valErr.NotConfigured {
+			msg += "   No keys — Settings → add this exchange (~/.wisp/connectors.yml)\n"
 		} else if valErr.NotEnabled {
-			msg += "   Not enabled in connector settings\n"
+			msg += "   Disabled — Settings → enable this exchange\n"
 		} else if len(valErr.Missing) > 0 {
 			msg += fmt.Sprintf("   Missing credentials: %v\n", valErr.Missing)
 		} else if len(valErr.InvalidFields) > 0 {
@@ -107,6 +120,7 @@ func (sve *StrategyValidationError) Error() string {
 		}
 	}
 
+	msg += "\nFix: wisp → Settings → add/enable keys, then retry Start Live."
 	return msg
 }
 
@@ -129,6 +143,10 @@ func (sve *StrategyValidationError) GetExchangesByProblem(problemType string) []
 		switch problemType {
 		case "not_found":
 			if valErr.ExchangeNotFound {
+				result = append(result, exName)
+			}
+		case "not_configured":
+			if valErr.NotConfigured {
 				result = append(result, exName)
 			}
 		case "not_enabled":

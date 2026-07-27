@@ -55,16 +55,15 @@ func (c *strategyConfig) Save(path string, config *config.Strategy) error {
 	return nil
 }
 
-// FindStrategies scans the ./strategies directory for available strategies
+// FindStrategies scans the ./strategies directory for available strategies.
+// Quiet: no stdout (TUI hosts). Empty directory returns an empty slice, not an error.
 func (c *strategyConfig) FindStrategies() ([]config.Strategy, error) {
 	strategiesDir := "./strategies"
 
-	// Check if strategies directory exists
 	if _, err := os.Stat(strategiesDir); os.IsNotExist(err) {
-		return nil, fmt.Errorf("strategies directory not found: %s", strategiesDir)
+		return nil, fmt.Errorf("strategies directory not found: %s (run wisp from a project root, or: wisp init my-bot)", strategiesDir)
 	}
 
-	// Read all subdirectories in strategies/
 	entries, err := os.ReadDir(strategiesDir)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read strategies directory: %w", err)
@@ -73,7 +72,6 @@ func (c *strategyConfig) FindStrategies() ([]config.Strategy, error) {
 	var strategies []config.Strategy
 
 	for _, entry := range entries {
-		fmt.Println("Found entry:", entry.Name())
 		if !entry.IsDir() {
 			continue
 		}
@@ -82,28 +80,23 @@ func (c *strategyConfig) FindStrategies() ([]config.Strategy, error) {
 		strategyPath := filepath.Join(strategiesDir, strategyName)
 		configPath := filepath.Join(strategyPath, "config.yml")
 
-		// Check if config.yml exists
 		if _, err := os.Stat(configPath); os.IsNotExist(err) {
-			// Skip directories without config.yml (not a valid strategy)
 			continue
 		}
 
-		// Load and parse the config
 		cfg, err := c.Load(configPath)
 		if err != nil {
-			fmt.Printf("Warning: failed to load strategy config for %s: %v\n", strategyName, err)
-			// Config is invalid, skip this strategy
+			// Invalid config.yml — skip quietly; user can fix the file and refresh.
 			continue
 		}
 
 		cfg.Path = strategyPath
-
 		strategies = append(strategies, *cfg)
 	}
 
-	if len(strategies) == 0 {
-		return nil, fmt.Errorf("no strategies found in %s (make sure each strategy has a config.yml file)", strategiesDir)
+	// Empty is a valid state (first-run / fresh project) — TUI shows Create CTA.
+	if strategies == nil {
+		strategies = []config.Strategy{}
 	}
-
 	return strategies, nil
 }
