@@ -16,8 +16,7 @@ import (
 
 type spot struct {
 	baseFacade.Core
-	store spotTypes.MarketStore
-	pnl   spotTypes.SpotPNL
+	pnl spotTypes.SpotPNL
 }
 
 func NewSpot(
@@ -36,8 +35,7 @@ func NewSpot(
 			TimeProvider: timeProvider,
 			Router:       router,
 		},
-		store: store,
-		pnl:   pnl,
+		pnl: pnl,
 	}
 }
 
@@ -51,12 +49,9 @@ func (s *spot) Emit(signal spotTypes.SpotSignal) execution.ExecutionCallback {
 	return s.Core.Emit(signal)
 }
 
-// Positions returns placed orders (spot "positions" are open orders in the store).
+// Positions returns placed orders (spot "positions" are open orders — shared Orders helper).
 func (s *spot) Positions(q ...market.ActivityQuery) []connector.Order {
-	if len(q) > 0 {
-		return s.store.QueryOrders(q[0])
-	}
-	return s.store.GetOrders()
+	return s.Orders(q...)
 }
 
 // PNL returns the profit and loss calculator for the spot context.

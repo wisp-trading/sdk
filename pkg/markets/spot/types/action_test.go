@@ -22,12 +22,13 @@ var _ = Describe("SpotAction", func() {
 	})
 
 	Describe("GetMarketType", func() {
-		It("returns spot market type", func() {
+		It("returns spot market type when stamped", func() {
 			action := &spotTypes.SpotAction{
 				BaseAction: strategy.BaseAction{ActionType: strategy.ActionBuy, Exchange: binance},
 				Pair:       btcUsdt,
 				Quantity:   numerical.NewFromFloat(1),
 				Price:      numerical.NewFromFloat(50000),
+				MarketType: connector.MarketTypeSpot,
 			}
 			Expect(action.GetMarketType()).To(Equal(connector.MarketTypeSpot))
 		})

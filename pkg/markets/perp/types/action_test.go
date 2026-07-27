@@ -22,12 +22,13 @@ var _ = Describe("PerpAction", func() {
 	})
 
 	Describe("GetMarketType", func() {
-		It("returns perp market type", func() {
+		It("returns perp market type when stamped", func() {
 			action := &perpTypes.PerpAction{
 				BaseAction: strategy.BaseAction{ActionType: strategy.ActionBuy, Exchange: bybit},
 				Pair:       ethUsdt,
 				Quantity:   numerical.NewFromFloat(1),
 				Price:      numerical.NewFromFloat(3000),
+				MarketType: connector.MarketTypePerp,
 			}
 			Expect(action.GetMarketType()).To(Equal(connector.MarketTypePerp))
 		})

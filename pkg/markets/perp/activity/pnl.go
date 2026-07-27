@@ -30,19 +30,19 @@ func (p *perpPNL) Positions(_ context.Context) []perpTypes.PerpPositionPNL {
 }
 
 func (p *perpPNL) Realized(_ context.Context) numerical.Decimal {
-	total := numerical.Zero()
+	vals := make([]numerical.Decimal, 0)
 	for _, pos := range p.store.GetPositions() {
-		total = total.Add(pos.RealizedPnL)
+		vals = append(vals, pos.RealizedPnL)
 	}
-	return total
+	return baseActivity.SumDecimals(vals)
 }
 
 func (p *perpPNL) Unrealized(_ context.Context) numerical.Decimal {
-	total := numerical.Zero()
+	vals := make([]numerical.Decimal, 0)
 	for _, pos := range p.store.GetPositions() {
-		total = total.Add(pos.UnrealizedPnL)
+		vals = append(vals, pos.UnrealizedPnL)
 	}
-	return total
+	return baseActivity.SumDecimals(vals)
 }
 
 func (p *perpPNL) Fees(_ context.Context) numerical.Decimal {

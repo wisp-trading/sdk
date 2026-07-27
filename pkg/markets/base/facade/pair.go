@@ -14,7 +14,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
-// PairStore is the store surface used by pair domain facades for market data + trades.
+// PairStore is the store surface used by pair domain facades for market data + trades/orders.
 type PairStore interface {
 	GetPairPrice(pair portfolio.Pair, exchange connector.ExchangeName) *connector.Price
 	GetPairPrices(pair portfolio.Pair) market.PriceMap
@@ -22,6 +22,8 @@ type PairStore interface {
 	GetKlines(pair portfolio.Pair, exchange connector.ExchangeName, interval string, limit int) []connector.Kline
 	GetAllTrades() []connector.Trade
 	QueryTrades(q market.ActivityQuery) []connector.Trade
+	GetOrders() []connector.Order
+	QueryOrders(q market.ActivityQuery) []connector.Order
 }
 
 // Core holds shared deps and implements pair watchlist + market-data reads.
@@ -82,6 +84,14 @@ func (c *Core) Trades(q ...market.ActivityQuery) []connector.Trade {
 		return c.Store.QueryTrades(q[0])
 	}
 	return c.Store.GetAllTrades()
+}
+
+// Orders returns placed orders, optionally filtered (spot Positions surface).
+func (c *Core) Orders(q ...market.ActivityQuery) []connector.Order {
+	if len(q) > 0 {
+		return c.Store.QueryOrders(q[0])
+	}
+	return c.Store.GetOrders()
 }
 
 // Log returns the trading logger.
