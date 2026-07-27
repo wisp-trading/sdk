@@ -1,6 +1,6 @@
 # Executor Package
 
-The executor package provides the execution layer for Wisp trading signals. It includes a default executor implementation with support for custom hooks, enabling users to extend execution behavior through plugins.
+The executor package provides the execution layer for Wisp trading signals. It includes a default executor implementation with support for in-process custom hooks (register via `RegisterHook`).
 
 ## Architecture
 
@@ -91,17 +91,14 @@ exec.RegisterHook(hooks.NewLoggingHook(logger))
 exec.RegisterHook(hooks.NewMetricsHook())
 ```
 
-### With Custom Hooks (.so plugin)
+### With custom hooks (in-process)
 
 ```go
-// Load user's custom hooks from plugin
-hookPlugin, err := executor.LoadHookPlugin("./user-hooks.so")
-if err == nil {
-    for _, hook := range hookPlugin.CreateHooks() {
-        exec.RegisterHook(hook)
-    }
-}
+exec.RegisterHook(&MyRiskHook{})
+exec.RegisterHook(hooks.NewLoggingHook(logger))
 ```
+
+Strategy packaging is **standalone only** (`main` + `StartStandalone` + `Wait`). There is no `.so` / plugin loader.
 
 ## Built-in Hooks
 
@@ -144,71 +141,28 @@ stats := hook.GetStats()
 // "Executions: 100 | Success: 95 (95.0%) | Failures: 5 | Orders: 142"
 ```
 
-## Creating Custom Hooks
+## Creating custom hooks
 
-Users can create custom hooks as `.so` plugins:
-
-### 1. Create Hook Plugin
+Implement `ExecutionHook` in your app (or a normal Go package) and register it:
 
 ```go
-// hooks.go
-package main
-
-import "github.com/wisp-trading/sdk/pkg/executor"
-
-var HookPlugin hookPlugin
-
-type hookPlugin struct{}
-
-func (p hookPlugin) Name() string { return "my-hooks" }
-func (p hookPlugin) Version() string { return "1.0.0" }
-
-func (p hookPlugin) CreateHooks() []executor.ExecutionHook {
-    return []executor.ExecutionHook{
-        &MyRiskHook{},
-        &MyNotificationHook{},
-    }
-}
-
-// MyRiskHook implements custom risk logic
 type MyRiskHook struct{}
 
 func (h *MyRiskHook) BeforeExecute(ctx *executor.ExecutionContext) error {
-    // Custom risk checks
-    // - Call ML models
-    // - Check market conditions
-    // - Validate against portfolio
+    // custom risk checks
     return nil
 }
 
 func (h *MyRiskHook) AfterExecute(ctx *executor.ExecutionContext, result *executor.ExecutionResult) error {
-    // Custom post-execution logic
-    // - Update analytics
-    // - Send notifications
     return nil
 }
 
 func (h *MyRiskHook) OnError(ctx *executor.ExecutionContext, err error) error {
-    // Custom error handling
     return err
 }
-```
 
-### 2. Build Plugin
-
-```bash
-go build -buildmode=plugin -o hooks.so
-```
-
-### 3. Load in Application
-
-```go
-hookPlugin, err := executor.LoadHookPlugin("./hooks.so")
-if err == nil {
-    for _, hook := range hookPlugin.CreateHooks() {
-        exec.RegisterHook(hook)
-    }
-}
+// in setup:
+exec.RegisterHook(&MyRiskHook{})
 ```
 
 ## Hook Execution Order
@@ -361,22 +315,10 @@ func main() {
         config.TimeProvider(),
     )
     
-    // Add built-in hooks
+    // Add hooks (in-process)
     exec.RegisterHook(hooks.NewBasicRiskHook(...))
-    
-    // Load user's strategy plugin
-    strategyPlugin := loadStrategyPlugin("./user-strategy.so")
-    
-    // Load user's custom hooks (optional)
-    if fileExists("./user-hooks.so") {
-        hookPlugin, err := executor.LoadHookPlugin("./user-hooks.so")
-        if err == nil {
-            for _, hook := range hookPlugin.CreateHooks() {
-                exec.RegisterHook(hook)
-            }
-        }
-    }
-    
+    exec.RegisterHook(&MyRiskHook{})
+
     // Start orchestrator with executor
     orch := orchestrator.New(k, exec)
     orch.Start()

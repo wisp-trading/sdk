@@ -207,7 +207,6 @@ var Module = fx.Options(
     config.Module,
     monitoring.Module,
     lifecycle.Module,
-    plugin.Module,
     registry.Module,
     runtime.Module,
     signal.Module,
@@ -215,6 +214,7 @@ var Module = fx.Options(
     prediction.Module,
     perp.Module,
     spot.Module,
+    // … market domain modules
 )
 ```
 

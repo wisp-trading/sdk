@@ -23,7 +23,7 @@ type BootConfig struct {
 // Runtime is the main entry point for running strategies.
 //
 // Packaging path: StartStandalone + Wait (standalone binary with own main).
-// Plugin / .so loading has been removed.
+// Standalone packaging only (no plugin / .so path).
 type Runtime interface {
 	// StartStandalone runs a strategy in standalone mode.
 	// Use from a strategy binary's main after fx wiring. After success, call Wait
