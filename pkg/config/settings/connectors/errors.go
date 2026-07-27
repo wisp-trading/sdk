@@ -24,7 +24,7 @@ func (ve *ValidationError) Error() string {
 	}
 
 	if ve.NotEnabled {
-		return fmt.Sprintf("exchange '%s' is configured but not enabled in exchanges.yml", ve.Exchange)
+		return fmt.Sprintf("exchange '%s' is configured but not enabled in connector settings (~/.wisp/connectors.yml)", ve.Exchange)
 	}
 
 	if len(ve.Missing) > 0 {
@@ -93,7 +93,7 @@ func (sve *StrategyValidationError) Error() string {
 		if valErr.ExchangeNotFound {
 			msg += "   Not found in SDK registry\n"
 		} else if valErr.NotEnabled {
-			msg += "   Not enabled in exchanges.yml\n"
+			msg += "   Not enabled in connector settings\n"
 		} else if len(valErr.Missing) > 0 {
 			msg += fmt.Sprintf("   Missing credentials: %v\n", valErr.Missing)
 		} else if len(valErr.InvalidFields) > 0 {
