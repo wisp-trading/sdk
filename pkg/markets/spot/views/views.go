@@ -1,6 +1,7 @@
 package views
 
 import (
+	baseViews "github.com/wisp-trading/sdk/pkg/markets/base/views"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
@@ -27,26 +28,23 @@ func NewSpotViews(
 }
 
 func (v *spotViews) GetMarketViews() []monitoring.SpotMarketView {
-	spotConnectors := v.connectorRegistry.FilterSpot(registry.NewFilter().ReadyOnly().Build())
-	result := make([]monitoring.SpotMarketView, 0)
-
-	for _, conn := range spotConnectors {
-		info := conn.GetConnectorInfo()
-		for _, pair := range v.watchlist.GetRequiredPairs(info.Name) {
-			result = append(result, monitoring.SpotMarketView{
-				Exchange: info.Name,
-				Pair:     pair,
-			})
-		}
+	ready := v.connectorRegistry.FilterSpot(registry.NewFilter().ReadyOnly().Build())
+	names := make([]connector.ExchangeName, 0, len(ready))
+	for _, conn := range ready {
+		names = append(names, conn.GetConnectorInfo().Name)
 	}
-
+	refs := baseViews.ListWatchedPairs(names, v.watchlist)
+	result := make([]monitoring.SpotMarketView, 0, len(refs))
+	for _, r := range refs {
+		result = append(result, monitoring.SpotMarketView{Exchange: r.Exchange, Pair: r.Pair})
+	}
 	return result
 }
 
 func (v *spotViews) GetOrderbook(exchange connector.ExchangeName, pair portfolio.Pair) *connector.OrderBook {
-	return v.store.GetOrderBook(pair, exchange)
+	return baseViews.OrderBook(v.store, exchange, pair)
 }
 
 func (v *spotViews) GetKlines(exchange connector.ExchangeName, pair portfolio.Pair, interval string, limit int) []connector.Kline {
-	return v.store.GetKlines(pair, exchange, interval, limit)
+	return baseViews.Klines(v.store, exchange, pair, interval, limit)
 }

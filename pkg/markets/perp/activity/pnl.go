@@ -3,8 +3,8 @@ package activity
 import (
 	"context"
 
+	baseActivity "github.com/wisp-trading/sdk/pkg/markets/base/activity"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
-	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/wisp/numerical"
 )
 
@@ -46,15 +46,7 @@ func (p *perpPNL) Unrealized(_ context.Context) numerical.Decimal {
 }
 
 func (p *perpPNL) Fees(_ context.Context) numerical.Decimal {
-	return sumTradeFees(p.store.GetAllTrades())
-}
-
-func sumTradeFees(trades []connector.Trade) numerical.Decimal {
-	total := numerical.Zero()
-	for _, t := range trades {
-		total = total.Add(t.Fee)
-	}
-	return total
+	return baseActivity.SumTradeFees(p.store.GetAllTrades())
 }
 
 var _ perpTypes.PerpPNL = (*perpPNL)(nil)

@@ -1,9 +1,9 @@
 package spot
 
 import (
+	baseUniverse "github.com/wisp-trading/sdk/pkg/markets/base/universe"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
-	"github.com/wisp-trading/sdk/pkg/types/portfolio"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
 )
 
@@ -23,26 +23,14 @@ func NewSpotUniverseProvider(
 }
 
 func (u *universeProvider) Universe() spotTypes.SpotUniverse {
-	readyConnectors := u.connectorRegistry.FilterSpot(
-		registry.NewFilter().ReadyOnly().Build(),
-	)
-
-	exchanges := make([]connector.Exchange, 0, len(readyConnectors))
-	assets := make(map[connector.ExchangeName][]portfolio.Pair)
-
-	for _, conn := range readyConnectors {
-		info := conn.GetConnectorInfo()
-		exchanges = append(exchanges, connector.Exchange{
-			Name:       info.Name,
-			MarketType: connector.MarketTypeSpot,
-		})
-		if pairs := u.watchlist.GetRequiredPairs(info.Name); len(pairs) > 0 {
-			assets[info.Name] = pairs
-		}
+	ready := u.connectorRegistry.FilterSpot(registry.NewFilter().ReadyOnly().Build())
+	names := make([]connector.ExchangeName, 0, len(ready))
+	for _, conn := range ready {
+		names = append(names, conn.GetConnectorInfo().Name)
 	}
-
+	uni := baseUniverse.BuildPairUniverse(names, connector.MarketTypeSpot, u.watchlist)
 	return spotTypes.SpotUniverse{
-		Exchanges: exchanges,
-		Assets:    assets,
+		Exchanges: uni.Exchanges,
+		Assets:    uni.Assets,
 	}
 }

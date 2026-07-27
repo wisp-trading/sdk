@@ -118,7 +118,18 @@ func moduleRoot() (string, error) {
 	}
 	dir := wd
 	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+		modPath := filepath.Join(dir, "go.mod")
+		if data, err := os.ReadFile(modPath); err == nil {
+			// Prefer the SDK module (this tool lives under sdk/).
+			if bytes.Contains(data, []byte("module github.com/wisp-trading/sdk")) {
+				return dir, nil
+			}
+			// Monorepo checkout: tools invoked from wisp root with nested sdk/.
+			sdkRoot := filepath.Join(dir, "sdk")
+			if sdkMod, err := os.ReadFile(filepath.Join(sdkRoot, "go.mod")); err == nil &&
+				bytes.Contains(sdkMod, []byte("module github.com/wisp-trading/sdk")) {
+				return sdkRoot, nil
+			}
 			return dir, nil
 		}
 		parent := filepath.Dir(dir)

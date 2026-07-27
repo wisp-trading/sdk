@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"sort"
 	"sync"
 
 	"github.com/wisp-trading/sdk/pkg/types/registry"
@@ -47,9 +48,16 @@ func (sr *strategyRegistry) GetAllStrategies() []strategy.Strategy {
 	sr.mu.RLock()
 	defer sr.mu.RUnlock()
 
-	strategies := make([]strategy.Strategy, 0, len(sr.strategies))
-	for _, strat := range sr.strategies {
-		strategies = append(strategies, strat)
+	// Stable name order so Start/Stop is deterministic (map iteration is not).
+	names := make([]string, 0, len(sr.strategies))
+	for name := range sr.strategies {
+		names = append(names, string(name))
+	}
+	sort.Strings(names)
+
+	strategies := make([]strategy.Strategy, 0, len(names))
+	for _, name := range names {
+		strategies = append(strategies, sr.strategies[strategy.StrategyName(name)])
 	}
 
 	return strategies

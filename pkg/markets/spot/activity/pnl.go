@@ -3,6 +3,7 @@ package activity
 import (
 	"context"
 
+	baseActivity "github.com/wisp-trading/sdk/pkg/markets/base/activity"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/portfolio"
@@ -39,7 +40,7 @@ func (s *spotPNL) Realized(_ context.Context) numerical.Decimal {
 	for _, t := range buildTrackers(trades) {
 		realized = realized.Add(t.realized)
 	}
-	return realized.Sub(sumTradeFees(trades))
+	return realized.Sub(baseActivity.SumTradeFees(trades))
 }
 
 func (s *spotPNL) Unrealized(_ context.Context) numerical.Decimal {
@@ -51,7 +52,7 @@ func (s *spotPNL) Unrealized(_ context.Context) numerical.Decimal {
 }
 
 func (s *spotPNL) Fees(_ context.Context) numerical.Decimal {
-	return sumTradeFees(s.store.GetAllTrades())
+	return baseActivity.SumTradeFees(s.store.GetAllTrades())
 }
 
 func (s *spotPNL) unrealizedForTracker(t *positionTracker) numerical.Decimal {
@@ -150,12 +151,4 @@ func applyTrade(t *positionTracker, trade connector.Trade) numerical.Decimal {
 	}
 	t.size = newSize
 	return realized
-}
-
-func sumTradeFees(trades []connector.Trade) numerical.Decimal {
-	total := numerical.Zero()
-	for _, t := range trades {
-		total = total.Add(t.Fee)
-	}
-	return total
 }
