@@ -20,8 +20,8 @@ import (
 )
 
 // Module is the full SDK fx graph.
-// Strategy packaging is standalone only (no plugin/.so loader in the graph).
-// pkg/plugin remains available for optional hook plugins if wired explicitly.
+// Strategy packaging is standalone only: main + StartStandalone + Wait.
+// Do not wire plugin/.so strategy loading into product hosts.
 var Module = fx.Options(
 	activity.Module,
 	adapters.Module,

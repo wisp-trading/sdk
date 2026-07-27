@@ -34,7 +34,7 @@ pkg/
 │   ├── lifecycle/      # Orchestrator and DomainLifecycle interfaces
 │   ├── registry/       # StrategyRegistry and Hooks interfaces
 │   ├── monitoring/     # Monitoring server and view interfaces
-│   └── plugin/         # Plugin manager interface
+│   └── runtime/        # Runtime StartStandalone / Wait contracts
 │
 ├── markets/            # Domain implementations (spot, perp, prediction)
 │   ├── base/           # Shared ingestor and store primitives
@@ -49,11 +49,10 @@ pkg/
 ├── executor/           # Top-level signal router (dispatches to domain executors)
 ├── registry/           # StrategyRegistry and Hooks implementations
 ├── lifecycle/          # Orchestrator and monitoring lifecycle
-├── plugin/             # Go plugin loader (.so → strategy.Strategy)
 ├── monitoring/         # Unix-socket HTTP monitoring server
 ├── activity/           # Cross-domain activity aggregation
-├── config/             # Config loading (viper-backed)
-├── runtime/            # TimeProvider and runtime utilities
+├── config/             # Settings + strategy config (~/.wisp/connectors.yml)
+├── runtime/            # StartStandalone + Wait
 ├── adapters/           # Logging adapters (zap)
 └── modules.go          # Root fx.Module — wires all packages together
 ```
@@ -237,17 +236,18 @@ Wire connectors + `wisp.Module` with fx, call `runtime.StartStandalone(strategy,
 
 ```go
 // after fx.Start and strategy construction
-if err := startupService.StartStandalone(strat, "./", "../../wisp.yml"); err != nil {
+// empty wispPath → ~/.wisp/connectors.yml (set keys via: wisp → Settings)
+if err := rt.StartStandalone(strat, ".", ""); err != nil {
     log.Fatal(err)
 }
-if err := startupService.Wait(); err != nil {
+if err := rt.Wait(); err != nil {
     log.Fatal(err)
 }
 ```
 
-### Plugin loading (legacy)
+**Credentials:** global `~/.wisp/connectors.yml` (CLI Settings). Strategy `config.yml` lists exchanges/assets only — never secrets.
 
-`runtime.Start` still loads Go plugins (`.so`) via `pkg/plugin/manager.go` for older CLI paths. **Do not use plugins for new strategies** — they are unsupported for new work and may be removed. Prefer a normal `main` + `StartStandalone` + `Wait`.
+Plugin / `.so` strategy packaging is **not supported** for product use.
 
 ---
 
