@@ -18,16 +18,15 @@ type StartupConfig struct {
 	// connector types are known.
 	Assets map[connector.ExchangeName][]portfolio.Pair
 
-	// PluginPath is the path to the .so file (for plugin mode)
-	PluginPath string
-
 	// StrategyDir is the directory containing the strategy
 	StrategyDir string
 }
 
 // StartupConfigLoader loads all configuration needed to run a strategy
 type StartupConfigLoader interface {
-	// LoadForStrategy loads strategy config, connector configs, and asset configs
-	// strategyDir: path to the strategy directory containing config.yml
-	LoadForStrategy(strategyDir string, wispPath string) (*StartupConfig, error)
+	// LoadForStrategy loads strategy config.yml + global connector credentials.
+	// strategyDir: directory containing config.yml
+	// settingsPath: optional explicit path; empty uses ResolveSettingsPath
+	// (~/.wisp/connectors.yml, else project-local migration).
+	LoadForStrategy(strategyDir string, settingsPath string) (*StartupConfig, error)
 }

@@ -32,20 +32,21 @@ func NewStartupConfigLoader(
 	}
 }
 
-// LoadForStrategy loads ALL configuration needed to run a strategy
+// LoadForStrategy loads ALL configuration needed to run a strategy.
+// settingsPath may be empty — resolved to ~/.wisp/connectors.yml (or migration paths).
 func (l *startupConfigLoader) LoadForStrategy(
 	strategyDir string,
-	wispPath string,
+	settingsPath string,
 ) (*config.StartupConfig, error) {
-	// Load wisp settings first (this sets the path for connector service)
-	_, err := l.configuration.LoadSettings(wispPath)
+	resolved := config.ResolveSettingsPath(settingsPath)
+	_, err := l.configuration.LoadSettings(resolved)
 	if err != nil {
-		return nil, fmt.Errorf("failed to load wisp settings: %w", err)
+		return nil, fmt.Errorf("failed to load connector settings: %w", err)
 	}
 
-	l.logger.Info("Loaded wisp settings", "path", wispPath)
+	l.logger.Info("Loaded connector settings", "path", resolved)
 
-	// Load strategy config
+	// Load strategy config (per-strategy; no secrets)
 	configPath := filepath.Join(strategyDir, "config.yml")
 	stratConfig, err := l.strategySvc.Load(configPath)
 	if err != nil {
@@ -54,7 +55,6 @@ func (l *startupConfigLoader) LoadForStrategy(
 
 	l.logger.Info("Loaded strategy config", "name", stratConfig.Name, "exchanges", stratConfig.Exchanges)
 
-	// Get connector configs (now using the loaded settings)
 	connectorConfigs, err := l.connectorSvc.GetConnectorConfigsForStrategy(stratConfig.Exchanges)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get connector configs: %w", err)
@@ -62,20 +62,13 @@ func (l *startupConfigLoader) LoadForStrategy(
 
 	l.logger.Info("Loaded connector configs", "count", len(connectorConfigs))
 
-	// Convert assets to instruments
 	assetConfigs := l.convertAssets(stratConfig)
-
 	l.logger.Info("Loaded asset configs", "count", len(assetConfigs))
-
-	// Build plugin path
-	strategyName := filepath.Base(strategyDir)
-	pluginPath := filepath.Join(strategyDir, strategyName+".so")
 
 	return &config.StartupConfig{
 		Strategy:         stratConfig,
 		ConnectorConfigs: connectorConfigs,
 		Assets:           assetConfigs,
-		PluginPath:       pluginPath,
 		StrategyDir:      strategyDir,
 	}, nil
 }
