@@ -5,6 +5,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/options/activity"
 	"github.com/wisp-trading/sdk/pkg/markets/options/analytics"
 	"github.com/wisp-trading/sdk/pkg/markets/options/executor"
+	"github.com/wisp-trading/sdk/pkg/markets/options/facade"
 	"github.com/wisp-trading/sdk/pkg/markets/options/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/options/ingestor/realtime"
 	"github.com/wisp-trading/sdk/pkg/markets/options/store"
@@ -17,6 +18,7 @@ import (
 
 var Module = fx.Module("options",
 	fx.Provide(
+		facade.NewOptions,
 		store.NewStore,
 		views.NewView,
 		executor.NewExecutor,

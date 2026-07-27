@@ -4,6 +4,7 @@ import (
 	baseIngestor "github.com/wisp-trading/sdk/pkg/markets/base/ingestor"
 	spotActivity "github.com/wisp-trading/sdk/pkg/markets/spot/activity"
 	"github.com/wisp-trading/sdk/pkg/markets/spot/executor"
+	"github.com/wisp-trading/sdk/pkg/markets/spot/facade"
 	"github.com/wisp-trading/sdk/pkg/markets/spot/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/spot/ingestor/realtime"
 	"github.com/wisp-trading/sdk/pkg/markets/spot/store"
@@ -17,6 +18,7 @@ import (
 var Module = fx.Module("spot",
 	fx.Provide(
 		store.NewStore,
+		facade.NewSpot,
 		views.NewSpotViews,
 		executor.NewExecutor,
 		NewSpotWatchlist,

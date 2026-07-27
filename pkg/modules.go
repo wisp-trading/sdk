@@ -20,6 +20,20 @@ import (
 
 // Module is the full SDK fx graph.
 // Strategy packaging is standalone only: main + StartStandalone + Wait.
+//
+// Market shell (clone this to add a market):
+//
+//	pkg/markets/<domain>/
+//	  module.go      — fx Module; Provide facade.New*, lifecycle, stores, ingestors
+//	  facade/        — strategy-facing context (wisp.Spot / Perp / …)
+//	  types/         — interfaces
+//	  signal/        — builders
+//	  executor/      — place orders for domain signals
+//	  store/         — domain state (+ base/store/extensions)
+//	  ingestor/      — batch + realtime
+//	  activity/ views/ … as needed
+//
+// Then add <domain>.Module here and register connectors in the connectors repo.
 var Module = fx.Options(
 	activity.Module,
 	adapters.Module,

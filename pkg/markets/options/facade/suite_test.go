@@ -1,4 +1,4 @@
-package options_test
+package facade_test
 
 import (
 	"testing"

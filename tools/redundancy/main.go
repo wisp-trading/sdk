@@ -264,14 +264,20 @@ func structuralFindings(root string) []string {
 		}
 	}
 	checkFile("pkg/testing/module.go", "pkg/testing only re-exports wisp.Module (ok for tests; optional later)")
-	// Nested facades — known market-shell tax (next pattern pass)
+	// Regression: old same-name facade dirs must not return
 	for _, m := range []string{"spot", "perp", "options"} {
 		if st, err := os.Stat(filepath.Join(root, "pkg/markets", m, m)); err == nil && st.IsDir() {
-			hits = append(hits, fmt.Sprintf("pkg/markets/%s/%s — nested same-name facade (clone tax)", m, m))
+			hits = append(hits, fmt.Sprintf("pkg/markets/%s/%s — old same-name facade returned (use facade/)", m, m))
 		}
 	}
 	if st, err := os.Stat(filepath.Join(root, "pkg/markets/prediction/predict")); err == nil && st.IsDir() {
-		hits = append(hits, "pkg/markets/prediction/predict — facade name differs from spot/perp/options")
+		hits = append(hits, "pkg/markets/prediction/predict — old predict/ returned (use facade/)")
+	}
+	// Standard shell: every market should have facade/
+	for _, m := range []string{"spot", "perp", "options", "prediction"} {
+		if _, err := os.Stat(filepath.Join(root, "pkg/markets", m, "facade")); err != nil {
+			hits = append(hits, fmt.Sprintf("pkg/markets/%s/facade — missing (standard shell)", m))
+		}
 	}
 
 	sort.Strings(hits)

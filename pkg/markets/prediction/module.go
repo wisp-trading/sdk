@@ -4,6 +4,7 @@ import (
 	baseIngestor "github.com/wisp-trading/sdk/pkg/markets/base/ingestor"
 	predActivity "github.com/wisp-trading/sdk/pkg/markets/prediction/activity"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/executor"
+	"github.com/wisp-trading/sdk/pkg/markets/prediction/facade"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/ingestor/realtime"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction/signal"
@@ -17,6 +18,7 @@ import (
 
 var Module = fx.Module("prediction",
 	fx.Provide(
+		facade.NewPredict,
 		store.NewStore,
 		signal.NewFactory,
 		views.NewPredictionViews,

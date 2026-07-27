@@ -1,4 +1,6 @@
-package perp
+// Package facade is the domain context injected into strategies (wisp.Spot/Perp/…).
+// Layout: markets/<domain>/facade — same shell for every market.
+package facade
 
 import (
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"

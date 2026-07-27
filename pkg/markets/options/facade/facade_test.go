@@ -1,4 +1,4 @@
-package options_test
+package facade_test
 
 import (
 	"time"
@@ -11,7 +11,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/markets/base/types/stores/market"
 	optionsWatchlistPkg "github.com/wisp-trading/sdk/pkg/markets/options"
 	"github.com/wisp-trading/sdk/pkg/markets/options/activity"
-	optionsService "github.com/wisp-trading/sdk/pkg/markets/options/options"
+	optionsService "github.com/wisp-trading/sdk/pkg/markets/options/facade"
 	optionsStore "github.com/wisp-trading/sdk/pkg/markets/options/store"
 	optionsTypes "github.com/wisp-trading/sdk/pkg/markets/options/types"
 	timeProvider "github.com/wisp-trading/sdk/pkg/runtime/time"

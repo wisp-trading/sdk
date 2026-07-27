@@ -4,6 +4,7 @@ import (
 	baseIngestor "github.com/wisp-trading/sdk/pkg/markets/base/ingestor"
 	perpActivity "github.com/wisp-trading/sdk/pkg/markets/perp/activity"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/executor"
+	"github.com/wisp-trading/sdk/pkg/markets/perp/facade"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/ingestor/batch"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/ingestor/realtime"
 	"github.com/wisp-trading/sdk/pkg/markets/perp/store"
@@ -16,6 +17,7 @@ import (
 
 var Module = fx.Module("perp",
 	fx.Provide(
+		facade.NewPerp,
 		store.NewStore,
 		views.NewPerpViews,
 		executor.NewExecutor,
