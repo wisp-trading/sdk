@@ -7,6 +7,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/config"
 	"github.com/wisp-trading/sdk/pkg/executor"
 	"github.com/wisp-trading/sdk/pkg/lifecycle"
+	"github.com/wisp-trading/sdk/pkg/markets/onchain"
 	"github.com/wisp-trading/sdk/pkg/markets/options"
 	"github.com/wisp-trading/sdk/pkg/markets/perp"
 	"github.com/wisp-trading/sdk/pkg/markets/prediction"
@@ -48,5 +49,6 @@ var Module = fx.Options(
 	perp.Module,
 	spot.Module,
 	options.Module,
+	onchain.Module,
 	price_feeds.Module,
 )

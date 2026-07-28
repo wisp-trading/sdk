@@ -4,6 +4,7 @@ import (
 	optionsconnector "github.com/wisp-trading/sdk/pkg/types/connector/options"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	onchainconnector "github.com/wisp-trading/sdk/pkg/types/connector/onchain"
 	"github.com/wisp-trading/sdk/pkg/types/connector/perp"
 	"github.com/wisp-trading/sdk/pkg/types/connector/spot"
 )
@@ -14,6 +15,7 @@ type ConnectorRegistry interface {
 	RegisterPerp(name connector.ExchangeName, conn perp.Connector)
 	RegisterPrediction(name connector.ExchangeName, conn predictionconnector.Connector)
 	RegisterOptions(name connector.ExchangeName, conn optionsconnector.Connector)
+	RegisterOnchain(name connector.ExchangeName, conn onchainconnector.Connector)
 
 	Connector(name connector.ExchangeName) (connector.Connector, bool)
 
@@ -25,6 +27,7 @@ type ConnectorRegistry interface {
 	Perp(name connector.ExchangeName) (perp.Connector, bool)
 	Prediction(name connector.ExchangeName) (predictionconnector.Connector, bool)
 	Options(name connector.ExchangeName) (optionsconnector.Connector, bool)
+	Onchain(name connector.ExchangeName) (onchainconnector.Connector, bool)
 
 	// Filter-based queries
 	Filter(opts FilterOptions) []connector.Connector
@@ -34,6 +37,7 @@ type ConnectorRegistry interface {
 	FilterPerp(opts FilterOptions) []perp.Connector
 	FilterPrediction(opts FilterOptions) []predictionconnector.Connector
 	FilterOptions(opts FilterOptions) []optionsconnector.Connector
+	FilterOnchain(opts FilterOptions) []onchainconnector.Connector
 
 	// WebSocket helpers
 	SpotWebSocket(name connector.ExchangeName) (spot.WebSocketConnector, bool)

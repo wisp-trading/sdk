@@ -6,6 +6,7 @@ import (
 
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	onchainconnector "github.com/wisp-trading/sdk/pkg/types/connector/onchain"
 	optionsconnector "github.com/wisp-trading/sdk/pkg/types/connector/options"
 	"github.com/wisp-trading/sdk/pkg/types/connector/perp"
 	"github.com/wisp-trading/sdk/pkg/types/connector/spot"
@@ -62,17 +63,20 @@ func (s *stubReg) RegisterSpot(connector.ExchangeName, spot.Connector)          
 func (s *stubReg) RegisterPerp(connector.ExchangeName, perp.Connector)                               {}
 func (s *stubReg) RegisterPrediction(connector.ExchangeName, predictionconnector.Connector)          {}
 func (s *stubReg) RegisterOptions(connector.ExchangeName, optionsconnector.Connector)                {}
+func (s *stubReg) RegisterOnchain(connector.ExchangeName, onchainconnector.Connector)                {}
 func (s *stubReg) Connector(name connector.ExchangeName) (connector.Connector, bool)                 { return s.conn, true }
 func (s *stubReg) ConnectorType(connector.ExchangeName) (connector.MarketType, bool)                 { return connector.MarketTypePerp, true }
 func (s *stubReg) Spot(connector.ExchangeName) (spot.Connector, bool)                                { return nil, false }
 func (s *stubReg) Perp(connector.ExchangeName) (perp.Connector, bool)                                { return nil, false }
 func (s *stubReg) Prediction(connector.ExchangeName) (predictionconnector.Connector, bool)           { return nil, false }
 func (s *stubReg) Options(connector.ExchangeName) (optionsconnector.Connector, bool)                 { return nil, false }
+func (s *stubReg) Onchain(connector.ExchangeName) (onchainconnector.Connector, bool)                 { return nil, false }
 func (s *stubReg) Filter(registry.FilterOptions) []connector.Connector                               { return nil }
 func (s *stubReg) FilterSpot(registry.FilterOptions) []spot.Connector                                { return nil }
 func (s *stubReg) FilterPerp(registry.FilterOptions) []perp.Connector                                { return nil }
 func (s *stubReg) FilterPrediction(registry.FilterOptions) []predictionconnector.Connector           { return nil }
 func (s *stubReg) FilterOptions(registry.FilterOptions) []optionsconnector.Connector                 { return nil }
+func (s *stubReg) FilterOnchain(registry.FilterOptions) []onchainconnector.Connector                 { return nil }
 func (s *stubReg) SpotWebSocket(connector.ExchangeName) (spot.WebSocketConnector, bool)               { return nil, false }
 func (s *stubReg) PerpWebSocket(connector.ExchangeName) (perp.WebSocketConnector, bool)               { return nil, false }
 func (s *stubReg) PredictionWebSocket(connector.ExchangeName) (predictionconnector.WebSocketConnector, bool) {

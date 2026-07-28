@@ -8,6 +8,7 @@ import (
 	optionsconnector "github.com/wisp-trading/sdk/pkg/types/connector/options"
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	onchainconnector "github.com/wisp-trading/sdk/pkg/types/connector/onchain"
 	"github.com/wisp-trading/sdk/pkg/types/connector/perp"
 	"github.com/wisp-trading/sdk/pkg/types/connector/spot"
 	"github.com/wisp-trading/sdk/pkg/types/registry"
@@ -69,6 +70,16 @@ func (cr *connectorRegistry) RegisterOptions(name connector.ExchangeName, conn o
 	cr.connectors[name] = &connectorState{
 		connector:     conn,
 		connectorType: connector.MarketTypeOptions,
+		ready:         false,
+	}
+}
+
+func (cr *connectorRegistry) RegisterOnchain(name connector.ExchangeName, conn onchainconnector.Connector) {
+	cr.mu.Lock()
+	defer cr.mu.Unlock()
+	cr.connectors[name] = &connectorState{
+		connector:     conn,
+		connectorType: connector.MarketTypeOnchain,
 		ready:         false,
 	}
 }
@@ -153,6 +164,21 @@ func (cr *connectorRegistry) Options(name connector.ExchangeName) (optionsconnec
 
 	if optConn, ok := state.connector.(optionsconnector.Connector); ok {
 		return optConn, true
+	}
+	return nil, false
+}
+
+func (cr *connectorRegistry) Onchain(name connector.ExchangeName) (onchainconnector.Connector, bool) {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	state, exists := cr.connectors[name]
+	if !exists || state.connectorType != connector.MarketTypeOnchain {
+		return nil, false
+	}
+
+	if oc, ok := state.connector.(onchainconnector.Connector); ok {
+		return oc, true
 	}
 	return nil, false
 }
@@ -294,6 +320,24 @@ func (cr *connectorRegistry) FilterOptions(opts registry.FilterOptions) []option
 	return results
 }
 
+func (cr *connectorRegistry) FilterOnchain(opts registry.FilterOptions) []onchainconnector.Connector {
+	cr.mu.RLock()
+	defer cr.mu.RUnlock()
+
+	var results []onchainconnector.Connector
+	for _, state := range cr.connectors {
+		if state.connectorType != connector.MarketTypeOnchain {
+			continue
+		}
+		if cr.matchesFilter(state, opts, connector.MarketTypeOnchain) {
+			if oc, ok := state.connector.(onchainconnector.Connector); ok {
+				results = append(results, oc)
+			}
+		}
+	}
+	return results
+}
+
 // ===== Filter Helper =====
 
 func (cr *connectorRegistry) matchesFilter(state *connectorState, opts registry.FilterOptions, marketType connector.MarketType) bool {
@@ -317,6 +361,9 @@ func (cr *connectorRegistry) matchesFilter(state *connectorState, opts registry.
 		case connector.MarketTypeOptions:
 			_, ok := state.connector.(optionsconnector.WebSocketConnector)
 			return ok
+		case connector.MarketTypeOnchain:
+			// Pilot UniV3 has no websocket market data.
+			return false
 		default:
 			// For generic queries, check any websocket interface
 			_, spotWS := state.connector.(spot.WebSocketConnector)

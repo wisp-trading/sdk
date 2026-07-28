@@ -1,6 +1,7 @@
 package wisp
 
 import (
+	onchainTypes "github.com/wisp-trading/sdk/pkg/markets/onchain/types"
 	optionsTypes "github.com/wisp-trading/sdk/pkg/markets/options/types"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
@@ -50,6 +51,11 @@ type Wisp interface {
 	// Options returns the options market domain context.
 	// Example: sig, _ := wisp.Options().Signal(name)...Build(); wisp.Options().Emit(sig)
 	Options() optionsTypes.Options
+
+	// Onchain returns the on-chain AMM domain context (e.g. UniV3).
+	// Buy quantity = quote spent; Sell quantity = base sold (exact-in).
+	// Example: sig, _ := wisp.Onchain().Signal(name).Buy(...).Build(); wisp.Onchain().Emit(sig)
+	Onchain() onchainTypes.Onchain
 
 	// PriceFeeds returns the price feeds service for accessing external price data.
 	// Strategies use this to query price feeds from sources like Pyth, Chainlink, etc.

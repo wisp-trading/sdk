@@ -1,6 +1,7 @@
 package wisp
 
 import (
+	onchainTypes "github.com/wisp-trading/sdk/pkg/markets/onchain/types"
 	optionsTypes "github.com/wisp-trading/sdk/pkg/markets/options/types"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
@@ -14,7 +15,7 @@ import (
 )
 
 // wisp is the SDK context object injected into strategies.
-// Order placement is only via market domains: Spot/Perp/Predict/Options.Emit.
+// Order placement is only via market domains: Spot/Perp/Predict/Options/Onchain.Emit.
 type wisp struct {
 	tradingLogger logging.TradingLogger
 	indicators    analytics.Indicators
@@ -24,6 +25,7 @@ type wisp struct {
 	predict       predTypes.Predict
 	spotService   spotTypes.Spot
 	options       optionsTypes.Options
+	onchain       onchainTypes.Onchain
 	priceFeeds    types.PriceFeeds
 }
 
@@ -37,6 +39,7 @@ func NewWisp(
 	predictService predTypes.Predict,
 	spotService spotTypes.Spot,
 	optionsService optionsTypes.Options,
+	onchainService onchainTypes.Onchain,
 	priceFeeds types.PriceFeeds,
 ) wispTypes.Wisp {
 	return &wisp{
@@ -48,6 +51,7 @@ func NewWisp(
 		predict:       predictService,
 		spotService:   spotService,
 		options:       optionsService,
+		onchain:       onchainService,
 		priceFeeds:    priceFeeds,
 	}
 }
@@ -60,6 +64,7 @@ func (k *wisp) Perp() perpTypes.Perp             { return k.perp }
 func (k *wisp) Predict() predTypes.Predict       { return k.predict }
 func (k *wisp) Spot() spotTypes.Spot             { return k.spotService }
 func (k *wisp) Options() optionsTypes.Options    { return k.options }
+func (k *wisp) Onchain() onchainTypes.Onchain    { return k.onchain }
 func (k *wisp) PriceFeeds() types.PriceFeeds     { return k.priceFeeds }
 
 func (k *wisp) Pair(base, quote portfolio.Asset) portfolio.Pair {

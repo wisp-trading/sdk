@@ -8,6 +8,7 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	connector0 "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	"github.com/wisp-trading/sdk/pkg/types/connector/onchain"
 	"github.com/wisp-trading/sdk/pkg/types/connector/options"
 	"github.com/wisp-trading/sdk/pkg/types/connector/perp"
 	"github.com/wisp-trading/sdk/pkg/types/connector/spot"
@@ -1208,4 +1209,41 @@ func (_c *ConnectorRegistry_SpotWebSocket_Call) Return(webSocketConnector spot.W
 func (_c *ConnectorRegistry_SpotWebSocket_Call) RunAndReturn(run func(name connector.ExchangeName) (spot.WebSocketConnector, bool)) *ConnectorRegistry_SpotWebSocket_Call {
 	_c.Call.Return(run)
 	return _c
+}
+
+// --- onchain domain (hand-patched until mockery regenerate) ---
+
+func (_mock *ConnectorRegistry) RegisterOnchain(name connector.ExchangeName, conn onchain.Connector) {
+	_mock.Called(name, conn)
+}
+
+func (_mock *ConnectorRegistry) Onchain(name connector.ExchangeName) (onchain.Connector, bool) {
+	ret := _mock.Called(name)
+	if len(ret) == 0 {
+		panic("no return value specified for Onchain")
+	}
+	var r0 onchain.Connector
+	var r1 bool
+	if returnFunc, ok := ret.Get(0).(func(connector.ExchangeName) (onchain.Connector, bool)); ok {
+		return returnFunc(name)
+	}
+	if ret.Get(0) != nil {
+		r0 = ret.Get(0).(onchain.Connector)
+	}
+	r1 = ret.Bool(1)
+	return r0, r1
+}
+
+func (_mock *ConnectorRegistry) FilterOnchain(opts registry.FilterOptions) []onchain.Connector {
+	ret := _mock.Called(opts)
+	if len(ret) == 0 {
+		panic("no return value specified for FilterOnchain")
+	}
+	var r0 []onchain.Connector
+	if returnFunc, ok := ret.Get(0).(func(registry.FilterOptions) []onchain.Connector); ok {
+		r0 = returnFunc(opts)
+	} else if ret.Get(0) != nil {
+		r0 = ret.Get(0).([]onchain.Connector)
+	}
+	return r0
 }

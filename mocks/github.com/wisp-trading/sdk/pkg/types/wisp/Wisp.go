@@ -6,6 +6,7 @@ package wisp
 
 import (
 	mock "github.com/stretchr/testify/mock"
+	onchainTypes "github.com/wisp-trading/sdk/pkg/markets/onchain/types"
 	"github.com/wisp-trading/sdk/pkg/markets/options/types"
 	types0 "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	types1 "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
@@ -562,6 +563,52 @@ func (_c *Wisp_Spot_Call) Return(spot types3.Spot) *Wisp_Spot_Call {
 }
 
 func (_c *Wisp_Spot_Call) RunAndReturn(run func() types3.Spot) *Wisp_Spot_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Onchain provides a mock function for the type Wisp
+func (_mock *Wisp) Onchain() onchainTypes.Onchain {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Onchain")
+	}
+
+	var r0 onchainTypes.Onchain
+	if returnFunc, ok := ret.Get(0).(func() onchainTypes.Onchain); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(onchainTypes.Onchain)
+		}
+	}
+	return r0
+}
+
+// Wisp_Onchain_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Onchain'
+type Wisp_Onchain_Call struct {
+	*mock.Call
+}
+
+// Onchain is a helper method to define mock.On call
+func (_e *Wisp_Expecter) Onchain() *Wisp_Onchain_Call {
+	return &Wisp_Onchain_Call{Call: _e.mock.On("Onchain")}
+}
+
+func (_c *Wisp_Onchain_Call) Run(run func()) *Wisp_Onchain_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Wisp_Onchain_Call) Return(oc onchainTypes.Onchain) *Wisp_Onchain_Call {
+	_c.Call.Return(oc)
+	return _c
+}
+
+func (_c *Wisp_Onchain_Call) RunAndReturn(run func() onchainTypes.Onchain) *Wisp_Onchain_Call {
 	_c.Call.Return(run)
 	return _c
 }

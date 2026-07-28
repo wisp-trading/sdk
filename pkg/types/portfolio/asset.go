@@ -49,9 +49,10 @@ func (a *Asset) Scan(value interface{}) error {
 }
 
 // IsValid checks if the asset has a valid symbol.
-// A valid symbol must be between 1 and 20 characters in length.
+// Length allows short tickers (BTC) and EVM contract addresses (0x + 40 hex = 42).
 func (a Asset) IsValid() bool {
-	return len(a.symbol) > 0 && len(a.symbol) <= 20
+	n := len(a.symbol)
+	return n > 0 && n <= 66
 }
 
 // Equals checks if this asset is equal to another asset by comparing their symbols.

@@ -3,6 +3,7 @@ package executor
 import (
 	"fmt"
 
+	onchainTypes "github.com/wisp-trading/sdk/pkg/markets/onchain/types"
 	optionsTypes "github.com/wisp-trading/sdk/pkg/markets/options/types"
 	perpTypes "github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	predTypes "github.com/wisp-trading/sdk/pkg/markets/prediction/types"
@@ -16,14 +17,15 @@ import (
 
 // executor routes signals to domain-specific executors.
 type executor struct {
-	logger          logging.ApplicationLogger
-	timeProvider    temporal.TimeProvider
-	hookRegistry    registry.Hooks
-	execRecords     execution.ExecutionRecords
-	spotExecutor    spotTypes.SignalExecutor
-	perpExecutor    perpTypes.SignalExecutor
-	predExecutor    predTypes.SignalExecutor
-	optionsExecutor optionsTypes.SignalExecutor
+	logger           logging.ApplicationLogger
+	timeProvider     temporal.TimeProvider
+	hookRegistry     registry.Hooks
+	execRecords      execution.ExecutionRecords
+	spotExecutor     spotTypes.SignalExecutor
+	perpExecutor     perpTypes.SignalExecutor
+	predExecutor     predTypes.SignalExecutor
+	optionsExecutor  optionsTypes.SignalExecutor
+	onchainExecutor  onchainTypes.SignalExecutor
 }
 
 // NewExecutor creates a new default executor
@@ -36,6 +38,7 @@ func NewExecutor(
 	perpExecutor perpTypes.SignalExecutor,
 	predExecutor predTypes.SignalExecutor,
 	optionsExecutor optionsTypes.SignalExecutor,
+	onchainExecutor onchainTypes.SignalExecutor,
 ) execution.Executor {
 	logger.Info("Initializing executor")
 	return &executor{
@@ -47,6 +50,7 @@ func NewExecutor(
 		perpExecutor:    perpExecutor,
 		predExecutor:    predExecutor,
 		optionsExecutor: optionsExecutor,
+		onchainExecutor: onchainExecutor,
 	}
 }
 
@@ -97,6 +101,8 @@ func (e *executor) ExecuteSignalWithResult(signal strategy.Signal) (execution.Ex
 		execErr = e.predExecutor.ExecutePredictionSignal(s, ctx, &result)
 	case optionsTypes.OptionsSignal:
 		execErr = e.optionsExecutor.ExecuteOptionsSignal(s, ctx, &result)
+	case onchainTypes.OnchainSignal:
+		execErr = e.onchainExecutor.ExecuteOnchainSignal(s, ctx, &result)
 	default:
 		execErr = fmt.Errorf("unsupported signal type: %T", signal)
 	}

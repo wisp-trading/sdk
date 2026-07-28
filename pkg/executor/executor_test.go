@@ -14,6 +14,7 @@ import (
 	"github.com/wisp-trading/sdk/pkg/types/execution"
 	"github.com/wisp-trading/sdk/pkg/types/strategy"
 
+	mockOnchain "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/markets/onchain/types"
 	mockOptions "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/markets/options/types"
 	mockPerp "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/markets/perp/types"
 	mockPred "github.com/wisp-trading/sdk/mocks/github.com/wisp-trading/sdk/pkg/markets/prediction/types"
@@ -35,6 +36,7 @@ var _ = Describe("Executor", func() {
 		perpExec     *mockPerp.SignalExecutor
 		predExec     *mockPred.SignalExecutor
 		optionsExec  *mockOptions.SignalExecutor
+		onchainExec  *mockOnchain.SignalExecutor
 		exec         execution.Executor
 		signal       *mockSpot.SpotSignal
 		now          time.Time
@@ -49,6 +51,7 @@ var _ = Describe("Executor", func() {
 		perpExec = mockPerp.NewSignalExecutor(GinkgoT())
 		predExec = mockPred.NewSignalExecutor(GinkgoT())
 		optionsExec = mockOptions.NewSignalExecutor(GinkgoT())
+		onchainExec = mockOnchain.NewSignalExecutor(GinkgoT())
 
 		now = time.Now()
 		timeProvider.EXPECT().Now().Return(now).Maybe()
@@ -59,7 +62,7 @@ var _ = Describe("Executor", func() {
 
 		exec = executor.NewExecutor(
 			logger, timeProvider, hookRegistry, execRecords,
-			spotExec, perpExec, predExec, optionsExec,
+			spotExec, perpExec, predExec, optionsExec, onchainExec,
 		)
 
 		signal = mockSpot.NewSpotSignal(GinkgoT())
