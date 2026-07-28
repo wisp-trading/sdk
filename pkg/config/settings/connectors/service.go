@@ -127,10 +127,14 @@ func (c *connectorService) MapToSDKConfig(userConnector config.Connector) (conne
 		}
 	}
 
-	// Add network-related fields if present
+	// Add network-related fields if present.
+	// Connectors use different JSON flags (use_testnet vs is_testnet); set both
+	// so network: testnet actually reaches Bybit-style configs as well as HL/Gate.
 	if userConnector.Network != "" {
+		isTest := userConnector.Network == "testnet"
 		configData["network"] = userConnector.Network
-		configData["use_testnet"] = userConnector.Network == "testnet"
+		configData["use_testnet"] = isTest
+		configData["is_testnet"] = isTest
 	}
 
 	// Marshal to JSON and unmarshal into the SDK config type
