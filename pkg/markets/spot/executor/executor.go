@@ -78,7 +78,8 @@ func (e *executor) executeAction(action *spotTypes.SpotAction) (string, error) {
 		action.Price.StringFixed(2), action.Exchange,
 	)
 
-	return e.PlaceLimitAndRecord(
+	// Zero price = market order (SDK convention). Non-zero = limit.
+	return e.PlaceOrderAndRecord(
 		e.store,
 		action.Exchange,
 		action.Pair,

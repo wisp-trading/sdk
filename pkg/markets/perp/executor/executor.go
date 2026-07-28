@@ -93,7 +93,8 @@ func (e *executor) executeAction(action *perpTypes.PerpAction) (string, error) {
 		}
 	}
 
-	return e.PlaceLimitAndRecord(
+	// Zero price = market order (SDK convention). Non-zero = limit.
+	return e.PlaceOrderAndRecord(
 		e.store,
 		action.Exchange,
 		action.Pair,

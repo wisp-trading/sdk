@@ -8,6 +8,7 @@ import (
 	predictionconnector "github.com/wisp-trading/sdk/pkg/markets/prediction/types/connector"
 	spotTypes "github.com/wisp-trading/sdk/pkg/markets/spot/types"
 	"github.com/wisp-trading/sdk/pkg/types/connector"
+	perpConn "github.com/wisp-trading/sdk/pkg/types/connector/perp"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/health"
 	"github.com/wisp-trading/sdk/pkg/types/monitoring/profiling"
@@ -81,9 +82,42 @@ func (r *viewRegistry) GetPnLView() *monitoring.PnLView {
 	}
 }
 
-// todo need to rework cli flow
+// GetPositionsView returns orders/trades for the monitor Positions tab.
+// Live inventory is attached as trades-adjacent payload via GetRecentTrades +
+// open positions encoded in the StrategyExecution trades list is incomplete —
+// we fill Trades and leave Orders empty when the store has no order book surface
+// on the activity path. Open sizes are listed via status fields from the strategy.
 func (r *viewRegistry) GetPositionsView() *strategy.StrategyExecution {
-	return nil
+	trades := r.wisp.Perp().Trades()
+	// Encode open positions as synthetic zero-price "orders" side tags so the
+	// JSON is non-empty for ops UI (full position struct is under trades meta).
+	// Prefer explicit positions field by wrapping in handler-friendly shape:
+	return &strategy.StrategyExecution{
+		Orders: openPositionsAsOrders(r.wisp.Perp().Positions()),
+		Trades: trades,
+	}
+}
+
+func openPositionsAsOrders(positions []perpConn.Position) []connector.Order {
+	if len(positions) == 0 {
+		return nil
+	}
+	out := make([]connector.Order, 0, len(positions))
+	for _, p := range positions {
+		side := connector.OrderSideBuy
+		if string(p.Side) == "SELL" || string(p.Side) == "sell" {
+			side = connector.OrderSideSell
+		}
+		out = append(out, connector.Order{
+			Pair:     p.Pair,
+			ID:       "pos:" + p.Pair.Symbol(),
+			Side:     side,
+			Quantity: p.Size,
+			Status:   connector.OrderStatusFilled,
+			Type:     connector.OrderTypeMarket,
+		})
+	}
+	return out
 }
 
 // GetOrderbook delegates to the correct domain views based on exchange type.
@@ -120,9 +154,12 @@ func (r *viewRegistry) GetKlines(exchange connector.ExchangeName, pair portfolio
 	}
 }
 
-// / todo need to rework cli flow
 func (r *viewRegistry) GetRecentTrades(limit int) []connector.Trade {
-	return nil
+	trades := r.wisp.Perp().Trades()
+	if limit <= 0 || len(trades) <= limit {
+		return trades
+	}
+	return trades[len(trades)-limit:]
 }
 
 func (r *viewRegistry) GetMetrics() *monitoring.StrategyMetrics {

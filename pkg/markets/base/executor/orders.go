@@ -77,7 +77,61 @@ func (b *Base) PlaceLimitAndRecord(
 		UpdatedAt: now,
 	})
 
-	b.Logger.Info("%s order placed: %s (pair: %s, side: %s)",
+	b.Logger.Info("%s limit order placed: %s (pair: %s, side: %s)",
 		domain, resp.OrderID, pair.Symbol(), side)
 	return resp.OrderID, nil
+}
+
+// PlaceMarketAndRecord places a market order and records it on the store.
+// domain is used only for log/error messages ("spot", "perp", …).
+func (b *Base) PlaceMarketAndRecord(
+	store OrderBook,
+	exchange connector.ExchangeName,
+	pair portfolio.Pair,
+	side connector.OrderSide,
+	quantity numerical.Decimal,
+	domain string,
+) (string, error) {
+	exec, err := b.GetOrderExecutor(exchange)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := exec.PlaceMarketOrder(pair, side, quantity)
+	if err != nil {
+		return "", fmt.Errorf("failed to place %s market order on %s: %w", domain, exchange, err)
+	}
+
+	now := b.TimeProvider.Now()
+	store.AddOrder(connector.Order{
+		Pair:      pair,
+		ID:        resp.OrderID,
+		Side:      side,
+		Quantity:  quantity,
+		Price:     numerical.Zero(),
+		Status:    connector.OrderStatusPending,
+		Type:      connector.OrderTypeMarket,
+		CreatedAt: now,
+		UpdatedAt: now,
+	})
+
+	b.Logger.Info("%s market order placed: %s (pair: %s, side: %s)",
+		domain, resp.OrderID, pair.Symbol(), side)
+	return resp.OrderID, nil
+}
+
+// PlaceOrderAndRecord places a market order when price is zero, else a limit order.
+// Zero price is the SDK convention for market (see base/types pair_action).
+func (b *Base) PlaceOrderAndRecord(
+	store OrderBook,
+	exchange connector.ExchangeName,
+	pair portfolio.Pair,
+	side connector.OrderSide,
+	quantity, price numerical.Decimal,
+	domain string,
+) (string, error) {
+	if price.IsZero() {
+		return b.PlaceMarketAndRecord(store, exchange, pair, side, quantity, domain)
+	}
+	return b.PlaceLimitAndRecord(store, exchange, pair, side, quantity, price, domain)
 }
